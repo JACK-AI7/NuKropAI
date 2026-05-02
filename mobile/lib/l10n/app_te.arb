@@ -1,0 +1,18 @@
+{
+  "@@locale": "te",
+  "appTitle": "క్రాప్ ఏఐ",
+  "scanButton": "పంట లేదా మట్టిని స్కాన్ చేయండి",
+  "weatherTitle": "వాతావరణం",
+  "myFields": "నా పొలాలు",
+  "soilAnalysis": "మట్టి విశ్లేషణ",
+  "treatmentInstructions": "చికిత్స సూచనలు",
+  "fertilizerRecommendation": "ఎరువుల సిఫార్సు",
+  "pesticideSuggestion": "పురుగుమందుల సూచన",
+  "severityLevel": "తీవ్రత స్థాయి",
+  "confidence": "నమ్మకం",
+  "backToDashboard": "డ్యాష్‌బోర్డ్‌కు తిరిగి వెళ్లండి",
+  "farmInsights": "వ్యవసాయ అంతర్దృష్టులు",
+  "npkStatus": "మట్టి పోషకాల స్థితి (NPK)",
+  "diseaseTrends": "వ్యాధి తీవ్రత పోకడలు",
+  "indianFertilizerDosage": "భారతీయ ఎరువుల మోతాదు"
+}

@@ -1,0 +1,18 @@
+{
+  "@@locale": "kn",
+  "appTitle": "ಕ್ರಾಪ್ ಏಐ",
+  "scanButton": "ಬೆಳೆ ಅಥವಾ ಮಣ್ಣನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ",
+  "weatherTitle": "ಹವಾಮಾನ",
+  "myFields": "ನನ್ನ ಹೊಲಗಳು",
+  "soilAnalysis": "ಮಣ್ಣಿನ ವಿಶ್ಲೇಷಣೆ",
+  "treatmentInstructions": "ಚಿಕಿತ್ಸೆಯ ಸೂಚನೆಗಳು",
+  "fertilizerRecommendation": "ಗೊಬ್ಬರದ ಶಿಫಾರಸು",
+  "pesticideSuggestion": "ಕೀಟನಾಶಕ ಸಲಹೆಗಳು",
+  "severityLevel": "ತೀವ್ರತೆಯ ಮಟ್ಟ",
+  "confidence": "ನಂಬಿಕೆ",
+  "backToDashboard": "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ",
+  "farmInsights": "ಕೃಷಿ ಒಳನೋಟಗಳು",
+  "npkStatus": "ಮಣ್ಣಿನ ಪೋಷಕಾಂಶಗಳ ಸ್ಥಿತಿ (NPK)",
+  "diseaseTrends": "ರೋಗದ ತೀವ್ರತೆಯ ಪ್ರವೃತ್ತಿಗಳು",
+  "indianFertilizerDosage": "ಭಾರತೀಯ ಗೊಬ್ಬರದ ಪ್ರಮಾಣ"
+}

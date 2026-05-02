@@ -1,0 +1,284 @@
+{
+  "crops": {
+    "rice": {
+      "name": "Rice",
+      "diseases": {
+        "Rice_Blast": {
+          "name": "Rice Blast (Konkan)",
+          "treatment": "Apply balanced N-P-K. Maintain shallow water. Avoid excessive nitrogen. Use resistant varieties like IR36, Jaya, or KR-62.",
+          "fertilizer": "Urea: 40kg/acre (3 split doses), DAP: 60kg/acre, MOP: 20kg/acre. Apply Zinc Sulphate 10kg/acre.",
+          "pesticide": "Tricyclazole 75% WP (0.6g/L) OR Carbendazim 50% WP (1g/L) OR Isoprothiolane 13% SL (2ml/L). Spray at tillering and panicl initiation stages.",
+          "npk": [30, 40, 20]
+        },
+        "Rice_Bacterial_Blight": {
+          "name": "Bacterial Leaf Blight",
+          "treatment": "Use disease-free seeds. Maintain field sanitation. Avoid wounds during transplanting. Apply copper-based sprays.",
+          "fertilizer": "Reduce nitrogen by 25%. Apply Potassium 30kg/acre to boost immunity.",
+          "pesticide": "Copper Oxychloride 50% WP (2.5g/L) OR Streptocycline 17% SP (1g/L) + Copper Oxychloride. Spray at first disease appearance.",
+          "npk": [20, 30, 40]
+        },
+        "Rice_Tungro": {
+          "name": "Tungro Virus",
+          "treatment": "No cure once infected. Uproot and destroy infected plants. Control green leafhopper vectors with insecticides.",
+          "fertilizer": "Maintain healthy soil with organic matter. Avoid excessive nitrogen.",
+          "pesticide": "Imidacloprid 17.8% SL (0.3ml/L) OR Thiamethoxam 25% WG (0.2g/L) to control leafhoppers. Spray every 10 days.",
+          "npk": [20, 30, 20]
+        },
+        "Healthy": {
+          "name": "Healthy Rice",
+          "treatment": "Maintain regular scouting. Keep field weed-free. Ensure proper water management.",
+          "fertilizer": "Continue balanced NPK based on soil test. Apply organic manures.",
+          "pesticide": "No pesticide needed.",
+          "npk": [20, 20, 20]
+        }
+      }
+    },
+    "wheat": {
+      "name": "Wheat",
+      "diseases": {
+        "Wheat_Rust": {
+          "name": "Stem Rust / Leaf Rust",
+          "treatment": "Early sowing with rust-resistant varieties (HD 2189, PBW 343). Remove volunteer wheat. Ensure proper spacing for air circulation.",
+          "fertilizer": "Urea: 55kg/acre (split: 1/3 at sowing, 2/3 at tillering), DAP: 50kg/acre, MOP: 20kg/acre.",
+          "pesticide": "Propiconazole 25% EC (1ml/L) OR Tebuconazole 40% FS (seed treatment) OR Triademinol 25% EC. Spray at ear emergence.",
+          "npk": [120, 60, 40]
+        },
+        "Wheat_Leaf_Spot": {
+          "name": "Brown Rust / Yellow Rust",
+          "treatment": "Use disease-free seeds. Rotate crops with non-cereals. Apply gypsum to improve soil structure.",
+          "fertilizer": "Reduce nitrogen by 20%. Increase potassium by 10kg/acre.",
+          "pesticide": "Bitertanol 25% WP (1g/L) OR Hexaconazole 5% SC (1ml/L). Two sprays at 10-day interval.",
+          "npk": [80, 50, 40]
+        },
+        "Healthy": {
+          "name": "Healthy Wheat",
+          "treatment": "Maintain field hygiene. Monitor for aphids and rust. Timely irrigation and weeding.",
+          "fertilizer": "Urea: 50kg/acre, SSP: 50kg/acre, MOP: 25kg/acre.",
+          "pesticide": "None required.",
+          "npk": [120, 60, 40]
+        }
+      }
+    },
+    "cotton": {
+      "name": "Cotton",
+      "diseases": {
+        "Cotton_Bollworm": {
+          "name": "Bollworm (Helicoverpa)",
+          "treatment": "Early planting (April-May). Install pheromone traps. Maintain field sanitation. Use bio-control agents like Trichogramma.",
+          "fertilizer": "Urea: 60kg/acre (split), DAP: 80kg/acre, MOP: 40kg/acre. Apply Boron 0.5kg/acre.",
+          "pesticide": "Chlorpyrifos 20% EC (2ml/L) OR Profenofos 50% EC (1.5ml/L) OR Spinosad 48% SC (0.5ml/L). Spray on egg laying stage.",
+          "npk": [100, 60, 60]
+        },
+        "Cotton_Leaf_Curl": {
+          "name": "Leaf Curl Virus (CLCuV)",
+          "treatment": "Uproot and bury infected plants completely. Control whitefly vectors. Use resistant hybrids like RCH 2, NCS 2457.",
+          "fertilizer": "Avoid excessive nitrogen. Apply more potash (50kg/acre).",
+          "pesticide": "Imidacloprid 17.8% SL (0.3ml/L) OR Acetamiprid 20% SP (0.2g/L) for whitefly control. Spray every 7-10 days.",
+          "npk": [80, 40, 80]
+        },
+        "Cotton_Root_Rot": {
+          "name": "Root Rot / Wilt",
+          "treatment": "Solarize soil before sowing. Use well-drained soils. Apply Trichoderma viride (bio-agent).",
+          "fertilizer": "Apply compost/well-rotted FYM 5ton/acre. Reduce nitrogen.",
+          "pesticide": "Carbendazim 50% WP (2g/L) as soil drench. Apply Pseudomonas fluorescence.",
+          "npk": [60, 80, 40]
+        },
+        "Healthy": {
+          "name": "Healthy Cotton",
+          "treatment": "Regular scouting. Maintain proper plant spacing. Timely harrowing and weeding.",
+          "fertilizer": "NPK 19:19:19 @ 100kg/acre at square formation stage.",
+          "pesticide": "Preventive neem oil spray (5ml/L).",
+          "npk": [100, 60, 60]
+        }
+      }
+    },
+    "maize": {
+      "name": "Maize (Corn)",
+      "diseases": {
+        "Maize_Leaf": {
+          "name": "Leaf Blight / Belted Leaf",
+          "treatment": "Rotate with legumes. Remove infected debris. Use hybrid seeds with disease resistance.",
+          "fertilizer": "Urea: 80kg/acre, DAP: 100kg/acre, MOP: 40kg/acre. Apply Zinc Sulphate 5kg/acre.",
+          "pesticide": "Mancozeb 75% WP (2g/L) OR Metalaxyl 8% + Mancozeb 64% WP (2g/L). Spray at 4-6 leaf stage.",
+          "npk": [120, 80, 40]
+        },
+        "Maize_Stem_Borer": {
+          "name": "Stem Borer",
+          "treatment": "Summer ploughing. Apply FYM/compost. Set up light traps. Release Trichogramma.",
+          "fertilizer": "Apply NPK 19:19:19 at 4-6 leaf stage as top dressing.",
+          "pesticide": "Carbofuran 3% CG (20kg/acre) as soil application OR Chlorpyrifos 20% EC (2ml/L) as stem application.",
+          "npk": [100, 60, 40]
+        },
+        "Healthy": {
+          "name": "Healthy Maize",
+          "treatment": "Maintain recommended plant population (18,000-22,000/acre). Timely weed control.",
+          "fertilizer": "Urea: 80kg/acre, DAP: 100kg/acre at sowing. Top dress urea at 30 DAS.",
+          "pesticide": "No spray needed.",
+          "npk": [120, 80, 40]
+        }
+      }
+    },
+    "potato": {
+      "name": "Potato",
+      "diseases": {
+        "Potato_Early_Blight": {
+          "name": "Early Blight",
+          "treatment": "Use certified seeds. Ensure good drainage. Rotate with non-solanaceous crops.",
+          "fertilizer": "Urea: 50kg/acre, DAP: 125kg/acre, MOP: 60kg/acre. Apply calcium to prevent hollow heart.",
+          "pesticide": "Mancozeb 75% WP (2.5g/L) OR Chlorothalonil 75% WP (2g/L). Spray every 7-10 days.",
+          "npk": [80, 100, 80]
+        },
+        "Potato_Late_Blight": {
+          "name": "Late Blight (Ireland's Famine)",
+          "treatment": "Destroy volunteer potatoes. Use resistant varieties (Kufri Jyoti, Kufri Bahar). Plant in well-drained ridges.",
+          "fertilizer": "Avoid excessive nitrogen. Apply potash 80kg/acre to increase resistance.",
+          "pesticide": "Metalaxyl 8% + Mancozeb 64% WP (2g/L) OR Cymoxanil 20% SC (1ml/L). Spray protectively before disease onset.",
+          "npk": [60, 80, 120]
+        },
+        "Healthy": {
+          "name": "Healthy Potato",
+          "treatment": "Hill up soil regularly. Mulch to conserve moisture. Monitor for aphids and beetles.",
+          "fertilizer": "NPK 20:40:40 at planting. Top-dress with urea at 30 and 60 DAP.",
+          "pesticide": "No pesticide needed.",
+          "npk": [80, 100, 80]
+        }
+      }
+    },
+    "tomato": {
+      "name": "Tomato",
+      "diseases": {
+        "Tomato_Yellow_Leaf_Curl": {
+          "name": "Yellow Leaf Curl Virus (TYLCV)",
+          "treatment": "Grow resistant varieties (Arka Abha, Arka Ananya). Use reflective mulch. Uproot infected plants. Control whitefly vectors.",
+          "fertilizer": "Reduce nitrogen by 30%. Increase potash to 50kg/acre. Apply boron spray (0.2%).",
+          "pesticide": "Imidacloprid 17.8% SL (0.3ml/L) OR Thiamethoxam 25% WG. Spray every 5-7 days to control whitefly.",
+          "npk": [80, 60, 60]
+        },
+        "Tomato_Early_Blight": {
+          "name": "Early Blight (Target Spot)",
+          "treatment": "Mulch with black plastic. Remove lower leaves. Ensure good air circulation.",
+          "fertilizer": "Apply calcium nitrate to prevent blossom end rot. Avoid water stress.",
+          "pesticide": "Mancozeb 75% WP (2.5g/L) OR Chlorothalonil 75% WP (2g/L). Rotate with systemic fungicides.",
+          "npk": [80, 60, 60]
+        },
+        "Tomato_Late_Blight": {
+          "name": "Late Blight",
+          "treatment": "Plant in well-drained soil. Stake plants for air circulation. Remove infected leaves immediately.",
+          "fertilizer": "Balanced NPK without excess nitrogen. Apply silicon if available.",
+          "pesticide": "Metalaxyl 8% + Mancozeb 64% WP (2g/L) OR Systemic acid (0.5ml/L). Spray preventively in humid weather.",
+          "npk": [80, 60, 60]
+        },
+        "Tomato_Fruit_Borer": {
+          "name": "Fruit Borer (Helicoverpa)",
+          "treatment": "Install pheromone traps. Handpick infected fruits. Maintain Field sanitation.",
+          "fertilizer": "NPK 19:19:19 @ 100kg/acre during fruiting.",
+          "pesticide": "Emamectin Benzoate 5% SG (0.5ml/L) OR Indoxacarb 15.8% EC (1ml/L). Spray at fruit setting stage.",
+          "npk": [80, 50, 50]
+        },
+        "Healthy": {
+          "name": "Healthy Tomato",
+          "treatment": "Regular monitoring. Support plants with stakes. Mulch to suppress weeds.",
+          "fertilizer": "NPK 12:24:12 at planting. Follow with NPK 19:19:19 at flowering.",
+          "pesticide": "Neem oil 5ml/L as preventive spray.",
+          "npk": [80, 60, 60]
+        }
+      }
+    },
+    "groundnut": {
+      "name": "Groundnut (Peanut)",
+      "diseases": {
+        "Groundnut_Leaf_Spot": {
+          "name": "Leaf Spot (Cercospora)",
+          "treatment": "Crop rotation with cereals. Use disease-free seeds. Burn crop residues after harvest.",
+          "fertilizer": "Urea: 25kg/acre, SSP: 100kg/acre, MOP: 40kg/acre. Apply Gypsum 200kg/acre at flowering.",
+          "pesticide": "Carbendazim 12% + Mancozeb 63% WP (2g/L) OR Copper Oxychloride 50% WP (2.5g/L).",
+          "npk": [30, 40, 40]
+        },
+        "Groundnut_Rust": {
+          "name": "Groundnut Rust",
+          "treatment": "Early sowing (June). Use rust-resistant varieties (TMV 2, TMV 37).",
+          "fertilizer": "Apply more potash (50kg/acre). Reduce nitrogen to 20kg/acre.",
+          "pesticide": "Propiconazole 25% EC (1ml/L) OR Hexaconazole 5% SC. Two sprays at 15-day interval.",
+          "npk": [30, 30, 60]
+        },
+        "Healthy": {
+          "name": "Healthy Groundnut",
+          "treatment": "Maintain proper plant spacing. Irrigate at pod development stage. Use gypsum for pod filling.",
+          "fertilizer": "SSP: 125kg/acre, MOP: 40kg/acre, Urea: 25kg/acre. Apply Gypsum 200kg/acre.",
+          "pesticide": "No pesticide needed.",
+          "npk": [30, 40, 40]
+        }
+      }
+    },
+    "sugarcane": {
+      "name": "Sugarcane",
+      "diseases": {
+        "Sugarcane_Red_Rot": {
+          "name": "Red Rot",
+          "treatment": "Use disease-free setts. Hot water treatment (52°C for 30 min). Drain excess water. Apply lime to soil.",
+          "fertilizer": "Urea: 150kg/acre, DAP: 100kg/acre, MOP: 60kg/acre. Apply Neem cake or castor cake.",
+          "pesticide": "Carbendazim 50% WP (0.5%) as setts dip. Apply Pseudomonas fluorescence @ 10g/kg soil.",
+          "npk": [180, 80, 100]
+        },
+        "Sugarcane_Grasshopper": {
+          "name": "Grasshopper / Locust",
+          "treatment": "Deep summer ploughing. Remove weeds from bunds. Use bait sprays.",
+          "fertilizer": "Maintain healthy growth with adequate nitrogen.",
+          "pesticide": "Chlorpyrifos 20% EC (2ml/L) OR Malathion 50% EC (2ml/L). Spray in early morning.",
+          "npk": [200, 60, 40]
+        },
+        "Healthy": {
+          "name": "Healthy Sugarcane",
+          "treatment": "Setts treatment before planting. Maintain proper plant population. Intercrop with legumes.",
+          "fertilizer": "Urea: 150kg/acre in split doses, DAP: 100kg/acre, MOP: 60kg/acre.",
+          "pesticide": "No pesticide needed.",
+          "npk": [200, 80, 60]
+        }
+      }
+    }
+  },
+  "soil": {
+    "Alluvial": {
+      "health": "Very fertile, high in potash and phosphorus. Good water holding capacity. Found in Ganga-Brahmaputra plains.",
+      "crops": ["Rice", "Wheat", "Sugarcane", "Maize", "Pulses", "Oilseeds", "Vegetables"],
+      "nutrients": "Requires moderate nitrogen. Apply Urea 50kg/acre, DAP 50kg/acre. Add organic manure yearly.",
+      "npk": [40, 30, 30]
+    },
+    "Black": {
+      "health": "Clayey, high moisture retention. Rich in calcium carbonate but poor in organic matter. Found in Deccan plateau (Maharashtra, Gujarat).",
+      "crops": ["Cotton", "Soybean", "Groundnut", "Pulses", "Sorghum"],
+      "nutrients": "Add Nitrogen heavily. Apply Urea 60kg/acre, SSP 40kg/acre. Use green manuring (Dhaincha).",
+      "npk": [60, 20, 30]
+    },
+    "Red": {
+      "health": "Low fertility, acidic, porous. Deficient in nitrogen, phosphorus, and organic matter. Found in Tamil Nadu, Andhra Pradesh, Karnataka.",
+      "crops": ["Millets", "Pulses", "Oilseeds", "Tobacco", "Potato"],
+      "nutrients": "Apply large quantities of organic compost. Use green manures (Pillipesara, Daincha). Add lime to reduce acidity. Apply NPK 20:20:20.",
+      "npk": [60, 40, 20]
+    },
+    "Laterite": {
+      "health": "Rich in iron and aluminum oxides. Acidic, low fertility. Found in Western Ghats, parts of Odisha, Chhattisgarh.",
+      "crops": ["Cashew", "Coconut", "Arecanut", "Tapioca", "Rubber"],
+      "nutrients": "Apply lime 1ton/acre. Use acid-tolerant crops. Add organic manure extensively.",
+      "npk": [40, 20, 40]
+    },
+    "Desert": {
+      "health": "Sandy, low water holding capacity, high pH. Found in Rajasthan, Gujarat, Haryana.",
+      "crops": ["Bajra", "Mungbean", "Mustard", "Cumin", "Dates"],
+      "nutrients": "Add organic matter to improve soil structure. Apply fertilizers in small splits. Use gypsum to reduce sodicity.",
+      "npk": [30, 20, 20]
+    },
+    "Mountain": {
+      "health": "Shallow, acidic, high organic matter in top layer. Found in Himachal Pradesh, Uttarakhand, NE states.",
+      "crops": ["Apple", "Peach", "Plum", "Potatoes", "Capsicum", "Tomato"],
+      "nutrients": "Apply phosphate fertilizers (SSP, DAP) as they get fixed in acidic soil. Use lime to raise pH if needed.",
+      "npk": [40, 60, 20]
+    },
+    "Marshy": {
+      "health": "Waterlogged, anaerobic, high salinity. Found in Sundarbans, coastal wetlands.",
+      "crops": ["Rice", "Jute", "Sugarcane", "Coconut", "Betelvine"],
+      "nutrients": "Use water-tolerant varieties. Apply nitrogen as top-dressing after drainage. Add organic matter.",
+      "npk": [40, 20, 20]
+    }
+  }
+}

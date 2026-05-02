@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  scans     Scan[]
+  chats     Chat[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Scan {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  imageUrl      String
+  plantName     String
+  diseaseName   String
+  severity      String   // low, medium, high
+  confidence    Float
+  treatment     String
+  fertilizer    String?
+  pesticide     String?
+  soilType      String?
+  soilHealth    String?
+  isSoilAnalysis Boolean  @default(false)
+  latitude      Float?
+  longitude     Float?
+  weather       String?  // JSON: {temp, humidity, windSpeed, weatherCode}
+  createdAt     DateTime @default(now())
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  response  String
+  createdAt DateTime @default(now())
+}

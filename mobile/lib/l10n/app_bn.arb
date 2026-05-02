@@ -1,0 +1,18 @@
+{
+  "@@locale": "bn",
+  "appTitle": "ক্রপএআই",
+  "scanButton": "শস্য বা মাটি স্ক্যান করুন",
+  "weatherTitle": "আবহাওয়া",
+  "myFields": "আমার খামার",
+  "soilAnalysis": "মাটি বিশ্লেষণ",
+  "treatmentInstructions": "চিকিৎসা নির্দেশাবলী",
+  "fertilizerRecommendation": "সার সুপারিশ",
+  "pesticideSuggestion": "কীটনাশক পরামর্শ",
+  "severityLevel": "তীব্রতার মাত্রা",
+  "confidence": "আত্মবিশ্বাস",
+  "backToDashboard": "ড্যাশবোর্ডে ফিরে যান",
+  "farmInsights": "খামার অন্তর্দৃষ্টি",
+  "npkStatus": "মাটির পুষ্টির অবস্থা (NPK)",
+  "diseaseTrends": "রোগের তীব্রতার প্রবণতা",
+  "indianFertilizerDosage": "ভারতীয় সারের মাত্রা"
+}

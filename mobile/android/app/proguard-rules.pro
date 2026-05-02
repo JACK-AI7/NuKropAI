@@ -1,0 +1,3 @@
+-keep class org.tensorflow.lite.** { *; }
+-keep class sq.flutter.tflite.** { *; }
+-dontwarn org.tensorflow.lite.**

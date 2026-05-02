@@ -1,0 +1,18 @@
+{
+  "@@locale": "ta",
+  "appTitle": "க்ராப்ஏஐ",
+  "scanButton": "பயிர் அல்லது மண்ணை ஸ்கேன் செய்யவும்",
+  "weatherTitle": "வானிலை",
+  "myFields": "என் வயல்கள்",
+  "soilAnalysis": "மண் பகுப்பாய்வு",
+  "treatmentInstructions": "சிகிச்சை வழிமுறைகள்",
+  "fertilizerRecommendation": "உர பரிந்துரை",
+  "pesticideSuggestion": "பூச்சிக்கொல்லி ஆலோசனைகள்",
+  "severityLevel": "தீவிர நிலை",
+  "confidence": "நம்பிக்கை",
+  "backToDashboard": "டாஷ்போர்டுக்கு திரும்பு",
+  "farmInsights": "பண்ணை நுண்ணறிவு",
+  "npkStatus": "மண் ஊட்டச்சத்து நிலை (NPK)",
+  "diseaseTrends": "நோய் தீவிர போக்குகள்",
+  "indianFertilizerDosage": "இந்திய உர அளவு"
+}

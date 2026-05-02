@@ -1,0 +1,18 @@
+{
+  "@@locale": "hi",
+  "appTitle": "क्रॉपएआई",
+  "scanButton": "फसल या मिट्टी को स्कैन करें",
+  "weatherTitle": "मौसम",
+  "myFields": "मेरे खेत",
+  "soilAnalysis": "मिट्टी विश्लेषण",
+  "treatmentInstructions": "उपचार निर्देश",
+  "fertilizerRecommendation": "उर्वरक सिफारिश",
+  "pesticideSuggestion": "कीटनाशक सुझाव",
+  "severityLevel": "गंभीरता स्तर",
+  "confidence": "आत्मविश्वास",
+  "backToDashboard": "डैशबोर्ड पर वापस जाएं",
+  "farmInsights": "फार्म अंतर्दृष्टि",
+  "npkStatus": "मिट्टी पोषक तत्व स्थिति (NPK)",
+  "diseaseTrends": "रोग गंभीरता रुझान",
+  "indianFertilizerDosage": "भारतीय उर्वरक खुराक"
+}

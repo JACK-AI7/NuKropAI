@@ -1,0 +1,18 @@
+{
+  "@@locale": "en",
+  "appTitle": "NuKropAi",
+  "scanButton": "SCAN CROP OR SOIL",
+  "weatherTitle": "Weather",
+  "myFields": "My Fields",
+  "soilAnalysis": "Soil Analysis",
+  "treatmentInstructions": "Treatment Instructions",
+  "fertilizerRecommendation": "Fertilizer Recommendation",
+  "pesticideSuggestion": "Pesticide Suggestion",
+  "severityLevel": "Severity Level",
+  "confidence": "Confidence",
+  "backToDashboard": "BACK TO DASHBOARD",
+  "farmInsights": "Farm Insights",
+  "npkStatus": "Soil Nutrient Status (NPK)",
+  "diseaseTrends": "Disease Severity Trends",
+  "indianFertilizerDosage": "Indian Fertilizer Dosage"
+}

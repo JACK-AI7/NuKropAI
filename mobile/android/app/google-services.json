@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "451623428043",
+    "firebase_url": "https://sigma-gateway-477509-a4.firebaseio.com",
+    "project_id": "sigma-gateway-477509-a4",
+    "storage_bucket": "sigma-gateway-477509-a4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451623428043:android:38a30c00cc839dcc63a04e",
+        "android_client_info": {
+          "package_name": "com.smartfarm.nukropai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "451623428043-9n8dio17mlh0apa4ojlo7p0eqocmbqs4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUk0O_lf1wCThB1Ez8j7khqoEOIvTuBow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

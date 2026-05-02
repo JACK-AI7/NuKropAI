@@ -1,0 +1,6 @@
+Healthy
+Tomato_Early_Blight
+Potato_Late_Blight
+Sandy
+Clay
+Loamy

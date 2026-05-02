@@ -1,0 +1,18 @@
+{
+  "@@locale": "mr",
+  "appTitle": "क्रॉपएआय",
+  "scanButton": "पीक किंवा माती स्कॅन करा",
+  "weatherTitle": "हवामान",
+  "myFields": "माझी शेते",
+  "soilAnalysis": "मातीचे विश्लेषण",
+  "treatmentInstructions": "उपचार सूचना",
+  "fertilizerRecommendation": "खतांची शिफारस",
+  "pesticideSuggestion": "कीटकनाशक सल्ला",
+  "severityLevel": "गंभीरता पातळी",
+  "confidence": "विश्वास",
+  "backToDashboard": "डॅशबोर्डवर परत जा",
+  "farmInsights": "शेतीविषयक माहिती",
+  "npkStatus": "माती पोषक तत्व स्थिती (NPK)",
+  "diseaseTrends": "रोग गंभीरता कल",
+  "indianFertilizerDosage": "भारतीय खत डोस"
+}
