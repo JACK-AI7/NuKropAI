@@ -259,6 +259,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
                         ),
                       ),
                     if (aiWarning != null) const SizedBox(height: 20),
+                    if (aiSource == 'database') ...[
+                      _buildRetryCard(context),
+                      const SizedBox(height: 24),
+                    ],
                     _buildHeader(context, isSoil),
                     const SizedBox(height: 32),
                     _buildSeveritySection(context, isSoil),
@@ -325,7 +329,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isSoil ? 'Soil Analysis' : 'Diagnosis',
+          isSoil ? 'SOIL HEALTH SCAN' : 'AI PESTIDE SCAN',
           style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold, letterSpacing: 1),
         ),
         const SizedBox(height: 8),
@@ -580,6 +584,47 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
+  Widget _buildSourceBadge(dynamic source) {
+    String text = 'DATABASE';
+    Color color = Colors.blueGrey;
+    IconData icon = Icons.storage_rounded;
+
+    if (source == 'mistral') {
+      text = 'MISTRAL CLOUD AI';
+      color = Colors.purple;
+      icon = Icons.cloud_done_rounded;
+    } else if (source == 'ollama') {
+      text = 'LOCAL OLLAMA AI';
+      color = Colors.orange;
+      icon = Icons.computer_rounded;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 10,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInsightCard(BuildContext context, String title, String value, IconData icon, Color color) {
     return FadeInUp(
       child: Container(
@@ -676,6 +721,56 @@ class _ResultsScreenState extends State<ResultsScreen> {
           backDrawRodData: BackgroundBarChartRodData(show: true, toY: 100, color: AppColors.background),
         ),
       ],
+    );
+  }
+
+  Widget _buildRetryCard(BuildContext context) {
+    return FadeInDown(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.purple.shade50,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.purple.shade200),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.auto_awesome_rounded, color: Colors.purple, size: 24),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'AI analysis was skipped or failed. This result is from our local database.',
+                    style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  // This would require re-uploading or having the backend re-analyze the stored image
+                  // For now, we guide the user to scan again with better lighting/connection
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please try scanning again with better lighting or check your internet connection for AI.')),
+                  );
+                },
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('RETRY WITH AI SCAN'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.purple,
+                  side: const BorderSide(color: Colors.purple),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

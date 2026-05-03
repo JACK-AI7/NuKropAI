@@ -265,8 +265,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       crossAxisSpacing: 16,
       childAspectRatio: 1.1,
       children: [
-        _glassCard(l10n.scanCrop, Icons.camera_rounded, AppColors.accent, () => _openScanner(context, false)),
-        _glassCard(l10n.soilAnalysis, Icons.landslide_rounded, Colors.orangeAccent, () => _openScanner(context, true)),
+        _glassCard('PestideScan\n(Plant)', Icons.camera_rounded, AppColors.accent, () => _openScanner(context, false)),
+        _glassCard('Soil Health\nScan', Icons.landslide_rounded, Colors.orangeAccent, () => _openScanner(context, true)),
         _glassCard(l10n.recommendations, Icons.auto_awesome_rounded, Colors.purpleAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecommendationsScreen()))),
         _glassCard(l10n.history, Icons.history_rounded, Colors.blueGrey, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen()))),
       ],
@@ -313,7 +313,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 24),
             const SizedBox(width: 12),
-            Text(l10n.scanButton, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            const Text('AI PESTIDESCAN', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           ],
         ),
       ),
