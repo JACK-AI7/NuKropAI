@@ -28,6 +28,7 @@ model Scan {
   imageUrl      String
   plantName     String
   diseaseName   String
+  cause         String?
   severity      String   // low, medium, high
   confidence    Float
   treatment     String

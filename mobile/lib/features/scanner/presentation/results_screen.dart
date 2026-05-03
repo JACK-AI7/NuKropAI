@@ -5,6 +5,8 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/config/constants.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // Helper to get weather icon from code (all constants for tree-shaking)
 IconData getWeatherIcon(int? code) {
@@ -261,6 +263,16 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     const SizedBox(height: 32),
                     _buildSeveritySection(context, isSoil),
                     const SizedBox(height: 28),
+                    if (scan['cause'] != null && scan['cause'].toString().isNotEmpty) ...[
+                      _buildInsightCard(
+                        context,
+                        'CAUSE / PATHOGEN',
+                        scan['cause'].toString(),
+                        Icons.bug_report_outlined,
+                        Colors.deepOrange,
+                      ),
+                      const SizedBox(height: 18),
+                    ],
                     _buildInsightCard(
                       context,
                       isSoil ? 'SOIL HEALTH' : 'TREATMENT',
@@ -417,65 +429,141 @@ class _ResultsScreenState extends State<ResultsScreen> {
             else
               ...(pr['suggestions'] as List).map<Widget>((e) {
                 final m = Map<String, dynamic>.from(e as Map);
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  elevation: 0,
-                  color: AppColors.background,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
+                final buyUrl = m['purchaseUrl']?.toString();
+                final prodImg = m['imageUrl']?.toString();
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          m['productName']?.toString() ?? 'Product',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        if (prodImg != null && prodImg.isNotEmpty)
+                          SizedBox(
+                            height: 180,
+                            width: double.infinity,
+                            child: CachedNetworkImage(
+                              imageUrl: prodImg,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                color: AppColors.background,
+                                child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: AppColors.background,
+                                child: const Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.textSecondary),
+                              ),
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      m['productName']?.toString() ?? 'Product',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: -0.5),
+                                    ),
+                                  ),
+                                  if (m['productType'] != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primary.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        m['productType'].toString(),
+                                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              if (m['activeIngredient'] != null && m['activeIngredient'].toString().isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    'Active: ${m['activeIngredient']}',
+                                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              const SizedBox(height: 12),
+                              Text(
+                                m['whyItFits']?.toString() ?? '',
+                                style: const TextStyle(fontSize: 14, height: 1.5, color: AppColors.textDark),
+                              ),
+                              const SizedBox(height: 16),
+                              if (m['applicationTip'] != null)
+                                _buildMiniInfo(Icons.info_outline, 'Tip: ${m['applicationTip']}', Colors.blueGrey),
+                              if (m['regionalAvailability'] != null)
+                                _buildMiniInfo(Icons.location_on_outlined, 'Availability: ${m['regionalAvailability']}', Colors.teal),
+                              
+                              if (buyUrl != null && buyUrl.isNotEmpty) ...[
+                                const SizedBox(height: 20),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      final uri = Uri.parse(buyUrl);
+                                      if (await canLaunchUrl(uri)) {
+                                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                      }
+                                    },
+                                    icon: const Icon(Icons.shopping_cart_outlined, size: 18, color: Colors.white),
+                                    label: const Text('VIEW PRODUCT', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1, color: Colors.white)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                      elevation: 0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
-                        if (m['productType'] != null && m['productType'].toString().isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              m['productType'].toString(),
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        if (m['activeIngredient'] != null && m['activeIngredient'].toString().isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text('Active: ${m['activeIngredient']}', style: const TextStyle(fontSize: 13, height: 1.4)),
-                          ),
-                        if (m['whyItFits'] != null && m['whyItFits'].toString().isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(m['whyItFits'].toString(), style: const TextStyle(fontSize: 13, height: 1.45)),
-                          ),
-                        if (m['applicationTip'] != null && m['applicationTip'].toString().isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text('Application: ${m['applicationTip']}', style: TextStyle(fontSize: 13, height: 1.45, color: Colors.blueGrey.shade800)),
-                          ),
-                        if (m['safetyNote'] != null && m['safetyNote'].toString().isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              'Safety: ${m['safetyNote']}',
-                              style: TextStyle(fontSize: 12, height: 1.45, color: Colors.deepOrange.shade800),
-                            ),
-                          ),
-                        if (m['regionalAvailability'] != null && m['regionalAvailability'].toString().isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              'In your region: ${m['regionalAvailability']}',
-                              style: TextStyle(fontSize: 12, height: 1.45, color: Colors.teal.shade900, fontWeight: FontWeight.w600),
-                            ),
-                          ),
                       ],
                     ),
                   ),
                 );
               }),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniInfo(IconData icon, String text, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 12, color: color.withOpacity(0.9), height: 1.4),
+            ),
+          ),
         ],
       ),
     );

@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './lib/prisma';
 
 import authRoutes from './routes/auth.routes';
 import scanRoutes from './routes/scan.routes';
@@ -14,7 +14,7 @@ import aiRoutes from './routes/ai.routes';
 
 dotenv.config();
 
-const prisma = new PrismaClient();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -49,4 +49,4 @@ app.listen(PORT as number, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });
 
-export { prisma };
+

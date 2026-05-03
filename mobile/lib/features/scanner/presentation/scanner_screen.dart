@@ -140,7 +140,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                       ),
                       const Spacer(),
                       Text(
-                        widget.isSoil ? 'SOIL SCANNER' : 'LEAF SCANNER',
+                        widget.isSoil ? 'SOIL SCANNER' : 'PLANT SCANNER',
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2),
                       ),
                       const Spacer(),
@@ -183,7 +183,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   child: Column(
                     children: [
                       Text(
-                        _isProcessing ? 'Analyzing with AI...' : 'Align plant inside the frame',
+                        _isProcessing ? 'Analyzing with AI...' : 'Align plant or fruit inside the frame',
                         style: const TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 24),

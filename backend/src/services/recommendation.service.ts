@@ -9,10 +9,14 @@ function normalizeKey(s: string): string {
 }
 
 export class RecommendationService {
+  private static cachedData: any = null;
+
   private static getData() {
+    if (this.cachedData) return this.cachedData;
     try {
       const filePath = path.join(process.cwd(), 'data', 'crops.json');
-      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      this.cachedData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return this.cachedData;
     } catch (e) {
       console.error('Error reading crops data:', e);
       return { crops: {}, soil: {} };

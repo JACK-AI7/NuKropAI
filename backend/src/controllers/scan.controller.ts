@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { prisma } from '../index';
+import { prisma } from '../lib/prisma';
 import { RecommendationService } from '../services/recommendation.service';
 import { AIService, WeatherContext, ProductResearchOk } from '../services/ai.service';
 import { WeatherService } from '../services/weather.service';
@@ -13,9 +13,9 @@ export class ScanController {
 
       if (!file) return res.status(400).json({ error: 'No image uploaded' });
 
-      const lat = parseFloat(latitude || req.body.lat);
-      const lng = parseFloat(longitude || req.body.lng);
-      const isSoil = isSoilAnalysis === 'true';
+      const lat = parseFloat(latitude ?? req.body.lat);
+      const lng = parseFloat(longitude ?? req.body.lng);
+      const isSoil = isSoilAnalysis === 'true' || isSoilAnalysis === true;
 
       let weatherSnapshot: Record<string, unknown> | undefined;
       const weatherForAi: WeatherContext = {};
@@ -160,6 +160,7 @@ export class ScanController {
           imageUrl: `/uploads/${file.filename}`,
           plantName,
           diseaseName,
+          cause: analysis?.cause || null,
           severity,
           confidence: confidence ? parseFloat(confidence) : conf,
           treatment,

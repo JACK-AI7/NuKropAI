@@ -63,6 +63,7 @@ dependencies:
   tflite_flutter: ^0.11.0
   # HTTP client for recommendations
   http: ^1.2.0
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
