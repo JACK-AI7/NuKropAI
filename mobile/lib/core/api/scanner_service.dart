@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,18 @@ class ScannerService {
 
     final lat = position.latitude;
     final lng = position.longitude;
+    
+    String locationName = '${lat.toStringAsFixed(2)}°N, ${lng.toStringAsFixed(2)}°E';
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+      if (placemarks.isNotEmpty) {
+        final place = placemarks.first;
+        locationName = '${place.locality ?? place.subAdministrativeArea ?? ''}, ${place.administrativeArea ?? ''}';
+      }
+    } catch (e) {
+      debugPrint('Geocoding error: $e');
+    }
+
     final apiClient = ApiClient();
     final response = await apiClient.get('/weather', queryParameters: {'lat': lat, 'lng': lng});
     final data = response.data as Map<String, dynamic>;
@@ -39,7 +52,7 @@ class ScannerService {
     return {
       'temp': data['temp'],
       'condition': getWeatherCondition(data['weatherCode']),
-      'location': '${lat.toStringAsFixed(2)}°N, ${lng.toStringAsFixed(2)}°E',
+      'location': locationName,
       'humidity': data['humidity'],
       'windSpeed': data['windSpeed'],
       'icon': getWeatherIcon(data['weatherCode']),

@@ -66,11 +66,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   const SizedBox(height: 20),
-                  _buildTopBar(context, ref),
+                  weatherAsync.maybeWhen(
+                    data: (weather) => _buildTopBar(context, ref, weather),
+                    orElse: () => _buildTopBar(context, ref, null),
+                  ),
                   const SizedBox(height: 30),
 
                   // Weather Widget (Live)
@@ -96,18 +100,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
                   const SizedBox(height: 30),
 
+                  const SizedBox(height: 32),
+ 
+                  // Action Grid
+                  Text(l10n.quickActions, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: -0.5)),
+                  const SizedBox(height: 16),
+                  _buildGlassActionGrid(context, l10n),
+ 
+                  const SizedBox(height: 32),
+ 
                   // Smart Context
                   _buildMinimalistContextSection(context),
 
-                  const SizedBox(height: 40),
-
-                  // Action Grid
-                  Text(l10n.quickActions, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                  const SizedBox(height: 20),
-                  _buildGlassActionGrid(context, l10n),
-
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 60),
                 ],
+              ),
               ),
             ),
           ),
@@ -116,7 +123,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildTopBar(BuildContext context, WidgetRef ref) {
+  Widget _buildTopBar(BuildContext context, WidgetRef ref, Map<String, dynamic>? weather) {
+    final locationName = weather?['location'] ?? 'My Farm';
+    
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -124,7 +133,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('NUKROPAI', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 3)),
-            Text('Ludhiana, Punjab', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 4),
+            Text(locationName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: -0.5)),
           ],
         ),
         GestureDetector(
@@ -134,7 +144,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
             child: const Icon(Icons.grid_view_rounded, color: Colors.white, size: 20),
           ),
@@ -146,15 +156,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildMinimalistWeatherCard(BuildContext context, Map<String, dynamic> weather) {
     final temp = weather['temp']?.toString() ?? '--';
     final condition = weather['condition'] ?? 'Unknown';
-    final location = weather['location'] ?? 'Current Location';
     final iconData = weather['icon'] as IconData? ?? Icons.cloud;
 
     return FadeInDown(
       child: Container(
-        padding: const EdgeInsets.all(24),
+        width: double.infinity,
+        padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(36),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 30,
+              offset: const Offset(0, 15),
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -164,37 +181,52 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(location, style: const TextStyle(color: AppColors.textGrey, fontWeight: FontWeight.w600, fontSize: 14)),
+                    Text(
+                      DateFormat('EEEE, MMMM d').format(DateTime.now()),
+                      style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
+                    ),
                     const SizedBox(height: 4),
-                    Text(DateFormat('EEEE, MMMM d').format(DateTime.now()), style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 12)),
+                    const Text('CURRENT WEATHER', style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w900, fontSize: 14)),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(color: AppColors.offWhite, borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Row(
                     children: [
-                      Icon(iconData, size: 16, color: AppColors.textDark),
-                      const SizedBox(width: 4),
-                      Text(condition, style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 10)),
+                      Icon(iconData, size: 18, color: AppColors.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        condition.toUpperCase(),
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('${temp}°C', style: const TextStyle(color: AppColors.textDark, fontSize: 64, fontWeight: FontWeight.w900, letterSpacing: -2)),
-                const Spacer(),
-                Column(
-                  children: [
-                    _weatherSmallTag('H: ${weather['humidity'] ?? 65}%'),
-                    const SizedBox(height: 8),
-                    _weatherSmallTag('W: ${weather['windSpeed'] ?? 12}km/h'),
-                  ],
-                )
+                Text(
+                  '$temp°',
+                  style: const TextStyle(color: AppColors.textDark, fontSize: 80, fontWeight: FontWeight.w900, letterSpacing: -4, height: 1),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _weatherDetailItem(Icons.water_drop_outlined, 'HUMIDITY', '${weather['humidity'] ?? '--'}%'),
+                      const SizedBox(height: 12),
+                      _weatherDetailItem(Icons.air_rounded, 'WIND', '${weather['windSpeed'] ?? '--'} km/h'),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
@@ -203,11 +235,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _weatherSmallTag(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: AppColors.offWhite, borderRadius: BorderRadius.circular(8)),
-      child: Text(text, style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 10)),
+  Widget _weatherDetailItem(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey.shade400),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.bold, fontSize: 9, letterSpacing: 0.5)),
+            Text(value, style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w900, fontSize: 13)),
+          ],
+        ),
+      ],
     );
   }
 
