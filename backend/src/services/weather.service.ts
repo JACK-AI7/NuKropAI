@@ -11,7 +11,8 @@ export class WeatherService {
       const hourly = response.data.hourly;
       let humidity: number | null = null;
       if (hourly?.time && Array.isArray(hourly.time) && Array.isArray(hourly.relative_humidity_2m)) {
-        const idx = hourly.time.indexOf(current.time);
+        let idx = hourly.time.indexOf(current.time);
+        if (idx < 0) idx = hourly.relative_humidity_2m.length - 1; // Fallback to last if index mismatch
         if (idx >= 0) {
           humidity = hourly.relative_humidity_2m[idx];
         }

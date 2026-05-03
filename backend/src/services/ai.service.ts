@@ -244,20 +244,26 @@ export class AIService {
 
       if (process.env.MISTRAL_API_KEY) {
         try {
+          console.log('[AI] Attempting Mistral vision analysis...');
           const parsed = await this.analyzeWithMistralVision(imagePath, prompt, isSoil);
+          console.log('[AI] Mistral vision success');
           return { ...parsed, _source: 'mistral' as const };
         } catch (e: any) {
           lastErr = e?.message || String(e);
-          console.warn('Mistral vision failed:', lastErr);
+          console.error('[AI] Mistral vision failed:', lastErr);
         }
+      } else {
+        console.warn('[AI] Mistral API key missing - skipping Mistral vision');
       }
 
       try {
+        console.log('[AI] Attempting Ollama vision analysis...');
         const parsed = await this.analyzeWithOllama(prompt, base64Image, isSoil);
+        console.log('[AI] Ollama vision success');
         return { ...parsed, _source: 'ollama' as const };
       } catch (e: any) {
         lastErr = e?.message || String(e);
-        console.warn('Ollama vision failed:', lastErr);
+        console.error('[AI] Ollama vision failed:', lastErr);
       }
 
       return {
@@ -373,7 +379,9 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
 
     if (process.env.MISTRAL_API_KEY) {
       try {
+        console.log('[AI] Researching products with Mistral...');
         const parsed = await this.mistralTextJson(prompt);
+        console.log('[AI] Mistral research success');
         this.validateProductResearch(parsed);
         return {
           researchSummary: String(parsed.researchSummary),
@@ -382,12 +390,14 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
         };
       } catch (e: any) {
         lastErr = e?.message || String(e);
-        console.warn('Mistral product research failed:', lastErr);
+        console.error('[AI] Mistral product research failed:', lastErr);
       }
     }
 
     try {
+      console.log('[AI] Researching products with Ollama...');
       const parsed = await this.ollamaChatJson(prompt);
+      console.log('[AI] Ollama research success');
       this.validateProductResearch(parsed);
       return {
         researchSummary: String(parsed.researchSummary),
