@@ -140,7 +140,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                       ),
                       const Spacer(),
                       Text(
-                        widget.isSoil ? 'SOIL SCANNER' : 'PLANT SCANNER',
+                        widget.isSoil ? 'SOIL SCANNER' : 'PESTIDESCAN',
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2),
                       ),
                       const Spacer(),
