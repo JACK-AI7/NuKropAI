@@ -119,10 +119,15 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          Center(
-            child: AspectRatio(
-              aspectRatio: _controller!.value.aspectRatio,
-              child: cam.CameraPreview(_controller!),
+          // Full Screen Camera Preview
+          Positioned.fill(
+            child: FittedBox(
+              fit: BoxFit.cover,
+              child: SizedBox(
+                width: _controller!.value.previewSize!.height,
+                height: _controller!.value.previewSize!.width,
+                child: cam.CameraPreview(_controller!),
+              ),
             ),
           ),
           
@@ -149,29 +154,27 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   ),
                 ),
                 
+                // Improved Scanning Frame
                 Center(
                   child: ZoomIn(
                     child: Container(
-                      width: 280,
-                      height: 280,
+                      width: 300,
+                      height: 300,
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primary, width: 2),
-                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
+                        borderRadius: BorderRadius.circular(40),
                       ),
                       child: Stack(
                         children: [
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            child: _isProcessing ? FadeInDown(
-                              duration: const Duration(seconds: 2),
-                              child: Container(
-                                width: 280,
-                                height: 2,
-                                color: AppColors.accent,
-                              ),
-                            ) : const SizedBox.shrink(),
-                          ),
+                          // Corner Accents
+                          _buildCorner(0, null, top: true),
+                          _buildCorner(null, 0, top: true),
+                          _buildCorner(0, null, bottom: true),
+                          _buildCorner(null, 0, bottom: true),
+                          
+                          // Scanning Animation Line
+                          if (_isProcessing)
+                            _buildScanningLine(),
                         ],
                       ),
                     ),
@@ -219,6 +222,51 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+  Widget _buildCorner(double? left, double? right, {bool top = false, bool bottom = false}) {
+    return Positioned(
+      top: top ? 0 : null,
+      bottom: bottom ? 0 : null,
+      left: left,
+      right: right,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          border: Border(
+            top: top ? const BorderSide(color: AppColors.accent, width: 4) : BorderSide.none,
+            bottom: bottom ? const BorderSide(color: AppColors.accent, width: 4) : BorderSide.none,
+            left: left != null ? const BorderSide(color: AppColors.accent, width: 4) : BorderSide.none,
+            right: right != null ? const BorderSide(color: AppColors.accent, width: 4) : BorderSide.none,
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: top && left != null ? const Radius.circular(20) : Radius.zero,
+            topRight: top && right != null ? const Radius.circular(20) : Radius.zero,
+            bottomLeft: bottom && left != null ? const Radius.circular(20) : Radius.zero,
+            bottomRight: bottom && right != null ? const Radius.circular(20) : Radius.zero,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScanningLine() {
+    return FadeInDown(
+      duration: const Duration(seconds: 2),
+      child: Container(
+        width: 300,
+        height: 4,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.accent.withOpacity(0),
+              AppColors.accent,
+              AppColors.accent.withOpacity(0),
+            ],
+          ),
+        ),
       ),
     );
   }

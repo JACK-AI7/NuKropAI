@@ -13,10 +13,20 @@ class ApiClient {
   ));
 
   ApiClient() {
+    _init();
+  }
+
+  Future<void> _init() async {
+    final prefs = await SharedPreferences.getInstance();
+    final customUrl = prefs.getString('server_url');
+    if (customUrl != null && customUrl.isNotEmpty) {
+      _dio.options.baseUrl = customUrl;
+    }
+
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final prefs = await SharedPreferences.getInstance();
-        final token = prefs.getString('token');
+        final p = await SharedPreferences.getInstance();
+        final token = p.getString('token');
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }

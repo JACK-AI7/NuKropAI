@@ -4,6 +4,8 @@ import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/l10n/locale_provider.dart';
 import '../../auth/data/auth_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/config/constants.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -13,6 +15,26 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  final TextEditingController _serverController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadServerUrl();
+  }
+
+  Future<void> _loadServerUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    _serverController.text = prefs.getString('server_url') ?? AppConstants.baseUrl;
+  }
+
+  Future<void> _saveServerUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('server_url', _serverController.text.trim());
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Server URL updated! Please restart the app.')));
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final ref = this.ref;
@@ -50,6 +72,31 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   DropdownMenuItem(value: 'hi', child: Text('🇮🇳 हिंदी')),
                   DropdownMenuItem(value: 'te', child: Text('🇮🇳 తెలుగు')),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildSettingTile(
+              context, 
+              'Server Address', 
+              'Set backend IP (e.g. http://192.168.1.5:3000/api)', 
+              Icons.dns_rounded, 
+              trailing: IconButton(
+                icon: const Icon(Icons.save_rounded, color: AppColors.primary),
+                onPressed: _saveServerUrl,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: TextField(
+                controller: _serverController,
+                decoration: InputDecoration(
+                  hintText: 'http://YOUR_IP:3000/api',
+                  hintStyle: const TextStyle(fontSize: 12),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+                style: const TextStyle(fontSize: 13),
               ),
             ),
             const SizedBox(height: 40),
