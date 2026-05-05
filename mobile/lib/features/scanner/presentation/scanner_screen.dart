@@ -51,34 +51,18 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   Future<void> _captureAndScan() async {
     if (_isProcessing) return;
     
+    // Check backend connectivity but DON'T block
     try {
       final apiClient = ApiClient();
       final isHealthy = await apiClient.checkHealth();
-      if (!isHealthy) {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              backgroundColor: const Color(0xFF1E293B),
-              title: const Text('Server Unreachable', style: TextStyle(color: Colors.white)),
-              content: const Text(
-                'Cannot connect to the backend server. The scan will attempt to use on-device AI which may be less accurate.',
-                style: TextStyle(color: Colors.white70),
-              ),
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _continueWithScan();
-                  },
-                  child: const Text('Continue Anyway', style: TextStyle(color: AppColors.accent)),
-                ),
-              ],
-            ),
-          );
-        }
-        return;
+      if (!isHealthy && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Offline mode: Using on-device AI for analysis'),
+            backgroundColor: Colors.blueGrey,
+            duration: Duration(seconds: 2),
+          )
+        );
       }
     } catch (e) {
       debugPrint('Health check error: $e');
@@ -141,7 +125,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
   String _getModelLabel() {
     switch (_selectedModelType) {
-      case 'yolo11s': return 'YOLO11s (Pests)';
+      case 'yolo11s': return 'YOLO11s';
       case 'agri_vision': return 'AgriVision';
       case 'agri_guard': return 'AgriGuard';
       case 'general': return 'General AI';

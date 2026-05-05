@@ -30,7 +30,14 @@ class ScannerService {
   Future<Map<String, dynamic>> getCurrentWeather() async {
     final position = await _getCurrentLocation();
     if (position == null) {
-      throw Exception('Location permission is required to fetch live weather');
+      return {
+        'temp': '--',
+        'condition': 'Location Disabled',
+        'location': 'Unknown',
+        'humidity': '--',
+        'windSpeed': '--',
+        'icon': Icons.location_off,
+      };
     }
 
     final lat = position.latitude;

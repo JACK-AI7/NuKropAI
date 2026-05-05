@@ -20,6 +20,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTickerProviderStateMixin {
   late AnimationController _bgAnimationController;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -47,39 +48,43 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
       body: Stack(
         children: [
           // Dynamic Animated Background
-          AnimatedBuilder(
-            animation: _bgAnimationController,
-            builder: (context, child) {
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: Alignment(
-                      0.5 + 0.3 * _bgAnimationController.value,
-                      0.5 + 0.2 * (1 - _bgAnimationController.value),
+          IgnorePointer(
+            child: AnimatedBuilder(
+              animation: _bgAnimationController,
+              builder: (context, child) {
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment(
+                        0.5 + 0.3 * _bgAnimationController.value,
+                        0.5 + 0.2 * (1 - _bgAnimationController.value),
+                      ),
+                      radius: 1.5,
+                      colors: const [
+                        Color(0xFF1E293B),
+                        Color(0xFF0F172A),
+                      ],
                     ),
-                    radius: 1.5,
-                    colors: const [
-                      Color(0xFF1E293B),
-                      Color(0xFF0F172A),
-                    ],
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
           
-          // Floating Blurred Blobs
-          Positioned(
-            top: -50,
-            right: -50,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                color: AppColors.accent.withOpacity(0.05),
-                shape: BoxShape.circle,
+          // Floating Blurred Blobs (Ignored for touches)
+          IgnorePointer(
+            child: Positioned(
+              top: -50,
+              right: -50,
+              child: Container(
+                width: 250,
+                height: 250,
+                decoration: BoxDecoration(
+                  color: AppColors.accent.withOpacity(0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50), child: Container()),
               ),
-              child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50), child: Container()),
             ),
           ),
 
@@ -142,7 +147,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                       _buildSectionHeader('Recent Reports'),
                       const SizedBox(height: 16),
                       _buildRecentActivityList(),
-                      const SizedBox(height: 120),
+                      const SizedBox(height: 140),
                     ],
                   ),
                 ),
@@ -324,7 +329,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
   }
 
   Widget _buildRecentActivityList() {
-    // This would typically be a list of recent scans from LocalDatabase
     return Column(
       children: List.generate(2, (index) => Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -374,11 +378,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _navItem(Icons.grid_view_rounded, true),
-              _navItem(Icons.history_rounded, false),
+              _navItem(0, Icons.grid_view_rounded),
+              _navItem(1, Icons.history_rounded),
               _scanButton(),
-              _navItem(Icons.insights_rounded, false),
-              _navItem(Icons.person_outline_rounded, false),
+              _navItem(2, Icons.insights_rounded),
+              _navItem(3, Icons.person_outline_rounded),
             ],
           ),
         ),
@@ -386,11 +390,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
     );
   }
 
-  Widget _navItem(IconData icon, bool active) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: active ? BoxDecoration(color: AppColors.accent.withOpacity(0.2), shape: BoxShape.circle) : null,
-      child: Icon(icon, color: active ? AppColors.accent : Colors.white38, size: 24),
+  Widget _navItem(int index, IconData icon) {
+    final active = _currentIndex == index;
+    return GestureDetector(
+      onTap: () => setState(() => _currentIndex = index),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: active ? BoxDecoration(color: AppColors.accent.withOpacity(0.2), shape: BoxShape.circle) : null,
+        child: Icon(icon, color: active ? AppColors.accent : Colors.white38, size: 24),
+      ),
     );
   }
 
