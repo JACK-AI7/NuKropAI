@@ -23,16 +23,16 @@ class LLMService {
   
   // Available Gemini models for different use cases
   static const Map<String, String> geminiModels = {
-    'Gemini 1.5 Flash (Fast)': 'gemini-1.5-flash-latest',
-    'Gemini 1.5 Pro (Advanced)': 'gemini-1.5-pro-latest',
-    'Gemini 1.0 Pro (Balanced)': 'gemini-1.0-pro-latest',
+    'Gemini 1.5 Flash': 'gemini-1.5-flash',
+    'Gemini 1.5 Pro': 'gemini-1.5-pro',
+    'Gemini 1.0 Pro': 'gemini-pro',
   };
 
   LLMService() {
     _loadKeyAndInit();
   }
 
-  Future<void> _loadKeyAndInit() async {
+    Future<void> _loadKeyAndInit() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? storedKey = prefs.getString('gemini_api_key');
@@ -42,7 +42,7 @@ class LLMService {
       _apiKey = storedKey;
       
       // Load selected model
-      String selectedModel = prefs.getString('gemini_model') ?? 'gemini-1.5-flash-latest';
+      String selectedModel = prefs.getString('gemini_model') ?? 'gemini-1.5-flash';
       _currentModel = selectedModel;
       
       if (_apiKey == null || _apiKey!.isEmpty) {

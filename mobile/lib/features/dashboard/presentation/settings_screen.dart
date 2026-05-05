@@ -21,7 +21,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final TextEditingController _serverController = TextEditingController();
   final TextEditingController _apiKeyController = TextEditingController();
   bool _apiKeyVisible = false;
-  String _selectedModel = 'gemini-1.5-flash-latest';
+  String _selectedModel = 'gemini-1.5-flash';
 
   @override
   void initState() {
@@ -38,9 +38,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _loadModel() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _selectedModel = prefs.getString('gemini_model') ?? 'gemini-1.5-flash-latest';
-    });
+     setState(() {
+       _selectedModel = prefs.getString('gemini_model') ?? 'gemini-1.5-flash';
+     });
   }
 
   Future<void> _saveApiKey() async {
