@@ -2,15 +2,16 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 import uvicorn
-import shutil
-import os
 import cv2
 import numpy as np
-from typing import List
+import torch
+from transformers import AutoModelForImageClassification, AutoFeatureExtractor, pipeline
+from typing import List, Optional
+import os
 
-app = FastAPI(title="NuKropAI YOLOv8 Server")
+app = FastAPI(title="NuKropAI Multi-Model Farming Server")
 
-# Enable CORS for mobile app access
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,53 +20,86 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load YOLOv8 model (downloads automatically on first run if not present)
-# Using yolov8n.pt for speed on free tier servers
-MODEL_PATH = "yolov8n.pt"
-model = YOLO(MODEL_PATH)
+# --- Global Model Registry (Lazy Loading) ---
+models = {
+    "pest": None,
+    "maize": None,
+    "plantnet": None,
+    "agronomist": None
+}
+
+def get_pest_model():
+    if models["pest"] is None:
+        models["pest"] = YOLO("underdogquality/yolo11s-pest-detection")
+    return models["pest"]
+
+def get_maize_model():
+    if models["maize"] is None:
+        # Placeholder for transformers image classification
+        models["maize"] = pipeline("image-classification", model="muAtarist/maize_disease_model")
+    return models["maize"]
+
+def get_agronomist():
+    if models["agronomist"] is None:
+        # Using a small LLM pipeline for advice
+        models["agronomist"] = pipeline("text-generation", model="persadian/CropSeek-LLM", device_map="auto")
+    return models["agronomist"]
 
 @app.get("/")
 async def root():
-    return {"status": "NuKropAI Server is Running", "model": MODEL_PATH}
+    return {"status": "NuKropAI Multi-Model Server is Running", "capabilities": list(models.keys())}
 
-@app.post("/predict")
-async def predict(file: UploadFile = File(...)):
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File must be an image")
-
-    # Read image
+@app.post("/detect/pest")
+async def detect_pest(file: UploadFile = File(...)):
     contents = await file.read()
     nparr = np.frombuffer(contents, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-    if img is None:
-        raise HTTPException(status_code=400, detail="Invalid image data")
-
-    # Run inference
+    
+    model = get_pest_model()
     results = model(img)
     
     detections = []
     for r in results:
-        boxes = r.boxes
-        for box in boxes:
-            # Get box coordinates, confidence, and class
-            b = box.xyxy[0].tolist()  # [x1, y1, x2, y2]
-            conf = float(box.conf[0])
-            cls = int(box.cls[0])
-            name = r.names[cls]
-            
+        for box in r.boxes:
             detections.append({
-                "box": b,
-                "confidence": conf,
-                "class": cls,
-                "name": name
+                "box": box.xyxy[0].tolist(),
+                "confidence": float(box.conf[0]),
+                "name": r.names[int(box.cls[0])]
             })
+    return {"detections": detections}
 
+@app.post("/detect/maize")
+async def detect_maize(file: UploadFile = File(...)):
+    contents = await file.read()
+    # Save temp file for pipeline
+    with open("temp_maize.jpg", "wb") as f:
+        f.write(contents)
+    
+    model = get_maize_model()
+    results = model("temp_maize.jpg")
+    os.remove("temp_maize.jpg")
+    return {"results": results}
+
+@app.post("/recommend/crop")
+async def recommend_crop(n: float, p: float, k: float, temp: float, humidity: float, ph: float, rainfall: float):
+    # Basic logic based on common NPK datasets (SF24/Crop-recommendation)
+    # In a real app, this would load a saved .pkl or .joblib model
+    # Returning a mock response for demonstration
     return {
-        "count": len(detections),
-        "detections": detections
+        "recommended_crop": "Rice",
+        "confidence": 0.95,
+        "advice": f"With N:{n}, P:{p}, K:{k}, the soil is ideal for Rice."
     }
 
+@app.post("/chat/agronomist")
+async def chat_agronomist(prompt: str):
+    # This might be slow on free tiers
+    try:
+        pipe = get_agronomist()
+        response = pipe(prompt, max_length=150)
+        return {"response": response[0]['generated_text']}
+    except Exception as e:
+        return {"response": f"AI Agronomist is busy. Error: {str(e)}"}
+
 if __name__ == "__main__":
-    # Port 7860 is standard for Hugging Face Spaces
     uvicorn.run(app, host="0.0.0.0", port=7860)
