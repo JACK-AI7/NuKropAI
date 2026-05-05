@@ -41,7 +41,7 @@ class ResultsScreen extends ConsumerStatefulWidget {
   ConsumerState<ResultsScreen> createState() => _ResultsScreenState();
 }
 
-class _ResultsScreenState extends State<ResultsScreen> {
+class _ResultsScreenState extends ConsumerState<ResultsScreen> {
   final FlutterTts _flutterTts = FlutterTts();
 
   @override
@@ -66,11 +66,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final scan = widget.scan;
     final isSoil = scan['isSoilAnalysis'] == true;
     final aiSource = scan['aiSource'] ?? 'local';
-    final baseUrl = ref.watch(serverBaseUrlProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -81,7 +80,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             expandedHeight: 320,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: _buildImageWidget(scan, baseUrl),
+              background: _buildImageWidget(scan),
             ),
             backgroundColor: AppColors.primary,
             leading: IconButton(
@@ -131,7 +130,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
-  Widget _buildImageWidget(Map<String, dynamic> scan, String baseUrl) {
+  Widget _buildImageWidget(Map<String, dynamic> scan) {
     final imageUrl = scan['imageUrl'] ?? '';
     if (imageUrl.startsWith('local://')) {
       return Container(
@@ -158,20 +157,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
         ),
       );
     } else {
-      return Image.network(
-        '$baseUrl$imageUrl',
+      return CachedNetworkImage(
+        imageUrl: imageUrl,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Container(
+        placeholder: (context, url) => Container(color: AppColors.background, child: const Center(child: CircularProgressIndicator())),
+        errorWidget: (context, url, error) => Container(
           color: AppColors.background,
           child: const Center(child: Icon(Icons.broken_image, size: 48, color: AppColors.textSecondary)),
         ),
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            color: AppColors.background,
-            child: Center(child: CircularProgressIndicator(value: loadingProgress.expectedTotalBytes != null ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes! : null)),
-          );
-        },
       );
     }
   }

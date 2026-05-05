@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LLMService {
-  // User-provided key from Settings - default to the provided key for immediate use
   static const String _defaultApiKey = "AIzaSyBlMcrlB88DXa1VNGaQuVz3h0AvlbOkpZI";
   late GenerativeModel _model;
   bool _isInitialized = false;
@@ -35,39 +34,9 @@ class LLMService {
       }
       _apiKey = storedKey;
       if (_apiKey == null || _apiKey!.isEmpty) {
-        debugPrint('LLM: No API key available. Cloud features disabled.');
-        _isInitialized = false;
-        return;
+        debugPrint('LLM: No API key available. Using default key.');
+        _apiKey = _defaultApiKey;
       }
-      _model = GenerativeModel(
-        model: 'gemini-1.5-flash-latest',
-        apiKey: _apiKey!,
-        systemInstruction: Content.system('''
-You are NuKropAI, an expert agricultural assistant for Indian farmers.
-You specialize in:
-- Crop disease identification and treatment
-- Pest management with specific pesticide recommendations (Indian market)
-- Soil health and fertilizer advice (NPK)
-- Sustainable farming practices
-- Weather-aware guidance
-
-ALWAYS respond with valid JSON when asked for structured data. No markdown blocks.
-When recommending products:
-- Mention active ingredient (e.g., Imidacloprid 17.8% SL)
-- Give dosage per litre or per kg
-- Suggest where to buy (Amazon India, AgriBegri)
-- Include safety notes (PPE, PHI)
-
-Be concise but thorough.
-'''),
-      );
-      _isInitialized = true;
-      debugPrint('LLM initialized with Gemini 1.5 Flash');
-    } catch (e) {
-      debugPrint('LLM Init Error: $e');
-      _isInitialized = false;
-    }
-  }
       _model = GenerativeModel(
         model: 'gemini-1.5-flash-latest',
         apiKey: _apiKey!,
@@ -150,125 +119,9 @@ Be concise but thorough.
     return "Error: Failed to generate response after retries.";
   }
 
-  Future<void> _loadKeyAndInit() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      _apiKey = prefs.getString('gemini_api_key') ?? _defaultApiKey;
-      if (_apiKey == null || _apiKey!.isEmpty) {
-        debugPrint('LLM: No API key configured. Cloud features disabled.');
-        _isInitialized = false;
-        return;
-      }
-      _model = GenerativeModel(
-        model: 'gemini-1.5-flash-latest',
-        apiKey: _apiKey!,
-        systemInstruction: Content.system('''
-You are NuKropAI, an expert agricultural assistant for Indian farmers.
-You specialize in:
-- Crop disease identification and treatment
-- Pest management with specific pesticide recommendations (Indian market)
-- Soil health and fertilizer advice (NPK)
-- Sustainable farming practices
-- Weather-aware guidance
-
-Always provide specific, actionable advice. When recommending products:
-- Mention active ingredient (e.g., Imidacloprid 17.8% SL)
-- Give dosage per litre or per kg
-- Suggest where to buy (Amazon India, AgriBegri)
-- Include safety notes (PPE, PHI)
-
-When uncertain, say so. Be concise but thorough.
-'''),
-      );
-      _isInitialized = true;
-      debugPrint('LLM initialized with Gemini 1.5 Flash');
-    } catch (e) {
-      debugPrint('LLM Init Error: $e');
-      _isInitialized = false;
-    }
-  }
-
-  Future<void> init() async {
-    if (!_isInitialized) {
-      await _loadKeyAndInit();
-    }
-  }
-
-  Future<void> _initModel() async {
-    try {
-      _model = GenerativeModel(
-        model: 'gemini-1.5-flash-latest', // Free tier, fast, multimodal
-        apiKey: _apiKey!,
-        systemInstruction: Content.system('''
-You are NuKropAI, an expert agricultural assistant for Indian farmers.
-You specialize in:
-- Crop disease identification and treatment
-- Pest management with specific pesticide recommendations (Indian market)
-- Soil health and fertilizer advice (NPK)
-- Sustainable farming practices
-- Weather-aware guidance
-
-Always provide specific, actionable advice. When recommending products:
-- Mention active ingredient (e.g., Imidacloprid 17.8% SL)
-- Give dosage per litre or per kg
-- Suggest where to buy (Amazon India, AgriBegri)
-- Include safety notes (PPE, PHI)
-
-When uncertain, say so. Be concise but thorough.
-'''),
-      );
-      _isInitialized = true;
-      debugPrint('LLM initialized with Gemini 1.5 Flash');
-    } catch (e) {
-      debugPrint('LLM Init Error: $e');
-      _isInitialized = false;
-    }
-  }
-
-  /// Generate text response, optionally with image(s)
-  Future<String> generateResponse(String prompt, {List<String>? imagePaths}) async {
-    if (!_isInitialized) {
-      await _loadKeyAndInit();
-    }
-    if (!_isInitialized) {
-      return "Error: Gemini API key not configured. Please add it in Settings to use cloud AI features.";
-    }
-
-    try {
-      final List<Content> content = [];
-
-      content.add(Content.text(prompt));
-
-      if (imagePaths != null && imagePaths.isNotEmpty) {
-        for (final path in imagePaths) {
-          final file = File(path);
-          if (await file.exists()) {
-            final bytes = await file.readAsBytes();
-            content.add(Content.data('image/jpeg', bytes));
-          }
-        }
-      }
-
-      final response = await _model.generateContent(content);
-      return response.text ?? "I'm sorry, I couldn't generate a response.";
-    } catch (e) {
-      debugPrint('LLM Generation Error: $e');
-      return "Error: $e. Check your internet connection and API key.";
-    }
-  }
-
+  /// Simple text-only generation (for chat, product research)
   Future<String> generateText(String prompt) async {
     return generateResponse(prompt);
-  }
-
-  /// Force on-device fallback (returns placeholder if no local model)
-  Future<String> generateOnDevice(String prompt) async {
-    // Placeholder: real on-device LLM would use llm_llamacpp package
-    // For now, return a canned response when offline
-    if (prompt.toLowerCase().contains('pest') || prompt.toLowerCase().contains('disease')) {
-      return "Offline mode: Identify pests using image scanning. For detailed treatment advice, connect to the internet.";
-    }
-    return "Offline mode: Please connect to the internet for AI-powered recommendations.";
   }
 
   /// Check if API key is configured
