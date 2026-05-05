@@ -30,7 +30,17 @@ models = {
 
 def get_pest_model():
     if models["pest"] is None:
-        models["pest"] = YOLO("underdogquality/yolo11s-pest-detection")
+        # Use hf-hub: prefix for correct Hugging Face model resolution
+        try:
+            models["pest"] = YOLO("hf-hub:underdogquality/yolo11s-pest-detection")
+        except Exception as e:
+            print(f"Error loading YOLO from HF: {e}")
+            # Fallback to local download
+            try:
+                models["pest"] = YOLO("yolo11s.pt")
+            except Exception as e2:
+                print(f"Fallback YOLO load failed: {e2}")
+                raise
     return models["pest"]
 
 def get_maize_model():
