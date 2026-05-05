@@ -4,7 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/api/scanner_service.dart';
 import '../../../core/api/api_client.dart';
-import '../presentation/settings_screen.dart';
+import '../../dashboard/presentation/settings_screen.dart';
 import 'results_screen.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
@@ -302,7 +302,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   Widget _buildScanningLine() {
     return FadeInDown(
       duration: const Duration(seconds: 2),
-      infinite: true,
       child: Container(
         width: 280,
         height: 2,

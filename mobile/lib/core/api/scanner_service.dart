@@ -146,7 +146,7 @@ class ScannerService {
           return onDeviceResult;
         } catch (deviceError) {
           debugPrint('On-device analysis also failed: $deviceError');
-          rethrow Exception('Backend unreachable and on-device analysis failed');
+          throw Exception('Backend unreachable and on-device analysis failed');
         }
       }
       

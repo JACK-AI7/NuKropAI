@@ -43,7 +43,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final scan = widget.scan;
     final isSoil = scan['isSoilAnalysis'] == true;
     final aiSource = scan['aiSource'] ?? 'backend';

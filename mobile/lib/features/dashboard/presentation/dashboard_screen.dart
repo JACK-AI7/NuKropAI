@@ -90,8 +90,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('NUKROPAI INTELLIGENCE', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 4)),
-                          const SizedBox(height: 4),
-                          Text(user?.displayName ?? 'Hello, Farmer', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 28, letterSpacing: -1)),
+                          Text(user?['name'] ?? 'Hello, Farmer', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 28, letterSpacing: -1)),
                         ],
                       ),
                     ),

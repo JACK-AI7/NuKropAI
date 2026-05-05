@@ -40,7 +40,7 @@ class MyApp extends ConsumerWidget {
     ref.watch(serverUrlInitializationProvider);
 
     return MaterialApp(
-      title: 'KropAi',
+      title: 'NuKropAI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.hybridTheme,
       locale: currentLocale,
@@ -74,44 +74,3 @@ final serverUrlInitializationProvider = FutureProvider<void>((ref) async {
   final savedUrl = await config.getServerUrl();
   ref.read(serverUrlProvider.notifier).state = savedUrl;
 });
-
-
-  runApp(const ProviderScope(child: MyApp()));
-}
-
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
-    final currentLocale = ref.watch(localeProvider);
-
-    return MaterialApp(
-      title: 'KropAi',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.hybridTheme,
-      locale: currentLocale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('hi'),
-        Locale('te'),
-        Locale('ta'),
-        Locale('kn'),
-        Locale('mr'),
-        Locale('bn'),
-      ],
-      home: authState.isLoading
-          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-          : authState.isAuthenticated
-              ? const DashboardScreen()
-              : const LoginScreen(),
-    );
-  }
-}
