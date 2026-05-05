@@ -6,6 +6,7 @@ import '../../../core/l10n/locale_provider.dart';
 import '../../auth/data/auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/config/constants.dart';
+import '../../../core/api/server_config.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -25,14 +26,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _loadServerUrl() async {
     final prefs = await SharedPreferences.getInstance();
-    _serverController.text = prefs.getString('server_url') ?? AppConstants.baseUrl;
+    final savedUrl = prefs.getString('server_url') ?? AppConstants.baseUrl;
+    _serverController.text = savedUrl;
   }
 
   Future<void> _saveServerUrl() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('server_url', _serverController.text.trim());
+    final url = _serverController.text.trim();
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid URL starting with http:// or https://'), backgroundColor: Colors.red),
+        );
+      }
+      return;
+    }
+
+    final config = ref.read(serverConfigProvider);
+    await config.saveServerUrl(url);
+    ref.read(serverUrlProvider.notifier).state = url;
+    
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Server URL updated! Please restart the app.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Server URL updated!'), backgroundColor: Colors.green),
+      );
     }
   }
   @override

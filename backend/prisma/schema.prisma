@@ -40,6 +40,11 @@ model Scan {
   latitude      Float?
   longitude     Float?
   weather       String?  // JSON: {temp, humidity, windSpeed, weatherCode}
+  aiModel       String?  // Which AI model processed this scan: 'mistral' | 'ollama' | 'yolo' | 'database' | 'tflite'
+  modelVersion  String?  // Model version identifier (e.g., 'yolo11s-pest-detection-v1')
+  pestDetections String? // JSON array of pest detections for YOLO: [{species, confidence, bbox}]
+  modelConfidence Float? // Overall confidence from the model (for YOLO: max detection confidence)
+  processingTime  Float?  // Inference time in seconds
   createdAt     DateTime @default(now())
 }
 

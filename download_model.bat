@@ -87,8 +87,14 @@ echo ========================================
 echo Setup Complete!
 echo ========================================
 echo.
+echo Recommended Small Models (Free/Less GB):
+echo 1. Crop Disease (TFLite) - 5MB (Done)
+echo 2. Gemma-2B-IT-CPU (Int4) - 1.3GB (Best for Soil/Pest info)
+echo    Download: https://kaggle.com/models/google/gemma/tfLite/gemma-2b-it-cpu-int4
+echo.
 echo Next steps:
 echo 1. flutter pub get
 echo 2. flutter run
 echo.
 pause
+

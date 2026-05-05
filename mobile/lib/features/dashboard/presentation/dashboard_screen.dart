@@ -11,6 +11,8 @@ import 'settings_screen.dart';
 import 'history_screen.dart';
 import 'recommendations_screen.dart';
 import '../../../core/api/scanner_service.dart';
+import '../../../core/api/connectivity_service.dart';
+import '../../chat/presentation/chat_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -27,152 +29,168 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ref = this.ref;
     final authState = ref.watch(authProvider);
     final user = authState.user;
     final l10n = AppLocalizations.of(context) ?? AppLocalizations.instance;
-
-    // Weather from provider (live)
     final weatherAsync = ref.watch(currentWeatherProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // Background Image
-          Positioned.fill(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000',
-              fit: BoxFit.cover,
-            ),
-          ),
-          // Dark Overlay
+          // Premium Blurred Background
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [
-                    Colors.black.withOpacity(0.4),
-                    Colors.black.withOpacity(0.8),
+                    Color(0xFF0F172A),
+                    Color(0xFF1E1B4B),
+                    Color(0xFF312E81),
                   ],
                 ),
+              ),
+            ),
+          ),
+          
+          // Decorative background elements
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.accent.withOpacity(0.05),
               ),
             ),
           ),
 
           RefreshIndicator(
             onRefresh: _refresh,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  const SizedBox(height: 20),
-                  weatherAsync.maybeWhen(
-                    data: (weather) => _buildTopBar(context, ref, weather),
-                    orElse: () => _buildTopBar(context, ref, null),
+            color: AppColors.accent,
+            backgroundColor: AppColors.background,
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 140,
+                  floating: true,
+                  pinned: true,
+                  elevation: 0,
+                  backgroundColor: Colors.transparent,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('NUKROPAI INTELLIGENCE', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 4)),
+                          const SizedBox(height: 4),
+                          Text(user?.displayName ?? 'Hello, Farmer', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 28, letterSpacing: -1)),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 30),
+                  actions: [
+                    _buildGlassActionIcon(Icons.settings_rounded, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()))),
+                    const SizedBox(width: 16),
+                  ],
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 10),
+                        
+                        // Real-Time Weather (Advanced Glass)
+                        weatherAsync.when(
+                          data: (weather) => _buildAdvancedWeatherCard(context, weather),
+                          loading: () => _buildAdvancedWeatherCard(context, {'temp': '...', 'condition': 'Syncing', 'location': 'GPS Locating'}),
+                          error: (err, __) => _buildAdvancedWeatherCard(context, {'temp': '!', 'condition': 'Offline', 'location': 'Check Connection'}),
+                        ),
 
-                  // Weather Widget (Live)
-                  weatherAsync.when(
-                    data: (weather) => _buildMinimalistWeatherCard(context, weather),
-                    loading: () => _buildMinimalistWeatherCard(context, {
-                      'temp': '--',
-                      'condition': 'Loading...',
-                      'location': 'Current Location',
-                      'humidity': '--',
-                      'windSpeed': '--',
-                      'icon': Icons.cloud,
-                    }),
-                    error: (_, __) => _buildMinimalistWeatherCard(context, {
-                      'temp': '--',
-                      'condition': 'Unavailable',
-                      'location': 'Enable GPS',
-                      'humidity': '--',
-                      'windSpeed': '--',
-                      'icon': Icons.location_off,
-                    }),
+                        const SizedBox(height: 32),
+                        
+                        _buildSectionTitle('AI DIAGNOSTICS'),
+                        const SizedBox(height: 16),
+                        _buildGlassActionGrid(context, l10n),
+                        
+                        const SizedBox(height: 32),
+                        
+                        _buildSectionTitle('SMART ASSISTANT'),
+                        const SizedBox(height: 16),
+                        _buildGlassChatBanner(context),
+
+                        const SizedBox(height: 32),
+                        
+                        _buildSectionTitle('ENVIRONMENTAL INSIGHTS'),
+                        const SizedBox(height: 16),
+                        _buildGlassContextSection(context),
+
+                        const SizedBox(height: 120),
+                      ],
+                    ),
                   ),
-
-                  const SizedBox(height: 30),
-
-                  const SizedBox(height: 32),
- 
-                  // Action Grid
-                  Text(l10n.quickActions, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: -0.5)),
-                  const SizedBox(height: 16),
-                  _buildGlassActionGrid(context, l10n),
- 
-                  const SizedBox(height: 32),
- 
-                  // Smart Context
-                  _buildMinimalistContextSection(context),
-
-                  const SizedBox(height: 60),
-                ],
-              ),
-              ),
+                ),
+              ],
             ),
+          ),
+          
+          // Fixed Bottom Navigation (Glass)
+          Positioned(
+            bottom: 30,
+            left: 24,
+            right: 24,
+            child: _buildGlassBottomNav(context, l10n),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTopBar(BuildContext context, WidgetRef ref, Map<String, dynamic>? weather) {
-    final locationName = weather?['location'] ?? 'My Farm';
-    
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('NUKROPAI', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 3)),
-            const SizedBox(height: 4),
-            Text(locationName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: -0.5)),
-          ],
+  Widget _buildSectionTitle(String title) {
+    return FadeInLeft(
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white70,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          letterSpacing: 2,
         ),
-        GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
-            ),
-            child: const Icon(Icons.grid_view_rounded, color: Colors.white, size: 20),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildMinimalistWeatherCard(BuildContext context, Map<String, dynamic> weather) {
+  Widget _buildGlassActionIcon(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(10),
+        decoration: AppColors.glassDecoration(radius: 12),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
+    );
+  }
+
+  Widget _buildAdvancedWeatherCard(BuildContext context, Map<String, dynamic> weather) {
     final temp = weather['temp']?.toString() ?? '--';
     final condition = weather['condition'] ?? 'Unknown';
-    final iconData = weather['icon'] as IconData? ?? Icons.cloud;
+    final location = weather['location'] ?? 'Locating...';
+    final iconData = weather['icon'] as IconData? ?? Icons.wb_sunny_rounded;
 
-    return FadeInDown(
+    return ZoomIn(
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(28),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(36),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 30,
-              offset: const Offset(0, 15),
-            ),
-          ],
-        ),
+        padding: const EdgeInsets.all(24),
+        decoration: AppColors.glassDecoration(radius: 32, highlight: true),
         child: Column(
           children: [
             Row(
@@ -181,52 +199,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      DateFormat('EEEE, MMMM d').format(DateTime.now()),
-                      style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1),
-                    ),
+                    Text(location, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
                     const SizedBox(height: 4),
-                    const Text('CURRENT WEATHER', style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w900, fontSize: 14)),
+                    Text(condition.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 1)),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(iconData, size: 18, color: AppColors.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        condition.toUpperCase(),
-                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1),
-                      ),
-                    ],
-                  ),
-                ),
+                Icon(iconData, color: AppColors.accent, size: 48),
               ],
             ),
             const SizedBox(height: 32),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  '$temp°',
-                  style: const TextStyle(color: AppColors.textDark, fontSize: 80, fontWeight: FontWeight.w900, letterSpacing: -4, height: 1),
+                Text(temp, style: const TextStyle(color: Colors.white, fontSize: 72, fontWeight: FontWeight.bold, height: 0.8)),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 12, left: 4),
+                  child: Text('°C', style: TextStyle(color: AppColors.accent, fontSize: 24, fontWeight: FontWeight.bold)),
                 ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _weatherDetailItem(Icons.water_drop_outlined, 'HUMIDITY', '${weather['humidity'] ?? '--'}%'),
-                      const SizedBox(height: 12),
-                      _weatherDetailItem(Icons.air_rounded, 'WIND', '${weather['windSpeed'] ?? '--'} km/h'),
-                    ],
-                  ),
-                ),
+                const Spacer(),
+                _glassWeatherStat(Icons.water_drop_rounded, '${weather['humidity'] ?? '--'}%', 'Humidity'),
+                const SizedBox(width: 24),
+                _glassWeatherStat(Icons.air_rounded, '${weather['windSpeed'] ?? '--'} km/h', 'Wind'),
               ],
             ),
           ],
@@ -235,63 +228,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _weatherDetailItem(IconData icon, String label, String value) {
-    return Row(
+  Widget _glassWeatherStat(IconData icon, String value, String label) {
+    return Column(
       children: [
-        Icon(icon, size: 16, color: Colors.grey.shade400),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.bold, fontSize: 9, letterSpacing: 0.5)),
-            Text(value, style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.w900, fontSize: 13)),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMinimalistContextSection(BuildContext context) {
-    return FadeInUp(
-      delay: const Duration(milliseconds: 200),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(28),
-        ),
-        child: Column(
-          children: [
-            _contextItem(Icons.wb_sunny_rounded, 'Today Sunrise', '05:42 AM', Colors.orange),
-            const Divider(height: 24, color: AppColors.offWhite),
-            _contextItem(Icons.auto_awesome_rounded, 'Golden Hour', '06:15 AM - 07:15 AM', Colors.amber),
-            const Divider(height: 24, color: AppColors.offWhite),
-            _contextItem(Icons.wb_twilight_rounded, 'Today Sunset', '07:12 PM', Colors.deepOrange),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _contextItem(IconData icon, String label, String value, Color color) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-          child: Icon(icon, color: color, size: 18),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: const TextStyle(color: AppColors.textGrey, fontWeight: FontWeight.w600, fontSize: 13)),
-              const SizedBox(height: 2),
-              Text(value, style: const TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold, fontSize: 14)),
-            ],
-          ),
-        ),
+        Icon(icon, color: Colors.white70, size: 18),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -303,60 +246,126 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.1,
+      childAspectRatio: 1.2,
       children: [
-        _glassCard(l10n.scanCrop, Icons.camera_rounded, AppColors.accent, () => _openScanner(context, false)),
-        _glassCard(l10n.soilAnalysis, Icons.landslide_rounded, Colors.orangeAccent, () => _openScanner(context, true)),
-        _glassCard(l10n.recommendations, Icons.auto_awesome_rounded, Colors.purpleAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecommendationsScreen()))),
-        _glassCard(l10n.history, Icons.history_rounded, Colors.blueGrey, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen()))),
+        _glassActionCard('CROP SCAN', Icons.qr_code_scanner_rounded, AppColors.accent, () => _openScanner(context, false)),
+        _glassActionCard('SOIL TEST', Icons.layers_rounded, Colors.orangeAccent, () => _openScanner(context, true)),
+        _glassActionCard('RECORDS', Icons.history_rounded, Colors.blueAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen()))),
+        _glassActionCard('EXPERT TIPS', Icons.lightbulb_rounded, Colors.amberAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecommendationsScreen()))),
       ],
     );
   }
 
-  Widget _glassCard(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _glassActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
-        ),
+        decoration: AppColors.glassDecoration(radius: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withOpacity(0.2), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+            Icon(icon, color: color, size: 32),
+            Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildScanFAB(BuildContext context, AppLocalizations l10n) {
-    return FadeInUp(
+  Widget _buildGlassChatBanner(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen())),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        decoration: BoxDecoration(
-          color: AppColors.accent,
-          borderRadius: BorderRadius.circular(40),
-          boxShadow: [BoxShadow(color: AppColors.accent.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
-        ),
+        padding: const EdgeInsets.all(20),
+        decoration: AppColors.glassDecoration(radius: 24),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 24),
-            const SizedBox(width: 12),
-            Text(l10n.scanButton, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.2), shape: BoxShape.circle),
+              child: const Icon(Icons.auto_awesome, color: AppColors.accent, size: 24),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('On-Device AI Assistant', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text('Active & Offline Ready', style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white24, size: 16),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildGlassContextSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: AppColors.glassDecoration(radius: 32),
+      child: Column(
+        children: [
+          _glassContextItem(Icons.wb_sunny_rounded, 'Sunrise', '05:42 AM', Colors.orange),
+          const SizedBox(height: 16),
+          _glassContextItem(Icons.water_drop_rounded, 'Dew Point', '18°C', Colors.blue),
+          const SizedBox(height: 16),
+          _glassContextItem(Icons.wb_twilight_rounded, 'Sunset', '07:12 PM', Colors.deepOrange),
+        ],
+      ),
+    );
+  }
+
+  Widget _glassContextItem(IconData icon, String label, String value, Color color) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 16),
+        Text(label, style: const TextStyle(color: Colors.white60, fontSize: 14, fontWeight: FontWeight.w500)),
+        const Spacer(),
+        Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+      ],
+    );
+  }
+
+  Widget _buildGlassBottomNav(BuildContext context, AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: AppColors.glassDecoration(radius: 40, highlight: true),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _navItem(Icons.grid_view_rounded, true),
+          _navItem(Icons.analytics_rounded, false),
+          GestureDetector(
+            onTap: () => _openScanner(context, false),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(30)),
+              child: const Row(
+                children: [
+                  Icon(Icons.add_a_photo_rounded, color: Colors.white, size: 20),
+                  SizedBox(width: 8),
+                  Text('SCAN', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                ],
+              ),
+            ),
+          ),
+          _navItem(Icons.history_rounded, false),
+          _navItem(Icons.person_rounded, false),
+        ],
+      ),
+    );
+  }
+
+  Widget _navItem(IconData icon, bool active) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Icon(icon, color: active ? AppColors.accent : Colors.white38, size: 24),
     );
   }
 

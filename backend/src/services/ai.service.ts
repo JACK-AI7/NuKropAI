@@ -462,21 +462,31 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
     }
   }
 
-  private static async callOllama(path: string, body: any): Promise<any> {
+  private static async callOllama(path: string, body: any, timeout = 60000): Promise<any> {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      
       const response = await fetch(`${OLLAMA_HOST}${path}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Ollama error ${response.status}: ${errorText}`);
       }
       return response.json();
     } catch (error: any) {
-      if (error.message.includes('failed to connect') || error.message.includes('ECONNREFUSED')) {
-        throw new Error('Ollama server not running');
+      if (error.name === 'AbortError' || error.message.includes('aborted')) {
+        throw new Error('Ollama request timed out after 60 seconds');
+      }
+      if (error.message.includes('failed to connect') || error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
+        throw new Error('Ollama server not running or unreachable');
       }
       throw error;
     }

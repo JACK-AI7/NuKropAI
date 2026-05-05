@@ -22,12 +22,22 @@ class AppColors {
   static const Color textPrimary = Color(0xFF0F172A);
   static const Color textSecondary = Color(0xFF64748B);
 
-  static const LinearGradient darkOverlay = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Colors.black54, Colors.black87],
-  );
+  static BoxDecoration glassDecoration({double radius = 24, bool highlight = false}) {
+    return BoxDecoration(
+      color: highlight ? Colors.white.withOpacity(0.2) : Colors.white.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 20,
+          spreadRadius: -5,
+        )
+      ],
+    );
+  }
 }
+
 
 class AppTheme {
   static ThemeData get hybridTheme {

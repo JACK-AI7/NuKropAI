@@ -53,6 +53,7 @@ class AIService {
 {
   "plantName": "Common crop name",
   "diseaseName": "Specific disease or pest name",
+  "cause": "The specific pathogen (bacteria/fungi), insect, or environmental factor causing the damage",
   "severity": "Low or Medium or High",
   "confidence": 0.95,
   "treatment": "Detailed treatment steps",
@@ -169,21 +170,28 @@ class AIService {
             let lastErr = null;
             if (process.env.MISTRAL_API_KEY) {
                 try {
+                    console.log('[AI] Attempting Mistral vision analysis...');
                     const parsed = await this.analyzeWithMistralVision(imagePath, prompt, isSoil);
+                    console.log('[AI] Mistral vision success');
                     return { ...parsed, _source: 'mistral' };
                 }
                 catch (e) {
                     lastErr = e?.message || String(e);
-                    console.warn('Mistral vision failed:', lastErr);
+                    console.error('[AI] Mistral vision failed:', lastErr);
                 }
             }
+            else {
+                console.warn('[AI] Mistral API key missing - skipping Mistral vision');
+            }
             try {
+                console.log('[AI] Attempting Ollama vision analysis...');
                 const parsed = await this.analyzeWithOllama(prompt, base64Image, isSoil);
+                console.log('[AI] Ollama vision success');
                 return { ...parsed, _source: 'ollama' };
             }
             catch (e) {
                 lastErr = e?.message || String(e);
-                console.warn('Ollama vision failed:', lastErr);
+                console.error('[AI] Ollama vision failed:', lastErr);
             }
             return {
                 _error: true,
@@ -248,11 +256,13 @@ Return ONLY valid JSON (no markdown):
       "whyItFits": "1-2 sentences",
       "applicationTip": "practical timing/rate hints",
       "safetyNote": "over-use, soil test, label disclaimer",
-      "regionalAvailability": "1-2 sentences: how these are typically found in THIS region's market (e.g. cooperative stores, common brand tiers) — no fake addresses"
+      "regionalAvailability": "1-2 sentences: how these are typically found in THIS region's market (e.g. cooperative stores, common brand tiers) — no fake addresses",
+      "purchaseUrl": "A search link on Amazon.in or AgriBegri.com for this specific product",
+      "imageUrl": "Use a representative high-quality agricultural image URL. Examples: https://m.media-amazon.com/images/I/71WzY6I+08L._SL1500_.jpg (for NPK/Fertilizers), https://m.media-amazon.com/images/I/61r5a0w7lEL._SL1500_.jpg (for Organic/Neem)"
     }
   ]
 }
-Rules: 3-5 suggestions. No fake registration numbers. If uncertain, say so in safetyNote.`;
+Rules: 3-5 suggestions. No fake registration numbers. If uncertain, say so in safetyNote. Provide real-world URLs for purchase and images where possible.`;
         }
         else {
             prompt = `You are an agricultural inputs advisor for India. A crop problem was ALREADY identified from an image scan. First acknowledge the issue type clearly, then RESEARCH pesticide/fungicide/bio-control options that match standard practice AND are commonly available in the farmer's REGION.
@@ -278,16 +288,20 @@ Return ONLY valid JSON (no markdown):
       "whyItFits": "linked to ${ctx.diseaseName || 'the diagnosis'}",
       "applicationTip": "timing, rotation, spray tips",
       "safetyNote": "PPE, PHI, resistance — always read label",
-      "regionalAvailability": "typical availability in this region (generic vs branded lines); no invented shop names"
+      "regionalAvailability": "typical availability in this region (generic vs branded lines); no invented shop names",
+      "purchaseUrl": "A search link on Amazon.in or AgriBegri.com for this specific product",
+      "imageUrl": "Use a representative high-quality agricultural image URL. Examples: https://m.media-amazon.com/images/I/71e-f-3vQ3L._SL1500_.jpg (for Insecticides), https://m.media-amazon.com/images/I/61mO-p-T6FL._SL1000_.jpg (for Fungicides)"
     }
   ]
 }
-Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated registration IDs.`;
+Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated registration IDs. Provide real-world URLs for purchase and images where possible.`;
         }
         let lastErr = null;
         if (process.env.MISTRAL_API_KEY) {
             try {
+                console.log('[AI] Researching products with Mistral...');
                 const parsed = await this.mistralTextJson(prompt);
+                console.log('[AI] Mistral research success');
                 this.validateProductResearch(parsed);
                 return {
                     researchSummary: String(parsed.researchSummary),
@@ -297,11 +311,13 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
             }
             catch (e) {
                 lastErr = e?.message || String(e);
-                console.warn('Mistral product research failed:', lastErr);
+                console.error('[AI] Mistral product research failed:', lastErr);
             }
         }
         try {
+            console.log('[AI] Researching products with Ollama...');
             const parsed = await this.ollamaChatJson(prompt);
+            console.log('[AI] Ollama research success');
             this.validateProductResearch(parsed);
             return {
                 researchSummary: String(parsed.researchSummary),
@@ -343,8 +359,19 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
     }
     static async chat(message, history) {
         try {
-            const messages = history.map(h => ({ role: h.role === 'model' ? 'assistant' : 'user', content: h.parts[0].text }));
+            const messages = history.map(h => ({
+                role: h.role === 'model' ? 'assistant' : 'user',
+                content: h.parts[0].text
+            }));
             messages.push({ role: 'user', content: message });
+            if (process.env.MISTRAL_API_KEY) {
+                try {
+                    return await this.callMistralChat(messages, MISTRAL_CHAT_MODEL, 0.7, 4096, false);
+                }
+                catch (e) {
+                    console.warn('Mistral chat failed, falling back to Ollama:', e);
+                }
+            }
             const result = await this.callOllama('/api/chat', { model: CHAT_MODEL, messages, stream: false });
             return result.message?.content || "I couldn't generate a response.";
         }
@@ -353,13 +380,17 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
             return "I'm having trouble. Please try again.";
         }
     }
-    static async callOllama(path, body) {
+    static async callOllama(path, body, timeout = 60000) {
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
             const response = await fetch(`${OLLAMA_HOST}${path}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
+                signal: controller.signal,
             });
+            clearTimeout(timeoutId);
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`Ollama error ${response.status}: ${errorText}`);
@@ -367,8 +398,11 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
             return response.json();
         }
         catch (error) {
-            if (error.message.includes('failed to connect') || error.message.includes('ECONNREFUSED')) {
-                throw new Error('Ollama server not running');
+            if (error.name === 'AbortError' || error.message.includes('aborted')) {
+                throw new Error('Ollama request timed out after 60 seconds');
+            }
+            if (error.message.includes('failed to connect') || error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
+                throw new Error('Ollama server not running or unreachable');
             }
             throw error;
         }

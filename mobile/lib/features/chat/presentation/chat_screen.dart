@@ -4,18 +4,32 @@ import 'package:animate_do/animate_do.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/api/api_client.dart';
+import '../../../core/ai/llm_service.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key});
+  final String? initialMessage;
+  const ChatScreen({super.key, this.initialMessage});
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
+  final LLMService _llmService = LLMService();
   final _controller = TextEditingController();
   final List<Map<String, String>> _messages = [];
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _controller.text = widget.initialMessage!;
+        _sendMessage();
+      });
+    }
+  }
 
   Future<void> _sendMessage() async {
     if (_controller.text.isEmpty || _isLoading) return;
@@ -27,31 +41,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _isLoading = true;
     });
 
-    final List<ConnectivityResult> connectivity = await (Connectivity().checkConnectivity());
-    final bool isOnline = connectivity.isNotEmpty && connectivity.first != ConnectivityResult.none;
-
-    if (isOnline) {
-      try {
-        final api = ref.read(apiClientProvider);
-        final response = await api.post('/ai/chat', data: {'message': msg});
-        setState(() {
-          _messages.add({'role': 'assistant', 'content': response.data['response']});
-        });
-      } catch (e) {
-        _handleOfflineResponse(msg);
-      } finally {
-        setState(() => _isLoading = false);
-      }
-    } else {
+    try {
+      // Use the new LLM Service (Integrated in APK)
+      final response = await _llmService.generateResponse(msg);
+      setState(() {
+        _messages.add({'role': 'assistant', 'content': response});
+      });
+    } catch (e) {
       _handleOfflineResponse(msg);
+    } finally {
       setState(() => _isLoading = false);
     }
   }
 
   void _handleOfflineResponse(String msg) {
-    String response = "I'm currently in offline mode. I can help with basic agricultural tips. For complex disease analysis, please connect to the internet.";
-    if (msg.toLowerCase().contains('water')) response = "Offline Tip: Most crops need 1-2 inches of water per week.";
-    if (msg.toLowerCase().contains('soil')) response = "Offline Tip: Healthy soil should be crumbly and rich in organic matter.";
+    String response = "I'm having trouble connecting to the advanced AI. Switching to local basic tips.";
+    if (msg.toLowerCase().contains('water')) response = "Local Tip: Ensure your crops get consistent moisture, especially during flowering.";
+    if (msg.toLowerCase().contains('pest')) response = "Local Tip: Check the undersides of leaves for eggs or small insects. Use the scanner for precise ID.";
     
     setState(() {
       _messages.add({'role': 'assistant', 'content': response});

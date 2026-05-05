@@ -14,9 +14,12 @@ function normalizeKey(s) {
 }
 class RecommendationService {
     static getData() {
+        if (this.cachedData)
+            return this.cachedData;
         try {
             const filePath = path_1.default.join(process.cwd(), 'data', 'crops.json');
-            return JSON.parse(fs_1.default.readFileSync(filePath, 'utf8'));
+            this.cachedData = JSON.parse(fs_1.default.readFileSync(filePath, 'utf8'));
+            return this.cachedData;
         }
         catch (e) {
             console.error('Error reading crops data:', e);
@@ -104,3 +107,4 @@ class RecommendationService {
     }
 }
 exports.RecommendationService = RecommendationService;
+RecommendationService.cachedData = null;

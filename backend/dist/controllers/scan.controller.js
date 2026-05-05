@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScanController = void 0;
-const index_1 = require("../index");
+const prisma_1 = require("../lib/prisma");
 const recommendation_service_1 = require("../services/recommendation.service");
 const ai_service_1 = require("../services/ai.service");
 const weather_service_1 = require("../services/weather.service");
+const pest_detection_service_1 = require("../services/pest-detection.service");
 class ScanController {
     static async createScan(req, res) {
         try {
@@ -13,9 +14,9 @@ class ScanController {
             const { label, isSoilAnalysis, latitude, longitude, confidence } = req.body;
             if (!file)
                 return res.status(400).json({ error: 'No image uploaded' });
-            const lat = parseFloat(latitude || req.body.lat);
-            const lng = parseFloat(longitude || req.body.lng);
-            const isSoil = isSoilAnalysis === 'true';
+            const lat = parseFloat(latitude ?? req.body.lat);
+            const lng = parseFloat(longitude ?? req.body.lng);
+            const isSoil = isSoilAnalysis === 'true' || isSoilAnalysis === true;
             let weatherSnapshot;
             const weatherForAi = {};
             if (!isNaN(lat) && !isNaN(lng)) {
@@ -39,14 +40,43 @@ class ScanController {
             let aiSource = 'database';
             let aiError = null;
             let analysis = null;
-            const aiResult = await ai_service_1.AIService.analyzeImage(file.path, isSoil, weatherForAi);
-            if (aiResult && !aiResult._error) {
-                analysis = aiResult;
-                aiSource = aiResult._source === 'mistral' ? 'mistral' : 'ollama';
-                delete analysis._source;
+            let processingTimeMs, number;
+            let pestDetectionsJson, string;
+            let modelConfidence, number;
+            // Determine model selection
+            const modelType = (req.body.modelType || 'auto');
+            if (modelType === 'yolo') {
+                // Force YOLO pest detection path
+                try {
+                    console.log('[Scan] Using YOLO pest detection model');
+                    const yoloResult = await pest_detection_service_1.PestDetectionService.detect(file.path);
+                    const mapped = pest_detection_service_1.PestDetectionService.mapToAnalysis(yoloResult, isSoil);
+                    analysis = mapped;
+                    aiSource = 'yolo';
+                    processingTimeMs = Math.round(yoloResult.processing_time * 1000);
+                    pestDetectionsJson = JSON.stringify(mapped._pestDetections);
+                    modelConfidence = mapped._modelConfidence;
+                    delete analysis._pestDetections;
+                    delete analysis._modelConfidence;
+                    delete analysis._processingTime;
+                    delete analysis._aiSource;
+                }
+                catch (e) {
+                    aiError = e?.message || String(e);
+                    console.error('[Scan] YOLO detection failed:', aiError);
+                }
             }
-            else if (aiResult?._error) {
-                aiError = aiResult.message || 'AI analysis failed';
+            else {
+                // Standard vision+text pipeline (mistral/ollama/database)
+                const aiResult = await ai_service_1.AIService.analyzeImage(file.path, isSoil, weatherForAi);
+                if (aiResult && !aiResult._error) {
+                    analysis = aiResult;
+                    aiSource = aiResult._source === 'mistral' ? 'mistral' : 'ollama';
+                    delete analysis._source;
+                }
+                else if (aiResult?._error) {
+                    aiError = aiResult.message || 'AI analysis failed';
+                }
             }
             const weatherForRec = weatherSnapshot && weatherSnapshot.temp != null
                 ? {
@@ -149,12 +179,13 @@ class ScanController {
                 if (label?.includes('Healthy'))
                     severity = 'Low';
             }
-            const scan = await index_1.prisma.scan.create({
+            const scan = await prisma_1.prisma.scan.create({
                 data: {
                     userId,
                     imageUrl: `/uploads/${file.filename}`,
                     plantName,
                     diseaseName,
+                    cause: analysis?.cause || null,
                     severity,
                     confidence: confidence ? parseFloat(confidence) : conf,
                     treatment,
@@ -166,6 +197,11 @@ class ScanController {
                     latitude: isNaN(lat) ? null : lat,
                     longitude: isNaN(lng) ? null : lng,
                     weather: weatherSnapshot ? JSON.stringify(weatherSnapshot) : null,
+                    aiModel: aiSource,
+                    modelVersion: process.env.YOLO_MODEL_VERSION || (aiSource === 'yolo' ? 'yolo11s-pest-detection-v1' : undefined),
+                    pestDetections: pestDetectionsJson,
+                    modelConfidence,
+                    processingTime: processingTimeMs,
                 },
             });
             const regionHint = ai_service_1.AIService.regionHintFromCoordinates(!isNaN(lat) ? lat : undefined, !isNaN(lng) ? lng : undefined);
@@ -230,7 +266,7 @@ class ScanController {
     static async getHistory(req, res) {
         try {
             const userId = req.userId;
-            const scans = await index_1.prisma.scan.findMany({
+            const scans = await prisma_1.prisma.scan.findMany({
                 where: { userId },
                 orderBy: { createdAt: 'desc' },
             });
@@ -243,7 +279,7 @@ class ScanController {
     static async getScanById(req, res) {
         try {
             const id = req.params.id;
-            const scan = await index_1.prisma.scan.findUnique({ where: { id } });
+            const scan = await prisma_1.prisma.scan.findUnique({ where: { id } });
             if (!scan)
                 return res.status(404).json({ error: 'Scan not found' });
             res.json(scan);

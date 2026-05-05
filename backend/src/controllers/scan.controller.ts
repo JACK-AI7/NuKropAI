@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma';
 import { RecommendationService } from '../services/recommendation.service';
 import { AIService, WeatherContext, ProductResearchOk } from '../services/ai.service';
 import { WeatherService } from '../services/weather.service';
+import { PestDetectionService } from '../services/pest-detection.service';
 
 export class ScanController {
   static async createScan(req: Request, res: Response) {
@@ -38,17 +39,57 @@ export class ScanController {
         }
       }
 
-      let aiSource: 'ollama' | 'mistral' | 'database' = 'database';
+      let aiSource: 'ollama' | 'mistral' | 'yolo' | 'database' = 'database';
       let aiError: string | null = null;
       let analysis: any = null;
+      let processingTimeMs: number | undefined = undefined;
+      let pestDetectionsJson: string | undefined = undefined;
+      let modelConfidence: number | undefined = undefined;
 
-      const aiResult = await AIService.analyzeImage(file.path, isSoil, weatherForAi);
-      if (aiResult && !aiResult._error) {
-        analysis = aiResult;
-        aiSource = aiResult._source === 'mistral' ? 'mistral' : 'ollama';
-        delete analysis._source;
-      } else if (aiResult?._error) {
-        aiError = aiResult.message || 'AI analysis failed';
+      // Determine model selection
+      const modelType = (req.body.modelType || 'auto') as string;
+
+      // For pest scans (not soil), try YOLO first unless explicitly 'general'
+      const shouldTryYolo = !isSoil && modelType !== 'general';
+      let yoloAttempted = false;
+
+      if (shouldTryYolo) {
+        yoloAttempted = true;
+        try {
+          console.log('[Scan] Attempting YOLO pest detection...');
+          const yoloResult = await PestDetectionService.detect(file.path);
+          if (yoloResult.detections && yoloResult.detections.length > 0) {
+            const mapped = PestDetectionService.mapToAnalysis(yoloResult, isSoil);
+            analysis = mapped;
+            aiSource = 'yolo';
+            processingTimeMs = Math.round(yoloResult.processing_time * 1000);
+            pestDetectionsJson = JSON.stringify(mapped._pestDetections);
+            modelConfidence = mapped._modelConfidence;
+            delete analysis._pestDetections;
+            delete analysis._modelConfidence;
+            delete analysis._processingTime;
+            delete analysis._aiSource;
+            console.log(`[Scan] YOLO success: detected ${yoloResult.detections.length} pest(s)`);
+          } else {
+            aiError = 'YOLO: no pests detected';
+            console.log('[Scan] YOLO returned no detections, falling back');
+          }
+        } catch (e: any) {
+          aiError = e?.message || String(e);
+          console.error('[Scan] YOLO detection failed:', aiError);
+        }
+      }
+
+      // If YOLO didn't yield analysis, fall back to vision+text AI or database
+      if (!analysis) {
+        const aiResult = await AIService.analyzeImage(file.path, isSoil, weatherForAi);
+        if (aiResult && !aiResult._error) {
+          analysis = aiResult;
+          aiSource = aiResult._source === 'mistral' ? 'mistral' : 'ollama';
+          delete analysis._source;
+        } else if (aiResult?._error) {
+          aiError = aiResult.message || 'AI analysis failed';
+        }
       }
 
       const weatherForRec =
@@ -172,6 +213,11 @@ export class ScanController {
           latitude: isNaN(lat) ? null : lat,
           longitude: isNaN(lng) ? null : lng,
           weather: weatherSnapshot ? JSON.stringify(weatherSnapshot) : null,
+          aiModel: aiSource,
+          modelVersion: process.env.YOLO_MODEL_VERSION || (aiSource === 'yolo' ? 'yolo11s-pest-detection-v1' : undefined),
+          pestDetections: pestDetectionsJson,
+          modelConfidence,
+          processingTime: processingTimeMs,
         },
       });
 
