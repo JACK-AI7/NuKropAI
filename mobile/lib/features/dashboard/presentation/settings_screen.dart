@@ -18,11 +18,30 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final TextEditingController _serverController = TextEditingController();
+  final TextEditingController _apiKeyController = TextEditingController();
+  bool _apiKeyVisible = false;
 
   @override
   void initState() {
     super.initState();
     _loadServerUrl();
+    _loadApiKey();
+  }
+
+  Future<void> _loadApiKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    _apiKeyController.text = prefs.getString('gemini_api_key') ?? '';
+  }
+
+  Future<void> _saveApiKey() async {
+    final key = _apiKeyController.text.trim();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('gemini_api_key', key);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('API Key saved!'), backgroundColor: Colors.green),
+      );
+    }
   }
 
   Future<void> _loadServerUrl() async {
@@ -124,10 +143,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ),
                       
-                      const SizedBox(height: 32),
-                      _buildSectionTitle('CONNECTIVITY'),
-                      const SizedBox(height: 16),
-                      _buildGlassServerConfig(),
+                       const SizedBox(height: 32),
+                       _buildSectionTitle('CONNECTIVITY'),
+                       const SizedBox(height: 16),
+                       _buildGlassServerConfig(),
+                       const SizedBox(height: 24),
+                       _buildGeminiApiConfig(),
                       
                       const SizedBox(height: 32),
                       _buildSectionTitle('ABOUT'),
@@ -210,7 +231,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             controller: _serverController,
             style: const TextStyle(color: Colors.white, fontSize: 14),
             decoration: InputDecoration(
-              hintText: 'http://your-ip:3000/api',
+              hintText: 'http://your-ip:3000',
               hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
               filled: true,
               fillColor: Colors.white.withOpacity(0.03),
@@ -219,7 +240,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text('Requires app restart after saving to take full effect.', style: TextStyle(color: Colors.white24, fontSize: 10, fontStyle: FontStyle.italic)),
+          const Text('Optional: only needed for cloud sync. App works without it.', style: TextStyle(color: Colors.white24, fontSize: 10, fontStyle: FontStyle.italic)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGeminiApiConfig() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: AppColors.glassDecoration(radius: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.psychology_rounded, color: Colors.deepPurpleAccent, size: 20),
+              const SizedBox(width: 12),
+              const Text('Gemini API Key', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+              const Spacer(),
+              GestureDetector(
+                onTap: _saveApiKey,
+                child: const Text('SAVE', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w900, fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _apiKeyController,
+            obscureText: !_apiKeyVisible,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: 'AIzaSy...',
+              hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.03),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              suffixIcon: IconButton(
+                icon: Icon(_apiKeyVisible ? Icons.visibility_off : Icons.visibility, color: Colors.white38, size: 18),
+                onPressed: () => setState(() => _apiKeyVisible = !_apiKeyVisible),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text('Get a free key from Google AI Studio. Enables detailed AI analysis.Leave empty to use on‑device only.', style: TextStyle(color: Colors.white24, fontSize: 10, fontStyle: FontStyle.italic)),
         ],
       ),
     );
