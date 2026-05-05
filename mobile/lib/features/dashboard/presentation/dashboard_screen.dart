@@ -47,35 +47,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
       backgroundColor: const Color(0xFF0F172A),
       body: Stack(
         children: [
-          // Dynamic Animated Background
-          IgnorePointer(
-            child: AnimatedBuilder(
-              animation: _bgAnimationController,
-              builder: (context, child) {
-                return Container(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: Alignment(
-                        0.5 + 0.3 * _bgAnimationController.value,
-                        0.5 + 0.2 * (1 - _bgAnimationController.value),
+          // Dynamic Animated Background (Non-blocking)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _bgAnimationController,
+                builder: (context, child) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment(
+                          0.5 + 0.3 * _bgAnimationController.value,
+                          0.5 + 0.2 * (1 - _bgAnimationController.value),
+                        ),
+                        radius: 1.5,
+                        colors: const [
+                          Color(0xFF1E293B),
+                          Color(0xFF0F172A),
+                        ],
                       ),
-                      radius: 1.5,
-                      colors: const [
-                        Color(0xFF1E293B),
-                        Color(0xFF0F172A),
-                      ],
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
           
-          // Floating Blurred Blobs (Ignored for touches)
-          IgnorePointer(
-            child: Positioned(
-              top: -50,
-              right: -50,
+          // Floating Blurred Blobs (Non-blocking)
+          Positioned(
+            top: -50,
+            right: -50,
+            child: IgnorePointer(
               child: Container(
                 width: 250,
                 height: 250,
