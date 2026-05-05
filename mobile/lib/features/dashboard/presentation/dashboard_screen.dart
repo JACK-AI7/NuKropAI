@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../scanner/presentation/scanner_screen.dart';
-import '../../scanner/presentation/results_screen.dart';
 import '../../chat/presentation/chat_screen.dart';
 import '../../../core/api/scanner_service.dart';
 import 'settings_screen.dart';
@@ -274,7 +272,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(16)),
+                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
                 child: Icon(icon, color: color, size: 28),
               ),
               const SizedBox(height: 20),
@@ -360,8 +358,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               ],
             ),
           ],
-        ),
-      )),
+          ),
+        )),
     );
   }
 

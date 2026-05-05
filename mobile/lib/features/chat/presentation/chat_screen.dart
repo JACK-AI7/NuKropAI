@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/api/api_client.dart';
 import '../../../core/ai/llm_service.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -42,7 +40,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
 
     try {
-      // Use the new LLM Service (Integrated in APK)
+      // Use the LLM Service (Integrated in APK)
       final response = await _llmService.generateText(msg);
       setState(() {
         _messages.add({'role': 'assistant', 'content': response});

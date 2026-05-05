@@ -3,12 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/api/scanner_service.dart';
-import '../../../core/api/api_client.dart';
 import '../../dashboard/presentation/settings_screen.dart';
 import 'results_screen.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'package:camera/camera.dart' as cam;
 import 'package:image_picker/image_picker.dart';
 
@@ -60,7 +58,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   Future<void> _pickFromGallery() async {
     if (_isProcessing) return;
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      final image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         await _processImage(image.path);
       }
@@ -117,7 +115,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             isSoil: widget.isSoil,
           );
 
-      if (result != null && mounted) {
+      if (mounted) {
         final aiSource = result['aiSource'] ?? 'local';
         String message;
         switch (aiSource) {

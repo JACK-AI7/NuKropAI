@@ -206,7 +206,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.white.withOpacity(0.1)),
         ),
-        child: Text(flag + " " + code.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.white)),
+        child: Text("$flag ${code.toUpperCase()}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.white)),
       ),
     );
   }

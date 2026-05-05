@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/api/server_config.dart';
@@ -272,8 +271,9 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
     final scan = widget.scan;
     final severity = (scan['severity'] ?? 'Medium').toString().toLowerCase();
     Color severityColor;
-    if (severity.contains('high')) severityColor = Colors.red;
-    else if (severity.contains('medium')) severityColor = Colors.orange;
+    if (severity.contains('high')) {
+      severityColor = Colors.red;
+    } else if (severity.contains('medium')) severityColor = Colors.orange;
     else severityColor = Colors.green;
 
     return Container(
@@ -503,7 +503,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

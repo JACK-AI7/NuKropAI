@@ -228,7 +228,7 @@ class ScannerService {
       // Core fields
       'plantName': plantName,
       'diseaseName': diseaseName,
-       'cause': onDeviceResult['cause'] ?? onDeviceResult['type'] ?? null,
+       'cause': onDeviceResult['cause'] ?? onDeviceResult['type'],
       'severity': severity,
       'confidence': confidence,
       'treatment': treatment,

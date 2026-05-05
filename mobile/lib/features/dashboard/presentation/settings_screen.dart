@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/config/constants.dart';
 import '../../../core/api/server_config.dart';
 import 'dart:ui';
+import '../../../core/ai/llm_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -20,12 +21,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final TextEditingController _serverController = TextEditingController();
   final TextEditingController _apiKeyController = TextEditingController();
   bool _apiKeyVisible = false;
+  String _selectedModel = 'gemini-1.5-flash-latest';
 
   @override
   void initState() {
     super.initState();
     _loadServerUrl();
     _loadApiKey();
+    _loadModel();
   }
 
   Future<void> _loadApiKey() async {
@@ -33,15 +36,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     _apiKeyController.text = prefs.getString('gemini_api_key') ?? '';
   }
 
+  Future<void> _loadModel() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _selectedModel = prefs.getString('gemini_model') ?? 'gemini-1.5-flash-latest';
+    });
+  }
+
   Future<void> _saveApiKey() async {
     final key = _apiKeyController.text.trim();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('gemini_api_key', key);
+    // Update LLM service with new key
+    final llmService = LLMService();
+    await llmService.updateApiKey(key);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('API Key saved!'), backgroundColor: Colors.green),
       );
     }
+  }
+
+  Future<void> _saveModel() async {
+    final llmService = LLMService();
+    await llmService.updateModel(_selectedModel);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Model updated to ${_getModelDisplayName(_selectedModel)}'), backgroundColor: Colors.green),
+      );
+    }
+  }
+
+  String _getModelDisplayName(String modelValue) {
+    final displayName = LLMService.geminiModels.entries
+        .firstWhere((e) => e.value == modelValue, orElse: () => const MapEntry('Unknown', 'unknown'))
+        .key;
+    return displayName;
   }
 
   Future<void> _loadServerUrl() async {
@@ -143,12 +173,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         ),
                       ),
                       
-                       const SizedBox(height: 32),
-                       _buildSectionTitle('CONNECTIVITY'),
-                       const SizedBox(height: 16),
-                       _buildGlassServerConfig(),
-                       const SizedBox(height: 24),
-                       _buildGeminiApiConfig(),
+                      const SizedBox(height: 32),
+                      _buildSectionTitle('AI MODEL CONFIGURATION'),
+                      const SizedBox(height: 16),
+                      _buildGlassModelConfig(),
+                      const SizedBox(height: 24),
+                      _buildGeminiApiConfig(),
+                      
+                      const SizedBox(height: 32),
+                      _buildSectionTitle('CONNECTIVITY'),
+                      const SizedBox(height: 16),
+                      _buildGlassServerConfig(),
                       
                       const SizedBox(height: 32),
                       _buildSectionTitle('ABOUT'),
@@ -202,6 +237,60 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           trailing ?? const Icon(Icons.chevron_right_rounded, color: Colors.white24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassModelConfig() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: AppColors.glassDecoration(radius: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.smart_toy_rounded, color: Colors.deepPurpleAccent, size: 20),
+              const SizedBox(width: 12),
+              const Text('AI Model', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+              const Spacer(),
+              GestureDetector(
+                onTap: _saveModel,
+                child: const Text('SAVE', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w900, fontSize: 12)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            initialValue: _selectedModel,
+            dropdownColor: const Color(0xFF1E293B),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: 'Select AI model',
+              hintStyle: const TextStyle(color: Colors.white24, fontSize: 12),
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.03),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            items: LLMService.geminiModels.entries.map((entry) {
+              return DropdownMenuItem<String>(
+                value: entry.value,
+                child: Text(entry.key, style: const TextStyle(fontSize: 13)),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedModel = value!;
+              });
+            },
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Agricultural AI Models: AgriChat, AgriGPT-VL, AgriM-LLM, Agri-LLaVA, CropSeek-LLM.\nGeneral Models: Llama 3.2 Vision, Qwen 2.5 VL, Phi-4 Multimodal.',
+            style: TextStyle(color: Colors.white24, fontSize: 10, fontStyle: FontStyle.italic),
+          ),
         ],
       ),
     );
@@ -284,7 +373,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text('Get a free key from Google AI Studio. Enables detailed AI analysis.Leave empty to use on‑device only.', style: TextStyle(color: Colors.white24, fontSize: 10, fontStyle: FontStyle.italic)),
+          const Text('Get a free key from Google AI Studio. Enables detailed AI analysis. Leave empty to use on-device only.', style: TextStyle(color: Colors.white24, fontSize: 10, fontStyle: FontStyle.italic)),
         ],
       ),
     );
@@ -327,3 +416,4 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 }
+
