@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LLMService {
-  static const String _defaultApiKey = "AIzaSyBlMcrlB88DXa1VNGaQuVz3h0AvlbOkpZI";
+  static const String _defaultApiKey = ""; // Removed for security. Add your key in Settings or via --dart-define
   late GenerativeModel _model;
   bool _isInitialized = false;
   String? _apiKey;
