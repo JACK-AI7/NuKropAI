@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'local_database.dart';
 import '../ai/on_device_ai_service.dart';
 import '../ai/llm_service.dart';
+import 'cloud_ai_service.dart';
 
 final currentWeatherProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final service = ScannerService();
@@ -23,6 +24,7 @@ class ScannerService {
   ScannerService();
   final OnDeviceAIService _onDeviceAI = OnDeviceAIService();
   final LLMService _llmService = LLMService();
+  final CloudAIService _cloudAI = CloudAIService();
 
   Future<void> init() async {
     await _onDeviceAI.loadModel();
@@ -120,6 +122,25 @@ class ScannerService {
     final onDeviceResult = await _onDeviceAI.analyzeImage(image.path, isSoil: isSoil);
     if (onDeviceResult == null) {
       throw Exception('On-device AI model not loaded or analysis failed');
+    }
+
+    // 2.5 Cloud specialized analysis (if online and not soil)
+    List<Map<String, dynamic>> cloudDetections = [];
+    if (!isSoil) {
+      try {
+        // Run pest detection concurrently
+        cloudDetections = await _cloudAI.detectPests(image.path);
+        if (onDeviceResult['plantName'] == 'Maize' || onDeviceResult['plantName'] == 'Corn') {
+          final maizeResults = await _cloudAI.detectMaizeDisease(image.path);
+          // Merge results if needed or use as primary
+          if (maizeResults.isNotEmpty) {
+             onDeviceResult['diseaseName'] = maizeResults.first['label'];
+             onDeviceResult['confidence'] = maizeResults.first['score'];
+          }
+        }
+      } catch (e) {
+        debugPrint('Cloud specialized analysis failed: $e');
+      }
     }
 
     // 3. Cloud LLM analysis if available (richer recommendations)
