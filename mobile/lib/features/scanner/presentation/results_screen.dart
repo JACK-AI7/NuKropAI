@@ -9,6 +9,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../chat/presentation/chat_screen.dart';
+import 'dart:ui';
 
 class ResultsScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> scan;
@@ -50,19 +51,21 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
     final baseUrl = ref.watch(serverBaseUrlProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color(0xFF0F172A),
       body: Stack(
         children: [
-          // Background Gradient
-          Positioned.fill(
+          // Background Glow
+          Positioned(
+            top: -100,
+            left: -100,
             child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-                ),
+              width: 400,
+              height: 400,
+              decoration: BoxDecoration(
+                color: (isSoil ? Colors.orangeAccent : AppColors.accent).withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
+              child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80), child: Container()),
             ),
           ),
 
@@ -70,7 +73,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
             physics: const BouncingScrollPhysics(),
             slivers: [
               SliverAppBar(
-                expandedHeight: 300,
+                expandedHeight: 320,
                 pinned: true,
                 backgroundColor: Colors.transparent,
                 flexibleSpace: FlexibleSpaceBar(
@@ -97,14 +100,14 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
                       const SizedBox(height: 16),
                       _buildGlassInsightList(scan, isSoil),
                       const SizedBox(height: 32),
-                      _buildSectionTitle('BUYING OPTIONS & PRODUCTS'),
+                      _buildSectionTitle('RECOMMENDED PRODUCTS'),
                       const SizedBox(height: 16),
-                      _buildGlassProductResearch(scan),
+                      _buildProductSection(scan),
                       const SizedBox(height: 32),
                       _buildSectionTitle('NPK PROFILE'),
                       const SizedBox(height: 16),
                       _buildGlassNPKCard(scan),
-                      const SizedBox(height: 100),
+                      const SizedBox(height: 120),
                     ],
                   ),
                 ),
@@ -112,7 +115,6 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
             ],
           ),
           
-          // Fixed Chat FAB
           Positioned(
             bottom: 30,
             right: 24,
@@ -127,7 +129,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
   Widget _buildGlassActionIcon(IconData icon, VoidCallback onTap) {
     return Container(
       margin: const EdgeInsets.all(8),
-      decoration: AppColors.glassDecoration(radius: 12),
+      decoration: AppColors.glassDecoration(radius: 14),
       child: IconButton(
         icon: Icon(icon, color: Colors.white, size: 20),
         onPressed: onTap,
@@ -155,18 +157,22 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
       children: [
         Row(
           children: [
-            Text(
-              aiSource.toUpperCase(),
-              style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 2),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+              child: Text(
+                aiSource.toUpperCase(),
+                style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.w900, fontSize: 10, letterSpacing: 1.5),
+              ),
             ),
             const Spacer(),
-            Icon(isSoil ? Icons.terrain_rounded : Icons.eco_rounded, color: Colors.white38, size: 16),
+            Icon(isSoil ? Icons.terrain_rounded : Icons.eco_rounded, color: Colors.white38, size: 18),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Text(
           isSoil ? (scan['soilType'] ?? 'Unknown Soil') : (scan['diseaseName'] ?? 'Healthy'),
-          style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: -1),
+          style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: -1.5),
         ),
       ],
     );
@@ -188,14 +194,14 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
   Widget _statCard(String label, String value, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: AppColors.glassDecoration(radius: 24),
+        padding: const EdgeInsets.all(24),
+        decoration: AppColors.glassDecoration(radius: 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
-            const SizedBox(height: 4),
-            Text(value, style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 8),
+            Text(value, style: TextStyle(color: color, fontSize: 24, fontWeight: FontWeight.w900)),
           ],
         ),
       ),
@@ -210,9 +216,12 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(color: Colors.white38, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 2),
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        title,
+        style: const TextStyle(color: Colors.white38, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 2),
+      ),
     );
   }
 
@@ -223,10 +232,10 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
       child: Column(
         children: [
           _insightItem(isSoil ? Icons.health_and_safety : Icons.healing, isSoil ? 'Soil Health' : 'Treatment', isSoil ? scan['soilHealth'] : scan['treatment'], AppColors.accent),
-          const Divider(height: 32, color: Colors.white10),
-          _insightItem(isSoil ? Icons.eco : Icons.science, isSoil ? 'Nutrients' : 'Pesticide', isSoil ? scan['nutrients'] : (scan['pesticide'] ?? scan['fertilizer']), Colors.blueAccent),
+          const Divider(height: 48, color: Colors.white10),
+          _insightItem(isSoil ? Icons.eco : Icons.science, isSoil ? 'Nutrients' : 'Chemical Advice', isSoil ? scan['nutrients'] : (scan['pesticide'] ?? scan['fertilizer'] ?? scan['treatment']), Colors.blueAccent),
           if (isSoil && scan['suitableCrops'] != null) ...[
-            const Divider(height: 32, color: Colors.white10),
+            const Divider(height: 48, color: Colors.white10),
             _insightItem(Icons.agriculture, 'Best Crops', scan['suitableCrops'], Colors.orangeAccent),
           ],
         ],
@@ -239,18 +248,18 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-          child: Icon(icon, color: color, size: 20),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
+          child: Icon(icon, color: color, size: 22),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 20),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: const TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 2),
-              Text(value?.toString() ?? 'N/A', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500, height: 1.4)),
+              const SizedBox(height: 6),
+              Text(value?.toString() ?? 'N/A', style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500, height: 1.5)),
             ],
           ),
         ),
@@ -267,25 +276,29 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: AppColors.glassDecoration(radius: 32),
+      decoration: AppColors.glassDecoration(radius: 32, highlight: true),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Row(
             children: [
-              Icon(Icons.bug_report_rounded, color: Colors.purpleAccent, size: 20),
+              Icon(Icons.bug_report_rounded, color: Colors.purpleAccent, size: 24),
               SizedBox(width: 12),
-              Text('PEST DETECTIONS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+              Text('PEST DETECTIONS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14)),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           ...pests.map((p) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: 16),
             child: Row(
               children: [
-                Text(p['species']?.toString() ?? 'Unknown', style: const TextStyle(color: Colors.white, fontSize: 15)),
+                Text(p['species']?.toString() ?? 'Unknown', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 const Spacer(),
-                Text('${((p['confidence'] ?? 0) * 100).round()}%', style: const TextStyle(color: Colors.purpleAccent, fontWeight: FontWeight.bold)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(color: Colors.purpleAccent.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+                  child: Text('${((p['confidence'] ?? 0) * 100).round()}%', style: const TextStyle(color: Colors.purpleAccent, fontWeight: FontWeight.w900, fontSize: 12)),
+                ),
               ],
             ),
           )),
@@ -294,53 +307,91 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
     );
   }
 
-  Widget _buildGlassProductResearch(Map<String, dynamic> scan) {
+  Widget _buildProductSection(Map<String, dynamic> scan) {
+    final error = scan['productResearchError'];
+    if (error != null) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: AppColors.glassDecoration(radius: 32),
+        child: Column(
+          children: [
+            const Icon(Icons.info_outline, color: Colors.white38, size: 32),
+            const SizedBox(height: 12),
+            Text(
+              'Research unavailable for this scan.\nCheck your internet or AI settings.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.5),
+            ),
+          ],
+        ),
+      );
+    }
+
     final pr = scan['productResearch'];
-    if (pr == null || pr is! Map) return const Center(child: Text('No buying options found.', style: TextStyle(color: Colors.white38)));
+    if (pr == null || pr is! Map) return const Center(child: Text('Researching products...', style: TextStyle(color: Colors.white38)));
     
     final List suggestions = pr['suggestions'] ?? [];
     
     return Column(
-      children: suggestions.map<Widget>((m) {
-        final buyUrl = m['purchaseUrl']?.toString();
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(20),
-          decoration: AppColors.glassDecoration(radius: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(child: Text(m['productName']?.toString() ?? 'Product', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
-                  if (m['productType'] != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                      child: Text(m['productType'].toString(), style: const TextStyle(color: AppColors.accent, fontSize: 10, fontWeight: FontWeight.bold)),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text('Active: ${m['activeIngredient'] ?? 'N/A'}', style: const TextStyle(color: Colors.white60, fontSize: 12, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-              Text(m['whyItFits']?.toString() ?? '', style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.5)),
-              if (buyUrl != null && buyUrl.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () => launchUrl(Uri.parse(buyUrl), mode: LaunchMode.externalApplication),
-                    icon: const Icon(Icons.shopping_bag_outlined, size: 18),
-                    label: const Text('BUY NOW', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.accent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                  ),
-                ),
-              ],
-            ],
+      children: [
+        if (pr['researchSummary'] != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24, left: 4, right: 4),
+            child: Text(pr['researchSummary'], style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.6, fontStyle: FontStyle.italic)),
           ),
-        );
-      }).toList(),
+        ...suggestions.map<Widget>((m) {
+          final buyUrl = m['purchaseUrl']?.toString();
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(24),
+            decoration: AppColors.glassDecoration(radius: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(child: Text(m['productName']?.toString() ?? 'Product', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20))),
+                    if (m['productType'] != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(color: AppColors.accent.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
+                        child: Text(m['productType'].toString().toUpperCase(), style: const TextStyle(color: AppColors.accent, fontSize: 10, fontWeight: FontWeight.w900)),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(Icons.science_outlined, color: Colors.white38, size: 14),
+                    const SizedBox(width: 6),
+                    Text(m['activeIngredient'] ?? 'Multi-action', style: const TextStyle(color: Colors.white60, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(m['whyItFits']?.toString() ?? '', style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.6)),
+                if (buyUrl != null && buyUrl.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: () => launchUrl(Uri.parse(buyUrl), mode: LaunchMode.externalApplication),
+                      icon: const Icon(Icons.shopping_cart_checkout_rounded, size: 20),
+                      label: const Text('BUY NOW', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 12)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.accent,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }).toList(),
+      ],
     );
   }
 
@@ -349,23 +400,23 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
     final List<double> vals = (npk as List).map((e) => (e as num).toDouble()).toList();
 
     return Container(
-      height: 200,
-      padding: const EdgeInsets.all(24),
-      decoration: AppColors.glassDecoration(radius: 32),
+      height: 220,
+      padding: const EdgeInsets.all(28),
+      decoration: AppColors.glassDecoration(radius: 36),
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
           maxY: 100,
-          barTouchData: BarTouchData(enabled: false),
+          barTouchData: BarTouchData(enabled: true),
           titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, getTitlesWidget: (v, m) => Text(['N', 'P', 'K'][v.toInt()], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
+            bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, getTitlesWidget: (v, m) => Padding(padding: const EdgeInsets.only(top: 10), child: Text(['N', 'P', 'K'][v.toInt()], style: const TextStyle(color: Colors.white54, fontWeight: FontWeight.w900, fontSize: 14))))),
             leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
-          barGroups: List.generate(3, (i) => BarChartGroupData(x: i, barRods: [BarChartRodData(toY: vals[i], color: [Colors.blue, Colors.green, Colors.orange][i], width: 30, borderRadius: BorderRadius.circular(8))])),
+          barGroups: List.generate(3, (i) => BarChartGroupData(x: i, barRods: [BarChartRodData(toY: vals[i], color: [Colors.blueAccent, Colors.greenAccent, Colors.orangeAccent][i], width: 36, borderRadius: const BorderRadius.vertical(top: Radius.circular(10)), backDrawRodData: BackgroundBarChartRodData(show: true, toY: 100, color: Colors.white.withOpacity(0.05)))])),
         ),
       ),
     );
@@ -378,13 +429,17 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(initialMessage: "Tell me more about $diagnosis.")));
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: AppColors.glassDecoration(radius: 32, highlight: true),
         child: Row(
           children: [
-            const CircleAvatar(backgroundColor: AppColors.accent, child: Icon(Icons.auto_awesome, color: Colors.white, size: 20)),
-            const SizedBox(width: 16),
-            const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Discuss with AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Text('Get deeper insights', style: TextStyle(color: Colors.white38, fontSize: 11))])),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
+              child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 20),
+            const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Discuss with AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)), Text('Get deeper insights into this diagnosis', style: TextStyle(color: Colors.white38, fontSize: 11))])),
             const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white24, size: 16),
           ],
         ),
