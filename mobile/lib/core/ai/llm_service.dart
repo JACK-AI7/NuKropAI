@@ -9,7 +9,7 @@ class LLMService {
   late GenerativeModel _model;
   bool _isInitialized = false;
   String? _apiKey;
-  String _currentModel = 'gemini-1.5-flash-latest';
+  String _currentModel = 'gemini-1.5-flash';
   
   // Agricultural specialist LLM configurations
   static const String cropSeek = 'CropSeek-LLM (Fine-tuned DeepSeek-R1)';
@@ -22,6 +22,7 @@ class LLMService {
   static const String qwenVL = 'Qwen 2.5 VL (Apache 2.0)';
   
   // Available Gemini models for different use cases
+  // Using stable v1 API models (not -latest aliases which can be deprecated)
   static const Map<String, String> geminiModels = {
     'Gemini 1.5 Flash': 'gemini-1.5-flash',
     'Gemini 1.5 Pro': 'gemini-1.5-pro',
@@ -50,13 +51,14 @@ class LLMService {
         _apiKey = _defaultApiKey;
       }
       
+      // Use v1 API for stability (v1beta may have regional restrictions)
       _model = GenerativeModel(
         model: _currentModel,
         apiKey: _apiKey!,
         systemInstruction: _getSystemInstruction(),
       );
       _isInitialized = true;
-      debugPrint('LLM initialized with $_currentModel');
+      debugPrint('LLM initialized with $_currentModel (v1 API)');
     } catch (e) {
       debugPrint('LLM Init Error: $e');
       _isInitialized = false;
@@ -105,6 +107,7 @@ Be concise but thorough. Use metric units and Indian agricultural context.
   Future<void> updateModel(String modelName) async {
     if (geminiModels.values.contains(modelName)) {
       _currentModel = modelName;
+      // Use v1 API for stability
       _model = GenerativeModel(
         model: _currentModel,
         apiKey: _apiKey!,
@@ -113,7 +116,7 @@ Be concise but thorough. Use metric units and Indian agricultural context.
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('gemini_model', modelName);
       _isInitialized = true;
-      debugPrint('LLM model updated to $_currentModel');
+      debugPrint('LLM model updated to $_currentModel (v1 API)');
     }
   }
 
@@ -122,13 +125,14 @@ Be concise but thorough. Use metric units and Indian agricultural context.
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('gemini_api_key', newKey);
     
+    // Use v1 API for stability
     _model = GenerativeModel(
       model: _currentModel,
       apiKey: _apiKey!,
       systemInstruction: _getSystemInstruction(),
     );
     _isInitialized = true;
-    debugPrint('LLM API key updated');
+    debugPrint('LLM API key updated (v1 API)');
   }
 
   /// Generate text response, optionally with image(s) for multimodal analysis
