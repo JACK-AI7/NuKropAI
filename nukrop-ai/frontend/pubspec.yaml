@@ -1,0 +1,24 @@
+name: nukrop_ai
+version: 1.0.0
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.4.3
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  image_picker: ^1.0.4
+  http: ^1.1.2
+  lottie: ^3.0.0
+  lucide_icons: ^1.0.2
+  speech_to_text: ^6.5.1
+  flutter_tts: ^3.8.3
+  google_fonts: ^6.1.0
+  camera: ^0.10.5+5
+  flutter_dotenv: ^5.1.0
+
+flutter:
+  assets:
+    - .env
