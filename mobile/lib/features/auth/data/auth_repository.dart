@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,17 +19,75 @@ class AuthRepository {
 
   // 🔑 Firebase Signup (Step 5)
   Future<UserCredential> signup(String email, String password, String name) async {
-    final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+    try {
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await userCredential.user?.updateDisplayName(name);
+      await saveUser(userCredential.user!.uid, email, name);
+      return userCredential;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // 🔑 Firebase Login (Step 5)
+  Future<UserCredential> login(String email, String password) async {
+    return await _firebaseAuth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
-    await userCredential.user?.updateDisplayName(name);
-    
-    // ☁️ Save User Data to Firestore (Step 6)
-    await saveUser(userCredential.user!.uid, email, name);
-    
-    return userCredential;
   }
+
+  // ☁️ Save User to Firestore (Step 6)
+  Future<void> saveUser(String uid, String email, String name) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        "name": name,
+        "email": email,
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('Error saving user to Firestore: $e');
+    }
+  }
+
+  Future<UserCredential?> signInWithGoogle(GoogleSignIn googleSignIn) async {
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      return null;
+    }
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    return await _firebaseAuth.signInWithCredential(credential);
+  }
+
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut();
+  }
+
+  Future<bool> isEmailInUse(String email) async {
+    try {
+      final fetchProviders = await _firebaseAuth.fetchSignInMethodsForEmail(email);
+      return fetchProviders.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<UserCredential?> checkAuth() async {
+    return _firebaseAuth.authStateChanges().firstWhere(
+      (user) => user != null,
+      orElse: () => null,
+    );
+  }
+}
 
   // 🔑 Firebase Login (Step 5)
   Future<UserCredential> login(String email, String password) async {
@@ -106,18 +166,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> checkAuth() async {
     state = state.copyWith(isLoading: true);
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      state = state.copyWith(
-        isAuthenticated: true, 
-        isLoading: false, 
-        user: {
-          'name': user.displayName,
-          'email': user.email,
-          'uid': user.uid,
-        }
-      );
-    } else {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        state = state.copyWith(
+          isAuthenticated: true, 
+          isLoading: false, 
+          user: {
+            'name': user.displayName,
+            'email': user.email,
+            'uid': user.uid,
+          }
+        );
+      } else {
+        state = state.copyWith(isAuthenticated: false, isLoading: false);
+      }
+    } catch (e) {
+      debugPrint('Error checking auth: $e');
       state = state.copyWith(isAuthenticated: false, isLoading: false);
     }
   }

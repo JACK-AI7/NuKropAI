@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/l10n/app_localizations.dart';
+import 'core/l10n/app_localizations_delegate.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/dashboard/presentation/dashboard_screen.dart';
@@ -27,6 +28,7 @@ void main() async {
     debugPrint("Remote Config Initialized Successfully");
   } catch (e) {
     debugPrint("Firebase/Remote Config Initialization Error: $e");
+    // Continue without remote config - app can still function
   }
 
   runApp(const ProviderScope(child: MyApp()));
@@ -48,12 +50,12 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.hybridTheme,
       locale: currentLocale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+localizationsDelegates: [
+          AppLocalizationsDelegate(),
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
       supportedLocales: const [
         Locale('en'),
         Locale('hi'),
