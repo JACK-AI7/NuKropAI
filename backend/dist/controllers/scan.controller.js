@@ -2,265 +2,141 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScanController = void 0;
 const prisma_1 = require("../lib/prisma");
-const recommendation_service_1 = require("../services/recommendation.service");
-const ai_service_1 = require("../services/ai.service");
 const weather_service_1 = require("../services/weather.service");
-const pest_detection_service_1 = require("../services/pest-detection.service");
+const retry_1 = require("../utils/retry");
+const logger_1 = require("../utils/logger");
 class ScanController {
     static async createScan(req, res) {
         try {
             const userId = req.userId;
             const file = req.file;
-            const { label, isSoilAnalysis, latitude, longitude, confidence } = req.body;
+            const { label, isSoilAnalysis, latitude, longitude, confidence, 
+            // Client-provided analysis fields (if mobile did analysis)
+            plantName, diseaseName, cause, severity, treatment, fertilizer, pesticide, soilType, soilHealth, aiModel, modelConfidence, processingTime, pestDetections, weather: weatherJson, matchedDiseaseKey, prevention, chemicalClass, suitableCrops, } = req.body;
             if (!file)
                 return res.status(400).json({ error: 'No image uploaded' });
             const lat = parseFloat(latitude ?? req.body.lat);
             const lng = parseFloat(longitude ?? req.body.lng);
             const isSoil = isSoilAnalysis === 'true' || isSoilAnalysis === true;
-            let weatherSnapshot;
-            const weatherForAi = {};
-            if (!isNaN(lat) && !isNaN(lng)) {
-                try {
-                    const w = await weather_service_1.WeatherService.getWeather(lat, lng);
-                    weatherSnapshot = {
-                        temp: w.temp,
-                        humidity: w.humidity,
-                        windSpeed: w.windSpeed,
-                        weatherCode: w.weatherCode,
-                        time: w.time,
-                        unit: w.unit,
-                    };
-                    weatherForAi.temp = w.temp;
-                    weatherForAi.humidity = w.humidity;
-                }
-                catch (weatherErr) {
-                    console.warn('Weather fetch failed, continuing without:', weatherErr);
-                }
-            }
-            let aiSource = 'database';
-            let aiError = null;
+            // If client already provided full analysis, skip server-side AI
+            const clientAnalyzed = plantName != null || soilType != null;
             let analysis = null;
-            let processingTimeMs, number;
-            let pestDetectionsJson, string;
-            let modelConfidence, number;
-            // Determine model selection
-            const modelType = (req.body.modelType || 'auto');
-            if (modelType === 'yolo') {
-                // Force YOLO pest detection path
-                try {
-                    console.log('[Scan] Using YOLO pest detection model');
-                    const yoloResult = await pest_detection_service_1.PestDetectionService.detect(file.path);
-                    const mapped = pest_detection_service_1.PestDetectionService.mapToAnalysis(yoloResult, isSoil);
-                    analysis = mapped;
-                    aiSource = 'yolo';
-                    processingTimeMs = Math.round(yoloResult.processing_time * 1000);
-                    pestDetectionsJson = JSON.stringify(mapped._pestDetections);
-                    modelConfidence = mapped._modelConfidence;
-                    delete analysis._pestDetections;
-                    delete analysis._modelConfidence;
-                    delete analysis._processingTime;
-                    delete analysis._aiSource;
-                }
-                catch (e) {
-                    aiError = e?.message || String(e);
-                    console.error('[Scan] YOLO detection failed:', aiError);
-                }
+            if (clientAnalyzed) {
+                analysis = {
+                    plantName: isSoil ? 'Soil' : plantName,
+                    diseaseName: isSoil ? 'N/A' : diseaseName,
+                    cause,
+                    severity: severity || (isSoil ? 'Low' : 'Medium'),
+                    confidence: confidence ? parseFloat(confidence) : 0.75,
+                    treatment: treatment || '',
+                    fertilizer,
+                    pesticide,
+                    soilType,
+                    soilHealth,
+                    npk: null,
+                    matchedDiseaseKey,
+                    prevention,
+                    chemicalClass,
+                    suitableCrops: suitableCrops ? (Array.isArray(suitableCrops) ? suitableCrops : [suitableCrops]) : undefined,
+                };
             }
             else {
-                // Standard vision+text pipeline (mistral/ollama/database)
-                const aiResult = await ai_service_1.AIService.analyzeImage(file.path, isSoil, weatherForAi);
-                if (aiResult && !aiResult._error) {
-                    analysis = aiResult;
-                    aiSource = aiResult._source === 'mistral' ? 'mistral' : 'ollama';
-                    delete analysis._source;
-                }
-                else if (aiResult?._error) {
-                    aiError = aiResult.message || 'AI analysis failed';
-                }
+                // Server-side AI path (legacy) — keep for compatibility
+                return res.status(501).json({ error: 'Server-side AI is disabled. Use client analysis.' });
             }
-            const weatherForRec = weatherSnapshot && weatherSnapshot.temp != null
-                ? {
-                    temp: Number(weatherSnapshot.temp),
-                    humidity: weatherSnapshot.humidity != null ? Number(weatherSnapshot.humidity) : undefined,
-                }
-                : undefined;
-            if (analysis && isSoil && analysis.soilType) {
+            // Parse weather if provided as JSON string
+            let weatherSnapshot;
+            if (weatherJson) {
                 try {
-                    const dbSoil = recommendation_service_1.RecommendationService.getSoilInsights(analysis.soilType, lat, lng);
-                    analysis = {
-                        ...analysis,
-                        nutrients: analysis.nutrients || dbSoil.nutrients,
-                        npk: analysis.npk || dbSoil.npk,
-                        health: analysis.health || dbSoil.health,
-                        suitableCrops: analysis.suitableCrops || dbSoil.crops,
-                    };
+                    weatherSnapshot = typeof weatherJson === 'string' ? JSON.parse(weatherJson) : weatherJson;
                 }
-                catch {
-                    /* curated soil type may not exist; keep model output */
-                }
+                catch (_) { }
             }
-            if (analysis && !isSoil && analysis.plantName && analysis.diseaseName) {
-                const key = recommendation_service_1.RecommendationService.findMatchingDiseaseKey(analysis.plantName, analysis.diseaseName);
-                if (key) {
-                    try {
-                        const dbRec = recommendation_service_1.RecommendationService.getRecommendation(key, lat, lng, weatherForRec);
-                        analysis = {
-                            ...analysis,
-                            treatment: dbRec.treatment || analysis.treatment,
-                            fertilizer: dbRec.fertilizer || analysis.fertilizer,
-                            pesticide: dbRec.pesticide || analysis.pesticide,
-                            npk: dbRec.npk || analysis.npk,
-                            matchedDiseaseKey: key,
-                        };
-                    }
-                    catch {
-                        /* ignore */
-                    }
-                }
-            }
-            if (!analysis) {
+            const finalPlantName = isSoil ? 'Soil' : analysis.plantName;
+            const finalDiseaseName = isSoil ? 'N/A' : analysis.diseaseName;
+            const finalSeverity = analysis.severity;
+            const finalConfidence = analysis.confidence;
+            const finalTreatment = analysis.treatment;
+            const finalFertilizer = fertilizer || analysis.fertilizer || '';
+            const finalPesticide = pesticide || analysis.pesticide || null;
+            const finalSoilType = soilType || analysis.soilType || null;
+            const finalSoilHealth = soilHealth || analysis.soilHealth || null;
+            const finalNpk = analysis.npk;
+            // Get weather data with retry
+            let weatherData = null;
+            if (lat && lng && !weatherSnapshot) {
                 try {
-                    if (isSoil) {
-                        if (!label || label === 'Soil_Sample' || String(label).includes('Unknown')) {
-                            throw new Error('No soil insight data found for label: Soil_Sample');
-                        }
-                        analysis = recommendation_service_1.RecommendationService.getSoilInsights(label, lat, lng);
-                    }
-                    else {
-                        analysis = recommendation_service_1.RecommendationService.getRecommendation(label, lat, lng, weatherForRec);
-                    }
-                    aiSource = 'database';
+                    weatherData = await (0, retry_1.retryWithTimeout)(() => weather_service_1.WeatherService.getWeather(lat, lng), 10000, { maxRetries: 2 });
                 }
-                catch (e) {
-                    const msg = e?.message || 'No database match';
-                    return res.status(503).json({
-                        error: 'Vision AI is unavailable or failed, and no curated database entry matches this scan. Set MISTRAL_API_KEY (Mistral) or run Ollama with a vision model, or use a known disease label.',
-                        details: aiError || msg,
+                catch (error) {
+                    logger_1.logger.warn('Weather fetch failed, continuing without weather data', {
+                        error: error.message,
+                        lat,
+                        lng,
                     });
                 }
-            }
-            let plantName;
-            let diseaseName;
-            let severity;
-            let conf;
-            let treatment;
-            let fertilizer;
-            let pesticide;
-            let soilType;
-            let soilHealth;
-            let npkForResponse = null;
-            if (isSoil) {
-                plantName = 'Soil';
-                diseaseName = 'N/A';
-                severity = 'Low';
-                conf = analysis.confidence != null ? Number(analysis.confidence) : 0.75;
-                soilType = analysis.soilType || label || null;
-                const healthText = String(analysis.health ?? analysis.soilHealth ?? '').trim();
-                soilHealth = healthText || null;
-                treatment =
-                    [analysis.regionAdvice, analysis.treatment].filter(Boolean).join(' ').trim() ||
-                        healthText ||
-                        'See fertilizer and nutrient recommendations below.';
-                fertilizer = String(analysis.nutrients ?? analysis.fertilizer ?? '').trim();
-                pesticide = analysis.pesticide != null ? String(analysis.pesticide) : null;
-                npkForResponse = analysis.npk;
-            }
-            else {
-                plantName = analysis.plantName || String(label || 'Unknown').split('_')[0] || 'Unknown';
-                diseaseName = analysis.diseaseName || analysis.name || String(label || '').split('_').slice(1).join(' ') || 'Unknown';
-                severity = (analysis.severity || 'Medium').toString();
-                conf = analysis.confidence != null ? Number(analysis.confidence) : (confidence ? parseFloat(confidence) : 0.75);
-                treatment = analysis.treatment || '';
-                fertilizer = analysis.fertilizer || analysis.nutrients || '';
-                pesticide = analysis.pesticide || null;
-                soilType = null;
-                soilHealth = null;
-                npkForResponse = analysis.npk;
-                if (label?.includes('Healthy'))
-                    severity = 'Low';
             }
             const scan = await prisma_1.prisma.scan.create({
                 data: {
                     userId,
                     imageUrl: `/uploads/${file.filename}`,
-                    plantName,
-                    diseaseName,
-                    cause: analysis?.cause || null,
-                    severity,
-                    confidence: confidence ? parseFloat(confidence) : conf,
-                    treatment,
-                    fertilizer,
-                    pesticide,
-                    soilType,
-                    soilHealth,
+                    plantName: finalPlantName,
+                    diseaseName: finalDiseaseName,
+                    cause: analysis.cause || null,
+                    severity: finalSeverity,
+                    confidence: finalConfidence,
+                    treatment: finalTreatment,
+                    fertilizer: finalFertilizer,
+                    pesticide: finalPesticide,
+                    soilType: finalSoilType,
+                    soilHealth: finalSoilHealth,
+                    npk: finalNpk,
                     isSoilAnalysis: isSoil,
-                    latitude: isNaN(lat) ? null : lat,
-                    longitude: isNaN(lng) ? null : lng,
-                    weather: weatherSnapshot ? JSON.stringify(weatherSnapshot) : null,
-                    aiModel: aiSource,
-                    modelVersion: process.env.YOLO_MODEL_VERSION || (aiSource === 'yolo' ? 'yolo11s-pest-detection-v1' : undefined),
-                    pestDetections: pestDetectionsJson,
-                    modelConfidence,
-                    processingTime: processingTimeMs,
+                    latitude: lat,
+                    longitude: lng,
+                    aiModel: aiModel || (clientAnalyzed ? 'mobile-client' : 'server-ai'),
+                    modelConfidence: modelConfidence || finalConfidence,
+                    processingTime: processingTime ? parseFloat(processingTime) : null,
+                    pestDetections: pestDetections ? JSON.stringify(pestDetections) : null,
+                    weather: weatherData ? JSON.stringify(weatherData) : (weatherSnapshot ? JSON.stringify(weatherSnapshot) : null),
+                    matchedDiseaseKey,
+                },
+                include: {
+                    user: {
+                        select: {
+                            email: true,
+                            name: true,
+                        },
+                    },
                 },
             });
-            const regionHint = ai_service_1.AIService.regionHintFromCoordinates(!isNaN(lat) ? lat : undefined, !isNaN(lng) ? lng : undefined);
-            const research = await ai_service_1.AIService.researchAgProducts({
-                isSoil,
-                plantName,
-                diseaseName,
-                treatment,
-                pesticide,
-                fertilizer: isSoil ? undefined : fertilizer,
-                nutrients: isSoil ? fertilizer : String(analysis.nutrients ?? '').trim() || undefined,
-                soilType,
-                soilHealth,
-                weather: weatherSnapshot,
-                regionHint,
-                latitude: !isNaN(lat) ? lat : undefined,
-                longitude: !isNaN(lng) ? lng : undefined,
+            logger_1.logger.info('Scan created successfully', {
+                service: 'scan-controller',
+                scanId: scan.id,
+                userId,
+                plantName: scan.plantName,
+                confidence: scan.confidence,
             });
-            let productResearch = null;
-            let productResearchSource = null;
-            let productResearchError = null;
-            if (research && '_error' in research && research._error) {
-                productResearchError = research.message;
-            }
-            else if (research) {
-                const ok = research;
-                productResearch = {
-                    researchSummary: ok.researchSummary,
-                    suggestions: ok.suggestions,
-                };
-                productResearchSource = ok._source;
-            }
-            const responseData = {
-                ...scan,
-                aiSource,
-                weather: weatherSnapshot,
-                npk: npkForResponse,
-                productResearch,
-                productResearchSource,
-                productResearchError,
-                prevention: analysis.prevention,
-                chemicalClass: analysis.chemicalClass,
-                suitableCrops: analysis.suitableCrops,
-                matchedDiseaseKey: analysis.matchedDiseaseKey,
-                regionHint,
-            };
-            if (aiError && aiSource !== 'database') {
-                responseData._aiWarning = true;
-                responseData._aiWarningMessage = aiError;
-            }
-            res.status(201).json(responseData);
+            res.status(201).json({
+                message: 'Scan created successfully',
+                scan: {
+                    id: scan.id,
+                    imageUrl: scan.imageUrl,
+                    plantName: scan.plantName,
+                    diseaseName: scan.diseaseName,
+                    confidence: scan.confidence,
+                    treatment: scan.treatment,
+                    createdAt: scan.createdAt,
+                },
+            });
         }
         catch (error) {
-            console.error('Scan Error:', error);
-            const message = error?.message || 'Failed to process scan';
-            if (message.includes('No recommendation data found') || message.includes('No soil insight data found')) {
-                return res.status(422).json({ error: message });
-            }
-            res.status(500).json({ error: 'Failed to process scan' });
+            logger_1.logger.error('Failed to create scan', {
+                service: 'scan-controller',
+                error: error.message,
+                userId: req.userId,
+            });
+            res.status(500).json({ error: 'Failed to create scan' });
         }
     }
     static async getHistory(req, res) {
@@ -269,22 +145,67 @@ class ScanController {
             const scans = await prisma_1.prisma.scan.findMany({
                 where: { userId },
                 orderBy: { createdAt: 'desc' },
+                take: 50,
+                include: {
+                    user: {
+                        select: {
+                            email: true,
+                            name: true,
+                        },
+                    },
+                },
+            });
+            logger_1.logger.info('Scan history retrieved', {
+                service: 'scan-controller',
+                userId,
+                count: scans.length,
             });
             res.json(scans);
         }
         catch (error) {
-            res.status(500).json({ error: 'Failed to fetch history' });
+            logger_1.logger.error('Failed to fetch scan history', {
+                service: 'scan-controller',
+                error: error.message,
+                userId: req.userId,
+            });
+            res.status(500).json({ error: 'Failed to fetch scan history' });
         }
     }
     static async getScanById(req, res) {
         try {
-            const id = req.params.id;
-            const scan = await prisma_1.prisma.scan.findUnique({ where: { id } });
-            if (!scan)
+            const userId = req.userId;
+            const { id } = req.params;
+            const scan = await prisma_1.prisma.scan.findFirst({
+                where: {
+                    id: id,
+                    userId,
+                },
+                include: {
+                    user: {
+                        select: {
+                            email: true,
+                            name: true,
+                        },
+                    },
+                },
+            });
+            if (!scan) {
                 return res.status(404).json({ error: 'Scan not found' });
+            }
+            logger_1.logger.info('Scan retrieved', {
+                service: 'scan-controller',
+                scanId: id,
+                userId,
+            });
             res.json(scan);
         }
         catch (error) {
+            logger_1.logger.error('Failed to fetch scan', {
+                service: 'scan-controller',
+                error: error.message,
+                userId: req.userId,
+                scanId: req.params.id,
+            });
             res.status(500).json({ error: 'Failed to fetch scan' });
         }
     }

@@ -1,98 +1,250 @@
-# 🌿 KropAi — Advanced AI Farming Assistant
+# 🌿 NuKropAI Ultimate
 
-**KropAi** is a production-level, fullstack agricultural platform designed to empower farmers with real-time AI diagnostics, weather-aware intelligence, and professional expert advice. Built with a focus on accessibility and performance, KropAi brings a world-class diagnostic laboratory directly to the farmer's pocket.
+**AI-Powered Crop Disease Detection & Agricultural Intelligence Platform for Indian Farmers**
 
-**FREE AI — No API Costs**: KropAi uses **Ollama** to run powerful open-source AI models locally on your machine. No per-call fees, no rate limits, complete privacy.
-
----
-
-## 🌟 What KropAi Can Do
-
-### 🔍 1. Precision AI Diagnostics
-- **Leaf Scan**: Instantly detect crop diseases with >90% AI confidence using your camera or gallery.
-- **Soil Analysis**: Analyze soil health and receive personalized nutrient recommendations.
-- **Real-Time Processing**: High-speed image compression ensures diagnostic results in seconds, even on 3G networks.
-
-### 🧠 2. Smart Weather-Aware Recommendations
-- **Contextual Intelligence**: The app fetches live weather data (Temp & Humidity) to refine its advice.
-- **Fungal Warnings**: Automatically alerts farmers of high fungal risks during humid conditions.
-- **Heat Stress Alerts**: Provides irrigation adjustments based on real-time temperature spikes.
-
-### 📊 3. Professional NPK Visualizations
-- **Nutrient Dashboard**: View Nitrogen, Phosphorus, and Potassium levels in professional-grade bar charts.
-- **Dosage Recipes**: Receive exact fertilizer (Urea, DAP, NPK) and pesticide dosages tailored to your specific crop and region.
-
-### 🗣️ 4. Multi-Language & Voice Accessibility
-- **Three Core Languages**: Full support for **English**, **Hindi (🇮🇳)**, and **Telugu (🇮🇳)**.
-- **Voice Advice (TTS)**: The app **speaks** the diagnosis and treatment plan aloud in the selected language, ensuring accessibility for all farmers.
-
-### 🛡️ 5. Resilient "Always-Working" Architecture
-- **Offline Fallback**: Built-in standalone data ensures the app provides expert advice even when internet connectivity is lost.
-- **Local Persistence**: Scan history is stored locally (SQLite) and synced with the cloud (PostgreSQL/Prisma).
+[![Flutter](https://img.shields.io/badge/Flutter-3.41.8-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.11.5-0175C2?logo=dart)](https://dart.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org)
+[![Firebase](https://img.shields.io/badge/Firebase-Connected-FFCA28?logo=firebase)](https://firebase.google.com)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 ---
 
-## 🎨 Premium minimalist "Cloud" UI
-Inspired by modern, high-end minimalist design, KropAi features:
-- **Neo-Glassmorphic Aesthetic**: Light gray backgrounds with pure white cards.
-- **High-End Typography**: Bold, clear diagnostic headers for maximum readability.
-- **Micro-Interactions**: Sunrise/Sunset widgets and soft animations (AnimateDo).
+## 🚀 Overview
+
+NuKropAI is a production-grade agricultural AI platform that provides:
+
+- 📷 **Crop disease detection** — on-device TFLite + Hugging Face cloud AI fallback
+- 🌱 **Soil analysis** — type, health, NPK recommendations
+- 🌤️ **Real-time weather** — Open-Meteo integration (no API key required)
+- 🤖 **AI agronomist chat** — Gemini + Mistral + Ollama multi-model support
+- 📍 **GPS-based regional advice** — India-specific crop/pest/fertilizer recommendations
+- 🛒 **Product research** — AI-generated purchase suggestions with Amazon.in links
+- 🔊 **Voice TTS** — multilingual text-to-speech for rural accessibility
+- 🗺️ **Satellite analysis** — NDVI & forecast via backend API
+- 📊 **Scan history** — Firestore-synced with local SQLite fallback
 
 ---
 
-## 🛠️ Technical Stack
-- **Frontend**: Flutter (Riverpod for state management)
-- **Backend**: Node.js, Express, TypeScript
-- **Database**: SQLite (Local), Prisma (ORM)
-- **AI**: **Ollama + Llava (Vision) + Phi-3 (Chat)** — 100% free, runs locally, no API keys needed
-- **Optimizations**: `flutter_image_compress` for fast uploads, `fl_chart` for NPK visuals.
+## 📁 Repository Structure
+
+```
+NuKropAI/
+├── mobile/              # Flutter Android application
+│   ├── lib/             # Dart source code
+│   ├── android/         # Android native configs
+│   └── assets/          # Models, images, fonts
+├── backend/             # Node.js/TypeScript/Express API
+│   ├── src/             # TypeScript source
+│   ├── prisma/          # Database schema
+│   └── dist/            # Compiled JS output
+├── ai_server/           # Python/FastAPI AI inference (Hugging Face Spaces)
+├── firebase/            # Firebase security rules & indexes
+├── releases/
+│   ├── apk/             # Release APK builds
+│   └── aab/             # Release AAB builds
+├── .github/             # CI/CD workflows
+├── README.md
+└── DEPLOYMENT_GUIDE.md
+```
 
 ---
 
-## 🚀 Getting Started
+## 📦 Latest Release Artifacts
 
-### Quick Start (5 Minutes)
+| Artifact | Size | Path |
+|----------|------|------|
+| Universal APK | ~86.5 MB | `releases/apk/NuKropAI-release.apk` |
+| AAB (Play Store) | ~60.6 MB | `releases/aab/NuKropAI-release.aab` |
+| ARM64 APK | Smaller | `releases/apk/split/app-arm64-v8a-release.apk` |
+| ARM APK | Smaller | `releases/apk/split/app-armeabi-v7a-release.apk` |
+| x86_64 APK | Smaller | `releases/apk/split/app-x86_64-release.apk` |
 
-#### Option A: Desktop with Backend + Mobile (Best AI Quality)
-Uses powerful Ollama models running on your computer.
-
-1. **Install Ollama** (Free AI) from https://ollama.ai
-2. Run `setup_ollama.bat` (Windows) or `./setup_ollama.sh` (Mac/Linux)
-   - This pulls `llava:13b` (vision) and `phi3:mini` (chat)
-3. **Backend**: `cd backend && npm install && npm run dev`
-4. **Mobile**:
-   - If using Android emulator: API URL is pre-set to `http://10.0.2.2:3000/api`
-   - If using real device: edit `mobile/lib/core/config/constants.dart` with your computer's IP
-   - Install `Nunukropai.apk` and scan!
-
-#### Option B: 100% Offline Mobile (No Server)
-App runs entirely on-device with TensorFlow Lite. **No internet required**.
-
-1. Download the ML model:
-   - Windows: Run `download_model.bat`
-   - Mac/Linux: Run `./download_model.sh`
-2. Install the APK: `Nunukropai.apk`
-3. All processing happens on your phone — completely offline
+> **Note:** APKs are unsigned for direct sideloading. For Play Store, use the signed AAB via your keystore.
 
 ---
 
-## 💡 AI Options Comparison
+## 🛠️ Tech Stack
 
-| Mode | Backend Required | Model Size | AI Quality | Internet |
-|------|-----------------|------------|------------|----------|
-| **Ollama Backend** | Yes (laptop) | ~8GB total | Excellent (Llava 13B) | Optional (for weather) |
-| **On-Device TFLite** | No | ~20MB app bundle | Good (MobileNet) | **Not required** |
-| **Rule-Based Fallback** | No | 0KB | Basic | Not required |
+### Mobile (Flutter)
+| Package | Purpose |
+|---------|---------|
+| `flutter_riverpod 2.6` | State management |
+| `firebase_core/auth/firestore/storage` | Firebase integration |
+| `firebase_remote_config` | Dynamic configuration |
+| `google_generative_ai` | Gemini AI |
+| `tflite_flutter` | On-device ML inference |
+| `camera + image_picker` | Image capture |
+| `geolocator + geocoding` | GPS & location |
+| `flutter_tts` | Text-to-speech |
+| `flutter_map` | Maps |
+| `dio` | HTTP client |
+| `sqflite` | Local database |
+| `google_sign_in` | Google OAuth |
 
-**Recommendation**: Use Option A for best results, Option B for offline-only scenarios.
+### Backend (Node.js/TypeScript)
+| Package | Purpose |
+|---------|---------|
+| `express` | HTTP server |
+| `@prisma/client` | ORM |
+| `firebase-admin` | Server-side Firebase |
+| `ioredis` | Redis caching |
+| `multer` | File uploads |
+| `helmet + cors` | Security |
+| Mistral API | Vision & chat AI |
+| Ollama | Local LLM fallback |
+
+### AI Server (Python/FastAPI)
+- Hugging Face Spaces deployment
+- YOLO11 pest detection
+- Plant disease classification
+- WebSocket real-time inference
 
 ---
 
-## 📱 Mobile App
-Pre-built APK: `Nunukropai.apk` (63 MB)
+## ⚙️ Setup & Development
 
-Transfer to Android device, enable "Install from Unknown Sources", and install.
+### Prerequisites
+- Flutter 3.41.8+ (`flutter --version`)
+- Dart 3.11.5+
+- Node.js 18+
+- Android SDK (API 34+)
+
+### Flutter Mobile
+
+```bash
+cd mobile
+flutter pub get
+flutter run                          # Debug mode
+flutter build apk --release          # Release APK
+flutter build appbundle --release    # Play Store AAB
+```
+
+### Backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env                 # Configure secrets
+npx prisma generate
+npx prisma migrate dev
+npm run dev                          # Development
+npm run build                        # Production build
+npm start                            # Run compiled
+```
+
+### Environment Variables (Backend)
+
+```env
+# Required
+DATABASE_URL=postgresql://...
+FIREBASE_PROJECT_ID=sigma-gateway-477509-a4
+
+# Optional AI providers (at least one recommended)
+MISTRAL_API_KEY=your_key_here
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_VISION_MODEL=llava:latest
+OLLAMA_CHAT_MODEL=phi3:mini
+
+# Optional services
+REDIS_URL=redis://...
+QDRANT_URL=http://localhost:6333
+JWT_SECRET=your_jwt_secret
+
+# Server
+PORT=3000
+NODE_ENV=production
+ALLOWED_ORIGINS=https://yourdomain.com
+```
 
 ---
 
-*Built with ❤️ for the global farming community. Powered by free, open-source AI.*
+## 🔥 Firebase Configuration
+
+Firebase project: **`sigma-gateway-477509-a4`**
+
+Services enabled:
+- ✅ Authentication (Email/Password + Google Sign-In)
+- ✅ Cloud Firestore (scan history, user data)
+- ✅ Firebase Storage (image uploads)
+- ✅ Remote Config (API URLs, feature flags)
+- ✅ Analytics
+
+The `google-services.json` is pre-configured for the project. No changes needed unless switching Firebase projects.
+
+---
+
+## 🤖 AI Architecture
+
+```
+Mobile App
+    │
+    ├── On-device TFLite (offline-first)
+    │       └── crop_disease_model.tflite
+    │
+    ├── Cloud AI (Hugging Face)
+    │       ├── Disease classification
+    │       ├── Pest detection (YOLO11)
+    │       └── Soil classification
+    │
+    ├── Gemini (google_generative_ai)
+    │       └── Multimodal analysis + chat
+    │
+    └── Backend API
+            ├── Mistral Vision (primary)
+            └── Ollama (local fallback)
+```
+
+**Fallback chain:** On-device → Hugging Face → Gemini → Backend Mistral → Backend Ollama
+
+---
+
+## 🚀 Deployment
+
+### Android
+1. Add keystore to `mobile/android/` and configure `key.properties`
+2. `flutter build appbundle --release`
+3. Upload `releases/aab/NuKropAI-release.aab` to Play Console
+
+### Backend (Railway / Render)
+1. Connect GitHub repo → auto-deploy `backend/` directory
+2. Set environment variables in dashboard
+3. `npm run build && npm start`
+
+### AI Server (Hugging Face Spaces)
+1. Push `ai_server/` directory contents to a HF Space
+2. Update `RemoteConfigService.aiServerUrl` in Firebase Remote Config
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for full details.
+
+---
+
+## 📊 Build Status
+
+| Component | Status |
+|-----------|--------|
+| Flutter analyze | ✅ 0 errors |
+| TypeScript (tsc) | ✅ 0 errors |
+| Release APK | ✅ Built |
+| Release AAB | ✅ Built |
+| Backend build | ✅ Compiled |
+
+---
+
+## 🌾 Target Users
+
+Indian smallholder farmers needing:
+- Affordable, offline-capable crop disease identification
+- Regional language support (TTS)
+- GPS-tagged field records
+- Locally relevant pesticide/fertilizer recommendations
+
+---
+
+## 📄 License
+
+MIT License — see [LICENSE](LICENSE)
+
+---
+
+*Built with ❤️ for Indian agriculture*

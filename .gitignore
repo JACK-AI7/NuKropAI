@@ -108,3 +108,7 @@ mobile/ios/build/
 
 # Build artifacts
 mobile/build/
+
+# Release binaries (too large for GitHub - use releases/ README for links)
+releases/apk/*.apk
+releases/aab/*.aab

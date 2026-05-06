@@ -6,31 +6,32 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AIService = void 0;
 const fs_1 = __importDefault(require("fs"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const logger_1 = require("../utils/logger");
+const retry_1 = require("../utils/retry");
 dotenv_1.default.config();
 const OLLAMA_HOST = process.env.OLLAMA_HOST?.replace(/\/$/, '') || 'http://localhost:11434';
 const OLLAMA_VISION_MODEL = process.env.OLLAMA_VISION_MODEL || 'llava:latest';
 const CHAT_MODEL = process.env.OLLAMA_CHAT_MODEL || 'phi3:mini';
-/** Mistral Chat Completions API — vision + text (see https://docs.mistral.ai/capabilities/vision/) */
 const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
 const MISTRAL_VISION_MODEL = process.env.MISTRAL_VISION_MODEL || 'mistral-small-latest';
 const MISTRAL_CHAT_MODEL = process.env.MISTRAL_CHAT_MODEL || 'mistral-small-latest';
+const CONFIDENCE_THRESHOLDS = {
+    HIGH: 0.85,
+    MEDIUM: 0.70,
+    LOW: 0.50,
+};
 class AIService {
-    /** Rough geographic zone in India from lat/lon (agronomy / retail availability context). */
     static regionHintFromCoordinates(lat, lng) {
         if (lat == null || lng == null || Number.isNaN(lat) || Number.isNaN(lng))
             return undefined;
-        if (lat > 28) {
+        if (lat > 28)
             return `Northern / north-western belt (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of Punjab, Haryana, UP plains, northern hills`;
-        }
-        if (lat < 15) {
+        if (lat < 15)
             return `Southern / peninsular (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of Tamil Nadu, Kerala, Karnataka, Andhra coastal / inland`;
-        }
-        if (lng < 75) {
+        if (lng < 75)
             return `Western (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of Gujarat, Maharashtra, Rajasthan fringe`;
-        }
-        if (lng > 85) {
+        if (lng > 85)
             return `Eastern (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of West Bengal, Odisha, Bihar, Jharkhand`;
-        }
         return `Central (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of Madhya Pradesh, Chhattisgarh, parts of Maharashtra / UP`;
     }
     static buildPrompts(isSoil, weather) {
@@ -77,6 +78,9 @@ class AIService {
     static validateCrop(parsed) {
         if (!parsed.plantName || !parsed.diseaseName || !parsed.pesticide) {
             throw new Error('Invalid response: missing required fields');
+        }
+        if (!parsed.confidence || parsed.confidence < 0 || parsed.confidence > 1) {
+            parsed.confidence = 0.5;
         }
     }
     static validateSoil(parsed) {
@@ -133,7 +137,7 @@ class AIService {
             throw new Error('Mistral returned empty content');
         return text;
     }
-    static async analyzeWithMistralVision(imagePath, prompt, isSoil) {
+    static async callMistralVision(imagePath, prompt, _isSoil) {
         const imageData = fs_1.default.readFileSync(imagePath);
         const base64 = imageData.toString('base64');
         const mime = imagePath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
@@ -147,63 +151,49 @@ class AIService {
                 ],
             },
         ], MISTRAL_VISION_MODEL, 0.2, 4096, false);
-        const parsed = this.parseJsonFromModelText(text);
-        if (isSoil)
-            this.validateSoil(parsed);
-        else
-            this.validateCrop(parsed);
-        return parsed;
+        return this.parseJsonFromModelText(text);
     }
     static async mistralTextJson(prompt) {
         const text = await this.callMistralChat([{ role: 'user', content: prompt }], MISTRAL_CHAT_MODEL, 0.35, 4096, true);
         return this.parseJsonFromModelText(text);
     }
-    static async analyzeImage(imagePath, isSoil = false, weather) {
-        const { soilPrompt, cropPrompt } = this.buildPrompts(isSoil, weather);
-        const prompt = isSoil ? soilPrompt : cropPrompt;
+    static async callOllama(endpoint, body, timeout = 60000) {
         try {
-            const imageData = fs_1.default.readFileSync(imagePath);
-            const base64Image = imageData.toString('base64');
-            if (base64Image.length < 100) {
-                throw new Error('Image file too small or corrupted');
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            const response = await fetch(`${OLLAMA_HOST}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+                signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Ollama API ${response.status}: ${errorText}`);
             }
-            let lastErr = null;
-            if (process.env.MISTRAL_API_KEY) {
-                try {
-                    console.log('[AI] Attempting Mistral vision analysis...');
-                    const parsed = await this.analyzeWithMistralVision(imagePath, prompt, isSoil);
-                    console.log('[AI] Mistral vision success');
-                    return { ...parsed, _source: 'mistral' };
-                }
-                catch (e) {
-                    lastErr = e?.message || String(e);
-                    console.error('[AI] Mistral vision failed:', lastErr);
-                }
-            }
-            else {
-                console.warn('[AI] Mistral API key missing - skipping Mistral vision');
-            }
-            try {
-                console.log('[AI] Attempting Ollama vision analysis...');
-                const parsed = await this.analyzeWithOllama(prompt, base64Image, isSoil);
-                console.log('[AI] Ollama vision success');
-                return { ...parsed, _source: 'ollama' };
-            }
-            catch (e) {
-                lastErr = e?.message || String(e);
-                console.error('[AI] Ollama vision failed:', lastErr);
-            }
-            return {
-                _error: true,
-                message: lastErr || 'Vision AI unavailable (set MISTRAL_API_KEY or run Ollama with a vision model)',
-            };
+            return response.json();
         }
         catch (error) {
-            console.error('AI Analysis Error:', error.message);
-            return { _error: true, message: error.message };
+            if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+                throw new Error('Ollama request timed out after 60 seconds');
+            }
+            if (error.message?.includes('failed to connect') ||
+                error.message?.includes('ECONNREFUSED') ||
+                error.message?.includes('ENOTFOUND')) {
+                throw new Error('Ollama server not running or unreachable');
+            }
+            throw error;
         }
     }
-    static async analyzeWithOllama(prompt, base64Image, isSoil) {
+    static async analyzeWithOllamaEnhanced(imagePath, isSoil, weather) {
+        const { soilPrompt, cropPrompt } = this.buildPrompts(isSoil, weather);
+        const prompt = isSoil ? soilPrompt : cropPrompt;
+        const imageData = fs_1.default.readFileSync(imagePath);
+        const base64Image = imageData.toString('base64');
+        if (base64Image.length < 100) {
+            throw new Error('Image file too small or corrupted');
+        }
         const result = await this.callOllama('/api/generate', {
             model: OLLAMA_VISION_MODEL,
             prompt,
@@ -211,7 +201,7 @@ class AIService {
             stream: false,
             options: { num_predict: 1024, temperature: 0.2 },
         });
-        let text = result.response?.trim() || '';
+        const text = result.response?.trim() || '';
         if (!text)
             throw new Error('Ollama returned empty response');
         const parsed = this.parseJsonFromModelText(text);
@@ -221,25 +211,131 @@ class AIService {
             this.validateCrop(parsed);
         return parsed;
     }
-    /**
-     * After identification: Mistral (or Ollama) synthesizes product ideas for the farmer's region.
-     */
+    static async analyzeWithMistralVisionFull(imagePath, isSoil, weather) {
+        const { soilPrompt, cropPrompt } = this.buildPrompts(isSoil, weather);
+        const prompt = isSoil ? soilPrompt : cropPrompt;
+        const parsed = await this.callMistralVision(imagePath, prompt, isSoil);
+        if (isSoil)
+            this.validateSoil(parsed);
+        else
+            this.validateCrop(parsed);
+        return parsed;
+    }
+    static async tryFallbackAnalysis(imagePath, isSoil, weather) {
+        try {
+            return await this.analyzeWithOllamaEnhanced(imagePath, isSoil, weather);
+        }
+        catch (error) {
+            logger_1.logger.warn('Fallback analysis also failed', {
+                service: 'ai-inference',
+                error: error.message,
+            });
+            return { confidence: 0, _error: true };
+        }
+    }
+    static async analyzeImage(imagePath, isSoil = false, weather) {
+        const startTime = Date.now();
+        try {
+            if (process.env.MISTRAL_API_KEY) {
+                try {
+                    logger_1.logger.info('Attempting Mistral vision analysis', { service: 'ai-inference', isSoil });
+                    const result = await (0, retry_1.retryWithTimeout)(() => this.analyzeWithMistralVisionFull(imagePath, isSoil, weather), 30000, { maxRetries: 1 });
+                    const durationMs = Date.now() - startTime;
+                    if (result.confidence < CONFIDENCE_THRESHOLDS.MEDIUM) {
+                        logger_1.logger.warn('Low confidence — trying fallback', {
+                            service: 'ai-inference',
+                            confidence: result.confidence,
+                        });
+                        const fallbackResult = await this.tryFallbackAnalysis(imagePath, isSoil, weather);
+                        if (fallbackResult.confidence > result.confidence) {
+                            return { ...fallbackResult, duration_ms: durationMs, used_fallback: true, _source: 'ollama' };
+                        }
+                    }
+                    logger_1.logger.info('Mistral analysis successful', {
+                        service: 'ai-inference',
+                        confidence: result.confidence,
+                        duration_ms: durationMs,
+                    });
+                    return { ...result, duration_ms: durationMs, used_fallback: false, _source: 'mistral' };
+                }
+                catch (e) {
+                    logger_1.logger.error('Mistral vision failed', { service: 'ai-inference', error: e?.message });
+                }
+            }
+            logger_1.logger.info('Using Ollama for analysis', { service: 'ai-inference', model: OLLAMA_VISION_MODEL });
+            const result = await (0, retry_1.retryWithTimeout)(() => this.analyzeWithOllamaEnhanced(imagePath, isSoil, weather), 60000, { maxRetries: 2 });
+            const durationMs = Date.now() - startTime;
+            logger_1.logger.info('Ollama analysis completed', {
+                service: 'ai-inference',
+                model: OLLAMA_VISION_MODEL,
+                duration_ms: durationMs,
+            });
+            return { ...result, duration_ms: durationMs, used_fallback: false, _source: 'ollama' };
+        }
+        catch (error) {
+            logger_1.logger.error('Image analysis failed', {
+                service: 'ai-inference',
+                error: error.message,
+                duration_ms: Date.now() - startTime,
+            });
+            return {
+                _error: true,
+                message: error.message || 'Vision AI unavailable (set MISTRAL_API_KEY or run Ollama with a vision model)',
+            };
+        }
+    }
+    static async chat(message, history) {
+        try {
+            if (message.includes('data:image') ||
+                message.includes('base64')) {
+                logger_1.logger.error('Chat received image data — use image scan feature', {
+                    service: 'ai-service',
+                    message: message.substring(0, 100),
+                });
+                return 'I can only process text messages. Please use the image scan feature for analyzing photos.';
+            }
+            const messages = history.map((h) => ({
+                role: h.role === 'model' ? 'assistant' : 'user',
+                content: h.parts[0].text,
+            }));
+            messages.push({ role: 'user', content: message });
+            if (process.env.MISTRAL_API_KEY) {
+                try {
+                    return await this.callMistralChat(messages, MISTRAL_CHAT_MODEL, 0.7, 4096, false);
+                }
+                catch (e) {
+                    logger_1.logger.warn('Mistral chat failed, falling back to Ollama', {
+                        service: 'ai-service',
+                        error: e.message,
+                    });
+                }
+            }
+            const result = await this.callOllama('/api/chat', {
+                model: CHAT_MODEL,
+                messages,
+                stream: false,
+            });
+            return result.message?.content || "I couldn't generate a response.";
+        }
+        catch (error) {
+            logger_1.logger.error('AI Chat Error', {
+                service: 'ai-service',
+                error: error.message,
+            });
+            return "I'm having trouble. Please try again.";
+        }
+    }
     static async researchAgProducts(ctx) {
         const weatherLine = ctx.weather && Object.keys(ctx.weather).length
             ? `Live weather snapshot: ${JSON.stringify(ctx.weather)}`
             : 'Weather: not available.';
         const regionBlock = ctx.regionHint || ctx.latitude != null
-            ? `Farmer location context (use to tailor which product TYPES and formulations are commonly sold in agri-retail in this part of India; do not invent specific shop names):
-- Region hint: ${ctx.regionHint || 'unknown — suggest widely stocked national/generic lines'}
-- GPS: ${ctx.latitude != null && ctx.longitude != null ? `latitude ${ctx.latitude}, longitude ${ctx.longitude}` : 'not provided'}`
+            ? `Farmer location context:\n- Region hint: ${ctx.regionHint || 'unknown'}\n- GPS: ${ctx.latitude != null && ctx.longitude != null ? `latitude ${ctx.latitude}, longitude ${ctx.longitude}` : 'not provided'}`
             : 'Farmer location: not provided — suggest products commonly available across India.';
         let prompt;
         if (ctx.isSoil) {
-            prompt = `You are an agricultural inputs advisor for India. The soil was already assessed from a scan. Your task is to RESEARCH and recommend concrete fertilizer / soil amendment / micronutrient products that fit this assessment AND are realistically available in agri-input shops in the farmer's region.
-
+            prompt = `You are an agricultural inputs advisor for India. Recommend fertilizer / soil amendment products for:
 ${regionBlock}
-
-Assessment:
 - Soil type: ${ctx.soilType || 'Unknown'}
 - Soil health: ${ctx.soilHealth || 'Unknown'}
 - Nutrient guidance: ${ctx.nutrients || ctx.fertilizer || 'Not specified'}
@@ -247,61 +343,56 @@ ${weatherLine}
 
 Return ONLY valid JSON (no markdown):
 {
-  "researchSummary": "2-4 sentences: issue type (soil/nutrient focus) and regional product strategy",
+  "researchSummary": "2-4 sentences",
   "suggestions": [
     {
-      "productName": "Specific example: generic formulation or widely known product line in India",
+      "productName": "Specific product",
       "productType": "Fertilizer|Soil amendment|Organic|Micronutrient|Other",
-      "activeIngredient": "nutrient focus or blank",
+      "activeIngredient": "",
       "whyItFits": "1-2 sentences",
-      "applicationTip": "practical timing/rate hints",
+      "applicationTip": "practical timing/rate",
       "safetyNote": "over-use, soil test, label disclaimer",
-      "regionalAvailability": "1-2 sentences: how these are typically found in THIS region's market (e.g. cooperative stores, common brand tiers) — no fake addresses",
-      "purchaseUrl": "A search link on Amazon.in or AgriBegri.com for this specific product",
-      "imageUrl": "Use a representative high-quality agricultural image URL. Examples: https://m.media-amazon.com/images/I/71WzY6I+08L._SL1500_.jpg (for NPK/Fertilizers), https://m.media-amazon.com/images/I/61r5a0w7lEL._SL1500_.jpg (for Organic/Neem)"
+      "regionalAvailability": "availability in this region",
+      "purchaseUrl": "Amazon.in or AgriBegri search URL",
+      "imageUrl": "product image URL"
     }
   ]
 }
-Rules: 3-5 suggestions. No fake registration numbers. If uncertain, say so in safetyNote. Provide real-world URLs for purchase and images where possible.`;
+Rules: 3-5 suggestions.`;
         }
         else {
-            prompt = `You are an agricultural inputs advisor for India. A crop problem was ALREADY identified from an image scan. First acknowledge the issue type clearly, then RESEARCH pesticide/fungicide/bio-control options that match standard practice AND are commonly available in the farmer's REGION.
-
+            prompt = `You are an agricultural inputs advisor for India. Recommend pesticide/fungicide products for:
 ${regionBlock}
-
-Diagnosis context:
 - Crop: ${ctx.plantName || 'Unknown'}
-- Problem (disease/pests): ${ctx.diseaseName || 'Unknown'}
+- Problem: ${ctx.diseaseName || 'Unknown'}
 - Treatment outline: ${ctx.treatment || 'Not specified'}
-- Technical pesticide guidance (follow closely): ${ctx.pesticide || 'Not specified'}
-- Fertilizer note: ${ctx.fertilizer || 'Not specified'}
+- Technical pesticide guidance: ${ctx.pesticide || 'Not specified'}
 ${weatherLine}
 
 Return ONLY valid JSON (no markdown):
 {
-  "researchSummary": "2-4 sentences: what issue type this is (e.g. fungal foliar, sucking pest, viral vector) and why the suggested product classes fit this region's cropping system",
+  "researchSummary": "2-4 sentences",
   "suggestions": [
     {
-      "productName": "Example: active ingredient + formulation (WP/SC/SL) common in Indian trade",
+      "productName": "Active ingredient + formulation",
       "productType": "Fungicide|Insecticide|Herbicide|Bio-pesticide|Other",
       "activeIngredient": "",
       "whyItFits": "linked to ${ctx.diseaseName || 'the diagnosis'}",
       "applicationTip": "timing, rotation, spray tips",
       "safetyNote": "PPE, PHI, resistance — always read label",
-      "regionalAvailability": "typical availability in this region (generic vs branded lines); no invented shop names",
-      "purchaseUrl": "A search link on Amazon.in or AgriBegri.com for this specific product",
-      "imageUrl": "Use a representative high-quality agricultural image URL. Examples: https://m.media-amazon.com/images/I/71e-f-3vQ3L._SL1500_.jpg (for Insecticides), https://m.media-amazon.com/images/I/61mO-p-T6FL._SL1000_.jpg (for Fungicides)"
+      "regionalAvailability": "typical availability in this region",
+      "purchaseUrl": "Amazon.in or AgriBegri search URL",
+      "imageUrl": "product image URL"
     }
   ]
 }
-Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated registration IDs. Provide real-world URLs for purchase and images where possible.`;
+Rules: 3-5 suggestions.`;
         }
         let lastErr = null;
         if (process.env.MISTRAL_API_KEY) {
             try {
                 console.log('[AI] Researching products with Mistral...');
                 const parsed = await this.mistralTextJson(prompt);
-                console.log('[AI] Mistral research success');
                 this.validateProductResearch(parsed);
                 return {
                     researchSummary: String(parsed.researchSummary),
@@ -317,7 +408,6 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
         try {
             console.log('[AI] Researching products with Ollama...');
             const parsed = await this.ollamaChatJson(prompt);
-            console.log('[AI] Ollama research success');
             this.validateProductResearch(parsed);
             return {
                 researchSummary: String(parsed.researchSummary),
@@ -356,56 +446,6 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
         if (!text)
             throw new Error('Ollama chat returned empty response');
         return this.parseJsonFromModelText(text);
-    }
-    static async chat(message, history) {
-        try {
-            const messages = history.map(h => ({
-                role: h.role === 'model' ? 'assistant' : 'user',
-                content: h.parts[0].text
-            }));
-            messages.push({ role: 'user', content: message });
-            if (process.env.MISTRAL_API_KEY) {
-                try {
-                    return await this.callMistralChat(messages, MISTRAL_CHAT_MODEL, 0.7, 4096, false);
-                }
-                catch (e) {
-                    console.warn('Mistral chat failed, falling back to Ollama:', e);
-                }
-            }
-            const result = await this.callOllama('/api/chat', { model: CHAT_MODEL, messages, stream: false });
-            return result.message?.content || "I couldn't generate a response.";
-        }
-        catch (error) {
-            console.error('AI Chat Error:', error.message);
-            return "I'm having trouble. Please try again.";
-        }
-    }
-    static async callOllama(path, body, timeout = 60000) {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeout);
-            const response = await fetch(`${OLLAMA_HOST}${path}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-                signal: controller.signal,
-            });
-            clearTimeout(timeoutId);
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Ollama error ${response.status}: ${errorText}`);
-            }
-            return response.json();
-        }
-        catch (error) {
-            if (error.name === 'AbortError' || error.message.includes('aborted')) {
-                throw new Error('Ollama request timed out after 60 seconds');
-            }
-            if (error.message.includes('failed to connect') || error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
-                throw new Error('Ollama server not running or unreachable');
-            }
-            throw error;
-        }
     }
 }
 exports.AIService = AIService;
