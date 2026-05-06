@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/api/scanner_service.dart';
 import '../../dashboard/presentation/settings_screen.dart';
@@ -11,7 +10,6 @@ import 'package:camera/camera.dart' as cam;
 import 'package:image_picker/image_picker.dart';
 import '../../../core/api/websocket_service.dart';
 import 'dart:typed_data';
-import 'dart:convert';
 import 'package:image/image.dart' as img_lib;
 
 class ScannerScreen extends ConsumerStatefulWidget {

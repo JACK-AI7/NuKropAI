@@ -107,7 +107,7 @@ class RateLimiter {
     pipeline.expire(redisKey, Math.ceil(opts.windowMs / 1000));
 
     const results = await pipeline.exec();
-    const count = results[2][1] as number;
+    const count = results != null ? (results[2][1] as number) : 0;
 
     const info: RateLimitInfo = {
       limit: opts.max,

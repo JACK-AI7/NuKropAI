@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/l10n/app_localizations.dart';
 import 'core/l10n/app_localizations_delegate.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/login_screen.dart';

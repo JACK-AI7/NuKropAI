@@ -2,6 +2,7 @@
  * Health check utilities and status monitoring
  */
 
+import os from 'os';
 import { PrismaClient } from '@prisma/client';
 import Redis from 'ioredis';
 import { QdrantClient } from '@qdrant/js-client-rest';
@@ -249,8 +250,8 @@ export class HealthMonitor {
    */
   private async getCpuUsage(): Promise<number> {
     const cpus = os.cpus();
-    const totalIdle = cpus.reduce((acc, cpu) => acc + Object.values(cpu.times).reduce((a, b) => a + b), 0);
-    const totalTick = cpus.reduce((acc, cpu) => acc + Object.values(cpu.times).reduce((a, b) => a + b), 0);
+    const totalIdle = cpus.reduce((acc: number, cpu) => acc + Object.values(cpu.times).reduce((a: number, b: number) => a + b, 0), 0);
+    const totalTick = cpus.reduce((acc: number, cpu) => acc + Object.values(cpu.times).reduce((a: number, b: number) => a + b, 0), 0);
     return Math.round((1 - totalIdle / totalTick) * 100);
   }
 
