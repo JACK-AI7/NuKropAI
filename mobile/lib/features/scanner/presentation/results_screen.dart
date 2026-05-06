@@ -314,7 +314,6 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
       ),
     );
   }
- }
 
   Widget _buildDiagnosisCard(bool isSoil) {
     final scan = widget.scan;
@@ -554,6 +553,34 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
           );
         }),
       ],
+    );
+  }
+
+  Widget _buildWeatherCard(dynamic weather) {
+    if (weather == null) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.wb_sunny, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('Current Weather', style: TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text('Temperature: ${weather['temp'] ?? '--'}°C'),
+          Text('Condition: ${weather['condition'] ?? 'Unknown'}'),
+          Text('Humidity: ${weather['humidity'] ?? '--'}%'),
+        ],
+      ),
     );
   }
 }

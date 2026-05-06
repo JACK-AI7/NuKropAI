@@ -12,6 +12,8 @@ import 'local_database.dart';
 import '../ai/on_device_ai_service.dart';
 import '../ai/llm_service.dart';
 import 'cloud_ai_service.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import '../constants/app_constants.dart';
 
 final currentWeatherProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final service = ScannerService();
@@ -25,6 +27,8 @@ class ScannerService {
   final OnDeviceAIService _onDeviceAI = OnDeviceAIService();
   final LLMService _llmService = LLMService();
   final CloudAIService _cloudAI = CloudAIService();
+  final FlutterTts _tts = FlutterTts();
+  String? regionHint;
 
   Future<void> init() async {
     await _onDeviceAI.loadModel();
@@ -109,6 +113,36 @@ class ScannerService {
     return 'Cloudy';
   }
 
+  Future<void> speakResult(String text, {String lang = 'en-US'}) async {
+    await _tts.setLanguage(lang);
+    await _tts.setPitch(1.0);
+    await _tts.speak(text);
+  }
+
+  Future<Map<String, dynamic>> getSatelliteAnalysis() async {
+    final pos = await _getCurrentLocation();
+    if (pos == null) throw Exception("Location required for satellite analysis");
+    
+    final response = await Dio().get(
+      '${AppConstants.aiServerUrl}/analyze/satellite',
+      queryParameters: {'lat': pos.latitude, 'lon': pos.longitude},
+      options: Options(headers: {'X-API-Key': 'nukrop_secret_dev'}),
+    );
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> getForecast() async {
+    final pos = await _getCurrentLocation();
+    if (pos == null) throw Exception("Location required for forecast");
+    
+    final response = await Dio().get(
+      '${AppConstants.aiServerUrl}/analytics/forecast',
+      queryParameters: {'lat': pos.latitude, 'lon': pos.longitude},
+      options: Options(headers: {'X-API-Key': 'nukrop_secret_dev'}),
+    );
+    return response.data;
+  }
+
   /// Main scan function — performs on-device analysis and optionally cloud LLM
   Future<Map<String, dynamic>> scanImage(XFile image, {bool isSoil = false}) async {
     final position = await _getCurrentLocation();
@@ -124,62 +158,79 @@ class ScannerService {
       throw Exception('On-device AI model not loaded or analysis failed');
     }
 
-    // 2.5 Cloud specialized analysis (if online and not soil)
+    // 2.5 Cloud specialized analysis (Hugging Face)
     List<Map<String, dynamic>> cloudDetections = [];
+    Map<String, dynamic> cloudCropResult = {};
     if (!isSoil) {
       try {
-        // Run pest detection concurrently
-        cloudDetections = await _cloudAI.detectPests(image.path);
-        if (onDeviceResult['plantName'] == 'Maize' || onDeviceResult['plantName'] == 'Corn') {
-          final maizeResults = await _cloudAI.detectMaizeDisease(image.path);
-          // Merge results if needed or use as primary
-          if (maizeResults.isNotEmpty) {
-             onDeviceResult['diseaseName'] = maizeResults.first['label'];
-             onDeviceResult['confidence'] = maizeResults.first['score'];
-          }
+        // Run specialized detection via HF Router
+        cloudCropResult = await _cloudAI.analyzeCrop(image.path);
+        
+        // Use results from HF if confidence is high
+        if (cloudCropResult['classification'] != null) {
+           final cls = cloudCropResult['classification'];
+           if ((cls['confidence'] as num) > (onDeviceResult['confidence'] as num)) {
+             onDeviceResult['diseaseName'] = cls['label'];
+             onDeviceResult['confidence'] = cls['confidence'];
+           }
+        }
+        
+        // Merge detections if any
+        if (cloudCropResult['detections'] != null) {
+          cloudDetections = List<Map<String, dynamic>>.from(cloudCropResult['detections']);
         }
       } catch (e) {
-        debugPrint('Cloud specialized analysis failed: $e');
+        debugPrint('Cloud crop analysis failed: $e');
+      }
+    } else {
+       try {
+         final soilResult = await _cloudAI.classifySoil(image.path);
+         if (soilResult['soil_type'] != null) {
+           onDeviceResult['soilType'] = soilResult['soil_type'];
+           onDeviceResult['confidence'] = soilResult['confidence'];
+         }
+       } catch (e) {
+         debugPrint('Cloud soil classification failed: $e');
+       }
+    }
+
+    // 2.7 Advanced Multimodal Analysis (if online and not soil)
+    Map<String, dynamic> advancedResult = {};
+    if (!isSoil) {
+      try {
+        advancedResult = await _cloudAI.analyzeAdvanced(image.path);
+      } catch (e) {
+        debugPrint('Advanced multimodal analysis failed: $e');
       }
     }
 
-    // 3. Cloud LLM analysis if available (richer recommendations)
+    // 3. Cloud Analysis via HF SpaceLLaVA (if online)
     String? treatment;
     String? fertilizer;
     String? pesticide;
     String? prevention;
     String? chemicalClass;
-    String? regionHint;
     String? aiSource;
 
     try {
-      final prompt = _buildAnalysisPrompt(onDeviceResult, isSoil, weather);
-      final llmResponse = await _llmService.generateResponse(prompt, imagePaths: [image.path]);
-      
-      // Parse LLM response
-      final parsed = _parseLLMResponse(llmResponse, isSoil);
-      final parsedTreatment = parsed['treatment'];
-      final parsedFertilizer = parsed['fertilizer'];
-      final parsedPesticide = parsed['pesticide'];
-      final parsedPrevention = parsed['prevention'];
-      final parsedChemicalClass = parsed['chemicalClass'];
-
-      // Check if parsing yielded any useful data (at least one non-null field)
-      final hasValidData = [parsedTreatment, parsedFertilizer, parsedPesticide, parsedPrevention].any((v) => v != null && v.isNotEmpty);
-
-      if (hasValidData) {
-        treatment = parsedTreatment;
-        fertilizer = parsedFertilizer;
-        pesticide = parsedPesticide;
-        prevention = parsedPrevention;
-        chemicalClass = parsedChemicalClass;
-        aiSource = 'gemini_vision';
+      // Use the advanced analysis from HF SpaceLLaVA
+      final response = await _cloudAI.analyzeAdvanced(image.path);
+      if (response['response'] != null && response['response'].isNotEmpty) {
+        final llmResponse = response['response'];
+        // Parse the LLM response (SpaceLLaVA usually returns text, but we try to parse JSON if it exists)
+        final parsed = _parseLLMResponse(llmResponse, isSoil);
+        
+        treatment = parsed['treatment'] ?? llmResponse;
+        fertilizer = parsed['fertilizer'];
+        pesticide = parsed['pesticide'];
+        prevention = parsed['prevention'];
+        chemicalClass = parsed['chemicalClass'];
+        aiSource = 'hugging_face_mllm';
       } else {
-        // LLM response was not parseable; fall back to on-device
-        throw Exception('LLM response could not be parsed');
+        throw Exception('HF MLLM response empty');
       }
     } catch (e) {
-      debugPrint('Cloud LLM analysis failed, using on-device only: $e');
+      debugPrint('Cloud HF analysis failed, using on-device only: $e');
       aiSource = 'on_device';
       treatment = onDeviceResult['treatment'] ?? '';
       fertilizer = onDeviceResult['fertilizer'] ?? '';
@@ -203,29 +254,17 @@ class ScannerService {
     final suitableCrops = isSoil ? (onDeviceResult['suitableCrops'] ?? []) : null;
     final npk = onDeviceResult['npk'] ?? onDeviceResult['fertilizer_npk'];
 
-    // 6. Generate product research using LLM (text only)
+    // 6. Generate product research using HF MLLM (if online)
     Map<String, dynamic>? productResearch;
     String? productResearchSource;
     try {
-      final researchPrompt = _buildProductResearchPrompt(
-        isSoil: isSoil,
-        plantName: plantName,
-        diseaseName: diseaseName,
-        treatment: treatment,
-        pesticide: pesticide,
-        fertilizer: fertilizer,
-        soilType: soilType,
-        soilHealth: soilHealth,
-        weather: weather,
-        regionHint: regionHint,
-      );
-      final researchResponse = await _llmService.generateResponse(researchPrompt);
+      final researchResponse = await _cloudAI.chatWithAgronomist("Suggest products for $diseaseName on $plantName. Return as JSON suggestions.");
       final parsed = _parseProductResearch(researchResponse);
       if (parsed != null) {
         productResearch = parsed;
-        productResearchSource = 'gemini';
+        productResearchSource = 'hugging_face';
       } else {
-        throw Exception('Product research parse failed');
+        throw Exception('HF product research failed');
       }
     } catch (e) {
       debugPrint('Product research failed: $e');

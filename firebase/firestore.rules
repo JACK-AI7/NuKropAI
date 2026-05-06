@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Community map is public read, but writing needs auth
+    match /community_disease_map/{docId} {
+      allow read: if isAuth();
+      allow write: if false; // Only backend creates these via Python script!
+    }
+
+    match /users/{userId} {
+      allow read, write: if isAuth() && request.auth.uid == userId;
+    }
+
+    match /{document=**} {
+      allow read, write: if false; // Deny everything else!
+    }
+  }
+}

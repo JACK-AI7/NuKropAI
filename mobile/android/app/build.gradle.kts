@@ -39,6 +39,16 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
+    // Create single universal APK for all architectures
+    splits {
+        abi {
+            isEnable = false  // Disable ABI splits to create single universal APK
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = true
+        }
+    }
 }
 
 flutter {

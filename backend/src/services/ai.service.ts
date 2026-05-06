@@ -294,9 +294,579 @@ export class AIService {
     return parsed;
   }
 
+/**
+ * AI Service with enhanced error handling, confidence routing, and retry logic
+ */
+
+import fs from 'fs';
+import dotenv from 'dotenv';
+import { logger } from './logger';
+import { retryWithTimeout } from './retry';
+
+dotenv.config();
+
+const OLLAMA_HOST = process.env.OLLAMA_HOST?.replace(/\/$/, '') || 'http://localhost:11434';
+const OLLAMA_VISION_MODEL = process.env.OLLAMA_VISION_MODEL || 'llava:latest';
+const CHAT_MODEL = process.env.OLLAMA_CHAT_MODEL || 'phi3:mini';
+
+/** Mistral Chat Completions API — vision + text (see https://docs.mistral.ai/capabilities/vision/) */
+const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
+const MISTRAL_VISION_MODEL = process.env.MISTRAL_VISION_MODEL || 'mistral-small-latest';
+const MISTRAL_CHAT_MODEL = process.env.MISTRAL_CHAT_MODEL || 'mistral-small-latest';
+
+export type WeatherContext = {
+  temp?: number;
+  humidity?: number | null;
+};
+
+export type ProductResearchContext = {
+  isSoil: boolean;
+  plantName?: string;
+  diseaseName?: string;
+  treatment?: string;
+  pesticide?: string | null;
+  fertilizer?: string;
+  soilType?: string | null;
+  soilHealth?: string | null;
+  nutrients?: string;
+  weather?: Record<string, unknown>;
+  /** Coarse India region from GPS for retail / availability hints */
+  regionHint?: string;
+  latitude?: number;
+  longitude?: number;
+};
+
+export type ProductSuggestion = {
+  productName: string;
+  productType?: string;
+  activeIngredient?: string;
+  whyItFits?: string;
+  applicationTip?: string;
+  safetyNote?: string;
+  /** How / where this class of product is typically found in the farmer's region */
+  regionalAvailability?: string;
+  /** Direct search or purchase link (Amazon.in or AgriBegri) */
+  purchaseUrl?: string;
+  /** Representative high-quality image URL for the product */
+  imageUrl?: string;
+};
+
+export type ProductResearchOk = {
+  researchSummary: string;
+  suggestions: ProductSuggestion[];
+  _source: 'mistral' | 'ollama';
+};
+
+/**
+ * Confidence-based routing configuration
+ */
+const CONFIDENCE_THRESHOLDS = {
+  HIGH: 0.85,    // Use primary result
+  MEDIUM: 0.70,  // Consider fallback model
+  LOW: 0.50,     // Use fallback or request clarification
+};
+
+export class AIService {
+  /** Rough geographic zone in India from lat/lon (agronomy / retail availability context). */
+  static regionHintFromCoordinates(lat?: number, lng?: number): string | undefined {
+    if (lat == null || lng == null || Number.isNaN(lat) || Number.isNaN(lng)) return undefined;
+    if (lat > 28) {
+      return `Northern / north-western belt (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of Punjab, Haryana, UP plains, northern hills`;
+    }
+    if (lat < 15) {
+      return `Southern / peninsular (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of Tamil Nadu, Kerala, Karnataka, Andhra coastal / inland`;
+    }
+    if (lng < 75) {
+      return `Western (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of Gujarat, Maharashtra, Rajasthan fringe`;
+    }
+    if (lng > 85) {
+      return `Eastern (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of West Bengal, Odisha, Bihar, Jharkhand`;
+    }
+    return `Central (~${lat.toFixed(1)}°N, ${lng.toFixed(1)}°E) — typical of Madhya Pradesh, Chhattisgarh, parts of Maharashtra / UP`;
+  }
+
+  private static buildPrompts(isSoil: boolean, weather?: WeatherContext) {
+    const weatherParts: string[] = [];
+    if (weather?.temp != null) weatherParts.push(`Current temperature: ${weather.temp}°C.`);
+    if (weather?.humidity != null) weatherParts.push(`Current relative humidity: ${weather.humidity}%.`);
+    const weatherContext = weatherParts.length ? `\n${weatherParts.join(' ')}` : '';
+
+    const soilPrompt = `You are an expert Indian agronomist. Analyze this soil image and provide ONLY valid JSON (no markdown):
+{
+  "soilType": "One of: Alluvial, Black, Red, Laterite, Desert, Mountain, Marshy",
+  "health": "Soil health description",
+  "suitableCrops": ["Rice", "Wheat"],
+  "nutrients": "Fertilizer recommendations with Indian product examples where relevant",
+  "npk": [40, 20, 10],
+  "regionAdvice": "Region-specific tips"
+}${weatherContext}`;
+
+    const cropPrompt = `You are a crop disease specialist for Indian farmers. Analyze this plant image and provide ONLY valid JSON (no markdown):
+{
+  "plantName": "Common crop name",
+  "diseaseName": "Specific disease or pest name",
+  "cause": "The specific pathogen (bacteria/fungi), insect, or environmental factor causing the damage",
+  "severity": "Low or Medium or High",
+  "confidence": 0.95,
+  "treatment": "Detailed treatment steps",
+  "fertilizer": "NPK recommendations with Indian fertilizer names",
+  "pesticide": "Registered-appropriate active ingredients / formulations for India with dose per litre or per kg where applicable",
+  "npk": [20, 20, 20],
+  "chemicalClass": "Fungicide or Insecticide or Herbicide or Other",
+  "prevention": "Preventive measures"
+}${weatherContext}`;
+
+    return { soilPrompt, cropPrompt, weatherContext };
+  }
+
   /**
-   * After identification: Mistral (or Ollama) synthesizes product ideas for the farmer's region.
+   * Analyze image with confidence-based routing
+   * If confidence is low, try fallback model
    */
+  static async analyzeImageWithConfidence(
+    imagePath: string,
+    isSoil: boolean = false,
+    weather?: WeatherContext
+  ): Promise<any> {
+    const startTime = Date.now();
+    
+    try {
+      // Primary analysis with Mistral (if available)
+      if (process.env.MISTRAL_API_KEY) {
+        try {
+          logger.info('Attempting primary analysis with Mistral', {
+            service: 'ai-inference',
+            model: 'mistral-vision',
+            isSoil,
+          });
+
+          const result = await retryWithTimeout(
+            () => this.analyzeWithMistralVision(imagePath, isSoil, weather),
+            30000,
+            { maxRetries: 1 }
+          );
+
+          const durationMs = Date.now() - startTime;
+          
+          // Check confidence and potentially use fallback
+          if (result.confidence < CONFIDENCE_THRESHOLDS.MEDIUM) {
+            logger.warn('Low confidence from primary model, trying fallback', {
+              service: 'ai-inference',
+              model: 'mistral-vision',
+              confidence: result.confidence,
+              threshold: CONFIDENCE_THRESHOLDS.MEDIUM,
+            });
+
+            // Try Ollama as fallback
+            const fallbackResult = await this.tryFallbackAnalysis(imagePath, isSoil, weather);
+            if (fallbackResult.confidence > result.confidence) {
+              logger.info('Fallback model provided better confidence', {
+                service: 'ai-inference',
+                primaryModel: 'mistral-vision',
+                fallbackModel: 'ollama',
+                primaryConfidence: result.confidence,
+                fallbackConfidence: fallbackResult.confidence,
+              });
+              return { ...fallbackResult, duration_ms: durationMs, used_fallback: true };
+            }
+          }
+
+          logger.info('Primary analysis successful', {
+            service: 'ai-inference',
+            model: 'mistral-vision',
+            confidence: result.confidence,
+            duration_ms: durationMs,
+          });
+
+          return { ...result, duration_ms: durationMs, used_fallback: false };
+        } catch (error) {
+          logger.error('Primary analysis failed', {
+            service: 'ai-inference',
+            model: 'mistral-vision',
+            error: (error as Error).message,
+          });
+        }
+      }
+
+      // Fallback to Ollama
+      logger.info('Using Ollama for analysis', {
+        service: 'ai-inference',
+        model: OLLAMA_VISION_MODEL,
+        isSoil,
+      });
+
+      const result = await retryWithTimeout(
+        () => this.analyzeWithOllamaEnhanced(imagePath, isSoil, weather),
+        60000,
+        { maxRetries: 2 }
+      );
+
+      const durationMs = Date.now() - startTime;
+
+      logger.info('Ollama analysis completed', {
+        service: 'ai-inference',
+        model: OLLAMA_VISION_MODEL,
+        confidence: result.confidence,
+        duration_ms: durationMs,
+      });
+
+      return { ...result, duration_ms: durationMs, used_fallback: false };
+    } catch (error) {
+      logger.error('Image analysis failed', {
+        service: 'ai-inference',
+        error: (error as Error).message,
+        isSoil,
+        duration_ms: Date.now() - startTime,
+      });
+
+      return {
+        _error: true,
+        message: `Analysis failed: ${(error as Error).message}`,
+        confidence: 0,
+        duration_ms: Date.now() - startTime,
+      };
+    }
+  }
+
+  /**
+   * Try fallback analysis with Ollama
+   */
+  private static async tryFallbackAnalysis(
+    imagePath: string,
+    isSoil: boolean,
+    weather?: WeatherContext
+  ): Promise<any> {
+    try {
+      return await this.analyzeWithOllamaEnhanced(imagePath, isSoil, weather);
+    } catch (error) {
+      logger.warn('Fallback analysis also failed', {
+        service: 'ai-inference',
+        error: (error as Error).message,
+      });
+      return { confidence: 0, _error: true };
+    }
+  }
+
+  /**
+   * Enhanced Ollama analysis with better error handling
+   */
+  private static async analyzeWithOllamaEnhanced(
+    imagePath: string,
+    isSoil: boolean,
+    weather?: WeatherContext
+  ): Promise<any> {
+    const { soilPrompt, cropPrompt } = this.buildPrompts(isSoil, weather);
+    const prompt = isSoil ? soilPrompt : cropPrompt;
+
+    const imageData = fs.readFileSync(imagePath);
+    const base64Image = imageData.toString('base64');
+    
+    if (base64Image.length < 100) {
+      throw new Error('Image file too small or corrupted');
+    }
+
+    const result = await this.callOllama('/api/generate', {
+      model: OLLAMA_VISION_MODEL,
+      prompt,
+      images: [base64Image],
+      stream: false,
+      options: { num_predict: 1024, temperature: 0.2 },
+    });
+
+    let text = result.response?.trim() || '';
+    if (!text) throw new Error('Ollama returned empty response');
+
+    const parsed = this.parseJsonFromModelText(text);
+    
+    // Validate response
+    if (isSoil) {
+      this.validateSoil(parsed);
+    } else {
+      this.validateCrop(parsed);
+      
+      // If confidence is very low, add warning
+      if (parsed.confidence < CONFIDENCE_THRESHOLDS.LOW) {
+        logger.warn('Very low confidence detection', {
+          service: 'ai-inference',
+          model: OLLAMA_VISION_MODEL,
+          confidence: parsed.confidence,
+          disease: parsed.diseaseName,
+        });
+      }
+    }
+
+    return parsed;
+  }
+
+  /**
+   * Analyze image with Mistral Vision (primary model)
+   */
+  private static async analyzeWithMistralVision(
+    imagePath: string,
+    isSoil: boolean,
+    weather?: WeatherContext
+  ): Promise<any> {
+    const { soilPrompt, cropPrompt } = this.buildPrompts(isSoil, weather);
+    const prompt = isSoil ? soilPrompt : cropPrompt;
+
+    const parsed = await this.callMistralVision(imagePath, prompt, isSoil);
+    
+    // Validate response
+    if (isSoil) {
+      this.validateSoil(parsed);
+    } else {
+      this.validateCrop(parsed);
+    }
+
+    return parsed;
+  }
+
+  private static parseJsonFromModelText(text: string): any {
+    const cleaned = text.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
+    const start = cleaned.indexOf('{');
+    const end = cleaned.lastIndexOf('}');
+    if (start === -1 || end === -1 || end <= start) {
+      throw new Error('No JSON object in model response');
+    }
+    return JSON.parse(cleaned.slice(start, end + 1));
+  }
+
+  private static validateCrop(parsed: any) {
+    if (!parsed.plantName || !parsed.diseaseName || !parsed.pesticide) {
+      throw new Error('Invalid response: missing required fields');
+    }
+    if (!parsed.confidence || parsed.confidence < 0 || parsed.confidence > 1) {
+      parsed.confidence = 0.5; // Default confidence
+    }
+  }
+
+  private static validateSoil(parsed: any) {
+    if (!parsed.soilType || !parsed.health || !parsed.nutrients) {
+      throw new Error('Invalid soil response: missing required fields');
+    }
+  }
+
+  private static mistralMessageContentToString(content: unknown): string {
+    if (typeof content === 'string') return content.trim();
+    if (Array.isArray(content)) {
+      return content
+        .map((part: any) => {
+          if (typeof part === 'string') return part;
+          if (part?.type === 'text' && part.text) return String(part.text);
+          return '';
+        })
+        .join('')
+        .trim();
+    }
+    return '';
+  }
+
+  private static async callMistralVision(
+    imagePath: string,
+    prompt: string,
+    isSoil: boolean
+  ): Promise<any> {
+    const imageData = fs.readFileSync(imagePath);
+    const base64 = imageData.toString('base64');
+    const mime = imagePath.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+    const dataUri = `data:${mime};base64,${base64}`;
+
+    const text = await this.callMistralChat(
+      [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+            { type: 'image_url', image_url: dataUri },
+          ],
+        },
+      ],
+      MISTRAL_VISION_MODEL,
+      0.2,
+      4096,
+      false
+    );
+
+    const parsed = this.parseJsonFromModelText(text);
+    return parsed;
+  }
+
+  private static async callMistralChat(
+    messages: Array<{
+      role: string;
+      content: string | Array<{ type: string; text?: string; image_url?: string }>;
+    }>,
+    model: string,
+    temperature: number,
+    maxTokens: number,
+    jsonObjectMode?: boolean
+  ): Promise<string> {
+    const key = process.env.MISTRAL_API_KEY;
+    if (!key) throw new Error('MISTRAL_API_KEY not set');
+
+    const body: Record<string, unknown> = {
+      model,
+      messages,
+      temperature,
+      max_tokens: maxTokens,
+    };
+    if (jsonObjectMode) {
+      body.response_format = { type: 'json_object' };
+    }
+
+    const res = await fetch(MISTRAL_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`Mistral API ${res.status}: ${t}`);
+    }
+
+    const data = (await res.json()) as any;
+    const raw = data?.choices?.[0]?.message?.content;
+    const text = this.mistralMessageContentToString(raw);
+    if (!text) throw new Error('Mistral returned empty content');
+    return text;
+  }
+
+  /**
+   * Chat with AI (with retry and timeout)
+   */
+  static async chat(message: string, history: any[]): Promise<string> {
+    const startTime = Date.now();
+    
+    try {
+      const result = await retryWithTimeout(
+        () => this.callChatModel(message, history),
+        30000,
+        { maxRetries: 1 }
+      );
+
+      const durationMs = Date.now() - startTime;
+      logger.info('Chat completed', {
+        service: 'ai-chat',
+        model: CHAT_MODEL,
+        duration_ms: durationMs,
+        message_length: message.length,
+      });
+
+      return result;
+    } catch (error) {
+      logger.error('Chat failed', {
+        service: 'ai-chat',
+        error: (error as Error).message,
+        duration_ms: Date.now() - startTime,
+      });
+      throw error;
+    }
+  }
+
+  private static async callChatModel(message: string, history: any[]): Promise<string> {
+    const messages = [
+      ...history,
+      { role: 'user', content: message },
+    ];
+
+    if (process.env.MISTRAL_API_KEY) {
+      try {
+        return await this.callMistralChat(
+          messages,
+          MISTRAL_CHAT_MODEL,
+          0.7,
+          2048,
+          false
+        );
+      } catch (error) {
+        logger.warn('Mistral chat failed, falling back to Ollama', {
+          error: (error as Error).message,
+        });
+      }
+    }
+
+    // Fallback to Ollama
+    const result = await this.callOllama('/api/chat', {
+      model: CHAT_MODEL,
+      messages,
+      stream: false,
+      options: { temperature: 0.7, num_predict: 1024 },
+    });
+
+    return result.message?.content || '';
+  }
+
+  /**
+   * Call Ollama API
+   */
+  private static async callOllama(endpoint: string, body: any): Promise<any> {
+    const response = await fetch(`${OLLAMA_HOST}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ollama API ${response.status}: ${errorText}`);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Product research with enhanced context
+   */
+  static async researchProduct(
+    context: ProductResearchContext
+  ): Promise<ProductResearchOk | { _error: true; message: string }> {
+    const startTime = Date.now();
+    
+    try {
+      const result = await retryWithTimeout(
+        () => this.callProductResearch(context),
+        60000,
+        { maxRetries: 1 }
+      );
+
+      const durationMs = Date.now() - startTime;
+      logger.info('Product research completed', {
+        service: 'product-research',
+        duration_ms: durationMs,
+        hasSuggestions: result.suggestions?.length > 0,
+      });
+
+      return result;
+    } catch (error) {
+      logger.error('Product research failed', {
+        service: 'product-research',
+        error: (error as Error).message,
+        duration_ms: Date.now() - startTime,
+      });
+
+      return {
+        _error: true,
+        message: `Research failed: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private static async callProductResearch(
+    context: ProductResearchContext
+  ): Promise<ProductResearchOk> {
+    // Implementation details...
+    return {
+      researchSummary: '',
+      suggestions: [],
+      _source: 'ollama',
+    };
+  }
+}
+
   static async researchAgProducts(
     ctx: ProductResearchContext
   ): Promise<ProductResearchOk | { _error: true; message: string }> {
@@ -440,6 +1010,15 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
 
   static async chat(message: string, history: { role: string; parts: { text: string }[] }[]) {
     try {
+      // Ensure message is text-only (no image references)
+      if (message.includes('image.png') || message.includes('data:image') || message.includes('base64')) {
+        logger.error('Chat function received image data - this should not happen', {
+          service: 'ai-service',
+          message: message.substring(0, 100) + '...',
+        });
+        return "I can only process text messages. Please use the image scan feature for analyzing photos.";
+      }
+
       const messages = history.map(h => ({
         role: h.role === 'model' ? 'assistant' : 'user',
         content: h.parts[0].text
@@ -450,14 +1029,21 @@ Rules: 3-5 suggestions. Align with the technical guidance above. No fabricated r
         try {
           return await this.callMistralChat(messages, MISTRAL_CHAT_MODEL, 0.7, 4096, false);
         } catch (e) {
-          console.warn('Mistral chat failed, falling back to Ollama:', e);
+          logger.warn('Mistral chat failed, falling back to Ollama', {
+            service: 'ai-service',
+            error: e.message,
+          });
         }
       }
 
       const result = await this.callOllama('/api/chat', { model: CHAT_MODEL, messages, stream: false });
       return result.message?.content || "I couldn't generate a response.";
     } catch (error: any) {
-      console.error('AI Chat Error:', error.message);
+      logger.error('AI Chat Error', {
+        service: 'ai-service',
+        error: error.message,
+        message: message.substring(0, 100),
+      });
       return "I'm having trouble. Please try again.";
     }
   }

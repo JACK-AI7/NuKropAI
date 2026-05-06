@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { WeatherService } from '../services/weather.service';
+import { retryWithTimeout } from '../utils/retry';
+import { logger } from '../utils/logger';
 
 export class ScanController {
   static async createScan(req: Request, res: Response) {
@@ -64,9 +66,188 @@ export class ScanController {
         };
       } else {
         // Server-side AI path (legacy) — keep for compatibility
-        // TODO: This can be removed if mobile handles all analysis
         return res.status(501).json({ error: 'Server-side AI is disabled. Use client analysis.' });
       }
+
+      // Parse weather if provided as JSON string
+      let weatherSnapshot: Record<string, unknown> | undefined;
+      if (weatherJson) {
+        try {
+          weatherSnapshot = typeof weatherJson === 'string' ? JSON.parse(weatherJson) : weatherJson;
+        } catch (_) {}
+      }
+
+      const finalPlantName = isSoil ? 'Soil' : analysis.plantName;
+      const finalDiseaseName = isSoil ? 'N/A' : analysis.diseaseName;
+      const finalSeverity = analysis.severity;
+      const finalConfidence = analysis.confidence;
+      const finalTreatment = analysis.treatment;
+      const finalFertilizer = fertilizer || analysis.fertilizer || '';
+      const finalPesticide = pesticide || analysis.pesticide || null;
+      const finalSoilType = soilType || analysis.soilType || null;
+      const finalSoilHealth = soilHealth || analysis.soilHealth || null;
+      const finalNpk = analysis.npk;
+
+      // Get weather data with retry
+      let weatherData = null;
+      if (lat && lng && !weatherSnapshot) {
+        try {
+          weatherData = await retryWithTimeout(
+            () => WeatherService.getWeather(lat, lng),
+            10000,
+            { maxRetries: 2 }
+          );
+        } catch (error) {
+          logger.warn('Weather fetch failed, continuing without weather data', {
+            error: (error as Error).message,
+            lat,
+            lng,
+          });
+        }
+      }
+
+      const scan = await prisma.scan.create({
+        data: {
+          userId,
+          imageUrl: `/uploads/${file.filename}`,
+          plantName: finalPlantName,
+          diseaseName: finalDiseaseName,
+          cause: analysis.cause || null,
+          severity: finalSeverity,
+          confidence: finalConfidence,
+          treatment: finalTreatment,
+          fertilizer: finalFertilizer,
+          pesticide: finalPesticide,
+          soilType: finalSoilType,
+          soilHealth: finalSoilHealth,
+          npk: finalNpk,
+          isSoilAnalysis: isSoil,
+          latitude: lat,
+          longitude: lng,
+          aiModel: aiModel || (clientAnalyzed ? 'mobile-client' : 'server-ai'),
+          modelConfidence: modelConfidence || finalConfidence,
+          processingTime: processingTime ? parseFloat(processingTime) : null,
+          pestDetections: pestDetections ? JSON.stringify(pestDetections) : null,
+          weather: weatherData ? JSON.stringify(weatherData) : (weatherSnapshot ? JSON.stringify(weatherSnapshot) : null),
+          matchedDiseaseKey,
+        },
+        include: {
+          user: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      logger.info('Scan created successfully', {
+        service: 'scan-controller',
+        scanId: scan.id,
+        userId,
+        plantName: scan.plantName,
+        confidence: scan.confidence,
+      });
+
+      res.status(201).json({
+        message: 'Scan created successfully',
+        scan: {
+          id: scan.id,
+          imageUrl: scan.imageUrl,
+          plantName: scan.plantName,
+          diseaseName: scan.diseaseName,
+          confidence: scan.confidence,
+          treatment: scan.treatment,
+          createdAt: scan.createdAt,
+        },
+      });
+    } catch (error) {
+      logger.error('Failed to create scan', {
+        service: 'scan-controller',
+        error: (error as Error).message,
+        userId: (req as any).userId,
+      });
+      res.status(500).json({ error: 'Failed to create scan' });
+    }
+  }
+
+  static async getHistory(req: Request, res: Response) {
+    try {
+      const userId = (req as any).userId;
+      const scans = await prisma.scan.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+        include: {
+          user: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      logger.info('Scan history retrieved', {
+        service: 'scan-controller',
+        userId,
+        count: scans.length,
+      });
+
+      res.json(scans);
+    } catch (error) {
+      logger.error('Failed to fetch scan history', {
+        service: 'scan-controller',
+        error: (error as Error).message,
+        userId: (req as any).userId,
+      });
+      res.status(500).json({ error: 'Failed to fetch scan history' });
+    }
+  }
+
+  static async getScanById(req: Request, res: Response) {
+    try {
+      const userId = (req as any).userId;
+      const { id } = req.params;
+
+      const scan = await prisma.scan.findFirst({
+        where: {
+          id,
+          userId,
+        },
+        include: {
+          user: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      if (!scan) {
+        return res.status(404).json({ error: 'Scan not found' });
+      }
+
+      logger.info('Scan retrieved', {
+        service: 'scan-controller',
+        scanId: id,
+        userId,
+      });
+
+      res.json(scan);
+    } catch (error) {
+      logger.error('Failed to fetch scan', {
+        service: 'scan-controller',
+        error: (error as Error).message,
+        userId: (req as any).userId,
+        scanId: req.params.id,
+      });
+      res.status(500).json({ error: 'Failed to fetch scan' });
+    }
+  }
+}
+
 
       // Parse weather if provided as JSON string
       let weatherSnapshot: Record<string, unknown> | undefined;

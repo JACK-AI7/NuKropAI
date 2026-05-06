@@ -1,0 +1,38 @@
+{
+  "nukrop_api_key": {
+    "defaultValue": {
+      "value": "dev-key-placeholder"
+    },
+    "description": "API key for backend authentication"
+  },
+  "base_url": {
+    "defaultValue": {
+      "value": "http://10.0.2.2:8080/api"
+    },
+    "description": "Backend API base URL"
+  },
+  "ws_url": {
+    "defaultValue": {
+      "value": "ws://10.0.2.2:8080/ws"
+    },
+    "description": "WebSocket URL for real-time features"
+  },
+  "ai_server_url": {
+    "defaultValue": {
+      "value": "http://10.0.2.2:8080"
+    },
+    "description": "AI server base URL"
+  },
+  "gemini_api_key": {
+    "defaultValue": {
+      "value": ""
+    },
+    "description": "Google Gemini API key"
+  },
+  "enable_offline_mode": {
+    "defaultValue": {
+      "value": "true"
+    },
+    "description": "Enable offline-first functionality"
+  }
+}
