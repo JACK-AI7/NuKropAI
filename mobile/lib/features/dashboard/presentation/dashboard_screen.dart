@@ -8,6 +8,7 @@ import '../../chat/presentation/chat_screen.dart';
 import '../../../core/api/scanner_service.dart';
 import 'settings_screen.dart';
 import 'dart:ui';
+import 'disease_map_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -381,7 +382,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               _navItem(0, Icons.grid_view_rounded),
               _navItem(1, Icons.history_rounded),
               _scanButton(),
-              _navItem(2, Icons.insights_rounded),
+              _navItem(2, Icons.insights_rounded, onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const DiseaseMapScreen()));
+              }),
               _navItem(3, Icons.person_outline_rounded),
             ],
           ),
@@ -390,10 +393,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
     );
   }
 
-  Widget _navItem(int index, IconData icon) {
+  Widget _navItem(int index, IconData icon, {VoidCallback? onTap}) {
     final active = _currentIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () {
+        setState(() => _currentIndex = index);
+        if (onTap != null) onTap();
+      },
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: active ? BoxDecoration(color: AppColors.accent.withOpacity(0.2), shape: BoxShape.circle) : null,

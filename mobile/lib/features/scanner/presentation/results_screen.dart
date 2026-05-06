@@ -7,6 +7,7 @@ import '../../../core/api/server_config.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/api/scanner_service.dart';
 
 IconData getWeatherIcon(int? code) {
   if (code == null) return Icons.cloud;
@@ -42,6 +43,9 @@ class ResultsScreen extends ConsumerStatefulWidget {
 
 class _ResultsScreenState extends ConsumerState<ResultsScreen> {
   final FlutterTts _flutterTts = FlutterTts();
+  String _selectedLang = 'en-US';
+  Map<String, dynamic>? _satelliteData;
+  bool _isSatelliteLoading = false;
 
   @override
   void initState() {
@@ -54,8 +58,21 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
     final resultText = isSoil
         ? 'Soil type: ${widget.scan['soilType']}. Health: ${widget.scan['soilHealth']}'
         : 'Diagnosis: ${widget.scan['diseaseName']}. Treatment: ${widget.scan['treatment']}';
-    await _flutterTts.setLanguage("en-US");
+    await _flutterTts.setLanguage(_selectedLang);
     await _flutterTts.speak(resultText);
+  }
+
+  Future<void> _loadSatelliteData() async {
+    setState(() => _isSatelliteLoading = true);
+    try {
+      final service = ref.read(scannerServiceProvider);
+      final data = await service.getSatelliteAnalysis();
+      setState(() => _satelliteData = data);
+    } catch (e) {
+      print('Satellite error: $e');
+    } finally {
+      setState(() => _isSatelliteLoading = false);
+    }
   }
 
   @override
@@ -103,8 +120,12 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeader(isSoil),
+                    const SizedBox(height: 12),
+                    _buildVoiceControl(),
                     const SizedBox(height: 24),
                     if (scan['weather'] != null) _buildWeatherCard(scan['weather']),
+                    const SizedBox(height: 20),
+                    _buildSatelliteIntelligenceCard(),
                     const SizedBox(height: 20),
                     _buildDiagnosisCard(isSoil),
                     const SizedBox(height: 16),
@@ -233,39 +254,67 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen> {
     );
   }
 
-  Widget _buildWeatherCard(Map<String, dynamic>? weather) {
-    if (weather == null) return const SizedBox.shrink();
-    final temp = weather['temp']?.toString() ?? '--';
-    final condition = weather['condition']?.toString() ?? '';
-    final humidity = weather['humidity']?.toString() ?? '--';
-    final wind = weather['windSpeed']?.toString() ?? '--';
-    final icon = weather['icon'] as IconData? ?? Icons.cloud;
+  Widget _buildVoiceControl() {
+    return Row(
+      children: [
+        const Icon(Icons.volume_up, color: AppColors.accent, size: 20),
+        const SizedBox(width: 8),
+        const Text('Voice Guide:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        const Spacer(),
+        DropdownButton<String>(
+          value: _selectedLang,
+          items: const [
+            DropdownMenuItem(value: 'en-US', child: Text('English')),
+            DropdownMenuItem(value: 'hi-IN', child: Text('Hindi')),
+            DropdownMenuItem(value: 'te-IN', child: Text('Telugu')),
+          ],
+          onChanged: (val) {
+            setState(() => _selectedLang = val!);
+            _speakResult();
+          },
+        ),
+      ],
+    );
+  }
 
+  Widget _buildSatelliteIntelligenceCard() {
+    if (_satelliteData == null) {
+      return ElevatedButton.icon(
+        onPressed: _loadSatelliteData,
+        icon: _isSatelliteLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.satellite_alt),
+        label: const Text('RUN SATELLITE FIELD ANALYSIS'),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.blue.shade800, foregroundColor: Colors.white),
+      );
+    }
+
+    final ndvi = _satelliteData!['ndvi'] ?? 0.0;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.blue.shade400, Colors.lightBlue.shade200]),
+        color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.blue.shade200.withOpacity(0.4), blurRadius: 12, offset: const Offset(0, 6))],
+        border: Border.all(color: Colors.blue.shade200),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.white, size: 36),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('$temp°C, $condition', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 4),
-                Text('Humidity: $humidity%  •  Wind: ${wind}km/h', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-              ],
-            ),
+          const Row(
+            children: [
+              Icon(Icons.satellite_alt, color: Colors.blue),
+              SizedBox(width: 8),
+              Text('Satellite Intelligence Layer', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+            ],
           ),
+          const SizedBox(height: 12),
+          Text('Field NDVI: $ndvi (Vegetation Health)', style: const TextStyle(fontSize: 13)),
+          Text('Biomass Index: ${_satelliteData!['biomass_index']}', style: const TextStyle(fontSize: 13)),
+          const SizedBox(height: 8),
+          Text('AI Prediction: ${_satelliteData!['prediction']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
         ],
       ),
     );
   }
+ }
 
   Widget _buildDiagnosisCard(bool isSoil) {
     final scan = widget.scan;

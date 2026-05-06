@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../config/remote_config_service.dart';
 
 class LLMService {
   static const String _defaultApiKey = ""; // Set via Settings or --dart-define
@@ -37,6 +38,11 @@ class LLMService {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? storedKey = prefs.getString('gemini_api_key');
+      
+      // Priority: 1) Stored key, 2) Remote Config key, 3) Default (empty)
+      if (storedKey == null || storedKey.trim().isEmpty) {
+        storedKey = RemoteConfigService.geminiApiKey;
+      }
       if (storedKey == null || storedKey.trim().isEmpty) {
         storedKey = _defaultApiKey;
       }

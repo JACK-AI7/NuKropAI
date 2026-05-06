@@ -9,6 +9,10 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:camera/camera.dart' as cam;
 import 'package:image_picker/image_picker.dart';
+import '../../../core/api/websocket_service.dart';
+import 'dart:typed_data';
+import 'dart:convert';
+import 'package:image/image.dart' as img_lib;
 
 class ScannerScreen extends ConsumerStatefulWidget {
   final bool isSoil;
@@ -22,6 +26,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   cam.CameraController? _controller;
   bool _isProcessing = false;
   final ImagePicker _picker = ImagePicker();
+  final WebSocketService _wsService = WebSocketService();
+  List<dynamic> _realtimeDetections = [];
+  DateTime? _lastFrameTime;
 
   @override
   void initState() {
@@ -30,6 +37,14 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         await ref.read(scannerServiceProvider).init();
+        _wsService.connect();
+        _wsService.stream.listen((data) {
+          if (mounted) {
+            setState(() {
+              _realtimeDetections = data['detections'] ?? [];
+            });
+          }
+        });
       } catch (e) {
         debugPrint('Scanner service init error: $e');
       }
@@ -49,9 +64,41 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         imageFormatGroup: cam.ImageFormatGroup.jpeg,
       );
       await _controller!.initialize();
+      
+      // Start real-time stream
+      _controller!.startImageStream((image) {
+        if (_isProcessing) return;
+        final now = DateTime.now();
+        if (_lastFrameTime == null || now.difference(_lastFrameTime!).inMilliseconds > 500) {
+          _lastFrameTime = now;
+          _sendFrameToWS(image);
+        }
+      });
+
       if (mounted) setState(() {});
     } catch (e) {
       debugPrint('Camera init error: $e');
+    }
+  }
+
+  Future<void> _sendFrameToWS(cam.CameraImage image) async {
+    if (!_wsService.isConnected) return;
+    try {
+      // Fast conversion and compression for the server
+      final img = img_lib.Image.fromBytes(
+        width: image.width,
+        height: image.height,
+        bytes: image.planes[0].bytes.buffer,
+        format: img_lib.Format.uint8,
+      );
+      
+      // Rescale to 320px for faster inference
+      final resized = img_lib.copyResize(img, width: 320);
+      final jpeg = Uint8List.fromList(img_lib.encodeJpg(resized, quality: 50));
+      
+      _wsService.sendFrame(jpeg);
+    } catch (e) {
+      debugPrint('WS frame send error: $e');
     }
   }
 
@@ -168,7 +215,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
   @override
   void dispose() {
+    _controller?.stopImageStream();
     _controller?.dispose();
+    _wsService.dispose();
     super.dispose();
   }
 
@@ -249,6 +298,26 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                                 ),
                               ),
                             ),
+                          // Real-time Bounding Boxes
+                          ..._realtimeDetections.map((det) {
+                            final bbox = det['bbox'];
+                            return Positioned(
+                              left: (bbox[0] / 640) * 280,
+                              top: (bbox[1] / 640) * 280,
+                              width: ((bbox[2] - bbox[0]) / 640) * 280,
+                              height: ((bbox[3] - bbox[1]) / 640) * 280,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.accent, width: 2),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  det['class'],
+                                  style: const TextStyle(color: AppColors.accent, fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ],
                       ),
                     ),

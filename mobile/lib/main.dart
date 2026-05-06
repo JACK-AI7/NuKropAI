@@ -12,6 +12,7 @@ import 'core/l10n/locale_provider.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'core/config/remote_config_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +22,11 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     debugPrint("Firebase Initialized Successfully");
+    
+    await RemoteConfigService.initialize();
+    debugPrint("Remote Config Initialized Successfully");
   } catch (e) {
-    debugPrint("Firebase Initialization Error: $e");
+    debugPrint("Firebase/Remote Config Initialization Error: $e");
   }
 
   runApp(const ProviderScope(child: MyApp()));

@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import '../config/constants.dart';
+import '../config/remote_config_service.dart';
 
 class CloudAIService {
   final Dio _dio = Dio();
-  final String _baseUrl = AppConstants.aiServerUrl;
+  final String _baseUrl = RemoteConfigService.aiServerUrl;
 
   /// Detect pests using YOLO11 on the cloud server
   Future<List<Map<String, dynamic>>> detectPests(String imagePath) async {
@@ -86,5 +86,72 @@ class CloudAIService {
       print("Cloud Agronomist Error: $e");
     }
     return "The AI Agronomist is currently offline.";
+  }
+  /// Advanced agricultural analysis using MLLMs (Agri-LLaVA)
+  Future<Map<String, dynamic>> analyzeAdvanced(String imagePath, {String? prompt}) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "file": await MultipartFile.fromFile(imagePath),
+        "prompt": prompt ?? "Analyze this crop health and suggest treatment.",
+      });
+
+      final response = await _dio.post("$_baseUrl/analyze/agri-llava", data: formData);
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      print("Advanced Analysis Error: $e");
+    }
+    return {};
+  }
+
+  /// General crop disease analysis using the new multi-model router
+  Future<Map<String, dynamic>> analyzeCrop(String imagePath) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "file": await MultipartFile.fromFile(imagePath),
+      });
+
+      final response = await _dio.post("$_baseUrl/analyze/crop", data: formData);
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      print("Cloud Crop Analysis Error: $e");
+    }
+    return {};
+  }
+
+  /// Classify soil type using the cloud TF model
+  Future<Map<String, dynamic>> classifySoil(String imagePath) async {
+    try {
+      FormData formData = FormData.fromMap({
+        "file": await MultipartFile.fromFile(imagePath),
+      });
+
+      final response = await _dio.post("$_baseUrl/classify/soil", data: formData);
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      print("Cloud Soil Classification Error: $e");
+    }
+    return {};
+  }
+
+  /// Get NPK recommendation using the cloud Sklearn model
+  Future<Map<String, dynamic>> recommendNPK(double n, double p, double k) async {
+    try {
+      final response = await _dio.post(
+        "$_baseUrl/recommend/npk",
+        queryParameters: {"n": n, "p": p, "k": k},
+      );
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(response.data);
+      }
+    } catch (e) {
+      print("Cloud NPK Recommendation Error: $e");
+    }
+    return {};
   }
 }

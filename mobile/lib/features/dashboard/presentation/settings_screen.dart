@@ -9,6 +9,7 @@ import '../../../core/config/constants.dart';
 import '../../../core/api/server_config.dart';
 import 'dart:ui';
 import '../../../core/ai/llm_service.dart';
+import 'ai_health_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -180,10 +181,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       const SizedBox(height: 24),
                       _buildGeminiApiConfig(),
                       
-                      const SizedBox(height: 32),
-                      _buildSectionTitle('CONNECTIVITY'),
+                       const SizedBox(height: 32),
+                      _buildSectionTitle('SYSTEM STATUS'),
                       const SizedBox(height: 16),
-                      _buildGlassServerConfig(),
+                      GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AIHealthScreen())),
+                        child: _buildGlassSettingTile('AI Engine Health', 'Monitor Hugging Face Space status', Icons.health_and_safety_rounded),
+                      ),
                       
                       const SizedBox(height: 32),
                       _buildSectionTitle('ABOUT'),
