@@ -1,115 +1,151 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Security, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
-from ultralytics import YOLO
+from contextlib import asynccontextmanager
 import uvicorn
+import logging
+import io
+import os
+import time
+import json
 import cv2
 import numpy as np
-import torch
-from transformers import AutoModelForImageClassification, AutoFeatureExtractor, pipeline
-from typing import List, Optional
-import os
+from PIL import Image
+import gradio as gr
 
-app = FastAPI(title="NuKropAI Multi-Model Farming Server")
+# --- Internal Modules ---
+from .config import config
+from .auth import get_api_key
+from .model_manager import manager
+from .redis_cache import redis_cache
+from .websocket_manager import manager as ws_manager
+from .prometheus_metrics import setup_metrics
+from .ai_router import ai_router
+from .forecast_engine import forecast_engine
+from .ndvi_engine import ndvi_engine
+from .qdrant_memory import qdrant_memory
+from .celery_worker import process_mllm_task
 
-# Enable CORS
+# --- Setup Logging ---
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("🌿 NuKropAI Enterprise Server Starting...")
+    manager.load_all()
+    await redis_cache.connect()
+    yield
+    await redis_cache.close()
+    logger.info("👋 NuKropAI Server Stopped.")
+
+app = FastAPI(
+    title=config.PROJECT_NAME,
+    version=config.VERSION,
+    lifespan=lifespan
+)
+
+# --- Middleware ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Global Model Registry (Lazy Loading) ---
-models = {
-    "pest": None,
-    "maize": None,
-    "plantnet": None,
-    "agronomist": None
-}
+# --- Instrumentation ---
+setup_metrics(app)
 
-def get_pest_model():
-    if models["pest"] is None:
-        # Use hf-hub: prefix for correct Hugging Face model resolution
-        try:
-            models["pest"] = YOLO("hf-hub:underdogquality/yolo11s-pest-detection")
-        except Exception as e:
-            print(f"Error loading YOLO from HF: {e}")
-            # Fallback to local download
-            try:
-                models["pest"] = YOLO("yolo11s.pt")
-            except Exception as e2:
-                print(f"Fallback YOLO load failed: {e2}")
-                raise
-    return models["pest"]
+# --- Gradio Admin UI ---
+def create_admin_ui():
+    with gr.Blocks(theme=gr.themes.Soft()) as demo:
+        gr.Markdown("# 🌿 NuKropAI Enterprise Admin Panel")
+        with gr.Tab("System Status"):
+            uptime_val = gr.Number(label="Uptime (s)", value=0)
+            status_btn = gr.Button("Refresh")
+            status_btn.click(lambda: int(time.time() - manager.stats["start_time"]), outputs=uptime_val)
+        with gr.Tab("Model Control"):
+            gr.Markdown("OTA Updates and Model Reloading")
+            reload_btn = gr.Button("Reload Models", variant="primary")
+            reload_btn.click(manager.load_all)
+    return demo
 
-def get_maize_model():
-    if models["maize"] is None:
-        # Placeholder for transformers image classification
-        models["maize"] = pipeline("image-classification", model="muAtarist/maize_disease_model")
-    return models["maize"]
+app.mount("/admin/ui", gr.mount_gradio_app(app, create_admin_ui(), path="/admin/ui"))
 
-def get_agronomist():
-    if models["agronomist"] is None:
-        # Using a small LLM pipeline for advice
-        models["agronomist"] = pipeline("text-generation", model="persadian/CropSeek-LLM", device_map="auto")
-    return models["agronomist"]
+# --- Helper ---
+def decode_image(file_bytes: bytes) -> Image.Image:
+    try:
+        img_array = np.frombuffer(file_bytes, np.uint8)
+        bgr = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+        return Image.fromarray(rgb)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Image decode failed: {e}")
 
-@app.get("/")
-async def root():
-    return {"status": "NuKropAI Multi-Model Server is Running", "capabilities": list(models.keys())}
-
-@app.post("/detect/pest")
-async def detect_pest(file: UploadFile = File(...)):
-    contents = await file.read()
-    nparr = np.frombuffer(contents, np.uint8)
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    
-    model = get_pest_model()
-    results = model(img)
-    
-    detections = []
-    for r in results:
-        for box in r.boxes:
-            detections.append({
-                "box": box.xyxy[0].tolist(),
-                "confidence": float(box.conf[0]),
-                "name": r.names[int(box.cls[0])]
-            })
-    return {"detections": detections}
-
-@app.post("/detect/maize")
-async def detect_maize(file: UploadFile = File(...)):
-    contents = await file.read()
-    # Save temp file for pipeline
-    with open("temp_maize.jpg", "wb") as f:
-        f.write(contents)
-    
-    model = get_maize_model()
-    results = model("temp_maize.jpg")
-    os.remove("temp_maize.jpg")
-    return {"results": results}
-
-@app.post("/recommend/crop")
-async def recommend_crop(n: float, p: float, k: float, temp: float, humidity: float, ph: float, rainfall: float):
-    # Basic logic based on common NPK datasets (SF24/Crop-recommendation)
-    # In a real app, this would load a saved .pkl or .joblib model
-    # Returning a mock response for demonstration
+# --- Core AI Routes ---
+@app.get("/health")
+async def health():
     return {
-        "recommended_crop": "Rice",
-        "confidence": 0.95,
-        "advice": f"With N:{n}, P:{p}, K:{k}, the soil is ideal for Rice."
+        "status": "ok",
+        "version": config.VERSION,
+        "models_loaded": list(manager.models.keys()),
+        "redis_active": redis_cache.client is not None
     }
 
-@app.post("/chat/agronomist")
-async def chat_agronomist(prompt: str):
-    # This might be slow on free tiers
+@app.post("/analyze/crop", dependencies=[Depends(get_api_key)])
+async def analyze_crop(file: UploadFile = File(...)):
+    img_bytes = await file.read()
+    
+    # 1. Check Cache
+    cached = await redis_cache.get_cached_result(img_bytes)
+    if cached: return cached
+
+    # 2. Inference
+    img = decode_image(img_bytes)
+    result = await ai_router.analyze_crop(img)
+    
+    # 3. Cache and Return
+    await redis_cache.cache_result(img_bytes, result)
+    return result
+
+@app.get("/analytics/forecast", dependencies=[Depends(get_api_key)])
+async def get_forecast(lat: float, lon: float):
+    return forecast_engine.get_forecast(lat, lon)
+
+@app.get("/analyze/satellite", dependencies=[Depends(get_api_key)])
+async def analyze_satellite(lat: float, lon: float):
+    return ndvi_engine.analyze_field(lat, lon)
+
+@app.post("/memory/search", dependencies=[Depends(get_api_key)])
+async def search_memory(query: str):
+    return qdrant_memory.search(query)
+
+# --- WebSocket for Real-time Detection ---
+@app.websocket("/ws/detect")
+async def websocket_endpoint(websocket: WebSocket):
+    await ws_manager.connect(websocket)
     try:
-        pipe = get_agronomist()
-        response = pipe(prompt, max_length=150)
-        return {"response": response[0]['generated_text']}
+        while True:
+            data = await websocket.receive_bytes()
+            img = decode_image(data)
+            
+            # Fast YOLO Inference for streaming
+            pest_model = manager.get_model("pest")
+            detections = []
+            if pest_model:
+                results = pest_model(img, verbose=False)
+                for r in results:
+                    for box in r.boxes:
+                        detections.append({
+                            "class": r.names[int(box.cls)],
+                            "confidence": round(float(box.conf), 4),
+                            "bbox": [round(v, 2) for v in box.xyxy[0].tolist()]
+                        })
+            await ws_manager.send_json({"detections": detections}, websocket)
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket)
     except Exception as e:
-        return {"response": f"AI Agronomist is busy. Error: {str(e)}"}
+        logger.error(f"WS Error: {e}")
+        await websocket.close()
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    uvicorn.run("main:app", host="0.0.0.0", port=7860, workers=1)

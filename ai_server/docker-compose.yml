@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  ai-server:
+    build:
+      context: .
+      args:
+        - HF_TOKEN=${HF_TOKEN}
+    ports:
+      - "7860:7860"
+    environment:
+      - AI_API_KEY=${AI_API_KEY}
+      - REDIS_URL=redis://redis:6379/0
+      - QDRANT_HOST=qdrant
+    depends_on:
+      - redis
+      - qdrant
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  qdrant_data:

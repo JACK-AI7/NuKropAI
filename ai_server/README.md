@@ -1,31 +1,40 @@
-# NuKropAI - FastAPI YOLOv8 Server
+---
+title: NuKropAI Farming Multi-Model Server
+emoji: 🌿
+colorFrom: green
+colorTo: lime
+sdk: docker
+app_port: 7860
+pinned: true
+---
 
-This is a lightweight FastAPI server designed to run YOLOv8 object detection. It is optimized for free hosting platforms like **Hugging Face Spaces** or **Render**.
+# NuKropAI — Advanced Multi-Model Farming Server
 
-## Deployment to Hugging Face Spaces (FREE)
+This is a production-grade FastAPI server optimized for **Hugging Face Spaces**. it serves as the intelligent backend for the NuKropAI farming app, providing real-time diagnostics, pest detection, and agricultural advice.
 
-1. Create a new Space on [Hugging Face](https://huggingface.co/new-space).
-2. Select **Docker** as the SDK.
-3. Choose the **Blank** template or **Dockerfile**.
-4. Upload the contents of this `ai_server` folder (main.py, requirements.txt, Dockerfile).
-5. Wait for the build to finish.
-6. Your API will be available at `https://<your-username>-<space-name>.hf.space`.
+## 🚀 Key Features
+- **Multi-Model Routing**: Automatically selects the best model for the task (YOLO11, EfficientNet, TensorFlow).
+- **Smart Failover**: Fallbacks to the **Agri-MLLM (SpaceLLaVA)** if specific classifiers have low confidence.
+- **Hugging Face Native**: Built to run on HF Spaces with optional GPU support.
+- **Agricultural Specialist APIs**: Dedicated endpoints for pests, soil, NPK, and general crop diseases.
 
-## API Endpoints
+## 🛠️ API Endpoints
 
-### 1. Root
-- **GET** `/`
-- Status check.
+### 🔍 Diagnostics
+- **POST** `/analyze/crop`: Smart router for all crop diseases.
+- **POST** `/detect/pest`: Specialized YOLO11 pest identification.
+- **POST** `/classify/soil`: CNN-based soil type classification.
+- **POST** `/analyze/agri-llava`: Conversational multimodal analysis.
 
-### 2. Predict
-- **POST** `/predict`
-- **Body**: Form-data with key `file` (the image).
-- **Returns**: JSON list of detections (boxes, confidence, class names).
+### 📊 Agronomy & Recommendations
+- **POST** `/recommend/npk`: Nutrient recommendation based on NPK/pH/Moisture.
+- **POST** `/chat/agronomist`: Text-only agricultural expert chat.
 
-## Example Mobile Integration (Dart)
+## 📦 Deployment to Hugging Face
+1. Create a [New Space](https://huggingface.co/new-space).
+2. Choose **Docker**.
+3. Upload this directory.
+4. (Optional) Set `HF_TOKEN` in **Settings > Secrets** to download gated models.
 
-```dart
-var request = http.MultipartRequest('POST', Uri.parse('https://your-space.hf.space/predict'));
-request.files.add(await http.MultipartFile.fromPath('file', imagePath));
-var response = await request.send();
-```
+## 📱 Mobile Connection
+Set `aiServerUrl` in `mobile/lib/core/config/constants.dart` to your Space URL.
