@@ -105,3 +105,6 @@ mobile/ios/build/
 *.tmp
 *.temp
 .cache/
+
+# Build artifacts
+mobile/build/
