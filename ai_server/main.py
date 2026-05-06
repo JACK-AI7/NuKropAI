@@ -11,11 +11,12 @@ import cv2
 import numpy as np
 from PIL import Image
 import gradio as gr
+import hashlib
 
 # --- Internal Modules ---
 from .config import config
 from .auth import get_api_key
-from .model_manager import manager
+from .model_manager import manager as model_manager
 from .redis_cache import redis_cache
 from .websocket_manager import manager as ws_manager
 from .prometheus_metrics import setup_metrics
@@ -23,7 +24,6 @@ from .ai_router import ai_router
 from .forecast_engine import forecast_engine
 from .ndvi_engine import ndvi_engine
 from .qdrant_memory import qdrant_memory
-from .celery_worker import process_mllm_task
 
 # --- Setup Logging ---
 logging.basicConfig(level=logging.INFO)
@@ -32,7 +32,10 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("🌿 NuKropAI Enterprise Server Starting...")
-    manager.load_all()
+    model_manager.load_all()
+    # Ensure start_time is set for admin UI
+    if "start_time" not in model_manager.stats:
+        model_manager.stats["start_time"] = time.time()
     await redis_cache.connect()
     yield
     await redis_cache.close()
@@ -62,14 +65,14 @@ def create_admin_ui():
         with gr.Tab("System Status"):
             uptime_val = gr.Number(label="Uptime (s)", value=0)
             status_btn = gr.Button("Refresh")
-            status_btn.click(lambda: int(time.time() - manager.stats["start_time"]), outputs=uptime_val)
+            status_btn.click(lambda: int(time.time() - model_manager.stats.get("start_time", time.time())), outputs=uptime_val)
         with gr.Tab("Model Control"):
             gr.Markdown("OTA Updates and Model Reloading")
             reload_btn = gr.Button("Reload Models", variant="primary")
-            reload_btn.click(manager.load_all)
+            reload_btn.click(model_manager.load_all)
     return demo
 
-app.mount("/admin/ui", gr.mount_gradio_app(app, create_admin_ui(), path="/admin/ui"))
+gr.mount_gradio_app(app, create_admin_ui(), path="/admin/ui")
 
 # --- Helper ---
 def decode_image(file_bytes: bytes) -> Image.Image:
@@ -87,24 +90,25 @@ async def health():
     return {
         "status": "ok",
         "version": config.VERSION,
-        "models_loaded": list(manager.models.keys()),
+        "models_loaded": list(model_manager.models.keys()),
         "redis_active": redis_cache.client is not None
     }
 
 @app.post("/analyze/crop", dependencies=[Depends(get_api_key)])
 async def analyze_crop(file: UploadFile = File(...)):
     img_bytes = await file.read()
-    
-    # 1. Check Cache
-    cached = await redis_cache.get_cached_result(img_bytes)
+
+    # 1. Check Cache (use MD5 hash as cache key)
+    cache_key = hashlib.md5(img_bytes).hexdigest()
+    cached = await redis_cache.get_cached_result(cache_key)
     if cached: return cached
 
     # 2. Inference
     img = decode_image(img_bytes)
     result = await ai_router.analyze_crop(img)
-    
+
     # 3. Cache and Return
-    await redis_cache.cache_result(img_bytes, result)
+    await redis_cache.cache_result(cache_key, result)
     return result
 
 @app.get("/analytics/forecast", dependencies=[Depends(get_api_key)])
@@ -121,15 +125,15 @@ async def search_memory(query: str):
 
 # --- WebSocket for Real-time Detection ---
 @app.websocket("/ws/detect")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, api_key: str = Security(get_api_key)):
     await ws_manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_bytes()
             img = decode_image(data)
-            
+
             # Fast YOLO Inference for streaming
-            pest_model = manager.get_model("pest")
+            pest_model = model_manager.get_model("pest")
             detections = []
             if pest_model:
                 results = pest_model(img, verbose=False)
