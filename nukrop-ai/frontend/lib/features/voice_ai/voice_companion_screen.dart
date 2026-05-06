@@ -85,4 +85,5 @@ class _VoiceState extends State<VoiceCompanionScreen> {
        setState(() => textRecognized = "API Connection dropped. Showing local offline advice.");
     }
   }
+  }
 }

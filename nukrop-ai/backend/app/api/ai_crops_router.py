@@ -2,18 +2,39 @@ import cv2
 import tempfile
 import os
 import asyncio
-from fastapi import APIRouter, File, UploadFile, Depends
+from fastapi import APIRouter, File, UploadFile, Depends, UploadFile as UploadFileType
 from pydantic import BaseModel
-import httpx
-import google.generativeai as genai
+from ..core.firebase_auth import verify_firebase_token
+from ...model_manager import ai_core
 
 router = APIRouter()
-HF_API = "https://api-inference.huggingface.co/models/nickmuchi/vit-finetuned-chestnut-disease"
-HF_TOKEN = os.environ.get("HUGGINGFACE_API_KEY", "")
 
-# 1. AI CROP DOCTOR (VIDEO TO SATELLITE ENGINE)
+# 1. AI CROP DOCTOR (IMAGE ANALYSIS)
+@router.post("/scan/image")
+async def analyze_crop_image(file: UploadFile = File(...), token: dict = Depends(verify_firebase_token)):
+    """Analyze single crop image for diseases using dynamic AI loading"""
+    img_bytes = await file.read()
+
+    # Convert bytes to PIL Image
+    from PIL import Image
+    import io
+    img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
+
+    # Use AI Manager for dynamic loading
+    diagnosis = ai_core.scan_leaf_disease(img)
+
+    # Clean up memory after use
+    ai_core.kill_mode('vision')
+
+    return {
+        "status": "success",
+        "diagnosis": diagnosis,
+        "treatment_plan": "Isolate region. Apply 5ml/L Neem Extract."
+    }
+
+# 2. AI CROP DOCTOR (VIDEO TO SATELLITE ENGINE)
 @router.post("/scan/video")
-async def analyze_crop_video(file: UploadFile = File(...)):
+async def analyze_crop_video(file: UploadFile = File(...), token: dict = Depends(verify_firebase_token)):
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
     try:
         content = await file.read()
@@ -34,53 +55,73 @@ async def analyze_crop_video(file: UploadFile = File(...)):
     finally:
         os.remove(tmp.name)
 
-    # Process all frames async via HF Model
-    tasks = [process_image(f) for f in frames]
+    # Process all frames async via AI Manager
+    tasks = [process_image_with_ai(f) for f in frames]
     results = await asyncio.gather(*tasks)
 
     disease_counts = {}
     severity_sum = 0
     for r in results:
-        disease = r.get("label", "healthy")
+        disease = r.get("disease", "healthy")
         disease_counts[disease] = disease_counts.get(disease, 0) + 1
-        severity_sum += r.get("score", 0)
+        severity_sum += r.get("confidence", 0)
 
     main_disease = max(disease_counts, key=disease_counts.get) if disease_counts else "Unknown"
 
     return {
         "status": "success",
         "primary_issue": main_disease,
-        "spread_confidence": (severity_sum / len(results) if results else 0) * 100,
+        "spread_confidence": (severity_sum / len(results) if results else 0),
         "frames_analyzed": len(frames),
-        "treatment_plan": "Isolate region. Apply 5ml/L Neem Extract." # In Prod: DB fetch based on `main_disease`
+        "treatment_plan": "Isolate region. Apply 5ml/L Neem Extract."
     }
 
-async def process_image(img_bytes: bytes):
-    async with httpx.AsyncClient() as client:
-        headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-        res = await client.post(HF_API, headers=headers, content=img_bytes)
-        return res.json()[0] if res.status_code == 200 and res.json() else {}
+async def process_image_with_ai(img_bytes: bytes):
+    """Process single frame using AI Manager"""
+    from PIL import Image
+    import io
+    img = Image.open(io.BytesIO(img_bytes)).convert('RGB')
 
+    diagnosis = ai_core.scan_leaf_disease(img)
+    return diagnosis
 
-# 2. RURAL AI ASSISTANT CONTEXT MEMORY
+# 3. VOICE TRANSCRIPTION (MULTILINGUAL)
+@router.post("/voice/transcribe")
+async def transcribe_audio(file: UploadFile = File(...), token: dict = Depends(verify_firebase_token)):
+    """Convert audio to text using Whisper (supports Hindi/Telugu/English)"""
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+    try:
+        content = await file.read()
+        tmp.write(content)
+        tmp.flush()
+
+        # Use AI Manager for voice transcription
+        text = ai_core.translate_audio_to_text(tmp.name)
+
+        # Clean up memory
+        ai_core.kill_mode('whisper')
+
+        return {
+            "status": "success",
+            "transcription": text,
+            "language": "detected"  # Whisper auto-detects
+        }
+    finally:
+        os.remove(tmp.name)
+
+# 4. RURAL AI ASSISTANT CONTEXT MEMORY
 class ChatRequest(BaseModel):
     message: str
     farm_history: str
-    language: str
+    language: str = "en"
 
 @router.post("/chat/rural")
-async def agronomy_chatbot(req: ChatRequest):
-    genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
-    model = genai.GenerativeModel('gemini-pro')
+async def agronomy_chatbot(req: ChatRequest, token: dict = Depends(verify_firebase_token)):
+    """Offline LLM Agronomy assistant with farm context"""
+    # Use AI Manager for offline chat
+    response = ai_core.agronomy_chat(req.message, req.farm_history)
 
-    prompt = f"""
-    You are NuKrop AI. A highly intelligent agrarian expert for a farmer.
-    FARM CONTEXT HISTORY STORED LOCALLY:
-    {req.farm_history}
+    # Clean up memory
+    ai_core.kill_mode('llm')
 
-    FARMER SAYS: {req.message}
-    Answer in {req.language}. Keep it rural, concise, and professional. Output directly with NO formatting asterisks.
-    """
-
-    response = model.generate_content(prompt)
-    return {"reply": response.text}
+    return {"reply": response}
