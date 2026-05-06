@@ -49,12 +49,7 @@ dependencies:
   cached_network_image: ^3.3.1
   animate_do: ^5.1.0
   sqflite: ^2.3.0
-  connectivity_plus: 6.0.3
-  fl_chart: ^1.2.0
-  flutter_markdown_plus: ^1.0.7
-  flutter_image_compress: ^2.3.0
-  flutter_tts: ^4.2.5
-  google_sign_in: 6.2.1
+  connectivity_plus: 7.1.1
   firebase_core: ^3.6.0
   firebase_auth: ^5.2.0
   cloud_firestore: ^5.4.0
