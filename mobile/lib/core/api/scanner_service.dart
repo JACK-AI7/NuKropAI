@@ -8,6 +8,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../config/remote_config_service.dart';
 import 'local_database.dart';
 import '../ai/on_device_ai_service.dart';
 import '../ai/llm_service.dart';
@@ -64,20 +66,64 @@ class ScannerService {
     }
 
     try {
-      final url = 'https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lng&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m';
-      final response = await Dio().get(url);
-      final data = response.data['current'];
+      final prefs = await SharedPreferences.getInstance();
+      final cacheKey = 'weather_\${lat.toStringAsFixed(1)}_\${lng.toStringAsFixed(1)}';
+      final cachedStr = prefs.getString(cacheKey);
+      final cacheTime = prefs.getInt('\${cacheKey}_time') ?? 0;
+      
+      // Use local cache if less than 30 minutes old
+      if (cachedStr != null && DateTime.now().millisecondsSinceEpoch - cacheTime < 30 * 60 * 1000) {
+        final data = jsonDecode(cachedStr);
+        return {
+          'temp': data['temp']?.round() ?? '--',
+          'condition': _getWeatherCondition(data['weatherCode']),
+          'location': locationName,
+          'humidity': data['humidity'] ?? '--',
+          'windSpeed': data['windSpeed'] ?? '--',
+          'icon': _getWeatherIcon(data['weatherCode']),
+          'smartAlert': data['smartAlert'],
+        };
+      }
+
+      final baseUrl = RemoteConfigService.baseUrl;
+      final url = '\$baseUrl/weather?lat=\$lat&lng=\$lng';
+      final response = await Dio().get(url, options: Options(sendTimeout: const Duration(seconds: 10), receiveTimeout: const Duration(seconds: 10)));
+      final data = response.data;
+
+      // Save to local cache
+      prefs.setString(cacheKey, jsonEncode(data));
+      prefs.setInt('\${cacheKey}_time', DateTime.now().millisecondsSinceEpoch);
 
       return {
-        'temp': data['temperature_2m'].round(),
-        'condition': _getWeatherCondition(data['weather_code']),
+        'temp': data['temp']?.round() ?? '--',
+        'condition': _getWeatherCondition(data['weatherCode']),
         'location': locationName,
-        'humidity': data['relative_humidity_2m'],
-        'windSpeed': data['wind_speed_10m'],
-        'icon': _getWeatherIcon(data['weather_code']),
+        'humidity': data['humidity'] ?? '--',
+        'windSpeed': data['windSpeed'] ?? '--',
+        'icon': _getWeatherIcon(data['weatherCode']),
+        'smartAlert': data['smartAlert'],
       };
     } catch (e) {
-      debugPrint('Weather fetch error: $e');
+      debugPrint('Weather fetch error: \$e');
+      // Try to load stale cache if network fails
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final cacheKey = 'weather_\${lat.toStringAsFixed(1)}_\${lng.toStringAsFixed(1)}';
+        final cachedStr = prefs.getString(cacheKey);
+        if (cachedStr != null) {
+          final data = jsonDecode(cachedStr);
+          return {
+            'temp': data['temp']?.round() ?? '--',
+            'condition': _getWeatherCondition(data['weatherCode']),
+            'location': '\$locationName (Offline Cache)',
+            'humidity': data['humidity'] ?? '--',
+            'windSpeed': data['windSpeed'] ?? '--',
+            'icon': _getWeatherIcon(data['weatherCode']),
+            'smartAlert': data['smartAlert'],
+          };
+        }
+      } catch (_) {}
+      
       return {
         'temp': '--',
         'condition': 'Unavailable',
@@ -85,6 +131,7 @@ class ScannerService {
         'humidity': '--',
         'windSpeed': '--',
         'icon': Icons.location_off,
+        'smartAlert': null,
       };
     }
   }

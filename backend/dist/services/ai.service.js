@@ -15,6 +15,8 @@ const CHAT_MODEL = process.env.OLLAMA_CHAT_MODEL || 'phi3:mini';
 const MISTRAL_API_URL = 'https://api.mistral.ai/v1/chat/completions';
 const MISTRAL_VISION_MODEL = process.env.MISTRAL_VISION_MODEL || 'mistral-small-latest';
 const MISTRAL_CHAT_MODEL = process.env.MISTRAL_CHAT_MODEL || 'mistral-small-latest';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-chat-v3-0324';
 const CONFIDENCE_THRESHOLDS = {
     HIGH: 0.85,
     MEDIUM: 0.70,
@@ -104,6 +106,39 @@ class AIService {
                 .trim();
         }
         return '';
+    }
+    static async callOpenRouterChat(messages, temperature, maxTokens, jsonObjectMode) {
+        const key = process.env.OPENROUTER_API_KEY;
+        if (!key)
+            throw new Error('OPENROUTER_API_KEY not set');
+        const body = {
+            model: OPENROUTER_MODEL,
+            messages,
+            temperature,
+            max_tokens: maxTokens,
+        };
+        if (jsonObjectMode) {
+            body.response_format = { type: 'json_object' };
+        }
+        const res = await fetch(OPENROUTER_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${key}`,
+                'HTTP-Referer': 'https://nukropai.com', // Optional but recommended by OpenRouter
+                'X-Title': 'NuKropAI', // Optional but recommended
+            },
+            body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+            const t = await res.text();
+            throw new Error(`OpenRouter API ${res.status}: ${t}`);
+        }
+        const data = (await res.json());
+        const raw = data?.choices?.[0]?.message?.content;
+        if (!raw)
+            throw new Error('OpenRouter returned empty content');
+        return String(raw).trim();
     }
     static async callMistralChat(messages, model, temperature, maxTokens, jsonObjectMode) {
         const key = process.env.MISTRAL_API_KEY;
@@ -299,6 +334,17 @@ class AIService {
                 content: h.parts[0].text,
             }));
             messages.push({ role: 'user', content: message });
+            if (process.env.OPENROUTER_API_KEY) {
+                try {
+                    return await this.callOpenRouterChat(messages, 0.7, 4096, false);
+                }
+                catch (e) {
+                    logger_1.logger.warn('OpenRouter chat failed, falling back to Mistral/Ollama', {
+                        service: 'ai-service',
+                        error: e.message,
+                    });
+                }
+            }
             if (process.env.MISTRAL_API_KEY) {
                 try {
                     return await this.callMistralChat(messages, MISTRAL_CHAT_MODEL, 0.7, 4096, false);
@@ -389,6 +435,23 @@ Return ONLY valid JSON (no markdown):
 Rules: 3-5 suggestions.`;
         }
         let lastErr = null;
+        if (process.env.OPENROUTER_API_KEY) {
+            try {
+                console.log('[AI] Researching products with OpenRouter...');
+                const text = await this.callOpenRouterChat([{ role: 'user', content: prompt }], 0.35, 4096, true);
+                const parsed = this.parseJsonFromModelText(text);
+                this.validateProductResearch(parsed);
+                return {
+                    researchSummary: String(parsed.researchSummary),
+                    suggestions: parsed.suggestions,
+                    _source: 'openrouter',
+                };
+            }
+            catch (e) {
+                lastErr = e?.message || String(e);
+                console.warn('[AI] OpenRouter product research failed:', lastErr);
+            }
+        }
         if (process.env.MISTRAL_API_KEY) {
             try {
                 console.log('[AI] Researching products with Mistral...');
@@ -421,7 +484,7 @@ Rules: 3-5 suggestions.`;
         }
         return {
             _error: true,
-            message: lastErr || 'Product research unavailable (set MISTRAL_API_KEY or run Ollama chat)',
+            message: lastErr || 'Product research unavailable (set OPENROUTER_API_KEY or MISTRAL_API_KEY or run Ollama chat)',
         };
     }
     static validateProductResearch(parsed) {

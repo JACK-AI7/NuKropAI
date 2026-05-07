@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../config/remote_config_service.dart';
+import 'package:dio/dio.dart';
+import '../config/remote_config_service.dart';
 
 class LLMService {
   static const String _defaultApiKey = ""; // Set via Settings or --dart-define
@@ -143,6 +144,12 @@ Be concise but thorough. Use metric units and Indian agricultural context.
 
   /// Generate text response, optionally with image(s) for multimodal analysis
   Future<String> generateResponse(String prompt, {List<String>? imagePaths, int maxRetries = 2}) async {
+    // If it's a text-only chat, proxy to the backend to use OpenRouter securely
+    if (imagePaths == null || imagePaths.isEmpty) {
+      return _generateBackendChat(prompt, maxRetries);
+    }
+
+    // For image scans, use local Gemini Vision as a fallback
     if (!_isInitialized) {
       await _loadKeyAndInit();
     }
@@ -192,6 +199,37 @@ Be concise but thorough. Use metric units and Indian agricultural context.
       }
     }
     return "Error: Failed to generate response after retries.";
+  }
+
+  /// Send text chat to the backend AI orchestrator (OpenRouter)
+  Future<String> _generateBackendChat(String prompt, int maxRetries) async {
+    int attempt = 0;
+    while (attempt <= maxRetries) {
+      try {
+        final dio = Dio();
+        final baseUrl = RemoteConfigService.baseUrl;
+        final response = await dio.post(
+          "\$baseUrl/ai/chat",
+          data: {"message": prompt},
+          options: Options(
+            sendTimeout: const Duration(seconds: 15),
+            receiveTimeout: const Duration(seconds: 45),
+          ),
+        );
+
+        if (response.statusCode == 200) {
+          return response.data['response'] ?? "I'm sorry, I couldn't generate a response.";
+        }
+      } catch (e) {
+        attempt++;
+        if (attempt > maxRetries) {
+          debugPrint('Backend Chat Proxy Error after \$attempt retries: \$e');
+          return "The AI Agronomist is currently offline or unreachable.";
+        }
+        await Future.delayed(Duration(milliseconds: 500 * attempt));
+      }
+    }
+    return "Error: Failed to connect to AI server.";
   }
 
   /// Simple text-only generation (for chat, product research)
