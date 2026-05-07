@@ -17,17 +17,60 @@ import 'core/config/remote_config_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Custom Error Widget to debug grey screens
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F172A),
+      body: Container(
+        padding: const EdgeInsets.all(32),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.bug_report, color: Colors.redAccent, size: 80),
+              const SizedBox(height: 24),
+              const Text(
+                "SYSTEM ERROR",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24, letterSpacing: 2),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: Text(
+                  details.exception.toString(),
+                  style: const TextStyle(color: Colors.white70, fontSize: 13, fontFamily: 'monospace'),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                "Please screenshot this and send to support.",
+                style: TextStyle(color: Colors.white38, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  };
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    debugPrint("Firebase Initialized Successfully");
-    
-    await RemoteConfigService.initialize();
-    debugPrint("Remote Config Initialized Successfully");
   } catch (e) {
-    debugPrint("Firebase/Remote Config Initialization Error: $e");
-    // Continue without remote config - app can still function
+    debugPrint("Firebase Init Error");
+  }
+
+  try {
+    await RemoteConfigService.initialize();
+  } catch (e) {
+    debugPrint("Remote Config Init Error");
   }
 
   runApp(const ProviderScope(child: MyApp()));
@@ -40,42 +83,33 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final currentLocale = ref.watch(localeProvider);
-    
-    // Initialize server URL on first build
-    ref.watch(serverUrlInitializationProvider);
 
     return MaterialApp(
       title: 'NuKropAI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.hybridTheme,
       locale: currentLocale,
-localizationsDelegates: [
-          AppLocalizationsDelegate(),
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+      localizationsDelegates: const [
+        AppLocalizationsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       supportedLocales: const [
         Locale('en'),
         Locale('hi'),
         Locale('te'),
-        Locale('ta'),
-        Locale('kn'),
-        Locale('mr'),
-        Locale('bn'),
       ],
       home: authState.isLoading
-          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+          ? const Scaffold(
+              backgroundColor: Color(0xFF0F172A),
+              body: Center(
+                child: CircularProgressIndicator(color: Color(0xFF4CAF50)),
+              ),
+            )
           : authState.isAuthenticated
               ? const DashboardScreen()
               : const LoginScreen(),
     );
   }
 }
-
-/// FutureProvider to load and set the server URL on app startup
-final serverUrlInitializationProvider = FutureProvider<void>((ref) async {
-  final config = ref.read(serverConfigProvider);
-  final savedUrl = await config.getServerUrl();
-  ref.read(serverUrlProvider.notifier).state = savedUrl;
-});
