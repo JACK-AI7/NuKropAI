@@ -1,40 +1,28 @@
 ---
-title: NuKropAI Farming Multi-Model Server
-emoji: 🌿
+title: NuKropAI Farming AI
+emoji: 🌾
 colorFrom: green
-colorTo: lime
+colorTo: blue
 sdk: docker
 app_port: 7860
-pinned: true
+pinned: false
 ---
+# NuKropAI — Enterprise Agricultural AI Backend
 
-# NuKropAI — Advanced Multi-Model Farming Server
+Multimodal AI platform for crop disease diagnosis, pest detection, soil analysis, and smart farming guidance.
 
-This is a production-grade FastAPI server optimized for **Hugging Face Spaces**. it serves as the intelligent backend for the NuKropAI farming app, providing real-time diagnostics, pest detection, and agricultural advice.
+## Features
+- 🌿 Crop disease & pest detection (Qwen2.5-VL)
+- 🧪 Soil & nutrient analysis
+- 💊 Fertilizer & irrigation recommendations
+- 🤖 Multilingual agricultural chatbot
+- ⚡ GPU-optimized 4-bit quantized inference
+- 📡 WebSocket streaming responses
+- 🗂️ Vector memory via Qdrant
 
-## 🚀 Key Features
-- **Multi-Model Routing**: Automatically selects the best model for the task (YOLO11, EfficientNet, TensorFlow).
-- **Smart Failover**: Fallbacks to the **Agri-MLLM (SpaceLLaVA)** if specific classifiers have low confidence.
-- **Hugging Face Native**: Built to run on HF Spaces with optional GPU support.
-- **Agricultural Specialist APIs**: Dedicated endpoints for pests, soil, NPK, and general crop diseases.
-
-## 🛠️ API Endpoints
-
-### 🔍 Diagnostics
-- **POST** `/analyze/crop`: Smart router for all crop diseases.
-- **POST** `/detect/pest`: Specialized YOLO11 pest identification.
-- **POST** `/classify/soil`: CNN-based soil type classification.
-- **POST** `/analyze/agri-llava`: Conversational multimodal analysis.
-
-### 📊 Agronomy & Recommendations
-- **POST** `/recommend/npk`: Nutrient recommendation based on NPK/pH/Moisture.
-- **POST** `/chat/agronomist`: Text-only agricultural expert chat.
-
-## 📦 Deployment to Hugging Face
-1. Create a [New Space](https://huggingface.co/new-space).
-2. Choose **Docker**.
-3. Upload this directory.
-4. (Optional) Set `HF_TOKEN` in **Settings > Secrets** to download gated models.
-
-## 📱 Mobile Connection
-Set `aiServerUrl` in `mobile/lib/core/config/constants.dart` to your Space URL.
+## API Endpoints
+- `GET /` — Status
+- `GET /health` — Health check
+- `POST /diagnose` — Image + question → full diagnosis
+- `POST /chat` — Text-only agricultural assistant
+- `WS /ws/{client_id}` — WebSocket streaming

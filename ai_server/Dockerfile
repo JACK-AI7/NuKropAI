@@ -1,39 +1,18 @@
-FROM python:3.10-slim
-
-# --- System Dependencies ---
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    git \
-    procps \
-    && rm -rf /var/lib/apt/lists/*
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
 
 WORKDIR /app
 
-# --- Cache Config ---
-ENV HF_HOME=/app/weights/hf_cache
-ENV TRANSFORMERS_CACHE=/app/weights/hf_cache
-ENV TORCH_HOME=/app/weights/torch_cache
-ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
 
-# --- Dependencies ---
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /app/requirements.txt
 
-COPY . .
+RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-# --- Download Models at Build Time ---
-# Ensure HF_TOKEN is set in Space secrets
-ARG HF_TOKEN
-ENV HF_TOKEN=${HF_TOKEN}
-RUN python -m ai_server.download_weights
+COPY . /app
 
-# --- Final Prep ---
-RUN chmod +x startup.sh
+RUN chmod +x /app/startup.sh
+
 EXPOSE 7860
 
-CMD ["./startup.sh"]
+CMD ["bash", "/app/startup.sh"]

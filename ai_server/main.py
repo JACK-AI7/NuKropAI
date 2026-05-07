@@ -1,155 +1,322 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Security, WebSocket, WebSocketDisconnect, Request
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-import uvicorn
-import logging
-import io
+"""
+NuKropAI — Enterprise Agricultural AI Backend
+FastAPI application with multimodal image diagnosis, text chat,
+WebSocket streaming, and health monitoring.
+"""
+
 import os
+import uuid
+import logging
+import asyncio
 import time
-import json
-import cv2
-import numpy as np
-from PIL import Image
-import gradio as gr
-import hashlib
+from pathlib import Path
+from contextlib import asynccontextmanager
 
-# --- Internal Modules ---
-from .config import config
-from .auth import get_api_key
-from .model_manager import manager as model_manager
-from .redis_cache import redis_cache
-from .websocket_manager import manager as ws_manager
-from .prometheus_metrics import setup_metrics
-from .ai_router import ai_router
-from .forecast_engine import forecast_engine
-from .ndvi_engine import ndvi_engine
-from .qdrant_memory import qdrant_memory
+from fastapi import FastAPI, UploadFile, File, Form, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
-# --- Setup Logging ---
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from ai_router import ai_router
+from inference_router import inference_router
+from model_manager import model_manager
+from services.diagnosis_service import diagnosis_service
+from services.soil_service import soil_service
+from services.pest_service import pest_service
+from services.fertilizer_service import fertilizer_service
+from services.irrigation_service import irrigation_service
+from utils.gpu_utils import log_gpu_status, get_device, get_vram_gb
+
+# ------------------------------------------------------------------ #
+#  Logging                                                             #
+# ------------------------------------------------------------------ #
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+)
+logger = logging.getLogger("nukropai.main")
+
+# ------------------------------------------------------------------ #
+#  Startup / Shutdown                                                  #
+# ------------------------------------------------------------------ #
+
+TEMP_DIR = Path("temp")
+CACHE_DIR = Path("cache")
+WEIGHTS_DIR = Path("weights")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("🌿 NuKropAI Enterprise Server Starting...")
-    model_manager.load_all()
-    # Ensure start_time is set for admin UI
-    if "start_time" not in model_manager.stats:
-        model_manager.stats["start_time"] = time.time()
-    await redis_cache.connect()
-    yield
-    await redis_cache.close()
-    logger.info("👋 NuKropAI Server Stopped.")
+    """Create required directories and log startup info."""
+    TEMP_DIR.mkdir(exist_ok=True)
+    CACHE_DIR.mkdir(exist_ok=True)
+    WEIGHTS_DIR.mkdir(exist_ok=True)
+
+    logger.info("=" * 60)
+    logger.info("NuKropAI Agricultural AI Backend — Starting")
+    logger.info(f"Device: {get_device()} | VRAM: {get_vram_gb():.1f} GB")
+    logger.info("=" * 60)
+
+    yield  # Application is running
+
+    logger.info("NuKropAI shutting down — unloading models…")
+    model_manager.unload_model()
+
+# ------------------------------------------------------------------ #
+#  App                                                                 #
+# ------------------------------------------------------------------ #
 
 app = FastAPI(
-    title=config.PROJECT_NAME,
-    version=config.VERSION,
-    lifespan=lifespan
+    title="NuKropAI Agricultural AI",
+    description="Enterprise multimodal AI platform for precision agriculture",
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
-# --- Middleware ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Instrumentation ---
-setup_metrics(app)
+# ------------------------------------------------------------------ #
+#  WebSocket Manager                                                   #
+# ------------------------------------------------------------------ #
 
-# --- Gradio Admin UI ---
-def create_admin_ui():
-    with gr.Blocks(theme=gr.themes.Soft()) as demo:
-        gr.Markdown("# 🌿 NuKropAI Enterprise Admin Panel")
-        with gr.Tab("System Status"):
-            uptime_val = gr.Number(label="Uptime (s)", value=0)
-            status_btn = gr.Button("Refresh")
-            status_btn.click(lambda: int(time.time() - model_manager.stats.get("start_time", time.time())), outputs=uptime_val)
-        with gr.Tab("Model Control"):
-            gr.Markdown("OTA Updates and Model Reloading")
-            reload_btn = gr.Button("Reload Models", variant="primary")
-            reload_btn.click(model_manager.load_all)
-    return demo
+active_connections: dict[str, WebSocket] = {}
 
-gr.mount_gradio_app(app, create_admin_ui(), path="/admin/ui")
 
-# --- Helper ---
-def decode_image(file_bytes: bytes) -> Image.Image:
-    try:
-        img_array = np.frombuffer(file_bytes, np.uint8)
-        bgr = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-        return Image.fromarray(rgb)
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Image decode failed: {e}")
+async def broadcast(client_id: str, message: dict):
+    ws = active_connections.get(client_id)
+    if ws:
+        try:
+            await ws.send_json(message)
+        except Exception:
+            active_connections.pop(client_id, None)
 
-# --- Core AI Routes ---
-@app.get("/health")
-async def health():
+# ------------------------------------------------------------------ #
+#  Pydantic models                                                     #
+# ------------------------------------------------------------------ #
+
+class ChatRequest(BaseModel):
+    message: str
+    language: str = "en"
+    history: list[dict] = []
+
+
+class ChatResponse(BaseModel):
+    success: bool
+    reply: str
+    model_used: str
+    latency_ms: int
+
+# ------------------------------------------------------------------ #
+#  Routes                                                              #
+# ------------------------------------------------------------------ #
+
+@app.get("/", tags=["Status"])
+async def root():
     return {
-        "status": "ok",
-        "version": config.VERSION,
-        "models_loaded": list(model_manager.models.keys()),
-        "redis_active": redis_cache.client is not None
+        "service": "NuKropAI Agricultural AI",
+        "version": "1.0.0",
+        "status": "running",
+        "device": get_device(),
+        "vram_gb": round(get_vram_gb(), 2),
     }
 
-@app.post("/analyze/crop", dependencies=[Depends(get_api_key)])
-async def analyze_crop(file: UploadFile = File(...)):
-    img_bytes = await file.read()
 
-    # 1. Check Cache (use MD5 hash as cache key)
-    cache_key = hashlib.md5(img_bytes).hexdigest()
-    cached = await redis_cache.get_cached_result(cache_key)
-    if cached: return cached
+@app.get("/health", tags=["Status"])
+async def health():
+    log_gpu_status()
+    return {
+        "status": "healthy",
+        "timestamp": int(time.time()),
+        "device": get_device(),
+        "vram_gb": round(get_vram_gb(), 2),
+        "model_loaded": model_manager.current_name,
+    }
 
-    # 2. Inference
-    img = decode_image(img_bytes)
-    result = await ai_router.analyze_crop(img)
 
-    # 3. Cache and Return
-    await redis_cache.cache_result(cache_key, result)
-    return result
+@app.post("/diagnose", tags=["AI"])
+async def diagnose(
+    image: UploadFile = File(...),
+    question: str = Form("Analyze this crop image"),
+    language: str = Form("en"),
+):
+    """
+    Upload a crop/plant image and ask a question.
+    Returns full agricultural diagnosis: disease, soil, pest, fertilizer, irrigation.
+    """
+    # Save uploaded image to temp directory
+    file_path = TEMP_DIR / f"{uuid.uuid4()}.jpg"
 
-@app.get("/analytics/forecast", dependencies=[Depends(get_api_key)])
-async def get_forecast(lat: float, lon: float):
-    return forecast_engine.get_forecast(lat, lon)
+    try:
+        contents = await image.read()
+        if len(contents) == 0:
+            raise HTTPException(status_code=400, detail="Empty image file.")
 
-@app.get("/analyze/satellite", dependencies=[Depends(get_api_key)])
-async def analyze_satellite(lat: float, lon: float):
-    return ndvi_engine.analyze_field(lat, lon)
+        file_path.write_bytes(contents)
 
-@app.post("/memory/search", dependencies=[Depends(get_api_key)])
-async def search_memory(query: str):
-    return qdrant_memory.search(query)
+        t0 = time.time()
 
-# --- WebSocket for Real-time Detection ---
-@app.websocket("/ws/detect")
-async def websocket_endpoint(websocket: WebSocket, api_key: str = Security(get_api_key)):
-    await ws_manager.connect(websocket)
+        # Route to best model
+        model_name = ai_router.choose_model(question)
+        system_prompt = ai_router.build_system_prompt(question)
+        prompt = diagnosis_service.build_prompt(question)
+
+        # Run multimodal inference
+        response = inference_router.run(
+            model_name=model_name,
+            image_path=str(file_path),
+            prompt=prompt,
+            system_prompt=system_prompt,
+            max_new_tokens=512,
+        )
+
+        # Enrich with domain-specific analysis
+        soil = soil_service.analyze(response)
+        pest = pest_service.analyze(response)
+        fertilizer = fertilizer_service.recommend("auto")
+        irrigation = irrigation_service.advise()
+
+        latency_ms = int((time.time() - t0) * 1000)
+        logger.info(f"Diagnosis complete in {latency_ms}ms using '{model_name}'")
+
+        return {
+            "success": True,
+            "model_used": model_name,
+            "diagnosis": response,
+            "soil_analysis": soil,
+            "pest_analysis": pest,
+            "fertilizer": fertilizer,
+            "irrigation": irrigation,
+            "latency_ms": latency_ms,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Diagnose endpoint error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        try:
+            file_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
+@app.post("/chat", response_model=ChatResponse, tags=["AI"])
+async def chat(req: ChatRequest):
+    """
+    Text-only agricultural chatbot — no image required.
+    Uses the default model to answer farming questions.
+    """
+    from config import DEFAULT_MODEL
+
+    t0 = time.time()
+    try:
+        model_name = ai_router.choose_model(req.message)
+        system_prompt = ai_router.build_system_prompt(req.message)
+
+        # For text-only chat, we pass a placeholder 1×1 white image
+        # so the VL model still functions correctly
+        placeholder_path = TEMP_DIR / f"chat_{uuid.uuid4()}.jpg"
+
+        try:
+            from PIL import Image as PILImage
+            img = PILImage.new("RGB", (64, 64), color=(255, 255, 255))
+            img.save(str(placeholder_path))
+
+            reply = inference_router.run(
+                model_name=model_name,
+                image_path=str(placeholder_path),
+                prompt=req.message,
+                system_prompt=system_prompt,
+                max_new_tokens=384,
+            )
+        finally:
+            try:
+                placeholder_path.unlink(missing_ok=True)
+            except Exception:
+                pass
+
+        latency_ms = int((time.time() - t0) * 1000)
+
+        return ChatResponse(
+            success=True,
+            reply=reply,
+            model_used=model_name,
+            latency_ms=latency_ms,
+        )
+
+    except Exception as e:
+        logger.error(f"Chat endpoint error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    """
+    WebSocket for real-time streaming agricultural chat.
+    Client sends: {"message": "...", "language": "en"}
+    Server responds with streaming tokens.
+    """
+    await websocket.accept()
+    active_connections[client_id] = websocket
+    logger.info(f"WebSocket connected: {client_id}")
+
     try:
         while True:
-            data = await websocket.receive_bytes()
-            img = decode_image(data)
+            data = await websocket.receive_json()
+            message = data.get("message", "")
+            if not message:
+                await websocket.send_json({"error": "Empty message"})
+                continue
 
-            # Fast YOLO Inference for streaming
-            pest_model = model_manager.get_model("pest")
-            detections = []
-            if pest_model:
-                results = pest_model(img, verbose=False)
-                for r in results:
-                    for box in r.boxes:
-                        detections.append({
-                            "class": r.names[int(box.cls)],
-                            "confidence": round(float(box.conf), 4),
-                            "bbox": [round(v, 2) for v in box.xyxy[0].tolist()]
-                        })
-            await ws_manager.send_json({"detections": detections}, websocket)
+            await websocket.send_json({"status": "processing", "message": "Analyzing…"})
+
+            try:
+                model_name = ai_router.choose_model(message)
+                system_prompt = ai_router.build_system_prompt(message)
+
+                # Generate response (non-streaming fallback for VL model)
+                placeholder_path = TEMP_DIR / f"ws_{uuid.uuid4()}.jpg"
+                try:
+                    from PIL import Image as PILImage
+                    PILImage.new("RGB", (64, 64), (255, 255, 255)).save(str(placeholder_path))
+
+                    reply = inference_router.run(
+                        model_name=model_name,
+                        image_path=str(placeholder_path),
+                        prompt=message,
+                        system_prompt=system_prompt,
+                        max_new_tokens=256,
+                    )
+                finally:
+                    try:
+                        placeholder_path.unlink(missing_ok=True)
+                    except Exception:
+                        pass
+
+                await websocket.send_json({
+                    "status": "done",
+                    "reply": reply,
+                    "model_used": model_name,
+                })
+
+            except Exception as e:
+                logger.error(f"WebSocket inference error: {e}")
+                await websocket.send_json({
+                    "status": "error",
+                    "error": str(e),
+                })
+
     except WebSocketDisconnect:
-        ws_manager.disconnect(websocket)
+        active_connections.pop(client_id, None)
+        logger.info(f"WebSocket disconnected: {client_id}")
     except Exception as e:
-        logger.error(f"WS Error: {e}")
-        await websocket.close()
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=7860, workers=1)
+        logger.error(f"WebSocket error for {client_id}: {e}")
+        active_connections.pop(client_id, None)
