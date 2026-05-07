@@ -2,7 +2,7 @@
 title: NukropAI Farming AI
 emoji: 🌿
 colorFrom: green
-colorTo: lime
+colorTo: green
 sdk: docker
 pinned: false
 ---
