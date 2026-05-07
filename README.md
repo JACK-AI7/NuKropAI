@@ -1,3 +1,12 @@
+---
+title: NukropAI Farming AI
+emoji: 🌿
+colorFrom: green
+colorTo: lime
+sdk: docker
+pinned: false
+---
+
 # 🌿 NuKropAI Ultimate
 
 **AI-Powered Crop Disease Detection & Agricultural Intelligence Platform for Indian Farmers**
