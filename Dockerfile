@@ -21,7 +21,7 @@ EXPOSE 7860
 # Set env vars
 ENV HOST=0.0.0.0
 ENV PORT=7860
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app:/app/ai_server
 
 # Command to run the FastAPI app
 # We use ai_server.main:app because of the PYTHONPATH=/app setting
