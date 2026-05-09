@@ -3,6 +3,7 @@ import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Platform,
   StyleSheet,
@@ -12,10 +13,18 @@ import {
   View,
 } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useApp, type ChatMessage, type Language } from "@/contexts/AppContext";
 import { MessageBubble } from "@/components/MessageBubble";
+import { VoiceWaveform } from "@/components/VoiceWaveform";
 
 const LANG_LABELS: Record<Language, string> = { en: "EN", hi: "हि", te: "తె" };
 
@@ -27,10 +36,36 @@ const WELCOME: ChatMessage = {
   timestamp: Date.now() - 120000,
 };
 
-interface StreamingMessage {
-  id: string;
-  content: string;
-  timestamp: number;
+function RecordingPulse({ color }: { color: string }) {
+  const scale = useSharedValue(1);
+  useEffect(() => {
+    scale.value = withRepeat(
+      withSequence(
+        withTiming(1.35, { duration: 600 }),
+        withTiming(1, { duration: 600 })
+      ),
+      -1,
+      false
+    );
+  }, [scale]);
+  const s = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: 2 - scale.value,
+  }));
+  return (
+    <Animated.View
+      style={[
+        {
+          position: "absolute",
+          width: 42,
+          height: 42,
+          borderRadius: 21,
+          backgroundColor: color + "30",
+        },
+        s,
+      ]}
+    />
+  );
 }
 
 export default function ChatScreen() {
@@ -39,8 +74,11 @@ export default function ChatScreen() {
   const { language, setLanguage, chatHistory, addChatMessage } = useApp();
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [streaming, setStreaming] = useState<StreamingMessage | null>(null);
+  const [streaming, setStreaming] = useState<{ id: string; content: string; timestamp: number } | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const typingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recordingRef = useRef<{ stopAndUnloadAsync: () => Promise<void>; getURI: () => string | null } | null>(null);
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
   const allMessages: ChatMessage[] = [WELCOME, ...chatHistory];
@@ -60,7 +98,6 @@ export default function ChatScreen() {
       let i = 0;
       if (typingInterval.current) clearInterval(typingInterval.current);
       setStreaming({ id, content: "", timestamp: ts });
-
       typingInterval.current = setInterval(() => {
         i += 2;
         const displayed = fullText.slice(0, i);
@@ -76,48 +113,110 @@ export default function ChatScreen() {
     [addChatMessage]
   );
 
-  const send = useCallback(async () => {
-    const text = input.trim();
-    if (!text || isLoading) return;
-    setInput("");
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const send = useCallback(
+    async (overrideText?: string) => {
+      const text = (overrideText ?? input).trim();
+      if (!text || isLoading) return;
+      if (!overrideText) setInput("");
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    const userMsg: ChatMessage = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-      role: "user",
-      content: text,
-      timestamp: Date.now(),
-    };
-    addChatMessage(userMsg);
-    setIsLoading(true);
+      const userMsg: ChatMessage = {
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        role: "user",
+        content: text,
+        timestamp: Date.now(),
+      };
+      addChatMessage(userMsg);
+      setIsLoading(true);
 
-    const aiId = (Date.now() + 1).toString() + Math.random().toString(36).substr(2, 9);
-    const aiTs = Date.now();
+      const aiId = (Date.now() + 1).toString() + Math.random().toString(36).substr(2, 9);
+      const aiTs = Date.now();
 
+      try {
+        const history = chatHistory
+          .slice(-12)
+          .map((m) => ({ role: m.role, content: m.content }));
+        const base = process.env["EXPO_PUBLIC_DOMAIN"]
+          ? `https://${process.env["EXPO_PUBLIC_DOMAIN"]}`
+          : "";
+
+        const res = await fetch(`${base}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, language, history }),
+        });
+        const data = (await res.json()) as { reply: string };
+        setIsLoading(false);
+        typewriterReveal(aiId, data.reply, aiTs);
+      } catch (_) {
+        setIsLoading(false);
+        typewriterReveal(
+          aiId,
+          "I'm having trouble connecting right now. Please check your internet connection and try again.",
+          aiTs
+        );
+      }
+    },
+    [input, isLoading, language, chatHistory, addChatMessage, typewriterReveal]
+  );
+
+  const startRecording = useCallback(async () => {
+    if (Platform.OS === "web") {
+      Alert.alert("Voice input is not available in the browser preview. Use the Expo Go app on your phone.");
+      return;
+    }
     try {
-      const history = chatHistory
-        .slice(-12)
-        .map((m) => ({ role: m.role, content: m.content }));
+      const { Audio } = await import("expo-av");
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      recordingRef.current = recording;
+      setIsRecording(true);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch (_) {
+      Alert.alert("Microphone permission required", "Please allow microphone access in settings.");
+    }
+  }, []);
+
+  const stopRecording = useCallback(async () => {
+    if (!recordingRef.current) return;
+    setIsRecording(false);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      await recordingRef.current.stopAndUnloadAsync();
+      const uri = recordingRef.current.getURI();
+      recordingRef.current = null;
+      if (!uri) return;
+      setIsTranscribing(true);
+      const formData = new FormData();
+      formData.append("audio", {
+        uri,
+        type: "audio/m4a",
+        name: "recording.m4a",
+      } as unknown as Blob);
       const base = process.env["EXPO_PUBLIC_DOMAIN"]
         ? `https://${process.env["EXPO_PUBLIC_DOMAIN"]}`
         : "";
-
-      const res = await fetch(`${base}/api/chat`, {
+      const res = await fetch(`${base}/api/voice`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, language, history }),
+        body: formData,
       });
-
-      const data = (await res.json()) as { reply: string };
-      setIsLoading(false);
-      typewriterReveal(aiId, data.reply, aiTs);
+      const data = (await res.json()) as { text: string };
+      if (data.text?.trim()) {
+        setInput((prev) => (prev ? `${prev} ${data.text}` : data.text));
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
     } catch (_) {
-      setIsLoading(false);
-      const errMsg =
-        "I'm having trouble connecting right now. Please check your internet connection and try again.";
-      typewriterReveal(aiId, errMsg, aiTs);
+      Alert.alert("Transcription failed", "Please try again.");
+    } finally {
+      setIsTranscribing(false);
     }
-  }, [input, isLoading, language, chatHistory, addChatMessage, typewriterReveal]);
+  }, []);
 
   const isStreamingCurrent = streaming !== null;
 
@@ -176,9 +275,7 @@ export default function ChatScreen() {
             <View>
               <MessageBubble role={item.role} content={item.content} timestamp={item.timestamp} />
               {isCurrentlyStreaming && item.content.length > 0 && (
-                <View style={[styles.cursor, { marginLeft: 64, marginTop: -2 }]}>
-                  <Text style={{ color: colors.accent, fontSize: 16, lineHeight: 20 }}>▌</Text>
-                </View>
+                <Text style={[styles.cursor, { color: colors.accent }]}>▌</Text>
               )}
             </View>
           );
@@ -210,48 +307,99 @@ export default function ChatScreen() {
           },
         ]}
       >
-        <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: colors.background,
-              color: colors.foreground,
-              borderColor: input.trim() ? colors.primary + "80" : colors.border,
-            },
-          ]}
-          value={input}
-          onChangeText={setInput}
-          placeholder={
-            language === "hi"
-              ? "फसल के बारे में पूछें..."
-              : language === "te"
-              ? "పంట గురించి అడగండి..."
-              : "Ask about crops, diseases, fertilizers..."
-          }
-          placeholderTextColor={colors.mutedForeground}
-          multiline
-          maxLength={500}
-          returnKeyType="send"
-          blurOnSubmit={false}
-          onSubmitEditing={send}
-        />
-        <TouchableOpacity
-          style={[
-            styles.sendBtn,
-            {
-              backgroundColor: input.trim() && !isLoading ? colors.primary : colors.border,
-            },
-          ]}
-          onPress={send}
-          disabled={!input.trim() || isLoading}
-          activeOpacity={0.85}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color={colors.mutedForeground} />
-          ) : (
-            <Ionicons name="send" size={16} color={input.trim() ? "#000" : colors.mutedForeground} />
-          )}
-        </TouchableOpacity>
+        {isRecording ? (
+          <View style={styles.recordingRow}>
+            <View style={[styles.recDot, { backgroundColor: "#FF453A" }]} />
+            <VoiceWaveform isRecording={isRecording} color="#FF453A" />
+            <Text style={[styles.recLabel, { color: "#FF453A" }]}>Recording…</Text>
+          </View>
+        ) : isTranscribing ? (
+          <View style={styles.recordingRow}>
+            <ActivityIndicator size="small" color={colors.accent} />
+            <Text style={[styles.recLabel, { color: colors.accent }]}>Transcribing…</Text>
+          </View>
+        ) : (
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.background,
+                color: colors.foreground,
+                borderColor: input.trim() ? colors.primary + "80" : colors.border,
+              },
+            ]}
+            value={input}
+            onChangeText={setInput}
+            placeholder={
+              language === "hi"
+                ? "फसल के बारे में पूछें..."
+                : language === "te"
+                ? "పంట గురించి అడగండి..."
+                : "Ask about crops, diseases, fertilizers..."
+            }
+            placeholderTextColor={colors.mutedForeground}
+            multiline
+            maxLength={500}
+            returnKeyType="send"
+            blurOnSubmit={false}
+            onSubmitEditing={() => send()}
+          />
+        )}
+
+        <View style={styles.btnGroup}>
+          <TouchableOpacity
+            style={[
+              styles.micBtn,
+              {
+                backgroundColor: isRecording
+                  ? "#FF453A"
+                  : isTranscribing
+                  ? colors.card
+                  : colors.background,
+                borderColor: isRecording ? "#FF453A" : colors.border,
+              },
+            ]}
+            onPressIn={startRecording}
+            onPressOut={stopRecording}
+            disabled={isLoading || isTranscribing}
+            activeOpacity={0.85}
+          >
+            {isRecording && <RecordingPulse color="#FF453A" />}
+            {isTranscribing ? (
+              <ActivityIndicator size="small" color={colors.accent} />
+            ) : (
+              <Ionicons
+                name={isRecording ? "stop" : "mic"}
+                size={17}
+                color={isRecording ? "#fff" : colors.mutedForeground}
+              />
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.sendBtn,
+              {
+                backgroundColor: input.trim() && !isLoading && !isRecording
+                  ? colors.primary
+                  : colors.border,
+              },
+            ]}
+            onPress={() => send()}
+            disabled={!input.trim() || isLoading || isRecording}
+            activeOpacity={0.85}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color={colors.mutedForeground} />
+            ) : (
+              <Ionicons
+                name="send"
+                size={16}
+                color={input.trim() && !isRecording ? "#000" : colors.mutedForeground}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -286,15 +434,29 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   typingText: { fontSize: 13, fontFamily: "Inter_400Regular", fontStyle: "italic" },
-  cursor: {},
+  cursor: { marginLeft: 64, marginTop: -4, fontSize: 16, lineHeight: 20 },
   inputBar: {
     flexDirection: "row",
     alignItems: "flex-end",
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingTop: 10,
     borderTopWidth: 1,
   },
+  recordingRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingLeft: 4,
+    paddingVertical: 6,
+  },
+  recDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  recLabel: { fontSize: 13, fontFamily: "Inter_500Medium" },
   input: {
     flex: 1,
     paddingHorizontal: 14,
@@ -304,6 +466,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Inter_400Regular",
     maxHeight: 100,
+  },
+  btnGroup: { flexDirection: "row", gap: 6 },
+  micBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
   },
   sendBtn: {
     width: 42,

@@ -1,0 +1,509 @@
+You are an elite principal-level AI architect, senior fullstack engineer, production SaaS designer, MLOps engineer, DevOps engineer, distributed systems engineer, UI/UX engineer, and AI infrastructure architect.
+
+You are building:
+
+NuKropAI
+
+A WORLD-CLASS AI-powered agriculture platform.
+
+This is NOT:
+
+* demo software
+* CRUD template
+* admin dashboard
+* prototype scaffold
+* beginner project
+
+This must become a REAL production-grade AI platform.
+
+===========================================================
+MASTER OBJECTIVE
+================
+
+Build a COMPLETE FULLSTACK AI ECOSYSTEM with:
+
+✔ world-class UI/UX
+✔ cinematic glassmorphism
+✔ premium animations
+✔ production FastAPI backend
+✔ real AI infrastructure
+✔ YOLOv8 inference
+✔ multilingual AI assistant
+✔ Whisper Tiny voice AI
+✔ TinyLlama chatbot
+✔ Redis caching
+✔ Firebase auth
+✔ Docker deployment
+✔ VPS deployment
+✔ websocket realtime infrastructure
+✔ scalable architecture
+✔ mobile-first experience
+✔ production-grade performance
+
+===========================================================
+DESIGN LANGUAGE
+===============
+
+The UI/UX must feel inspired by:
+
+* Apple
+* Tesla
+* Linear
+* Vercel
+* Perplexity
+* Arc Browser
+* Notion AI
+
+NOT:
+
+* boring admin templates
+* generic dashboards
+* basic Tailwind layouts
+* template CRUD apps
+
+===========================================================
+VISUAL STYLE REQUIREMENTS
+=========================
+
+Implement:
+
+✔ cinematic glassmorphism
+✔ translucent blurred cards
+✔ floating depth layers
+✔ animated gradients
+✔ neon glow accents
+✔ premium dark mode
+✔ Apple-level spacing
+✔ premium typography
+✔ smooth transitions
+✔ Framer Motion animations
+✔ glowing buttons
+✔ animated charts
+✔ particle backgrounds
+✔ live AI activity animations
+✔ smooth loading skeletons
+✔ animated sidebars
+✔ floating navigation
+✔ premium onboarding
+✔ immersive dashboard experience
+✔ futuristic AI design language
+
+The UI must feel:
+
+* luxurious
+* immersive
+* futuristic
+* cinematic
+* responsive
+* smooth
+* premium SaaS quality
+
+===========================================================
+FULLSTACK ARCHITECTURE
+======================
+
+Frontend:
+
+* React
+* TypeScript
+* TailwindCSS
+* shadcn/ui
+* Framer Motion
+* Zustand
+* React Query
+* React Router
+* Recharts
+* Lucide Icons
+* WebSockets
+* PWA support
+
+Backend:
+
+* FastAPI
+* Python 3.12
+* AsyncIO
+* Pydantic v2
+* Redis
+* Firebase
+* JWT auth
+* WebSockets
+
+AI STACK:
+
+* YOLOv8
+* OpenCV
+* ONNX Runtime
+* Transformers
+* TinyLlama
+* Whisper Tiny
+* Torch
+* Hugging Face
+
+Infrastructure:
+
+* Docker
+* Docker Compose
+* VPS deployment
+* ARM compatibility
+* low RAM optimization
+
+===========================================================
+PLATFORM FEATURES
+=================
+
+Build COMPLETE systems for:
+
+✔ crop disease detection
+✔ pest detection
+✔ weed detection
+✔ soil analysis
+✔ multilingual farming chatbot
+✔ AI voice assistant
+✔ weather intelligence
+✔ fertilizer recommendation
+✔ pesticide recommendation
+✔ crop calendar
+✔ farmer analytics dashboard
+✔ AI monitoring
+✔ product recommendation engine
+✔ government schemes assistant
+✔ realtime AI inference
+✔ websocket live updates
+✔ AI scan history
+✔ farmer profile system
+✔ notifications system
+✔ multilingual interface
+✔ AI insights engine
+
+===========================================================
+FRONTEND REQUIREMENTS
+=====================
+
+Build COMPLETE frontend experience:
+
+✔ AI dashboard
+✔ animated sidebar
+✔ floating navbar
+✔ AI crop scanner
+✔ realtime AI chat
+✔ live camera upload
+✔ drag-and-drop upload
+✔ voice assistant UI
+✔ AI analytics
+✔ weather widgets
+✔ disease visualization
+✔ AI recommendation cards
+✔ animated charts
+✔ realtime progress UI
+✔ onboarding flow
+✔ premium auth screens
+✔ settings panel
+✔ multilingual UI
+✔ mobile-first layouts
+✔ premium responsive UX
+✔ glassmorphism modals
+✔ beautiful loading states
+✔ animated route transitions
+✔ AI typing animations
+✔ waveform animations
+✔ realtime websocket updates
+
+===========================================================
+BACKEND REQUIREMENTS
+====================
+
+Build COMPLETE production backend:
+
+✔ FastAPI architecture
+✔ async-safe APIs
+✔ websocket infrastructure
+✔ Redis cache manager
+✔ Firebase authentication
+✔ JWT auth
+✔ AI router
+✔ model registry
+✔ lazy model loading
+✔ automatic unloading
+✔ model lifecycle management
+✔ inference queue system
+✔ realtime streaming APIs
+✔ request logging
+✔ health monitoring
+✔ resource monitoring
+✔ rate limiting
+✔ Hugging Face integration
+✔ Docker deployment
+
+===========================================================
+REAL AI INFRASTRUCTURE
+======================
+
+Implement REAL AI systems.
+
+===========================================================
+DETECTION SYSTEM
+================
+
+Implement:
+✔ YOLOv8 detection
+✔ crop disease detection
+✔ pest detection
+✔ weed detection
+✔ OpenCV preprocessing
+✔ ONNX fallback
+✔ confidence scoring
+✔ async-safe inference
+✔ image optimization
+✔ realtime inference progress
+
+Create:
+
+* detection_service.py
+* image_processor.py
+* inference_queue.py
+
+===========================================================
+VOICE AI
+========
+
+Implement:
+✔ Whisper Tiny
+✔ multilingual speech-to-text
+✔ Telugu
+✔ Hindi
+✔ English
+✔ realtime transcription
+✔ streaming audio
+✔ waveform UI integration
+
+Create:
+
+* voice_service.py
+* audio_processor.py
+
+===========================================================
+LLM CHATBOT
+===========
+
+Implement:
+✔ TinyLlama chatbot
+✔ transformers integration
+✔ conversational memory
+✔ streaming responses
+✔ multilingual support
+✔ farming knowledge assistant
+
+Create:
+
+* llm_service.py
+* conversation_memory.py
+
+===========================================================
+MODEL REGISTRY
+==============
+
+Implement:
+✔ singleton architecture
+✔ lazy loading
+✔ automatic unloading
+✔ RAM-aware management
+✔ model version tracking
+✔ active model tracking
+✔ thread-safe inference
+✔ Hugging Face downloads
+✔ memory cleanup
+✔ GPU/CPU fallback
+
+Create:
+
+* model_registry.py
+* model_cache.py
+* gpu_manager.py
+
+===========================================================
+WEBSOCKET INFRASTRUCTURE
+========================
+
+Implement realtime websocket systems:
+
+✔ live inference progress
+✔ AI activity updates
+✔ realtime notifications
+✔ streaming responses
+✔ scan progress events
+✔ live dashboard updates
+
+Create:
+
+* websocket_manager.py
+* event_stream.py
+
+===========================================================
+DATABASE + CACHE
+================
+
+Implement:
+✔ Firebase
+✔ Firestore
+✔ Redis
+✔ async caching
+✔ conversation history
+✔ inference cache
+✔ user sessions
+✔ persistent scan history
+
+===========================================================
+SECURITY REQUIREMENTS
+=====================
+
+Implement:
+✔ JWT authentication
+✔ Firebase token verification
+✔ API key security
+✔ rate limiting
+✔ CORS protection
+✔ request validation
+✔ secure environment handling
+✔ protected websocket channels
+
+===========================================================
+PERFORMANCE OPTIMIZATION
+========================
+
+Implement:
+✔ lazy loading
+✔ code splitting
+✔ image optimization
+✔ websocket optimization
+✔ Redis caching
+✔ inference queueing
+✔ async processing
+✔ memory cleanup
+✔ automatic garbage collection
+✔ low RAM optimization
+✔ mobile optimization
+
+===========================================================
+DEPLOYMENT REQUIREMENTS
+=======================
+
+Generate COMPLETE deployment infrastructure:
+
+✔ Dockerfile
+✔ docker-compose.yml
+✔ .env.example
+✔ production startup scripts
+✔ VPS deployment setup
+✔ health checks
+✔ monitoring
+✔ logging
+✔ ARM compatibility
+✔ Railway compatibility
+✔ Hugging Face compatibility
+
+===========================================================
+MONOREPO STRUCTURE
+==================
+
+Generate:
+
+frontend/
+backend/
+shared/
+docker/
+deployment/
+
+Backend structure:
+
+backend/app/
+├── api/
+├── core/
+├── services/
+├── inference/
+├── websocket/
+├── middleware/
+├── monitoring/
+├── security/
+├── schemas/
+├── cache/
+└── utils/
+
+===========================================================
+IMPORTANT ENGINEERING RULES
+===========================
+
+1. DO NOT generate demo code.
+2. DO NOT generate placeholder implementations.
+3. DO NOT generate fake APIs.
+4. DO NOT skip production systems.
+5. DO NOT regenerate architecture repeatedly.
+6. DO NOT generate generic dashboards.
+7. DO NOT simplify infrastructure.
+8. Generate REAL production-grade code only.
+9. Validate imports and syntax.
+10. Avoid circular imports.
+11. Support low RAM VPS deployment.
+12. Support ARM compatibility.
+13. Ensure Docker compatibility.
+14. Ensure mobile responsiveness.
+15. Ensure premium UI quality.
+
+===========================================================
+IMPORTANT WORKFLOW
+==================
+
+Work incrementally and intelligently.
+
+Generate:
+
+* ONE FILE
+* ONE COMPONENT
+* ONE SYSTEM
+
+at a time.
+
+After each file:
+✔ validate syntax
+✔ validate imports
+✔ validate responsiveness
+✔ validate animations
+✔ validate production safety
+
+Avoid:
+
+* corrupted formatting
+* giant broken outputs
+* malformed syntax
+* pseudo code
+* markdown mixed with code
+
+===========================================================
+FINAL OBJECTIVE
+===============
+
+NuKropAI should feel like:
+
+* a billion-dollar AI startup product
+* a premium futuristic SaaS platform
+* a production-grade AI ecosystem
+* a real agriculture intelligence platform
+
+NOT a school project.
+
+===========================================================
+FIRST TASK
+==========
+
+Continue from current repository state.
+
+Do NOT regenerate existing architecture.
+
+Start implementing:
+
+1. backend/app/core/model_registry.py
+2. backend/app/services/detection_service.py
+3. backend/app/services/voice_service.py
+4. backend/app/services/llm_service.py
+5. backend/app/websocket/websocket_manager.py
+
+Generate REAL implementations only.

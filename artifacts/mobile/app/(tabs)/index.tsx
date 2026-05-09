@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -26,6 +26,7 @@ import { WeatherCard } from "@/components/WeatherCard";
 import { AIInsightCard } from "@/components/AIInsightCard";
 import { PulseIndicator } from "@/components/PulseIndicator";
 import { StatCard } from "@/components/StatCard";
+import { ParticleBackground } from "@/components/ParticleBackground";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -44,7 +45,7 @@ function EntranceCard({
   style?: object;
 }) {
   const opacity = useSharedValue(0);
-  const translateY = useSharedValue(16);
+  const translateY = useSharedValue(18);
 
   useEffect(() => {
     opacity.value = withDelay(delay, withTiming(1, { duration: 500 }));
@@ -70,13 +71,13 @@ function GlowButton({
   glowColor: string;
   style?: object;
 }) {
-  const glow = useSharedValue(0.4);
+  const glow = useSharedValue(0.3);
 
   useEffect(() => {
     glow.value = withRepeat(
       withSequence(
-        withTiming(0.9, { duration: 2000 }),
-        withTiming(0.4, { duration: 2000 })
+        withTiming(1, { duration: 2200 }),
+        withTiming(0.3, { duration: 2200 })
       ),
       -1,
       false
@@ -86,7 +87,7 @@ function GlowButton({
   const glowStyle = useAnimatedStyle(() => ({
     shadowColor: glowColor,
     shadowOpacity: glow.value,
-    shadowRadius: 12,
+    shadowRadius: 14,
     shadowOffset: { width: 0, height: 4 },
     elevation: 8,
   }));
@@ -100,6 +101,72 @@ function GlowButton({
   );
 }
 
+function LiveStatCard({
+  label,
+  value,
+  icon,
+  color,
+  subtitle,
+  delay,
+}: {
+  label: string;
+  value: string;
+  icon: string;
+  color?: string;
+  subtitle?: string;
+  delay: number;
+}) {
+  const scale = useSharedValue(0.88);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    scale.value = withDelay(delay, withSpring(1, { damping: 14 }));
+    opacity.value = withDelay(delay, withTiming(1, { duration: 400 }));
+  }, [delay, opacity, scale]);
+
+  const s = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <Animated.View style={[{ flex: 1 }, s]}>
+      <StatCard label={label} value={value} icon={icon as never} color={color} subtitle={subtitle} />
+    </Animated.View>
+  );
+}
+
+function AIActivityDot({ index }: { index: number }) {
+  const colors = useColors();
+  const opacity = useSharedValue(0.2);
+
+  useEffect(() => {
+    opacity.value = withDelay(
+      index * 200,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 400 }),
+          withTiming(0.2, { duration: 400 }),
+          withTiming(0.2, { duration: 300 })
+        ),
+        -1,
+        false
+      )
+    );
+  }, [index, opacity]);
+
+  const s = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return (
+    <Animated.View
+      style={[
+        { width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.accent },
+        s,
+      ]}
+    />
+  );
+}
+
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -108,13 +175,14 @@ export default function HomeScreen() {
   const todayScans = scanHistory.filter(
     (s) => Date.now() - s.timestamp < 86400000
   ).length;
+  const [dimensions] = useState({ width: 390, height: 800 });
 
   const headerOpacity = useSharedValue(0);
-  const headerY = useSharedValue(-10);
+  const headerY = useSharedValue(-12);
 
   useEffect(() => {
-    headerOpacity.value = withTiming(1, { duration: 600 });
-    headerY.value = withSpring(0, { damping: 18 });
+    headerOpacity.value = withTiming(1, { duration: 700 });
+    headerY.value = withSpring(0, { damping: 16 });
   }, [headerOpacity, headerY]);
 
   const headerStyle = useAnimatedStyle(() => ({
@@ -124,6 +192,13 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ParticleBackground
+        color={colors.primary}
+        count={14}
+        width={dimensions.width}
+        height={dimensions.height}
+      />
+
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={[
@@ -140,46 +215,63 @@ export default function HomeScreen() {
             <Text style={[styles.name, { color: colors.foreground }]}>{farmerName}</Text>
           </View>
           <View style={styles.headerRight}>
-            <View style={styles.aiRow}>
+            <View
+              style={[
+                styles.aiChip,
+                { backgroundColor: colors.primary + "18", borderColor: colors.primary + "40" },
+              ]}
+            >
               <PulseIndicator size={6} />
-              <Text style={[styles.aiLabel, { color: colors.accent }]}>AI Active</Text>
+              <Text style={[styles.aiLabel, { color: colors.primary }]}>AI Active</Text>
+              <View style={styles.aiDots}>
+                {[0, 1, 2].map((i) => (
+                  <AIActivityDot key={i} index={i} />
+                ))}
+              </View>
             </View>
             <View
               style={[styles.bell, { backgroundColor: colors.card, borderColor: colors.border }]}
             >
               <Ionicons name="notifications-outline" size={21} color={colors.foreground} />
-              <View style={[styles.notifBadge, { backgroundColor: colors.destructive }]} />
+              {insights.length > 0 && (
+                <View style={[styles.notifBadge, { backgroundColor: colors.destructive }]} />
+              )}
             </View>
           </View>
         </Animated.View>
 
-        <EntranceCard delay={80} style={styles.statsRow}>
-          <View style={styles.statsInner}>
-            <StatCard label="Scans Today" value={String(todayScans)} icon="scan" />
-            <StatCard
-              label="Health Score"
-              value="78%"
-              icon="leaf"
-              color={colors.accent}
-              subtitle="+3% week"
-            />
-            <StatCard
-              label="AI Alerts"
-              value={String(insights.length)}
-              icon="warning"
-              color="#F59E0B"
-            />
-          </View>
-        </EntranceCard>
+        <View style={styles.statsRow}>
+          <LiveStatCard
+            label="Scans Today"
+            value={String(todayScans)}
+            icon="scan"
+            delay={80}
+          />
+          <LiveStatCard
+            label="Health Score"
+            value="78%"
+            icon="leaf"
+            color={colors.accent}
+            subtitle="+3% week"
+            delay={160}
+          />
+          <LiveStatCard
+            label="AI Alerts"
+            value={String(insights.length)}
+            icon="warning"
+            color="#F59E0B"
+            delay={240}
+          />
+        </View>
 
-        <EntranceCard delay={160}>
+        <EntranceCard delay={200}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             Weather Intelligence
           </Text>
           <WeatherCard />
         </EntranceCard>
 
-        <EntranceCard delay={240}>
+        <EntranceCard delay={280}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Quick Actions</Text>
           <View style={styles.actionsRow}>
             <GlowButton
@@ -188,12 +280,19 @@ export default function HomeScreen() {
               style={[styles.actionBtn, { borderRadius: colors.radius }]}
             >
               <LinearGradient
-                colors={["#22C55E", "#15803D"]}
+                colors={["#22C55E", "#16A34A"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={[styles.actionInner, { borderRadius: colors.radius }]}
               >
-                <Ionicons name="scan" size={30} color="#000" />
+                <View
+                  style={[
+                    styles.actionIcon,
+                    { backgroundColor: "rgba(0,0,0,0.15)" },
+                  ]}
+                >
+                  <Ionicons name="scan" size={24} color="#000" />
+                </View>
                 <Text style={styles.actionTitle}>Scan Crop</Text>
                 <Text style={styles.actionSub}>AI Disease Detection</Text>
               </LinearGradient>
@@ -213,7 +312,14 @@ export default function HomeScreen() {
               activeOpacity={0.85}
             >
               <View style={[styles.actionInner, { borderRadius: colors.radius }]}>
-                <Ionicons name="chatbubble-ellipses" size={30} color={colors.primary} />
+                <View
+                  style={[
+                    styles.actionIcon,
+                    { backgroundColor: colors.primary + "18" },
+                  ]}
+                >
+                  <Ionicons name="chatbubble-ellipses" size={24} color={colors.primary} />
+                </View>
                 <Text style={[styles.actionTitle, { color: colors.foreground }]}>Ask AI</Text>
                 <Text style={[styles.actionSub, { color: colors.mutedForeground }]}>
                   Farming Assistant
@@ -223,7 +329,7 @@ export default function HomeScreen() {
           </View>
         </EntranceCard>
 
-        <EntranceCard delay={320}>
+        <EntranceCard delay={360}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>AI Insights</Text>
           {insights.map((insight) => (
             <AIInsightCard key={insight.id} insight={insight} />
@@ -251,31 +357,66 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     marginTop: 2,
   },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 12 },
-  aiRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  aiLabel: { fontSize: 12, fontFamily: "Inter_500Medium" },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
+  aiChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  aiLabel: { fontSize: 11, fontFamily: "Inter_500Medium" },
+  aiDots: { flexDirection: "row", gap: 2 },
   bell: {
-    width: 40, height: 40, borderRadius: 20,
-    justifyContent: "center", alignItems: "center", borderWidth: 1,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
   },
   notifBadge: {
-    position: "absolute", top: 9, right: 9,
-    width: 7, height: 7, borderRadius: 3.5,
+    position: "absolute",
+    top: 9,
+    right: 9,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
   },
-  statsRow: { marginBottom: 24 },
-  statsInner: { flexDirection: "row", gap: 10 },
+  statsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 24,
+  },
   sectionTitle: {
-    fontSize: 16, fontWeight: "600", fontFamily: "Inter_600SemiBold",
-    marginBottom: 12, marginTop: 4,
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
+    marginBottom: 12,
+    marginTop: 4,
   },
   actionsRow: { flexDirection: "row", gap: 12, marginBottom: 26 },
   actionBtn: { flex: 1, overflow: "hidden" },
-  actionInner: { padding: 20, gap: 6 },
+  actionInner: { padding: 18, gap: 6 },
+  actionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 4,
+  },
   actionTitle: {
-    fontSize: 16, fontWeight: "700", fontFamily: "Inter_700Bold",
-    color: "#000", marginTop: 4,
+    fontSize: 15,
+    fontWeight: "700",
+    fontFamily: "Inter_700Bold",
+    color: "#000",
   },
   actionSub: {
-    fontSize: 12, fontFamily: "Inter_400Regular", color: "#00000066",
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+    color: "#00000066",
   },
 });
