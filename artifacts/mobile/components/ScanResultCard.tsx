@@ -8,8 +8,10 @@ export interface ScanResult {
   confidence: number;
   severity: "low" | "medium" | "high";
   affectedArea: number;
+  isHealthy?: boolean;
   recommendations: string[];
   treatments: string[];
+  explanation?: string;
 }
 
 const SEVERITY_COLORS: Record<ScanResult["severity"], string> = {
@@ -21,6 +23,7 @@ const SEVERITY_COLORS: Record<ScanResult["severity"], string> = {
 export function ScanResultCard({ result }: { result: ScanResult }) {
   const colors = useColors();
   const sc = SEVERITY_COLORS[result.severity];
+  const isHealthy = result.isHealthy ?? result.severity === "low";
 
   return (
     <View
@@ -32,15 +35,32 @@ export function ScanResultCard({ result }: { result: ScanResult }) {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={[styles.badge, { backgroundColor: sc + "20", borderColor: sc + "40" }]}>
-            <Text style={[styles.badgeText, { color: sc }]}>{result.severity.toUpperCase()} SEVERITY</Text>
+            <Ionicons
+              name={isHealthy ? "checkmark-circle" : "warning"}
+              size={11}
+              color={sc}
+            />
+            <Text style={[styles.badgeText, { color: sc }]}>
+              {isHealthy ? "HEALTHY" : `${result.severity.toUpperCase()} SEVERITY`}
+            </Text>
           </View>
           <Text style={[styles.diseaseName, { color: colors.foreground }]}>{result.disease}</Text>
         </View>
         <View style={styles.confidenceBlock}>
-          <Text style={[styles.confValue, { color: colors.primary }]}>{result.confidence}%</Text>
+          <Text style={[styles.confValue, { color: isHealthy ? colors.accent : colors.primary }]}>
+            {result.confidence}%
+          </Text>
           <Text style={[styles.confLabel, { color: colors.mutedForeground }]}>match</Text>
         </View>
       </View>
+
+      {result.explanation ? (
+        <View style={[styles.explanation, { backgroundColor: colors.background, borderColor: colors.border }]}>
+          <Text style={[styles.explanationText, { color: colors.mutedForeground }]}>
+            {result.explanation}
+          </Text>
+        </View>
+      ) : null}
 
       {result.affectedArea > 0 && (
         <View style={[styles.areaRow, { borderTopColor: colors.border }]}>
@@ -85,16 +105,25 @@ const styles = StyleSheet.create({
   headerLeft: { flex: 1, gap: 6 },
   badge: {
     alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: 6,
     borderWidth: 1,
   },
   badgeText: { fontSize: 10, fontWeight: "700", fontFamily: "Inter_700Bold", letterSpacing: 0.5 },
-  diseaseName: { fontSize: 17, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  diseaseName: { fontSize: 17, fontWeight: "700", fontFamily: "Inter_700Bold", lineHeight: 22 },
   confidenceBlock: { alignItems: "center", marginLeft: 12 },
   confValue: { fontSize: 30, fontWeight: "700", fontFamily: "Inter_700Bold" },
   confLabel: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  explanation: {
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  explanationText: { fontSize: 13, fontFamily: "Inter_400Regular", lineHeight: 19 },
   areaRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -102,7 +131,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     borderTopWidth: 1,
   },
-  areaLabel: { fontSize: 13, fontFamily: "Inter_400Regular", width: 95 },
+  areaLabel: { fontSize: 12, fontFamily: "Inter_400Regular", width: 90 },
   barBg: { flex: 1, height: 6, borderRadius: 3, overflow: "hidden" },
   barFill: { height: "100%", borderRadius: 3 },
   areaPct: { fontSize: 13, fontWeight: "600", fontFamily: "Inter_600SemiBold", width: 36, textAlign: "right" },

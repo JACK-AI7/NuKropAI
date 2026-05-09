@@ -1,0 +1,193 @@
+The current NuKropAI app foundation is working.
+
+Now enter PHASE 2:
+PRODUCTION REFINEMENT + REAL AI INFRASTRUCTURE.
+
+Do NOT regenerate the app.
+
+Do NOT replace existing architecture.
+
+Continue from the existing repository state.
+
+===========================================================
+CURRENT OBJECTIVE
+=================
+
+Transform the current app into a REAL production-grade AI platform.
+
+Focus on:
+
+✔ elite UI refinement
+✔ backend infrastructure
+✔ real AI inference
+✔ performance optimization
+✔ production architecture
+✔ premium animations
+✔ scalable systems
+
+===========================================================
+UI/UX REFINEMENT REQUIREMENTS
+=============================
+
+Upgrade the current UI to feel even more premium.
+
+Improve:
+
+✔ cinematic glassmorphism
+✔ animated gradients
+✔ floating depth layers
+✔ Apple-level spacing
+✔ premium typography
+✔ glowing interactive cards
+✔ smoother Framer Motion transitions
+✔ dynamic dashboard animations
+✔ particle backgrounds
+✔ live AI activity animations
+✔ animated charts
+✔ voice waveform animations
+✔ AI typing animations
+✔ advanced loading states
+✔ premium skeleton loaders
+✔ animated navigation transitions
+
+The app should feel:
+
+* futuristic
+* luxurious
+* immersive
+* cinematic
+* premium SaaS quality
+
+===========================================================
+REAL AI INFRASTRUCTURE
+======================
+
+Replace mock/simulated AI logic with REAL systems.
+
+Implement REAL:
+
+* FastAPI backend
+* AI inference APIs
+* YOLOv8 detection
+* Whisper Tiny STT
+* TinyLlama chatbot
+* Redis cache
+* WebSocket live updates
+
+===========================================================
+BACKEND REQUIREMENTS
+====================
+
+Create:
+backend/
+├── app/
+├── api/
+├── core/
+├── services/
+├── middleware/
+├── schemas/
+├── inference/
+├── websocket/
+├── monitoring/
+└── security/
+
+Implement:
+✔ model_registry.py
+✔ ai_router.py
+✔ detection_service.py
+✔ llm_service.py
+✔ voice_service.py
+✔ websocket_manager.py
+✔ health_monitor.py
+
+===========================================================
+REAL DETECTION SYSTEM
+=====================
+
+Implement:
+✔ crop disease detection
+✔ pest detection
+✔ weed detection
+✔ image preprocessing
+✔ YOLOv8 inference
+✔ OpenCV pipeline
+✔ ONNX fallback
+✔ async-safe inference
+
+===========================================================
+VOICE AI REQUIREMENTS
+=====================
+
+Implement:
+✔ Whisper Tiny
+✔ multilingual STT
+✔ Telugu
+✔ Hindi
+✔ English
+✔ realtime transcription
+
+===========================================================
+CHATBOT REQUIREMENTS
+====================
+
+Implement:
+✔ TinyLlama
+✔ conversational memory
+✔ streaming responses
+✔ multilingual support
+✔ farming assistant intelligence
+
+===========================================================
+PERFORMANCE OPTIMIZATION
+========================
+
+Implement:
+✔ lazy loading
+✔ code splitting
+✔ React optimization
+✔ backend async optimization
+✔ memory cleanup
+✔ image optimization
+✔ Redis caching
+✔ websocket optimization
+
+===========================================================
+PRODUCTION REQUIREMENTS
+=======================
+
+Generate:
+✔ Docker deployment
+✔ docker-compose.yml
+✔ .env.example
+✔ VPS deployment setup
+✔ health checks
+✔ monitoring
+✔ logging
+✔ error tracking
+
+===========================================================
+IMPORTANT ENGINEERING RULES
+===========================
+
+1. Do NOT regenerate the whole app.
+2. Continue from current repo state.
+3. Generate ONE FILE OR SYSTEM AT A TIME.
+4. Validate imports and syntax after each file.
+5. Avoid placeholder code.
+6. Avoid demo implementations.
+7. Build production-grade systems only.
+
+===========================================================
+FIRST TASK
+==========
+
+Begin implementing the REAL backend infrastructure.
+
+Start with:
+
+1. backend/app/main.py
+2. backend/app/core/model_registry.py
+3. backend/app/core/ai_router.py
+4. backend/app/services/detection_service.py
+
+Generate real implementations only.
