@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "9u9NaSLiITWUP4k-HZ68_"
+uri = "file://artifacts/mobile/assets/images/icon.png"
+type = "image"
+title = "nukropai app icon"
+
+[[generated]]
+id = "wv3A50DAVNnImHw9zoJdC"
+uri = "file://artifacts/mobile/assets/images/crop_hero.png"
+type = "image"
+title = "crop hero image"
+
+[[generated]]
+id = "zJBCbqgc1js95Gr3UW1Qg"
+uri = "file://artifacts/mobile/assets/images/disease_sample.png"
+type = "image"
+title = "disease sample leaf"

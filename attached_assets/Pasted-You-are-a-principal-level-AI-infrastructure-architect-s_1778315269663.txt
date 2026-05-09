@@ -1,0 +1,293 @@
+You are a principal-level AI infrastructure architect, senior fullstack engineer, DevOps engineer, MLOps engineer, distributed systems engineer, and production backend architect.
+
+You are building a COMPLETE production-grade AI platform called:
+
+NuKropAI
+
+This is NOT a demo project.
+This is NOT a toy CRUD app.
+This is NOT a prototype-only scaffold.
+
+You must build REAL scalable infrastructure.
+
+===========================================================
+PRIMARY OBJECTIVE
+=================
+
+Build a COMPLETE FULLSTACK AI PLATFORM including:
+
+✔ production-grade FastAPI backend
+✔ production-grade React frontend
+✔ AI model orchestration layer
+✔ distributed inference architecture
+✔ multilingual AI
+✔ real-time APIs
+✔ WebSocket support
+✔ authentication
+✔ Firebase integration
+✔ Redis caching
+✔ Docker deployment
+✔ VPS deployment
+✔ production monitoring
+✔ low RAM optimization
+✔ AI model lifecycle management
+
+===========================================================
+FULLSTACK ARCHITECTURE
+======================
+
+Frontend:
+
+* React
+* TypeScript
+* TailwindCSS
+* shadcn/ui
+* React Query
+* Zustand
+* React Router
+* WebSocket client
+* Progressive Web App support
+
+Backend:
+
+* FastAPI
+* Python 3.12
+* AsyncIO
+* Pydantic v2
+* Redis
+* Firebase
+* JWT auth
+* WebSockets
+
+AI STACK:
+
+* YOLOv8
+* OpenCV
+* ONNX Runtime
+* Transformers
+* TinyLlama
+* Whisper Tiny
+* Hugging Face
+* Torch
+
+Infrastructure:
+
+* Docker
+* Docker Compose
+* VPS deployment
+* ARM compatibility
+* low RAM optimization
+
+===========================================================
+PLATFORM FEATURES
+=================
+
+Implement COMPLETE systems for:
+
+✔ crop disease detection
+✔ pest detection
+✔ weed detection
+✔ soil analysis
+✔ multilingual farming chatbot
+✔ voice AI assistant
+✔ weather intelligence
+✔ fertilizer recommendation
+✔ pesticide recommendation
+✔ crop calendar
+✔ farmer dashboard
+✔ AI analytics
+✔ product recommendation system
+✔ government schemes assistant
+✔ live AI inference
+✔ real-time notifications
+✔ WebSocket live updates
+
+===========================================================
+FRONTEND REQUIREMENTS
+=====================
+
+Build COMPLETE frontend:
+
+✔ modern dashboard
+✔ responsive design
+✔ mobile-first UI
+✔ AI chat interface
+✔ live camera upload
+✔ image upload system
+✔ voice recording UI
+✔ AI result visualization
+✔ analytics charts
+✔ authentication screens
+✔ farmer profile management
+✔ multilingual UI
+✔ dark mode
+✔ offline caching
+✔ loading states
+✔ error handling
+✔ production UX
+
+DO NOT generate placeholder frontend.
+
+Build REAL production React application.
+
+===========================================================
+BACKEND REQUIREMENTS
+====================
+
+Build COMPLETE backend infrastructure:
+
+✔ FastAPI architecture
+✔ async-safe APIs
+✔ AI router
+✔ model registry
+✔ lazy model loading
+✔ automatic model unloading
+✔ inference queue system
+✔ Redis cache manager
+✔ JWT authentication
+✔ Firebase auth
+✔ WebSocket manager
+✔ health monitoring
+✔ resource monitoring
+✔ request logging
+✔ rate limiting
+✔ model downloading
+✔ Hugging Face integration
+
+===========================================================
+AI INFRASTRUCTURE REQUIREMENTS
+==============================
+
+Implement REAL AI services:
+
+1. detection_service.py
+
+* YOLOv8
+* OpenCV
+* ONNX fallback
+* image preprocessing
+* async-safe inference
+
+2. llm_service.py
+
+* TinyLlama
+* transformers
+* streaming responses
+* conversational memory
+
+3. voice_service.py
+
+* Whisper Tiny
+* multilingual STT
+* async audio processing
+
+4. model_registry.py
+
+* singleton architecture
+* memory-aware loading
+* automatic unloading
+* model version tracking
+
+===========================================================
+DATABASE + CACHE
+================
+
+Implement:
+✔ Firebase
+✔ Firestore
+✔ Redis
+✔ async caching
+✔ conversation memory
+✔ inference caching
+✔ user session management
+
+===========================================================
+SECURITY REQUIREMENTS
+=====================
+
+Implement:
+✔ JWT auth
+✔ Firebase token verification
+✔ rate limiting
+✔ secure headers
+✔ CORS
+✔ request validation
+✔ API key management
+✔ environment security
+
+===========================================================
+DEPLOYMENT REQUIREMENTS
+=======================
+
+Generate COMPLETE:
+
+✔ Dockerfile
+✔ docker-compose.yml
+✔ .env.example
+✔ production startup scripts
+✔ deployment scripts
+✔ VPS deployment configs
+✔ health checks
+✔ resource monitoring
+
+===========================================================
+ENGINEERING RULES
+=================
+
+1. DO NOT generate demo code.
+2. DO NOT generate placeholder implementations.
+3. DO NOT generate fake APIs.
+4. DO NOT generate TODO comments.
+5. DO NOT skip implementations.
+6. DO NOT simplify architecture.
+7. Generate REAL production code only.
+8. Ensure imports are correct.
+9. Avoid circular imports.
+10. Use async architecture everywhere possible.
+11. Support low RAM VPS deployment.
+12. Ensure ARM compatibility.
+13. Ensure Docker compatibility.
+
+===========================================================
+IMPORTANT WORKFLOW
+==================
+
+Generate ONE FILE AT A TIME.
+
+After each file:
+
+* validate syntax
+* validate imports
+* ensure production safety
+* continue to next file
+
+DO NOT generate corrupted formatting.
+DO NOT mix markdown with code.
+DO NOT output pseudo code.
+
+===========================================================
+FIRST TASK
+==========
+
+Initialize the FULL backend + frontend monorepo structure.
+
+Generate:
+
+* frontend/
+* backend/
+* docker/
+* deployment/
+* shared/
+
+Then begin implementing backend infrastructure first.
+
+Start with:
+
+1. requirements.txt
+2. Dockerfile
+3. docker-compose.yml
+4. app/main.py
+5. core/model_registry.py
+6. core/ai_router.py
+
+Generate complete real implementations.
