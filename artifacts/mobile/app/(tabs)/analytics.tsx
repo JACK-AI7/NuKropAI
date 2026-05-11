@@ -19,7 +19,9 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useApp } from "@/contexts/AppContext";
+import { useMarket } from "@/hooks/useMarket";
 import { GlassCard } from "@/components/GlassCard";
+import { MarketCard } from "@/components/MarketCard";
 
 const FALLBACK_DISEASES = [
   { name: "Early Blight", pct: 40, color: "#FF453A" },
@@ -30,16 +32,30 @@ const FALLBACK_DISEASES = [
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-function AnimBar({ pct, color, delay }: { pct: number; color: string; delay: number }) {
+function AnimBar({
+  pct,
+  color,
+  delay,
+}: {
+  pct: number;
+  color: string;
+  delay: number;
+}) {
   const width = useSharedValue(0);
   useEffect(() => {
     width.value = withDelay(
       delay,
-      withTiming(pct, { duration: 900, easing: Easing.out(Easing.cubic) })
+      withTiming(pct, { duration: 900, easing: Easing.out(Easing.cubic) }),
     );
   }, [delay, pct, width]);
-  const s = useAnimatedStyle(() => ({ width: `${width.value}%` as unknown as number }));
-  return <Animated.View style={[{ height: 7, borderRadius: 4, backgroundColor: color }, s]} />;
+  const s = useAnimatedStyle(
+    () => ({ width: `${width.value}%` as unknown as number }),
+  );
+  return (
+    <Animated.View
+      style={[{ height: 7, borderRadius: 4, backgroundColor: color }, s]}
+    />
+  );
 }
 
 function ColBar({
@@ -60,11 +76,15 @@ function ColBar({
       withTiming(Math.max(4, (value / Math.max(max, 1)) * 76), {
         duration: 700,
         easing: Easing.out(Easing.cubic),
-      })
+      }),
     );
   }, [delay, h, max, value]);
   const s = useAnimatedStyle(() => ({ height: h.value }));
-  return <Animated.View style={[{ width: 10, borderRadius: 3, backgroundColor: color }, s]} />;
+  return (
+    <Animated.View
+      style={[{ width: 10, borderRadius: 3, backgroundColor: color }, s]}
+    />
+  );
 }
 
 function CountUpText({
@@ -95,7 +115,12 @@ function CountUpText({
     }, duration / steps);
     return () => clearInterval(interval);
   }, [to, duration]);
-  return <Text style={style}>{displayed}{suffix}</Text>;
+  return (
+    <Text style={style}>
+      {displayed}
+      {suffix}
+    </Text>
+  );
 }
 
 function StatBlock({
@@ -120,7 +145,10 @@ function StatBlock({
     scale.value = withDelay(delay, withSpring(1, { damping: 14 }));
     opacity.value = withDelay(delay, withTiming(1, { duration: 400 }));
   }, [delay, opacity, scale]);
-  const s = useAnimatedStyle(() => ({ opacity: opacity.value, transform: [{ scale: scale.value }] }));
+  const s = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
 
   return (
     <Animated.View style={[styles.statCell, s]}>
@@ -131,7 +159,9 @@ function StatBlock({
           suffix={suffix}
           style={[styles.statVal, { color: colors.foreground }]}
         />
-        <Text style={[styles.statLbl, { color: colors.mutedForeground }]}>{label}</Text>
+        <Text style={[styles.statLbl, { color: colors.mutedForeground }]}>
+          {label}
+        </Text>
       </GlassCard>
     </Animated.View>
   );
@@ -140,16 +170,22 @@ function StatBlock({
 export default function AnalyticsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { scanHistory, language } = useApp();
+  const { scanHistory, language, locationCity } = useApp();
   const topPad = Platform.OS === "web" ? 67 : insets.top + 10;
 
   const [aiRec, setAiRec] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
 
+  // Live market prices
+  const { market, loading: marketLoading, error: marketError, refresh: refreshMarket } = useMarket(
+    locationCity ?? "Telangana",
+  );
+
   const totalScans = 20 + scanHistory.length;
-  const diseasesFound = scanHistory.filter((s) => s.severity !== "low").length + 12;
+  const diseasesFound =
+    scanHistory.filter((s) => s.severity !== "low").length + 12;
   const healthPct = Math.round(
-    Math.max(60, 100 - (diseasesFound / Math.max(totalScans, 1)) * 60)
+    Math.max(60, 100 - (diseasesFound / Math.max(totalScans, 1)) * 60),
   );
 
   const diseaseMap = scanHistory.reduce<Record<string, number>>((acc, s) => {
@@ -174,12 +210,16 @@ export default function AnalyticsScreen() {
   const weeklyData = DAYS.map((day, i) => {
     const start = now - (6 - i) * 86400000;
     const end = start + 86400000;
-    const dayScans = scanHistory.filter((s) => s.timestamp >= start && s.timestamp < end);
+    const dayScans = scanHistory.filter(
+      (s) => s.timestamp >= start && s.timestamp < end,
+    );
     const baseFallback = [3, 5, 2, 7, 4, 6, 3][i] ?? 3;
     return {
       day,
       scans: dayScans.length + baseFallback,
-      diseases: dayScans.filter((s) => s.severity !== "low").length + ([1, 2, 0, 3, 1, 2, 1][i] ?? 0),
+      diseases:
+        dayScans.filter((s) => s.severity !== "low").length +
+        ([1, 2, 0, 3, 1, 2, 1][i] ?? 0),
     };
   });
   const maxScans = Math.max(...weeklyData.map((d) => d.scans));
@@ -204,93 +244,180 @@ export default function AnalyticsScreen() {
         setAiRec(data.reply);
       } catch (_) {
         setAiRec(
-          `Based on this week's data, early blight is the most common threat. Apply Mancozeb 75 WP @ 2.5g/L before the upcoming rain window on Thursday.`
+          `Based on this week's data, early blight is the most common threat. Apply Mancozeb 75 WP @ 2.5g/L before the upcoming rain window on Thursday.`,
         );
       } finally {
         setAiLoading(false);
       }
     };
     fetchRec();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         contentContainerStyle={[
           styles.scroll,
-          { paddingTop: topPad, paddingBottom: Platform.OS === "web" ? 100 : 110 },
+          {
+            paddingTop: topPad,
+            paddingBottom: Platform.OS === "web" ? 100 : 110,
+          },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.title, { color: colors.foreground }]}>Analytics</Text>
+        <Text style={[styles.title, { color: colors.foreground }]}>
+          Analytics
+        </Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
           AI-powered crop health insights
         </Text>
 
         <View style={styles.statsGrid}>
-          <StatBlock icon="scan" label="Total Scans" value={totalScans} color={colors.primary} delay={60} />
-          <StatBlock icon="warning" label="Diseases" value={diseasesFound} color="#FF453A" delay={120} />
-          <StatBlock icon="leaf" label="Health Score" value={healthPct} suffix="%" color={colors.accent} delay={180} />
-          <StatBlock icon="trending-up" label="Improvement" value={12} suffix="%" color="#F59E0B" delay={240} />
+          <StatBlock
+            icon="scan"
+            label="Total Scans"
+            value={totalScans}
+            color={colors.primary}
+            delay={60}
+          />
+          <StatBlock
+            icon="warning"
+            label="Diseases"
+            value={diseasesFound}
+            color="#FF453A"
+            delay={120}
+          />
+          <StatBlock
+            icon="leaf"
+            label="Health Score"
+            value={healthPct}
+            suffix="%"
+            color={colors.accent}
+            delay={180}
+          />
+          <StatBlock
+            icon="trending-up"
+            label="Improvement"
+            value={12}
+            suffix="%"
+            color="#F59E0B"
+            delay={240}
+          />
         </View>
 
         <GlassCard style={styles.card}>
-          <Text style={[styles.cardTitle, { color: colors.foreground }]}>Disease Breakdown</Text>
+          <Text style={[styles.cardTitle, { color: colors.foreground }]}>
+            Disease Breakdown
+          </Text>
           {diseaseBreakdown.map((d, i) => (
             <View key={i} style={styles.breakRow}>
               <View style={styles.breakLabel}>
                 <View style={[styles.dot, { backgroundColor: d.color }]} />
-                <Text style={[styles.breakName, { color: colors.foreground }]}>{d.name}</Text>
+                <Text style={[styles.breakName, { color: colors.foreground }]}>
+                  {d.name}
+                </Text>
               </View>
               <View style={styles.breakBarArea}>
-                <View style={[styles.barBg, { backgroundColor: colors.border }]}>
+                <View
+                  style={[styles.barBg, { backgroundColor: colors.border }]}
+                >
                   <AnimBar pct={d.pct} color={d.color} delay={i * 140 + 300} />
                 </View>
-                <Text style={[styles.breakPct, { color: colors.mutedForeground }]}>{d.pct}%</Text>
+                <Text
+                  style={[
+                    styles.breakPct,
+                    { color: colors.mutedForeground },
+                  ]}
+                >
+                  {d.pct}%
+                </Text>
               </View>
             </View>
           ))}
         </GlassCard>
 
         <GlassCard style={styles.card}>
-          <Text style={[styles.cardTitle, { color: colors.foreground }]}>Weekly Activity</Text>
+          <Text style={[styles.cardTitle, { color: colors.foreground }]}>
+            Weekly Activity
+          </Text>
           <View style={styles.legend}>
             <View style={styles.legendItem}>
               <View style={[styles.dot, { backgroundColor: colors.primary }]} />
-              <Text style={[styles.legendTxt, { color: colors.mutedForeground }]}>Scans</Text>
+              <Text
+                style={[styles.legendTxt, { color: colors.mutedForeground }]}
+              >
+                Scans
+              </Text>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.dot, { backgroundColor: "#FF453A" }]} />
-              <Text style={[styles.legendTxt, { color: colors.mutedForeground }]}>Diseases</Text>
+              <Text
+                style={[styles.legendTxt, { color: colors.mutedForeground }]}
+              >
+                Diseases
+              </Text>
             </View>
           </View>
           <View style={styles.chart}>
             {weeklyData.map((d, i) => (
               <View key={i} style={styles.chartCol}>
                 <View style={styles.barGroup}>
-                  <ColBar value={d.scans} max={maxScans} color={colors.primary} delay={i * 80 + 400} />
-                  <ColBar value={d.diseases} max={maxScans} color="#FF453A" delay={i * 80 + 450} />
+                  <ColBar
+                    value={d.scans}
+                    max={maxScans}
+                    color={colors.primary}
+                    delay={i * 80 + 400}
+                  />
+                  <ColBar
+                    value={d.diseases}
+                    max={maxScans}
+                    color="#FF453A"
+                    delay={i * 80 + 450}
+                  />
                 </View>
-                <Text style={[styles.dayLbl, { color: colors.mutedForeground }]}>{d.day}</Text>
+                <Text
+                  style={[styles.dayLbl, { color: colors.mutedForeground }]}
+                >
+                  {d.day}
+                </Text>
               </View>
             ))}
           </View>
         </GlassCard>
 
+        {/* Live Market Prices */}
+        <MarketCard
+          market={market}
+          loading={marketLoading}
+          error={marketError}
+          onRefresh={refreshMarket}
+        />
+
         <GlassCard style={styles.card}>
           <View style={styles.recRow}>
             <Ionicons name="sparkles" size={18} color={colors.accent} />
-            <Text style={[styles.cardTitle, { color: colors.foreground }]}>AI Weekly Advisory</Text>
+            <Text style={[styles.cardTitle, { color: colors.foreground }]}>
+              AI Weekly Advisory
+            </Text>
           </View>
           {aiLoading ? (
             <View style={styles.loadingRow}>
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={[styles.loadingTxt, { color: colors.mutedForeground }]}>
+              <Text
+                style={[
+                  styles.loadingTxt,
+                  { color: colors.mutedForeground },
+                ]}
+              >
                 Generating personalized advice…
               </Text>
             </View>
           ) : (
-            <Text style={[styles.recText, { color: colors.mutedForeground }]}>{aiRec}</Text>
+            <Text
+              style={[styles.recText, { color: colors.mutedForeground }]}
+            >
+              {aiRec}
+            </Text>
           )}
         </GlassCard>
       </ScrollView>
@@ -301,30 +428,86 @@ export default function AnalyticsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { paddingHorizontal: 16 },
-  title: { fontSize: 24, fontWeight: "700", fontFamily: "Inter_700Bold", letterSpacing: -0.5 },
-  subtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginBottom: 22, marginTop: 4 },
-  statsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 16 },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    fontFamily: "Inter_700Bold",
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    marginBottom: 22,
+    marginTop: 4,
+  },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 16,
+  },
   statCell: { width: "47%" },
-  statVal: { fontSize: 24, fontWeight: "700", fontFamily: "Inter_700Bold" },
-  statLbl: { fontSize: 11, fontFamily: "Inter_400Regular", textAlign: "center" },
+  statVal: {
+    fontSize: 24,
+    fontWeight: "700",
+    fontFamily: "Inter_700Bold",
+  },
+  statLbl: {
+    fontSize: 11,
+    fontFamily: "Inter_400Regular",
+    textAlign: "center",
+  },
   card: { marginBottom: 16 },
-  cardTitle: { fontSize: 15, fontWeight: "600", fontFamily: "Inter_600SemiBold", marginBottom: 14 },
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
+    marginBottom: 14,
+  },
   breakRow: { marginBottom: 12 },
-  breakLabel: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
+  breakLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 6,
+  },
   dot: { width: 8, height: 8, borderRadius: 4 },
   breakName: { fontSize: 13, fontFamily: "Inter_400Regular" },
   breakBarArea: { flexDirection: "row", alignItems: "center", gap: 8 },
   barBg: { flex: 1, height: 7, borderRadius: 4, overflow: "hidden" },
-  breakPct: { fontSize: 12, fontFamily: "Inter_500Medium", width: 32, textAlign: "right" },
+  breakPct: {
+    fontSize: 12,
+    fontFamily: "Inter_500Medium",
+    width: 32,
+    textAlign: "right",
+  },
   legend: { flexDirection: "row", gap: 16, marginBottom: 14 },
   legendItem: { flexDirection: "row", alignItems: "center", gap: 6 },
   legendTxt: { fontSize: 12, fontFamily: "Inter_400Regular" },
   chart: { flexDirection: "row", justifyContent: "space-between" },
   chartCol: { alignItems: "center", gap: 6 },
-  barGroup: { flexDirection: "row", gap: 3, alignItems: "flex-end", height: 76 },
+  barGroup: {
+    flexDirection: "row",
+    gap: 3,
+    alignItems: "flex-end",
+    height: 76,
+  },
   dayLbl: { fontSize: 10, fontFamily: "Inter_400Regular" },
-  recRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
-  recText: { fontSize: 13, fontFamily: "Inter_400Regular", lineHeight: 20 },
+  recRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  recText: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    lineHeight: 20,
+  },
   loadingRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  loadingTxt: { fontSize: 13, fontFamily: "Inter_400Regular", fontStyle: "italic" },
+  loadingTxt: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    fontStyle: "italic",
+  },
 });

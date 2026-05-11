@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type Language = "en" | "hi" | "te";
@@ -35,12 +35,17 @@ interface AppState {
   scanHistory: ScanRecord[];
   chatHistory: ChatMessage[];
   insights: AIInsight[];
+  // Location (GPS or default Hyderabad)
+  lat: number;
+  lon: number;
+  locationCity: string;
   setFarmerName: (name: string) => void;
   setFarmLocation: (location: string) => void;
   setLanguage: (lang: Language) => void;
   addScanRecord: (record: ScanRecord) => void;
   addChatMessage: (msg: ChatMessage) => void;
   clearChatHistory: () => void;
+  setLocation: (lat: number, lon: number, city: string) => void;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -71,6 +76,11 @@ const DEFAULT_INSIGHTS: AIInsight[] = [
   },
 ];
 
+// Default to Hyderabad, Telangana (central farming region in south India)
+const DEFAULT_LAT = 17.385;
+const DEFAULT_LON = 78.486;
+const DEFAULT_CITY = "Hyderabad";
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [farmerName, setFarmerNameState] = useState("Rajesh Kumar");
   const [farmLocation, setFarmLocationState] = useState("Telangana, India");
@@ -78,13 +88,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [scanHistory, setScanHistory] = useState<ScanRecord[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [insights] = useState<AIInsight[]>(DEFAULT_INSIGHTS);
+  const [lat, setLatState] = useState(DEFAULT_LAT);
+  const [lon, setLonState] = useState(DEFAULT_LON);
+  const [locationCity, setLocationCityState] = useState(DEFAULT_CITY);
 
   useEffect(() => {
     const load = async () => {
       try {
         const saved = await AsyncStorage.getItem("nukropai_state");
         if (saved) {
-          const state = JSON.parse(saved) as Partial<AppState & { scanHistory: ScanRecord[]; chatHistory: ChatMessage[] }>;
+          const state = JSON.parse(saved) as Partial<
+            AppState & { scanHistory: ScanRecord[]; chatHistory: ChatMessage[] }
+          >;
           if (state.farmerName) setFarmerNameState(state.farmerName);
           if (state.farmLocation) setFarmLocationState(state.farmLocation);
           if (state.language) setLanguageState(state.language);
@@ -100,7 +115,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const current = await AsyncStorage.getItem("nukropai_state");
       const state = current ? (JSON.parse(current) as Record<string, unknown>) : {};
-      await AsyncStorage.setItem("nukropai_state", JSON.stringify({ ...state, ...updates }));
+      await AsyncStorage.setItem(
+        "nukropai_state",
+        JSON.stringify({ ...state, ...updates }),
+      );
     } catch (_) {}
   };
 
@@ -140,6 +158,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveState({ chatHistory: [] });
   };
 
+  const setLocation = useCallback((newLat: number, newLon: number, city: string) => {
+    setLatState(newLat);
+    setLonState(newLon);
+    setLocationCityState(city);
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -149,12 +173,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         scanHistory,
         chatHistory,
         insights,
+        lat,
+        lon,
+        locationCity,
         setFarmerName,
         setFarmLocation,
         setLanguage,
         addScanRecord,
         addChatMessage,
         clearChatHistory,
+        setLocation,
       }}
     >
       {children}

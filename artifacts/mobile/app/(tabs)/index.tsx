@@ -21,13 +21,18 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { useColors } from "@/hooks/useColors";
 import { useApp } from "@/contexts/AppContext";
-import { WeatherCard } from "@/components/WeatherCard";
+import { useLocation } from "@/hooks/useLocation";
+import { useWeather } from "@/hooks/useWeather";
+import { useAlerts } from "@/hooks/useAlerts";
+import { LiveWeatherCard } from "@/components/LiveWeatherCard";
 import { AIInsightCard } from "@/components/AIInsightCard";
 import { PulseIndicator } from "@/components/PulseIndicator";
 import { StatCard } from "@/components/StatCard";
 import { ParticleBackground } from "@/components/ParticleBackground";
+import type { AIInsight } from "@/contexts/AppContext";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -79,10 +84,10 @@ function GlowButton({
     glow.value = withRepeat(
       withSequence(
         withTiming(1, { duration: 2200 }),
-        withTiming(0.3, { duration: 2200 })
+        withTiming(0.3, { duration: 2200 }),
       ),
       -1,
-      false
+      false,
     );
   }, [glow]);
 
@@ -142,7 +147,13 @@ function LiveStatCard({
 
   return (
     <Animated.View style={[{ flex: 1 }, s]}>
-      <StatCard label={label} value={value} icon={icon as never} color={color} subtitle={subtitle} />
+      <StatCard
+        label={label}
+        value={value}
+        icon={icon as never}
+        color={color}
+        subtitle={subtitle}
+      />
     </Animated.View>
   );
 }
@@ -158,11 +169,11 @@ function AIActivityDot({ index }: { index: number }) {
         withSequence(
           withTiming(1, { duration: 400 }),
           withTiming(0.2, { duration: 400 }),
-          withTiming(0.2, { duration: 300 })
+          withTiming(0.2, { duration: 300 }),
         ),
         -1,
-        false
-      )
+        false,
+      ),
     );
   }, [index, opacity]);
 
@@ -171,7 +182,12 @@ function AIActivityDot({ index }: { index: number }) {
   return (
     <Animated.View
       style={[
-        { width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.accent },
+        {
+          width: 5,
+          height: 5,
+          borderRadius: 2.5,
+          backgroundColor: colors.accent,
+        },
         s,
       ]}
     />
@@ -181,10 +197,18 @@ function AIActivityDot({ index }: { index: number }) {
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { farmerName, insights, scanHistory } = useApp();
+  const { farmerName, insights, scanHistory, lat, lon, locationCity } = useApp();
   const topPad = Platform.OS === "web" ? 67 : insets.top + 10;
+
+  // Initialise GPS location (updates AppContext once permission granted)
+  useLocation();
+
+  // Live data hooks
+  const { weather, loading: weatherLoading, error: weatherError } = useWeather(lat, lon);
+  const { alerts, loading: alertsLoading } = useAlerts(lat, lon, locationCity, weather);
+
   const todayScans = scanHistory.filter(
-    (s) => Date.now() - s.timestamp < 86400000
+    (s) => Date.now() - s.timestamp < 86400000,
   ).length;
   const { width: winWidth, height: winHeight } = useWindowDimensions();
 
@@ -201,6 +225,23 @@ export default function HomeScreen() {
     transform: [{ translateY: headerY.value }],
   }));
 
+  // Convert live alerts to AIInsight format for the card, with fallback to static insights
+  const displayInsights: AIInsight[] =
+    alerts.length > 0
+      ? alerts.map((a) => ({
+          id: a.id,
+          type: a.type,
+          title: a.title,
+          message: a.message,
+          timestamp: Date.now(),
+          crop: a.crop ?? undefined,
+        }))
+      : alertsLoading
+        ? []
+        : insights;
+
+  const alertCount = alerts.length > 0 ? alerts.length : insights.length;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ParticleBackground
@@ -214,26 +255,37 @@ export default function HomeScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={[
           styles.scroll,
-          { paddingTop: topPad, paddingBottom: Platform.OS === "web" ? 100 : 110 },
+          {
+            paddingTop: topPad,
+            paddingBottom: Platform.OS === "web" ? 100 : 110,
+          },
         ]}
         showsVerticalScrollIndicator={false}
       >
+        {/* Header */}
         <Animated.View style={[styles.header, headerStyle]}>
           <View>
             <Text style={[styles.greeting, { color: colors.mutedForeground }]}>
               {greeting()}
             </Text>
-            <Text style={[styles.name, { color: colors.foreground }]}>{farmerName}</Text>
+            <Text style={[styles.name, { color: colors.foreground }]}>
+              {farmerName}
+            </Text>
           </View>
           <View style={styles.headerRight}>
             <View
               style={[
                 styles.aiChip,
-                { backgroundColor: colors.primary + "18", borderColor: colors.primary + "40" },
+                {
+                  backgroundColor: colors.primary + "18",
+                  borderColor: colors.primary + "40",
+                },
               ]}
             >
               <PulseIndicator size={6} />
-              <Text style={[styles.aiLabel, { color: colors.primary }]}>AI Active</Text>
+              <Text style={[styles.aiLabel, { color: colors.primary }]}>
+                AI Active
+              </Text>
               <View style={styles.aiDots}>
                 {[0, 1, 2].map((i) => (
                   <AIActivityDot key={i} index={i} />
@@ -241,16 +293,32 @@ export default function HomeScreen() {
               </View>
             </View>
             <View
-              style={[styles.bell, { backgroundColor: colors.card, borderColor: colors.border }]}
+              style={[
+                styles.bell,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                },
+              ]}
             >
-              <Ionicons name="notifications-outline" size={21} color={colors.foreground} />
-              {insights.length > 0 && (
-                <View style={[styles.notifBadge, { backgroundColor: colors.destructive }]} />
+              <Ionicons
+                name="notifications-outline"
+                size={21}
+                color={colors.foreground}
+              />
+              {alertCount > 0 && (
+                <View
+                  style={[
+                    styles.notifBadge,
+                    { backgroundColor: colors.destructive },
+                  ]}
+                />
               )}
             </View>
           </View>
         </Animated.View>
 
+        {/* Stats row */}
         <View style={styles.statsRow}>
           <LiveStatCard
             label="Scans Today"
@@ -268,22 +336,31 @@ export default function HomeScreen() {
           />
           <LiveStatCard
             label="AI Alerts"
-            value={String(insights.length)}
+            value={String(alertCount)}
             icon="warning"
             color="#F59E0B"
             delay={240}
           />
         </View>
 
+        {/* Live Weather */}
         <EntranceCard delay={200}>
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             Weather Intelligence
           </Text>
-          <WeatherCard />
+          <LiveWeatherCard
+            weather={weather}
+            loading={weatherLoading}
+            error={weatherError}
+            city={locationCity}
+          />
         </EntranceCard>
 
+        {/* Quick Actions */}
         <EntranceCard delay={280}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Quick Actions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+            Quick Actions
+          </Text>
           <View style={styles.actionsRow}>
             <GlowButton
               onPress={() => router.push("/(tabs)/scanner")}
@@ -322,17 +399,30 @@ export default function HomeScreen() {
               onPress={() => router.push("/(tabs)/chat")}
               activeOpacity={0.85}
             >
-              <View style={[styles.actionInner, { borderRadius: colors.radius }]}>
+              <View
+                style={[styles.actionInner, { borderRadius: colors.radius }]}
+              >
                 <View
                   style={[
                     styles.actionIcon,
                     { backgroundColor: colors.primary + "18" },
                   ]}
                 >
-                  <Ionicons name="chatbubble-ellipses" size={24} color={colors.primary} />
+                  <Ionicons
+                    name="chatbubble-ellipses"
+                    size={24}
+                    color={colors.primary}
+                  />
                 </View>
-                <Text style={[styles.actionTitle, { color: colors.foreground }]}>Ask AI</Text>
-                <Text style={[styles.actionSub, { color: colors.mutedForeground }]}>
+                <Text style={[styles.actionTitle, { color: colors.foreground }]}>
+                  Ask AI
+                </Text>
+                <Text
+                  style={[
+                    styles.actionSub,
+                    { color: colors.mutedForeground },
+                  ]}
+                >
                   Farming Assistant
                 </Text>
               </View>
@@ -340,11 +430,40 @@ export default function HomeScreen() {
           </View>
         </EntranceCard>
 
+        {/* AI Insights (live alerts or static fallback) */}
         <EntranceCard delay={360}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>AI Insights</Text>
-          {insights.map((insight) => (
-            <AIInsightCard key={insight.id} insight={insight} />
-          ))}
+          <View style={styles.insightsHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 0 }]}>
+              AI Insights
+            </Text>
+            {alerts.length > 0 && (
+              <View style={styles.insightsLiveBadge}>
+                <PulseIndicator size={5} />
+                <Text style={[styles.insightsLiveText, { color: colors.primary }]}>
+                  LIVE
+                </Text>
+              </View>
+            )}
+          </View>
+          <View style={{ marginTop: 12 }}>
+            {displayInsights.length === 0 && alertsLoading ? (
+              <View style={styles.alertsLoading}>
+                <PulseIndicator size={8} />
+                <Text
+                  style={[
+                    styles.alertsLoadingText,
+                    { color: colors.mutedForeground },
+                  ]}
+                >
+                  Generating AI insights…
+                </Text>
+              </View>
+            ) : (
+              displayInsights.map((insight) => (
+                <AIInsightCard key={insight.id} insight={insight} />
+              ))
+            )}
+          </View>
         </EntranceCard>
       </ScrollView>
     </View>
@@ -430,4 +549,29 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_400Regular",
     color: "#00000066",
   },
+  insightsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 4,
+    marginBottom: 0,
+  },
+  insightsLiveBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#22C55E18",
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  insightsLiveText: { fontSize: 9, fontFamily: "Inter_700Bold", letterSpacing: 1 },
+  alertsLoading: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 20,
+    paddingHorizontal: 4,
+  },
+  alertsLoadingText: { fontSize: 13, fontFamily: "Inter_400Regular", fontStyle: "italic" },
 });
