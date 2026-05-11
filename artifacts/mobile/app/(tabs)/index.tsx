@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Platform,
   ScrollView,
@@ -9,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -72,6 +73,7 @@ function GlowButton({
   style?: object;
 }) {
   const glow = useSharedValue(0.3);
+  const isWeb = Platform.OS === "web";
 
   useEffect(() => {
     glow.value = withRepeat(
@@ -84,16 +86,25 @@ function GlowButton({
     );
   }, [glow]);
 
-  const glowStyle = useAnimatedStyle(() => ({
-    shadowColor: glowColor,
-    shadowOpacity: glow.value,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
-  }));
+  const glowStyle = useAnimatedStyle(() => {
+    if (isWeb) return {};
+    return {
+      shadowColor: glowColor,
+      shadowOpacity: glow.value,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 8,
+    };
+  });
 
   return (
-    <Animated.View style={[glowStyle, style]}>
+    <Animated.View
+      style={[
+        glowStyle,
+        style,
+        isWeb ? { boxShadow: `0 4px 14px ${glowColor}88` } : undefined,
+      ]}
+    >
       <TouchableOpacity onPress={onPress} activeOpacity={0.85} style={{ flex: 1 }}>
         {children}
       </TouchableOpacity>
@@ -175,7 +186,7 @@ export default function HomeScreen() {
   const todayScans = scanHistory.filter(
     (s) => Date.now() - s.timestamp < 86400000
   ).length;
-  const [dimensions] = useState({ width: 390, height: 800 });
+  const { width: winWidth, height: winHeight } = useWindowDimensions();
 
   const headerOpacity = useSharedValue(0);
   const headerY = useSharedValue(-12);
@@ -195,8 +206,8 @@ export default function HomeScreen() {
       <ParticleBackground
         color={colors.primary}
         count={14}
-        width={dimensions.width}
-        height={dimensions.height}
+        width={winWidth}
+        height={winHeight}
       />
 
       <ScrollView

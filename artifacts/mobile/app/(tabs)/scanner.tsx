@@ -78,7 +78,7 @@ function ScanLine({ containerHeight }: { containerHeight: number }) {
   const s = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
 
   return (
-    <Animated.View style={[styles.scanLine, s]} pointerEvents="none" />
+    <Animated.View style={[styles.scanLine, s, { pointerEvents: "none" }]} />
   );
 }
 
@@ -410,10 +410,15 @@ const styles = StyleSheet.create({
     top: 0,
     height: 2,
     backgroundColor: "rgba(74,222,128,0.7)",
-    shadowColor: "#4ADE80",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 6,
+    ...Platform.select({
+      web: { boxShadow: "0 0 8px 3px rgba(74,222,128,0.7)" },
+      default: {
+        shadowColor: "#4ADE80",
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.9,
+        shadowRadius: 6,
+      },
+    }),
   },
   analyzeBox: {
     backgroundColor: "rgba(6,12,9,0.82)",

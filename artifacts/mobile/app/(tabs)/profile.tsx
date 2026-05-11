@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -72,6 +72,14 @@ export default function ProfileScreen() {
   const [editLoc, setEditLoc] = useState(false);
   const [nameInput, setNameInput] = useState(farmerName);
   const [locInput, setLocInput] = useState(farmLocation);
+
+  useEffect(() => {
+    if (!editName) setNameInput(farmerName);
+  }, [farmerName, editName]);
+
+  useEffect(() => {
+    if (!editLoc) setLocInput(farmLocation);
+  }, [farmLocation, editLoc]);
 
   const saveName = () => {
     if (nameInput.trim()) setFarmerName(nameInput.trim());

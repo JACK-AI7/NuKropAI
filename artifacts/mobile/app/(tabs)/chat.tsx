@@ -78,7 +78,7 @@ export default function ChatScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const typingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  const recordingRef = useRef<{ stopAndUnloadAsync: () => Promise<void>; getURI: () => string | null } | null>(null);
+  const recordingRef = useRef<{ stopAndUnloadAsync: () => Promise<unknown>; getURI: () => string | null } | null>(null);
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
   const allMessages: ChatMessage[] = [WELCOME, ...chatHistory];

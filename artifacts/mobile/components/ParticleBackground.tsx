@@ -81,9 +81,9 @@ function Particle({ p, color }: { p: ParticleData; color: string }) {
           height: p.size,
           borderRadius: p.size / 2,
           backgroundColor: color,
+          pointerEvents: "none",
         },
       ]}
-      pointerEvents="none"
     />
   );
 }
@@ -120,7 +120,7 @@ export function ParticleBackground({
   );
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, styles.container]}>
       {particles.map((p) => (
         <Particle key={p.id} p={p} color={color} />
       ))}
@@ -129,5 +129,6 @@ export function ParticleBackground({
 }
 
 const styles = StyleSheet.create({
+  container: { pointerEvents: "none" },
   particle: { position: "absolute" },
 });

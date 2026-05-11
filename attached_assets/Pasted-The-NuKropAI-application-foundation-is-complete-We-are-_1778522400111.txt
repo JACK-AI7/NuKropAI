@@ -1,0 +1,122 @@
+The NuKropAI application foundation is complete.
+
+We are now in:
+PRODUCTION DEBUGGING + STABILIZATION PHASE.
+
+IMPORTANT:
+Do NOT regenerate the app.
+Do NOT redesign the UI.
+Do NOT replace architecture.
+Do NOT rewrite screens.
+
+Your task is ONLY:
+✔ detect broken functionality
+✔ fix bugs
+✔ stabilize interactions
+✔ improve production reliability
+
+===========================================================
+CURRENT ISSUES
+==============
+
+Some buttons, actions, and flows are not working correctly.
+
+Examples may include:
+
+* navigation buttons
+* scan buttons
+* voice controls
+* API actions
+* animated interactions
+* state updates
+* loading states
+* modal actions
+* gesture handling
+* analytics refresh
+* camera/gallery upload
+* chat send button
+* websocket updates
+
+===========================================================
+YOUR TASK
+=========
+
+Perform a COMPLETE production debugging pass.
+
+Systematically:
+
+1. Analyze ALL screens
+2. Test ALL buttons
+3. Test ALL navigation
+4. Test ALL API calls
+5. Test ALL animations
+6. Test ALL forms
+7. Test ALL loading states
+8. Test ALL async flows
+9. Test ALL voice interactions
+10. Test ALL scan workflows
+
+===========================================================
+DEBUGGING REQUIREMENTS
+======================
+
+Detect and fix:
+
+✔ broken imports
+✔ stale state bugs
+✔ missing handlers
+✔ navigation issues
+✔ async race conditions
+✔ unhandled promise errors
+✔ undefined access
+✔ API timeout issues
+✔ loading deadlocks
+✔ animation glitches
+✔ gesture conflicts
+✔ mobile responsiveness bugs
+✔ memory leaks
+✔ event listener leaks
+✔ invalid props
+✔ TypeScript errors
+✔ Expo runtime warnings
+
+===========================================================
+UI/UX REQUIREMENTS
+==================
+
+Preserve:
+✔ glassmorphism
+✔ animations
+✔ particle backgrounds
+✔ cinematic dashboard
+✔ premium styling
+✔ transitions
+✔ gradients
+✔ realtime feel
+
+Do NOT simplify the UI.
+
+===========================================================
+IMPORTANT ENGINEERING RULES
+===========================
+
+1. Continue from current repository state.
+2. NEVER regenerate working code.
+3. Fix ONE issue/system at a time.
+4. Validate TypeScript after every fix.
+5. Validate runtime behavior after every fix.
+6. Avoid introducing regressions.
+7. Keep architecture stable.
+
+===========================================================
+FIRST TASK
+==========
+
+Start by:
+
+1. scanning the entire app for broken buttons/actions
+2. identifying non-working interactions
+3. listing the root causes
+4. fixing the highest-priority runtime issues first
+
+Then continue incrementally until the app is production-stable.

@@ -79,10 +79,13 @@ function CountUpText({
   style?: object;
 }) {
   const [displayed, setDisplayed] = useState(0);
-  const hasRun = useRef(false);
+  const hasAnimated = useRef(false);
   useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
+    if (hasAnimated.current) {
+      setDisplayed(to);
+      return;
+    }
+    hasAnimated.current = true;
     const steps = 36;
     let i = 0;
     const interval = setInterval(() => {

@@ -1,0 +1,217 @@
+Continue the existing NuKropAI application.
+
+We are now entering:
+
+REALTIME INTELLIGENCE + LIVE FARMING DATA PHASE.
+
+IMPORTANT:
+Do NOT regenerate the app.
+Do NOT redesign the UI.
+Do NOT replace architecture.
+Continue from the CURRENT repository state only.
+
+Preserve:
+✔ existing UI
+✔ glassmorphism
+✔ animations
+✔ particle backgrounds
+✔ dashboard
+✔ chat system
+✔ scan system
+✔ voice system
+
+===========================================================
+PRIMARY OBJECTIVE
+=================
+
+Transform NuKropAI into a REALTIME intelligent agriculture platform with:
+
+✔ live weather
+✔ realtime alerts
+✔ live crop market prices
+✔ AI farming insights
+✔ disease outbreak alerts
+✔ rainfall alerts
+✔ irrigation alerts
+✔ realtime commodity trends
+✔ live agriculture intelligence
+
+===========================================================
+REALTIME WEATHER SYSTEM
+=======================
+
+Implement REAL weather APIs.
+
+Requirements:
+✔ automatic user location detection
+✔ GPS support
+✔ realtime weather
+✔ hourly forecast
+✔ 7-day forecast
+✔ humidity
+✔ rainfall chance
+✔ UV index
+✔ wind speed
+✔ sunrise/sunset
+✔ air quality
+✔ severe weather alerts
+
+Add:
+✔ animated weather cards
+✔ weather backgrounds
+✔ realtime updates
+✔ loading skeletons
+✔ weather widgets
+✔ live weather animations
+
+Use production-grade weather APIs.
+
+===========================================================
+REALTIME ALERTS SYSTEM
+======================
+
+Implement:
+✔ rainfall alerts
+✔ storm alerts
+✔ drought alerts
+✔ irrigation reminders
+✔ disease outbreak alerts
+✔ crop care reminders
+✔ fertilizer schedule alerts
+✔ market price alerts
+
+Add:
+✔ push notifications
+✔ realtime in-app alerts
+✔ animated notification center
+✔ websocket updates
+
+===========================================================
+LIVE CROP MARKET PRICES
+=======================
+
+Implement REAL agricultural market data.
+
+Requirements:
+✔ realtime crop prices
+✔ mandi market rates
+✔ regional market rates
+✔ price increase alerts
+✔ price drop alerts
+✔ historical charts
+✔ trend analytics
+✔ realtime updates
+✔ commodity comparisons
+
+Support:
+✔ rice
+✔ wheat
+✔ cotton
+✔ maize
+✔ tomato
+✔ onion
+✔ chilli
+✔ sunflower
+✔ sugarcane
+✔ regional crops
+
+Add:
+✔ animated charts
+✔ live tickers
+✔ realtime updates
+✔ trending crops section
+✔ profit insights
+
+===========================================================
+AI FARMING INTELLIGENCE
+=======================
+
+Implement:
+✔ AI crop suggestions
+✔ weather-based recommendations
+✔ irrigation intelligence
+✔ fertilizer timing intelligence
+✔ pest outbreak predictions
+✔ seasonal farming insights
+✔ regional farming recommendations
+
+===========================================================
+REALTIME ARCHITECTURE
+=====================
+
+Implement:
+✔ websocket live updates
+✔ realtime polling
+✔ smart caching
+✔ background refresh
+✔ offline fallback
+✔ optimistic updates
+✔ low bandwidth optimization
+
+===========================================================
+UI/UX REQUIREMENTS
+==================
+
+Continue premium cinematic UI.
+
+Add:
+✔ animated live data cards
+✔ glowing realtime indicators
+✔ market ticker animations
+✔ weather motion backgrounds
+✔ AI pulse indicators
+✔ animated charts
+✔ realtime graphs
+✔ notification animations
+
+The app should feel:
+
+* futuristic
+* intelligent
+* realtime
+* premium
+* alive
+
+===========================================================
+IMPORTANT ACCURACY NOTE
+=======================
+
+Use REAL APIs and REAL live data.
+
+Do NOT generate fake/random market prices.
+Do NOT generate fake weather data.
+Do NOT simulate alerts.
+
+If realtime data is unavailable:
+
+* show graceful fallback states
+* show loading states
+* show unavailable status
+
+Never hallucinate live data.
+
+===========================================================
+ENGINEERING RULES
+=================
+
+1. Continue from current repository state.
+2. Do NOT regenerate screens.
+3. Fix and extend incrementally.
+4. Validate all API integrations.
+5. Validate all realtime updates.
+6. Preserve animations and UI quality.
+7. Build production-grade realtime systems only.
+
+===========================================================
+FIRST TASK
+==========
+
+Implement:
+
+1. realtime weather integration
+2. live user location weather
+3. realtime crop market prices
+4. websocket-based live alerts
+5. animated live weather dashboard
+
+Generate real implementations only.
