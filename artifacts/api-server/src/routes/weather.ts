@@ -73,6 +73,7 @@ function buildFarmingTip(
 
 interface OpenMeteoResponse {
   current: {
+    time: string;
     temperature_2m: number;
     relative_humidity_2m: number;
     apparent_temperature: number;
@@ -119,7 +120,7 @@ weatherRouter.get("/weather", async (req: Request, res: Response) => {
     latitude: latitude.toFixed(4),
     longitude: longitude.toFixed(4),
     current:
-      "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index,precipitation,cloud_cover,surface_pressure",
+      "time,temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,uv_index,precipitation,cloud_cover,surface_pressure",
     daily:
       "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum,wind_speed_10m_max,precipitation_probability_max",
     hourly: "temperature_2m,precipitation_probability,weather_code,wind_speed_10m",
@@ -159,9 +160,12 @@ weatherRouter.get("/weather", async (req: Request, res: Response) => {
       uvMax: parseFloat((d.uv_index_max[i] ?? 0).toFixed(1)),
     }));
 
-    const nowHour = new Date().getHours();
-    const hourly = h.time.slice(nowHour, nowHour + 8).map((t, i) => {
-      const idx = nowHour + i;
+    const nowISO = c.time;
+    const nowHourIndex = h.time.findIndex((t) => t >= nowISO);
+    const startIdx = nowHourIndex >= 0 ? nowHourIndex : 0;
+
+    const hourly = h.time.slice(startIdx, startIdx + 8).map((t, i) => {
+      const idx = startIdx + i;
       const d = new Date(t);
       const label = i === 0 ? "Now" : d.toLocaleTimeString("en-IN", { hour: "numeric", hour12: true });
       return {

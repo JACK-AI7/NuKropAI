@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AppState, type AppStateStatus } from "react-native";
+import { useNavigation } from "expo-router";
+import { request } from "@/utils/api";
 import type { WeatherData } from "./useWeather";
-
-const API_BASE = process.env["EXPO_PUBLIC_DOMAIN"]
-  ? `https://${process.env["EXPO_PUBLIC_DOMAIN"]}`
-  : "";
 
 const POLL_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
 
@@ -26,6 +25,9 @@ export function useAlerts(
   const [alerts, setAlerts] = useState<FarmingAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
+  const navigation = useNavigation();
+  const [isFocused, setIsFocused] = useState(true);
+  const appState = useRef(AppState.currentState);
 
   // Keep latest values in refs so the stable load callback always reads fresh data
   const latRef = useRef(lat);
@@ -38,7 +40,7 @@ export function useAlerts(
   weatherRef.current = weather;
 
   // Stable callback — reads all live values from refs
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal?: AbortSignal) => {
     const w = weatherRef.current;
     const params: Record<string, string> = {
       lat: latRef.current.toFixed(4),
@@ -53,19 +55,28 @@ export function useAlerts(
       params["windSpeed"] = w.current.windSpeed.toString();
       params["uv"] = w.current.uvIndex.toString();
     }
+
     try {
       const qs = new URLSearchParams(params).toString();
-      const res = await fetch(`${API_BASE}/api/alerts?${qs}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = (await res.json()) as { alerts: FarmingAlert[] };
+      const data = await request<{ alerts: FarmingAlert[] }>(`/api/alerts?${qs}`, { signal });
       if (mountedRef.current) {
         setAlerts(data.alerts ?? []);
         setLoading(false);
       }
-    } catch (_) {
+    } catch (e: any) {
+      if (e.name === "AbortError" && signal?.aborted) return;
       if (mountedRef.current) setLoading(false);
     }
   }, []); // intentionally stable — all values come from refs
+
+  useEffect(() => {
+    const unsubFocus = navigation.addListener("focus", () => setIsFocused(true));
+    const unsubBlur = navigation.addListener("blur", () => setIsFocused(false));
+    return () => {
+      unsubFocus();
+      unsubBlur();
+    };
+  }, [navigation]);
 
   // Start polling once weather first becomes available
   const weatherReady = weather !== null;
@@ -73,13 +84,39 @@ export function useAlerts(
     mountedRef.current = true;
     if (!weatherReady) return;
 
-    load();
-    const id = setInterval(load, POLL_INTERVAL_MS);
+    const controller = new AbortController();
+
+    const startPolling = () => {
+      const id = setInterval(() => {
+        if (appState.current === "active" && mountedRef.current) {
+          load();
+        }
+      }, POLL_INTERVAL_MS);
+      return id;
+    };
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      appState.current = nextAppState;
+      if (nextAppState === "active" && isFocused) {
+        load();
+      }
+    };
+
+    const sub = AppState.addEventListener("change", handleAppStateChange);
+
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    if (isFocused) {
+      load(controller.signal);
+      intervalId = startPolling();
+    }
+
     return () => {
-      clearInterval(id);
+      controller.abort();
+      if (intervalId) clearInterval(intervalId);
+      sub.remove();
       mountedRef.current = false;
     };
-  }, [weatherReady, load]);
+  }, [weatherReady, load, isFocused]);
 
   return { alerts, loading, refresh: load };
 }

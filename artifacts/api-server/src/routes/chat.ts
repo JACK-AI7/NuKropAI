@@ -70,6 +70,10 @@ chatRouter.post("/chat", async (req: Request, res: Response) => {
         stream: true,
       });
 
+      req.on("close", () => {
+        stream.controller.abort();
+      });
+
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content;
         if (content) {

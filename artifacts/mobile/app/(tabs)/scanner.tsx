@@ -3,6 +3,7 @@ import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Image,
   Platform,
   ScrollView,
@@ -24,6 +25,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useApp } from "@/contexts/AppContext";
 import { ScanResultCard, type ScanResult } from "@/components/ScanResultCard";
+import { request } from "@/utils/api";
 
 function ScanRing({ size, delay, color }: { size: number; delay: number; color: string }) {
   const scale = useSharedValue(0.7);
@@ -180,19 +182,16 @@ export default function ScannerScreen() {
       resultY.value = 30;
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-      const base = process.env["EXPO_PUBLIC_DOMAIN"]
-        ? `https://${process.env["EXPO_PUBLIC_DOMAIN"]}`
-        : "";
+      const controller = new AbortController();
 
       try {
-        const res = await fetch(`${base}/api/scan`, {
+        const data = await request<ScanResult>("/api/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ imageBase64: base64 }),
+          signal: controller.signal,
         });
 
-        if (!res.ok) throw new Error("Scan failed");
-        const data = (await res.json()) as ScanResult;
         setIsScanning(false);
         showResult(data);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -206,22 +205,11 @@ export default function ScannerScreen() {
           severity: data.severity,
           timestamp: Date.now(),
         });
-      } catch (_) {
-        // Fallback to a mock result if API unavailable
-        await new Promise((r) => setTimeout(r, 1500));
-        const fallback = BASE_RESULTS[Math.floor(Math.random() * BASE_RESULTS.length)]!;
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
         setIsScanning(false);
-        showResult(fallback);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-        const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-        addScanRecord({
-          id,
-          imageUri: uri,
-          disease: fallback.disease,
-          confidence: fallback.confidence,
-          severity: fallback.severity,
-          timestamp: Date.now(),
-        });
+        setError(err.message || "AI Service temporarily unavailable. Please check your connection.");
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     },
     [addScanRecord, resultOpacity, resultY, showResult]
@@ -229,7 +217,13 @@ export default function ScannerScreen() {
 
   const pickImage = useCallback(async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return;
+    if (!perm.granted) {
+      Alert.alert(
+        "Permission Required",
+        "Please allow access to your photo library to upload crop images for analysis."
+      );
+      return;
+    }
     const picked = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       quality: 0.6,
@@ -244,7 +238,13 @@ export default function ScannerScreen() {
   const takePhoto = useCallback(async () => {
     if (Platform.OS === "web") { pickImage(); return; }
     const perm = await ImagePicker.requestCameraPermissionsAsync();
-    if (!perm.granted) return;
+    if (!perm.granted) {
+      Alert.alert(
+        "Permission Required",
+        "Please allow camera access to take photos of your crops for AI diagnosis."
+      );
+      return;
+    }
     const photo = await ImagePicker.launchCameraAsync({ quality: 0.6, base64: true });
     if (!photo.canceled && photo.assets[0]) {
       const { uri, base64 } = photo.assets[0];

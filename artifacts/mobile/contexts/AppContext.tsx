@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
+import { AppState, type AppStateStatus } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type Language = "en" | "hi" | "te";
@@ -28,7 +29,7 @@ export interface AIInsight {
   crop?: string;
 }
 
-interface AppState {
+interface GlobalState {
   farmerName: string;
   farmLocation: string;
   language: Language;
@@ -48,7 +49,7 @@ interface AppState {
   setLocation: (lat: number, lon: number, city: string) => void;
 }
 
-const AppContext = createContext<AppState | null>(null);
+const AppContext = createContext<GlobalState | null>(null);
 
 const DEFAULT_INSIGHTS: AIInsight[] = [
   {
@@ -98,7 +99,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const saved = await AsyncStorage.getItem("nukropai_state");
         if (saved) {
           const state = JSON.parse(saved) as Partial<
-            AppState & { scanHistory: ScanRecord[]; chatHistory: ChatMessage[] }
+            GlobalState & { scanHistory: ScanRecord[]; chatHistory: ChatMessage[] }
           >;
           if (state.farmerName) setFarmerNameState(state.farmerName);
           if (state.farmLocation) setFarmLocationState(state.farmLocation);
@@ -111,51 +112,57 @@ export function AppProvider({ children }: { children: ReactNode }) {
     load();
   }, []);
 
-  const saveState = async (updates: Record<string, unknown>) => {
+  // Persist state when relevant fields change (debounced)
+  const saveState = useCallback(async () => {
     try {
-      const current = await AsyncStorage.getItem("nukropai_state");
-      const state = current ? (JSON.parse(current) as Record<string, unknown>) : {};
-      await AsyncStorage.setItem(
-        "nukropai_state",
-        JSON.stringify({ ...state, ...updates }),
-      );
+      const stateToSave = {
+        farmerName,
+        farmLocation,
+        language,
+        scanHistory,
+        chatHistory,
+      };
+      await AsyncStorage.setItem("nukropai_state", JSON.stringify(stateToSave));
     } catch (_) {}
-  };
+  }, [farmerName, farmLocation, language, scanHistory, chatHistory]);
+
+  useEffect(() => {
+    const timer = setTimeout(saveState, 1000);
+    return () => clearTimeout(timer);
+  }, [saveState]);
+
+  // Also save when app goes to background
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (next: AppStateStatus) => {
+      if (next !== "active") {
+        saveState();
+      }
+    });
+    return () => sub.remove();
+  }, [saveState]);
 
   const setFarmerName = (name: string) => {
     setFarmerNameState(name);
-    saveState({ farmerName: name });
   };
 
   const setFarmLocation = (location: string) => {
     setFarmLocationState(location);
-    saveState({ farmLocation: location });
   };
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    saveState({ language: lang });
   };
 
   const addScanRecord = (record: ScanRecord) => {
-    setScanHistory((prev) => {
-      const next = [record, ...prev].slice(0, 50);
-      saveState({ scanHistory: next });
-      return next;
-    });
+    setScanHistory((prev) => [record, ...prev].slice(0, 50));
   };
 
   const addChatMessage = (msg: ChatMessage) => {
-    setChatHistory((prev) => {
-      const next = [...prev, msg].slice(-100);
-      saveState({ chatHistory: next });
-      return next;
-    });
+    setChatHistory((prev) => [...prev, msg].slice(-100));
   };
 
   const clearChatHistory = () => {
     setChatHistory([]);
-    saveState({ chatHistory: [] });
   };
 
   const setLocation = useCallback((newLat: number, newLon: number, city: string) => {

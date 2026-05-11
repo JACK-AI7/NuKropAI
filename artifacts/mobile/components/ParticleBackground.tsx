@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withRepeat,
   withSequence,
@@ -24,8 +25,15 @@ function Particle({ p, color }: { p: ParticleData; color: string }) {
   const tx = useSharedValue(0);
   const ty = useSharedValue(0);
   const op = useSharedValue(p.opacity * 0.2);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) {
+      tx.value = 0;
+      ty.value = 0;
+      op.value = p.opacity * 0.5;
+      return;
+    }
     tx.value = withRepeat(
       withSequence(
         withTiming(p.driftX, {
@@ -62,7 +70,7 @@ function Particle({ p, color }: { p: ParticleData; color: string }) {
       -1,
       false
     );
-  }, [op, p.driftX, p.driftY, p.duration, p.opacity, tx, ty]);
+  }, [op, p.driftX, p.driftY, p.duration, p.opacity, tx, ty, reducedMotion]);
 
   const s = useAnimatedStyle(() => ({
     transform: [{ translateX: tx.value }, { translateY: ty.value }],
@@ -95,7 +103,7 @@ const seed = (n: number) => {
 
 export function ParticleBackground({
   color = "#22C55E",
-  count = 14,
+  count = 10,
   width = 390,
   height = 800,
 }: {

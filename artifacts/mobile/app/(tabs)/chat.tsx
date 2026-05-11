@@ -25,6 +25,7 @@ import { useColors } from "@/hooks/useColors";
 import { useApp, type ChatMessage, type Language } from "@/contexts/AppContext";
 import { MessageBubble } from "@/components/MessageBubble";
 import { VoiceWaveform } from "@/components/VoiceWaveform";
+import { request } from "@/utils/api";
 
 const LANG_LABELS: Record<Language, string> = { en: "EN", hi: "हि", te: "తె" };
 
@@ -94,21 +95,8 @@ export default function ChatScreen() {
   }, []);
 
   const typewriterReveal = useCallback(
-    (id: string, fullText: string, ts: number) => {
-      let i = 0;
-      if (typingInterval.current) clearInterval(typingInterval.current);
-      setStreaming({ id, content: "", timestamp: ts });
-      typingInterval.current = setInterval(() => {
-        i += 2;
-        const displayed = fullText.slice(0, i);
-        setStreaming({ id, content: displayed, timestamp: ts });
-        if (i >= fullText.length) {
-          clearInterval(typingInterval.current!);
-          typingInterval.current = null;
-          setStreaming(null);
-          addChatMessage({ id, role: "assistant", content: fullText, timestamp: ts });
-        }
-      }, 16);
+    (id: string, text: string, ts: number) => {
+      addChatMessage({ id, role: "assistant", content: text, timestamp: ts });
     },
     [addChatMessage]
   );
@@ -131,6 +119,7 @@ export default function ChatScreen() {
 
       const aiId = (Date.now() + 1).toString() + Math.random().toString(36).substr(2, 9);
       const aiTs = Date.now();
+      const controller = new AbortController();
 
       try {
         const history = chatHistory
@@ -143,18 +132,60 @@ export default function ChatScreen() {
         const res = await fetch(`${base}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, language, history }),
+          body: JSON.stringify({ message: text, language, history, stream: true }),
+          signal: controller.signal,
         });
-        const data = (await res.json()) as { reply: string };
-        setIsLoading(false);
-        typewriterReveal(aiId, data.reply, aiTs);
-      } catch (_) {
-        setIsLoading(false);
+
+        if (!res.ok) throw new Error("Connection failed");
+
+        // Use streaming if available, else fallback to JSON
+        const reader = res.body?.getReader();
+        if (!reader) {
+          const data = (await res.json()) as { reply: string };
+          addChatMessage({ id: aiId, role: "assistant", content: data.reply, timestamp: aiTs });
+          setIsLoading(false);
+          return;
+        }
+
+        const decoder = new TextDecoder();
+        let accumulated = "";
+        setStreaming({ id: aiId, content: "", timestamp: aiTs });
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.content) {
+                  accumulated += data.content;
+                  setStreaming({ id: aiId, content: accumulated, timestamp: aiTs });
+                }
+                if (data.done) break;
+              } catch (e) {
+                // Ignore parse errors for incomplete JSON
+              }
+            }
+          }
+        }
+
+        addChatMessage({ id: aiId, role: "assistant", content: accumulated, timestamp: aiTs });
+        setStreaming(null);
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
         typewriterReveal(
           aiId,
           "I'm having trouble connecting right now. Please check your internet connection and try again.",
           aiTs
         );
+      } finally {
+        setIsLoading(false);
+        setStreaming(null);
       }
     },
     [input, isLoading, language, chatHistory, addChatMessage, typewriterReveal]
@@ -167,7 +198,14 @@ export default function ChatScreen() {
     }
     try {
       const { Audio } = await import("expo-av");
-      await Audio.requestPermissionsAsync();
+      const perm = await Audio.requestPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(
+          "Microphone Required",
+          "Please allow microphone access to use voice input for AI Chat."
+        );
+        return;
+      }
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
@@ -179,7 +217,7 @@ export default function ChatScreen() {
       setIsRecording(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch (_) {
-      Alert.alert("Microphone permission required", "Please allow microphone access in settings.");
+      Alert.alert("Microphone Error", "Could not initialize recording. Please try again.");
     }
   }, []);
 
@@ -199,14 +237,11 @@ export default function ChatScreen() {
         type: "audio/m4a",
         name: "recording.m4a",
       } as unknown as Blob);
-      const base = process.env["EXPO_PUBLIC_DOMAIN"]
-        ? `https://${process.env["EXPO_PUBLIC_DOMAIN"]}`
-        : "";
-      const res = await fetch(`${base}/api/voice`, {
+      
+      const data = await request<{ text: string }>("/api/voice", {
         method: "POST",
         body: formData,
       });
-      const data = (await res.json()) as { text: string };
       if (data.text?.trim()) {
         setInput((prev) => (prev ? `${prev} ${data.text}` : data.text));
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

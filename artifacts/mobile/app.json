@@ -14,9 +14,17 @@
       "backgroundColor": "#060C09"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.nukropai.app"
     },
-    "android": {},
+    "android": {
+      "package": "com.nukropai.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#060C09"
+      }
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },

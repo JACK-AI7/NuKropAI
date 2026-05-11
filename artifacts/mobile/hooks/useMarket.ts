@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-
-const API_BASE = process.env["EXPO_PUBLIC_DOMAIN"]
-  ? `https://${process.env["EXPO_PUBLIC_DOMAIN"]}`
-  : "";
+import { AppState, type AppStateStatus } from "react-native";
+import { useNavigation } from "expo-router";
+import { request } from "@/utils/api";
 
 const POLL_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
 
@@ -36,35 +35,88 @@ export function useMarket(region: string) {
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedRef = useRef(true);
+  const navigation = useNavigation();
+  const [isFocused, setIsFocused] = useState(true);
+  const appState = useRef(AppState.currentState);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/market?region=${encodeURIComponent(region)}`,
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = (await res.json()) as MarketData;
-      if (mountedRef.current) {
-        setMarket(data);
-        setError(null);
+  const load = useCallback(async (signal?: AbortSignal) => {
+    let delay = 2000;
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        const data = await request<MarketData>(
+          `/api/market?region=${encodeURIComponent(region)}`,
+          { signal }
+        );
+        if (mountedRef.current) {
+          setMarket(data);
+          setError(null);
+        }
+        return; // Success
+      } catch (e: any) {
+        if (e.name === "AbortError" && signal?.aborted) return;
+        attempts++;
+        if (attempts >= maxAttempts) {
+          if (mountedRef.current) setError(e.message || "Market data temporarily unavailable");
+          break;
+        }
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2;
+      } finally {
+        if (mountedRef.current && (attempts >= maxAttempts || attempts === 0)) {
+          setLoading(false);
+        }
       }
-    } catch (_) {
-      if (mountedRef.current) setError("Market data temporarily unavailable");
-    } finally {
-      if (mountedRef.current) setLoading(false);
     }
   }, [region]);
 
   useEffect(() => {
+    const unsubFocus = navigation.addListener("focus", () => setIsFocused(true));
+    const unsubBlur = navigation.addListener("blur", () => setIsFocused(false));
+    return () => {
+      unsubFocus();
+      unsubBlur();
+    };
+  }, [navigation]);
+
+  useEffect(() => {
     mountedRef.current = true;
-    setLoading(true);
-    load();
-    intervalRef.current = setInterval(load, POLL_INTERVAL_MS);
+    const controller = new AbortController();
+
+    const startPolling = () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = setInterval(() => {
+        if (appState.current === "active" && mountedRef.current) {
+          load();
+        }
+      }, POLL_INTERVAL_MS);
+    };
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      appState.current = nextAppState;
+      if (nextAppState === "active" && isFocused) {
+        load();
+      }
+    };
+
+    const sub = AppState.addEventListener("change", handleAppStateChange);
+
+    if (isFocused) {
+      setLoading(true);
+      load(controller.signal);
+      startPolling();
+    }
+
     return () => {
       mountedRef.current = false;
+      controller.abort();
+      sub.remove();
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [load]);
+  }, [load, isFocused]);
 
   return { market, loading, error, refresh: load };
 }

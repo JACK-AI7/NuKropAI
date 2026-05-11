@@ -22,6 +22,7 @@ import { useApp } from "@/contexts/AppContext";
 import { useMarket } from "@/hooks/useMarket";
 import { GlassCard } from "@/components/GlassCard";
 import { MarketCard } from "@/components/MarketCard";
+import { request } from "@/utils/api";
 
 const FALLBACK_DISEASES = [
   { name: "Early Blight", pct: 40, color: "#FF453A" },
@@ -228,10 +229,7 @@ export default function AnalyticsScreen() {
     const fetchRec = async () => {
       setAiLoading(true);
       try {
-        const base = process.env["EXPO_PUBLIC_DOMAIN"]
-          ? `https://${process.env["EXPO_PUBLIC_DOMAIN"]}`
-          : "";
-        const res = await fetch(`${base}/api/chat`, {
+        const data = await request<{ reply: string }>("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -240,7 +238,6 @@ export default function AnalyticsScreen() {
             history: [],
           }),
         });
-        const data = (await res.json()) as { reply: string };
         setAiRec(data.reply);
       } catch (_) {
         setAiRec(
