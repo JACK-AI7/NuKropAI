@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState, type AppStateStatus } from "react-native";
 import { useNavigation } from "expo-router";
 import { request } from "@/utils/api";
+import { useApp } from "@/contexts/AppContext";
+import { getNearbyMarkets } from "@/utils/mandi";
 
 const POLL_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
 
@@ -27,6 +29,7 @@ export interface MarketData {
   topLoser: string;
   region: string;
   updatedAt: string;
+  nearbyMandis?: { name: string; distance: number; price: number; crop: string }[];
 }
 
 export function useMarket(region: string) {
@@ -38,6 +41,7 @@ export function useMarket(region: string) {
   const navigation = useNavigation();
   const [isFocused, setIsFocused] = useState(true);
   const appState = useRef(AppState.currentState);
+  const { lat, lon } = useApp();
 
   const load = useCallback(async (signal?: AbortSignal) => {
     let delay = 2000;
@@ -50,8 +54,18 @@ export function useMarket(region: string) {
           `/api/market?region=${encodeURIComponent(region)}`,
           { signal }
         );
+
+        // Enrich with local mandi data
+        const localMandis = getNearbyMarkets(lat, lon);
+        const enrichedMandis = localMandis.slice(0, 3).map(m => ({
+          name: m.name,
+          distance: m.distance,
+          price: m.crops[0]?.price || 0,
+          crop: m.crops[0]?.name || ""
+        }));
+
         if (mountedRef.current) {
-          setMarket(data);
+          setMarket({ ...data, nearbyMandis: enrichedMandis });
           setError(null);
         }
         return; // Success

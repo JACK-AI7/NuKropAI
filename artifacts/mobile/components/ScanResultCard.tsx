@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useColors } from "@/hooks/useColors";
+import { getTreatmentsForDisease } from "@/utils/treatments";
 
 export interface ScanResult {
   disease: string;
@@ -84,9 +85,52 @@ export function ScanResultCard({ result }: { result: ScanResult }) {
         </View>
       )}
 
-      {result.treatments.length > 0 && (
+      {/* Real Product Recommendations */}
+      {(() => {
+        const productInfo = getTreatmentsForDisease(result.disease);
+        if (!productInfo) return null;
+
+        return (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+              Recommended Products
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.productsScroll}>
+              {productInfo.products.map((p, i) => (
+                <View key={i} style={[styles.productCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                  <View style={styles.productHeader}>
+                    <View style={[styles.typeBadge, { backgroundColor: p.type === "Organic" ? "#22C55E20" : colors.primary + "20" }]}>
+                      <Text style={[styles.typeText, { color: p.type === "Organic" ? "#22C55E" : colors.primary }]}>
+                        {p.type.toUpperCase()}
+                      </Text>
+                    </View>
+                    <Ionicons name="cart" size={16} color={colors.mutedForeground} />
+                  </View>
+                  <Text style={[styles.productName, { color: colors.foreground }]}>{p.name}</Text>
+                  <Text style={[styles.productActive, { color: colors.mutedForeground }]}>{p.activeIngredient}</Text>
+                  
+                  <View style={[styles.productDetail, { borderTopColor: colors.border }]}>
+                    <Ionicons name="flask-outline" size={12} color={colors.primary} />
+                    <Text style={[styles.detailText, { color: colors.foreground }]}>{p.dosage}</Text>
+                  </View>
+                  <View style={styles.productDetail}>
+                    <Ionicons name="time-outline" size={12} color={colors.accent} />
+                    <Text style={[styles.detailText, { color: colors.foreground }]}>{p.timing}</Text>
+                  </View>
+                  <View style={[styles.safetyBox, { backgroundColor: "#FF453A10" }]}>
+                    <Ionicons name="shield-checkmark" size={10} color="#FF453A" />
+                    <Text style={styles.safetyText}>{p.safety}</Text>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        );
+      })()}
+
+      {result.treatments.length > 0 && !getTreatmentsForDisease(result.disease) && (
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Treatments</Text>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>General Treatments</Text>
           {result.treatments.map((t, i) => (
             <View key={i} style={styles.listItem}>
               <Ionicons name="flask" size={15} color={colors.accent} />
@@ -139,4 +183,21 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 14, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
   listItem: { flexDirection: "row", gap: 8, alignItems: "flex-start" },
   listText: { fontSize: 13, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 18 },
+  productsScroll: { gap: 12, paddingRight: 16 },
+  productCard: { 
+    width: 220, 
+    padding: 12, 
+    borderRadius: 14, 
+    borderWidth: 1,
+    gap: 8,
+  },
+  productHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  typeBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  typeText: { fontSize: 8, fontWeight: "800", fontFamily: "Inter_800ExtraBold" },
+  productName: { fontSize: 15, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  productActive: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: -4 },
+  productDetail: { flexDirection: "row", alignItems: "center", gap: 6, paddingTop: 8, borderTopWidth: 1 },
+  detailText: { fontSize: 12, fontFamily: "Inter_500Medium", flex: 1 },
+  safetyBox: { flexDirection: "row", gap: 6, padding: 8, borderRadius: 8 },
+  safetyText: { fontSize: 10, fontFamily: "Inter_400Regular", color: "#FF453A", flex: 1 },
 });

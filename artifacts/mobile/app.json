@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "NuKropAI",
-    "slug": "mobile",
+    "slug": "nukropai-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "nukropai",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,12 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.nukropai.app"
+      "bundleIdentifier": "com.nukropai.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "NuKropAI needs camera access to scan crops for diseases.",
+        "NSLocationWhenInUseUsageDescription": "NuKropAI needs location access to provide local weather and market prices.",
+        "NSPhotoLibraryUsageDescription": "NuKropAI needs access to photos to analyze previously taken crop images."
+      }
     },
     "android": {
       "package": "com.nukropai.app",
@@ -23,7 +28,27 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#060C09"
-      }
+      },
+      "permissions": [
+        "CAMERA",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "nukropai"
+          },
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/images/icon.png"
@@ -32,15 +57,23 @@
       [
         "expo-router",
         {
-          "origin": "https://replit.com/"
+          "origin": "https://nukrop.ai/"
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-notifications",
+      "expo-location",
+      "expo-image-picker",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/firestore",
+      "@react-native-firebase/storage",
+      "@react-native-firebase/crashlytics",
+      "@react-native-firebase/analytics"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
     }
   }
 }

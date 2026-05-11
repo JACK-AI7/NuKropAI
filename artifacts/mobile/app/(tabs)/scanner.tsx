@@ -22,10 +22,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useColors } from "@/hooks/useColors";
 import { useApp } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { storage } from "@/utils/firebase";
 import { ScanResultCard, type ScanResult } from "@/components/ScanResultCard";
 import { request } from "@/utils/api";
+import { logEvent } from "@/utils/analytics";
 
 function ScanRing({ size, delay, color }: { size: number; delay: number; color: string }) {
   const scale = useSharedValue(0.7);
@@ -150,6 +154,7 @@ export default function ScannerScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { addScanRecord } = useApp();
+  const { user } = useAuth();
   const topPad = Platform.OS === "web" ? 67 : insets.top + 10;
 
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -157,6 +162,7 @@ export default function ScannerScreen() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [containerHeight, setContainerHeight] = useState(0);
+  const lastBase64 = useRef<string | null>(null);
 
   const resultOpacity = useSharedValue(0);
   const resultY = useSharedValue(30);
@@ -175,6 +181,7 @@ export default function ScannerScreen() {
   const runScan = useCallback(
     async (uri: string, base64: string) => {
       setImageUri(uri);
+      lastBase64.current = base64;
       setIsScanning(true);
       setResult(null);
       setError(null);
@@ -185,12 +192,30 @@ export default function ScannerScreen() {
       const controller = new AbortController();
 
       try {
-        const data = await request<ScanResult>("/api/scan", {
+        // Parallel: API Scan + Cloud Upload (if authenticated)
+        const scanPromise = request<ScanResult>("/api/scan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ imageBase64: base64 }),
           signal: controller.signal,
         });
+
+        let cloudUrl = uri;
+        if (user) {
+          try {
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            const imageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            const storageRef = ref(storage, `scans/${user.uid}/${imageId}.jpg`);
+            await uploadBytes(storageRef, blob);
+            cloudUrl = await getDownloadURL(storageRef);
+          } catch (storageErr) {
+            console.error("Cloud storage upload failed:", storageErr);
+            // Fallback to local URI if cloud upload fails
+          }
+        }
+
+        const data = await scanPromise;
 
         setIsScanning(false);
         showResult(data);
@@ -199,11 +224,19 @@ export default function ScannerScreen() {
         const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
         addScanRecord({
           id,
-          imageUri: uri,
+          imageUri: cloudUrl,
           disease: data.disease,
           confidence: data.confidence,
           severity: data.severity,
           timestamp: Date.now(),
+        });
+
+        // Log analytics
+        logEvent(user?.uid, "scan", {
+          disease: data.disease,
+          confidence: data.confidence,
+          severity: data.severity,
+          isHealthy: data.isHealthy,
         });
       } catch (err: any) {
         if (err.name === "AbortError") return;
@@ -212,7 +245,7 @@ export default function ScannerScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     },
-    [addScanRecord, resultOpacity, resultY, showResult]
+    [addScanRecord, resultOpacity, resultY, showResult, user]
   );
 
   const pickImage = useCallback(async () => {
@@ -340,8 +373,16 @@ export default function ScannerScreen() {
 
         {error && (
           <View style={[styles.errorBox, { backgroundColor: "#FF453A15", borderColor: "#FF453A30" }]}>
-            <Ionicons name="warning" size={16} color="#FF453A" />
-            <Text style={[styles.errorText, { color: "#FF453A" }]}>{error}</Text>
+            <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <Ionicons name="warning" size={16} color="#FF453A" />
+              <Text style={[styles.errorText, { color: "#FF453A" }]}>{error}</Text>
+            </View>
+            <TouchableOpacity 
+              onPress={() => lastBase64.current && runScan(imageUri!, lastBase64.current)}
+              style={[styles.retryBtn, { backgroundColor: colors.primary }]}
+            >
+              <Text style={styles.retryText}>Retry</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -444,4 +485,6 @@ const styles = StyleSheet.create({
     padding: 12, borderRadius: 10, borderWidth: 1, marginTop: 16,
   },
   errorText: { fontSize: 13, fontFamily: "Inter_400Regular", flex: 1 },
+  retryBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  retryText: { fontSize: 12, fontWeight: "700", fontFamily: "Inter_700Bold", color: "#000" },
 });

@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useApp, type Language } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { GlassCard } from "@/components/GlassCard";
 
 const LANGS: { key: Language; label: string; native: string }[] = [
@@ -57,6 +59,7 @@ function Row({
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { user, logout, isAdmin } = useAuth();
   const {
     farmerName,
     farmLocation,
@@ -66,6 +69,8 @@ export default function ProfileScreen() {
     setLanguage,
     scanHistory,
     clearChatHistory,
+    notificationPrefs,
+    updateNotificationPrefs,
   } = useApp();
   const topPad = Platform.OS === "web" ? 67 : insets.top + 10;
   const [editName, setEditName] = useState(false);
@@ -188,6 +193,46 @@ export default function ProfileScreen() {
           </View>
         </GlassCard>
 
+        <Text style={[styles.section, { color: colors.mutedForeground }]}>Cloud Platform</Text>
+        <GlassCard style={{ marginBottom: 16 }}>
+          <View style={styles.cloudRow}>
+            <View style={[styles.cloudStatus, { backgroundColor: user ? "#22C55E15" : "#F59E0B15" }]}>
+              <Ionicons 
+                name={user ? "cloud-done" : "cloud-offline"} 
+                size={22} 
+                color={user ? colors.primary : "#F59E0B"} 
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.cloudTitle, { color: colors.foreground }]}>
+                {user ? "Cloud Sync Active" : "Local Storage Only"}
+              </Text>
+              <Text style={[styles.cloudSub, { color: colors.mutedForeground }]}>
+                {user ? `Signed in as ${user.email || user.phoneNumber || "Farmer"}` : "Sign in to backup scans and sync across devices"}
+              </Text>
+            </View>
+          </View>
+          
+          {user ? (
+            <TouchableOpacity 
+              style={[styles.authBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onPress={() => logout()}
+            >
+              <Text style={[styles.authBtnText, { color: colors.foreground }]}>Sign Out</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.authButtons}>
+              <TouchableOpacity 
+                style={[styles.authBtn, { backgroundColor: colors.primary }]}
+                onPress={() => Alert.alert("Authentication", "In a real environment, this would launch the Google Sign-In flow.")}
+              >
+                <Ionicons name="logo-google" size={18} color="#000" />
+                <Text style={styles.authBtnTextDark}>Sign in with Google</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </GlassCard>
+
         <Text style={[styles.section, { color: colors.mutedForeground }]}>Language</Text>
         <GlassCard style={{ marginBottom: 16 }} padding={0}>
           {LANGS.map((opt, i) => (
@@ -218,9 +263,63 @@ export default function ProfileScreen() {
           ))}
         </GlassCard>
 
+        <Text style={[styles.section, { color: colors.mutedForeground }]}>Notification Preferences</Text>
+        <GlassCard padding={0} style={{ marginBottom: 16 }}>
+          {[
+            { key: "weather", label: "Weather Alerts", icon: "cloud-outline" },
+            { key: "disease", label: "Disease Outbreaks", icon: "bug-outline" },
+            { key: "market", label: "Market Prices", icon: "stats-chart-outline" },
+            { key: "reminders", label: "Irrigation Reminders", icon: "water-outline" },
+          ].map((pref, i) => (
+            <TouchableOpacity
+              key={pref.key}
+              style={[
+                styles.prefRow,
+                { borderBottomWidth: i < 3 ? 1 : 0, borderBottomColor: colors.border },
+              ]}
+              onPress={() => {
+                updateNotificationPrefs({ [pref.key]: !notificationPrefs[pref.key as keyof typeof notificationPrefs] });
+                Haptics.selectionAsync();
+              }}
+            >
+              <View style={[styles.rowIcon, { backgroundColor: colors.primary + "18" }]}>
+                <Ionicons name={pref.icon as any} size={18} color={colors.primary} />
+              </View>
+              <Text style={[styles.rowLabel, { color: colors.foreground }]}>{pref.label}</Text>
+              <View 
+                style={[
+                  styles.toggle, 
+                  { 
+                    backgroundColor: notificationPrefs[pref.key as keyof typeof notificationPrefs] 
+                      ? colors.primary 
+                      : colors.border 
+                  }
+                ]}
+              >
+                <View 
+                  style={[
+                    styles.toggleDot, 
+                    { 
+                      transform: [{ translateX: notificationPrefs[pref.key as keyof typeof notificationPrefs] ? 14 : 0 }],
+                      backgroundColor: notificationPrefs[pref.key as keyof typeof notificationPrefs] ? "#000" : colors.mutedForeground
+                    }
+                  ]} 
+                />
+              </View>
+            </TouchableOpacity>
+          ))}
+        </GlassCard>
+
         <Text style={[styles.section, { color: colors.mutedForeground }]}>Settings</Text>
         <GlassCard padding={0}>
-          <Row icon="notifications" label="AI Notifications" value="On" />
+          {isAdmin && (
+            <Row 
+              icon="shield-half" 
+              label="Platform Admin" 
+              onPress={() => router.push("/admin")} 
+              color={colors.accent}
+            />
+          )}
           <Row icon="wifi" label="Offline Mode" value="Coming Soon" />
           <Row
             icon="chatbubble-ellipses"
@@ -286,4 +385,24 @@ const styles = StyleSheet.create({
   rowIcon: { width: 34, height: 34, borderRadius: 10, justifyContent: "center", alignItems: "center" },
   rowLabel: { flex: 1, fontSize: 15, fontFamily: "Inter_400Regular" },
   rowValue: { fontSize: 13, fontFamily: "Inter_400Regular" },
+  cloudRow: { flexDirection: "row", alignItems: "center", gap: 16, marginBottom: 16 },
+  cloudStatus: { width: 44, height: 44, borderRadius: 22, justifyContent: "center", alignItems: "center" },
+  cloudTitle: { fontSize: 16, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
+  cloudSub: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 2, lineHeight: 16 },
+  authButtons: { gap: 10 },
+  authBtn: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    justifyContent: "center", 
+    gap: 8, 
+    paddingVertical: 12, 
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "transparent"
+  },
+  authBtnText: { fontSize: 14, fontWeight: "600", fontFamily: "Inter_600SemiBold" },
+  authBtnTextDark: { fontSize: 14, fontWeight: "600", fontFamily: "Inter_600SemiBold", color: "#000" },
+  prefRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 14, paddingHorizontal: 16 },
+  toggle: { width: 34, height: 20, borderRadius: 10, padding: 3, justifyContent: "center" },
+  toggleDot: { width: 14, height: 14, borderRadius: 7 },
 });

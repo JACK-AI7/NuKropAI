@@ -64,7 +64,7 @@ marketRouter.get("/market", async (req: Request, res: Response) => {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-5-mini",
+      model: "gpt-4o-mini",
       max_completion_tokens: 1400,
       messages: [
         {

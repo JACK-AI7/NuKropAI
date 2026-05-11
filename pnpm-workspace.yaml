@@ -11,24 +11,24 @@ catalog:
   '@replit/vite-plugin-dev-banner': ^0.1.1
   '@replit/vite-plugin-runtime-error-modal': ^0.0.6
   '@tailwindcss/vite': ^4.1.14
-  '@tanstack/react-query': ^5.90.21
-  '@types/node': 25.3.5
-  '@types/react': ^19.2.0
-  '@types/react-dom': ^19.2.0
-  '@vitejs/plugin-react': ^5.0.4
+  '@tanstack/react-query': ^5.62.0
+  '@types/node': 20.12.12
+  '@types/react': ^18.3.1
+  '@types/react-dom': ^18.3.0
+  '@vitejs/plugin-react': ^4.3.3
   class-variance-authority: ^0.7.1
   clsx: ^2.1.1
-  drizzle-orm: ^0.45.2
-  framer-motion: ^12.23.24
-  lucide-react: ^0.545.0
-  react: 19.1.0
-  react-dom: 19.1.0
-  tailwind-merge: ^3.3.1
-  tailwindcss: ^4.1.14
-  tsx: ^4.21.0
-  vite: ^7.3.2
+  drizzle-orm: ^0.36.2
+  framer-motion: ^11.11.17
+  lucide-react: ^0.460.0
+  react: 18.3.1
+  react-dom: 18.3.1
+  tailwind-merge: ^2.5.4
+  tailwindcss: ^3.4.15
+  tsx: ^4.19.2
+  vite: ^5.4.11
   wouter: ^3.3.5
-  zod: ^3.25.76
+  zod: ^3.23.8
 
 minimumReleaseAge: 1440
 
@@ -37,9 +37,11 @@ minimumReleaseAgeExclude:
   - stripe-replit-sync
 
 onlyBuiltDependencies:
+  - '@firebase/util'
   - '@swc/core'
   - esbuild
   - msw
+  - protobufjs
   - unrs-resolver
 
 overrides:

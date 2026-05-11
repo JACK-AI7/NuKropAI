@@ -23,9 +23,11 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useApp, type ChatMessage, type Language } from "@/contexts/AppContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { MessageBubble } from "@/components/MessageBubble";
 import { VoiceWaveform } from "@/components/VoiceWaveform";
 import { request } from "@/utils/api";
+import { logEvent } from "@/utils/analytics";
 
 const LANG_LABELS: Record<Language, string> = { en: "EN", hi: "हि", te: "తె" };
 
@@ -72,7 +74,17 @@ function RecordingPulse({ color }: { color: string }) {
 export default function ChatScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { language, setLanguage, chatHistory, addChatMessage } = useApp();
+  const { user } = useAuth();
+  const { 
+    language, 
+    setLanguage, 
+    chatHistory, 
+    addChatMessage,
+    farmerName,
+    farmLocation,
+    cropsGrown,
+    scanHistory
+  } = useApp();
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [streaming, setStreaming] = useState<{ id: string; content: string; timestamp: number } | null>(null);
@@ -125,6 +137,16 @@ export default function ChatScreen() {
         const history = chatHistory
           .slice(-12)
           .map((m) => ({ role: m.role, content: m.content }));
+        
+        // Context Enrichment
+        const userContext = {
+          farmerName,
+          location: farmLocation,
+          crops: cropsGrown,
+          recentDiseases: scanHistory.slice(0, 5).map(s => s.disease),
+          language,
+        };
+
         const base = process.env["EXPO_PUBLIC_DOMAIN"]
           ? `https://${process.env["EXPO_PUBLIC_DOMAIN"]}`
           : "";
@@ -132,7 +154,13 @@ export default function ChatScreen() {
         const res = await fetch(`${base}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, language, history, stream: true }),
+          body: JSON.stringify({ 
+            message: text, 
+            language, 
+            history, 
+            stream: true,
+            context: userContext // Added context for personalization
+          }),
           signal: controller.signal,
         });
 
@@ -176,6 +204,9 @@ export default function ChatScreen() {
 
         addChatMessage({ id: aiId, role: "assistant", content: accumulated, timestamp: aiTs });
         setStreaming(null);
+
+        // Log analytics
+        logEvent(user?.uid, "chat", { messageLength: text.length, language });
       } catch (err: any) {
         if (err.name === "AbortError") return;
         typewriterReveal(

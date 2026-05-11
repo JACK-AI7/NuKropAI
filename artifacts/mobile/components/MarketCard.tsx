@@ -253,6 +253,31 @@ export function MarketCard({
         ))
       )}
 
+      {/* Nearby Mandis */}
+      {market?.nearbyMandis && market.nearbyMandis.length > 0 && (
+        <View style={styles.nearbySection}>
+          <Text style={[styles.nearbyTitle, { color: colors.foreground }]}>Nearby Markets</Text>
+          {market.nearbyMandis.map((m, i) => (
+            <View key={i} style={[styles.nearbyRow, { borderBottomColor: colors.border, borderBottomWidth: i < 2 ? 1 : 0 }]}>
+              <View style={styles.nearbyInfo}>
+                <Text style={[styles.nearbyName, { color: colors.foreground }]}>{m.name}</Text>
+                <Text style={[styles.nearbyDist, { color: colors.mutedForeground }]}>{m.distance} km away</Text>
+              </View>
+              <View style={styles.nearbyPrice}>
+                <Text style={[styles.nearbyPriceVal, { color: colors.primary }]}>₹{m.price.toLocaleString("en-IN")}</Text>
+                <Text style={[styles.nearbyCrop, { color: colors.mutedForeground }]}>{m.crop}</Text>
+              </View>
+            </View>
+          ))}
+          <View style={[styles.sellingTip, { backgroundColor: colors.primary + "10" }]}>
+            <Ionicons name="bulb" size={14} color={colors.primary} />
+            <Text style={[styles.tipText, { color: colors.foreground }]}>
+              Selling at <Text style={{ fontWeight: "700" }}>{market.nearbyMandis[0].name}</Text> could save you 15% in transport costs.
+            </Text>
+          </View>
+        </View>
+      )}
+
       {/* Footer */}
       {market && (
         <View style={styles.footer}>
@@ -398,4 +423,15 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     marginTop: 4,
   },
+  nearbySection: { marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: "#ffffff10" },
+  nearbyTitle: { fontSize: 13, fontWeight: "700", fontFamily: "Inter_700Bold", marginBottom: 12 },
+  nearbyRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 10 },
+  nearbyInfo: { gap: 2 },
+  nearbyName: { fontSize: 13, fontWeight: "500", fontFamily: "Inter_500Medium" },
+  nearbyDist: { fontSize: 10, fontFamily: "Inter_400Regular" },
+  nearbyPrice: { alignItems: "flex-end", gap: 2 },
+  nearbyPriceVal: { fontSize: 14, fontWeight: "700", fontFamily: "Inter_700Bold" },
+  nearbyCrop: { fontSize: 10, fontFamily: "Inter_500Medium" },
+  sellingTip: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12, padding: 10, borderRadius: 10 },
+  tipText: { fontSize: 11, fontFamily: "Inter_400Regular", flex: 1, lineHeight: 16 },
 });

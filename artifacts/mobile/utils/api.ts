@@ -14,29 +14,55 @@ export interface RequestOptions extends RequestInit {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { timeout = 10000, ...fetchOptions } = options;
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  const { timeout = 12000, ...fetchOptions } = options;
+  const maxRetries = 3;
+  let lastError: any;
 
-  try {
-    const url = path.startsWith("http") ? path : `${API_BASE}${path}`;
-    const response = await fetch(url, {
-      ...fetchOptions,
-      signal: controller.signal,
-    });
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-    clearTimeout(timeoutId);
+    try {
+      const url = path.startsWith("http") ? path : `${API_BASE}${path}`;
+      const response = await fetch(url, {
+        ...fetchOptions,
+        headers: {
+          "Content-Type": "application/json",
+          ...fetchOptions.headers,
+        },
+        signal: options.signal || controller.signal,
+      });
 
-    if (!response.ok) {
-      throw new ApiError(response.status, `HTTP ${response.status}: ${response.statusText}`);
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status >= 500 && attempt < maxRetries - 1) {
+          // Retry on server errors
+          const delay = Math.pow(2, attempt) * 1000;
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        throw new ApiError(response.status, `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return (await response.json()) as T;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      lastError = error;
+
+      if (error.name === "AbortError" && attempt < maxRetries - 1) {
+        const delay = Math.pow(2, attempt) * 500;
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+      
+      if (attempt === maxRetries - 1) {
+        if (error.name === "AbortError") {
+          throw new Error("Request timed out. Please check your connection.");
+        }
+        throw error;
+      }
     }
-
-    return (await response.json()) as T;
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-    if (error.name === "AbortError") {
-      throw new Error("Request timed out. Please check your connection.");
-    }
-    throw error;
   }
+  throw lastError;
 }

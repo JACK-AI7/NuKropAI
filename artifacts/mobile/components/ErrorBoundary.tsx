@@ -1,5 +1,6 @@
 import React, { Component, ComponentType, PropsWithChildren } from "react";
 
+import crashlytics from "@react-native-firebase/crashlytics";
 import { ErrorFallback, ErrorFallbackProps } from "@/components/ErrorFallback";
 
 export type ErrorBoundaryProps = PropsWithChildren<{
@@ -30,6 +31,7 @@ export class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, info: { componentStack: string }): void {
+    crashlytics().recordError(error);
     if (typeof this.props.onError === "function") {
       this.props.onError(error, info.componentStack);
     }

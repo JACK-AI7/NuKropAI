@@ -64,7 +64,7 @@ chatRouter.post("/chat", async (req: Request, res: Response) => {
       res.setHeader("X-Accel-Buffering", "no");
 
       const stream = await openai.chat.completions.create({
-        model: "gpt-5-mini",
+        model: "gpt-4o-mini",
         max_completion_tokens: 512,
         messages,
         stream: true,
@@ -84,7 +84,7 @@ chatRouter.post("/chat", async (req: Request, res: Response) => {
       res.end();
     } else {
       const completion = await openai.chat.completions.create({
-        model: "gpt-5-mini",
+        model: "gpt-4o-mini",
         max_completion_tokens: 512,
         messages,
       });

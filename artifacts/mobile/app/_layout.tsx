@@ -16,6 +16,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { setBaseUrl } from "@workspace/api-client-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider } from "@/contexts/AppContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 if (typeof Appearance.setColorScheme === "function") {
   Appearance.setColorScheme("dark");
@@ -29,10 +30,23 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+import { useRouter } from "expo-router";
+import { useApp } from "@/contexts/AppContext";
+
 function RootLayoutNav() {
+  const { hasSeenOnboarding } = useApp();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!hasSeenOnboarding) {
+      router.replace("/onboarding");
+    }
+  }, [hasSeenOnboarding, router]);
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding" options={{ presentation: "fullScreenModal" }} />
     </Stack>
   );
 }
@@ -59,9 +73,11 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <KeyboardProvider>
-              <AppProvider>
-                <RootLayoutNav />
-              </AppProvider>
+              <AuthProvider>
+                <AppProvider>
+                  <RootLayoutNav />
+                </AppProvider>
+              </AuthProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
         </QueryClientProvider>
