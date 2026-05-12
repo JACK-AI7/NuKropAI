@@ -7,7 +7,10 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true
   },
   "include": [
     "**/*.ts",

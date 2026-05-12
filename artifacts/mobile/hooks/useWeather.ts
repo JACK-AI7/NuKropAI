@@ -11,6 +11,8 @@ export interface WeatherCurrent {
   humidity: number;
   windSpeed: number;
   uvIndex: number;
+  rain: number;
+  farmingTip: string;
   precipitation: number;
   cloudCover: number;
   pressure: number;

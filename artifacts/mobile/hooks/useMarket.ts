@@ -41,7 +41,9 @@ export function useMarket(region: string) {
   const navigation = useNavigation();
   const [isFocused, setIsFocused] = useState(true);
   const appState = useRef(AppState.currentState);
-  const { lat, lon } = useApp();
+  const { farms, activeFarmId } = useApp();
+  const activeFarm = farms.find(f => f.id === activeFarmId) || farms[0];
+  const { lat, lon } = activeFarm;
 
   const load = useCallback(async (signal?: AbortSignal) => {
     let delay = 2000;

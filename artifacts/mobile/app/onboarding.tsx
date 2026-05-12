@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState, useRef } from "react";
 import {
+  Alert,
   StyleSheet,
   Text,
   View,
@@ -22,6 +23,13 @@ const { width, height } = Dimensions.get("window");
 
 const SLIDES = [
   {
+    id: "lang",
+    title: "Choose Language",
+    description: "Select your preferred language for a personalized farming experience.",
+    icon: "language-outline",
+    color: "#8B5CF6",
+  },
+  {
     id: "1",
     title: "Predictive Intelligence",
     description: "AI-powered outbreak forecasting and yield estimation to keep your farm ahead of the curve.",
@@ -37,9 +45,9 @@ const SLIDES = [
   },
   {
     id: "3",
-    title: "Market Edge",
-    description: "Get real-time Mandi prices and AI-driven profitability forecasting to maximize your earnings.",
-    icon: "trending-up-outline",
+    title: "Permissions",
+    description: "We need location access for weather/mandi data and camera access for crop scanning. Your data is secure.",
+    icon: "shield-checkmark-outline",
     color: "#3B82F6",
   },
 ];
@@ -48,7 +56,7 @@ export default function OnboardingScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { setHasSeenOnboarding } = useApp();
+  const { setHasSeenOnboarding, setLanguage, language } = useApp();
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
@@ -63,8 +71,20 @@ export default function OnboardingScreen() {
     } else {
       // Final Slide: Request Permissions and Finish
       try {
-        await Location.requestForegroundPermissionsAsync();
-        await Notifications.requestPermissionsAsync();
+        const loc = await Location.requestForegroundPermissionsAsync();
+        const notif = await Notifications.requestPermissionsAsync();
+        
+        if (loc.status !== "granted" || notif.status !== "granted") {
+          Alert.alert(
+            "Permissions Not Granted",
+            "NuKropAI works best with location and notification permissions. You can enable them later in settings.",
+            [{ text: "OK", onPress: () => {
+              setHasSeenOnboarding(true);
+              router.replace("/(tabs)");
+            }}]
+          );
+          return;
+        }
       } catch (e) {
         console.warn("Permission request failed", e);
       }
@@ -83,15 +103,43 @@ export default function OnboardingScreen() {
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <View style={styles.slide}>
             <LinearGradient
               colors={[item.color + "20", "transparent"]}
               style={styles.gradient}
             />
-            <View style={[styles.iconCircle, { backgroundColor: item.color + "15", borderColor: item.color + "40" }]}>
-              <Ionicons name={item.icon as any} size={80} color={item.color} />
-            </View>
+            {item.id === "lang" ? (
+              <View style={styles.langSelector}>
+                {["en", "hi", "te"].map((l) => (
+                  <TouchableOpacity
+                    key={l}
+                    onPress={() => setLanguage(l as any)}
+                    style={[
+                      styles.langBtn,
+                      {
+                        backgroundColor: language === l ? colors.primary : colors.card,
+                        borderColor: language === l ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.langText,
+                        { color: language === l ? "#000" : colors.foreground },
+                      ]}
+                    >
+                      {l === "en" ? "English" : l === "hi" ? "हिंदी" : "తెలుగు"}
+                    </Text>
+                    {language === l && <Ionicons name="checkmark-circle" size={20} color="#000" />}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <View style={[styles.iconCircle, { backgroundColor: item.color + "15", borderColor: item.color + "40" }]}>
+                <Ionicons name={item.icon as any} size={80} color={item.color} />
+              </View>
+            )}
             <Text style={[styles.title, { color: colors.foreground }]}>{item.title}</Text>
             <Text style={[styles.description, { color: colors.mutedForeground }]}>{item.description}</Text>
           </View>
@@ -197,5 +245,26 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontFamily: "Inter_700Bold",
     color: "#000",
+  },
+  langSelector: {
+    width: "100%",
+    gap: 12,
+    marginBottom: 40,
+    marginTop: 20,
+  },
+  langBtn: {
+    width: "100%",
+    height: 64,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    borderWidth: 1.5,
+  },
+  langText: {
+    fontSize: 18,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
   },
 });

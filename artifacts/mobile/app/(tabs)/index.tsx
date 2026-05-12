@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
   useWindowDimensions,
+  RefreshControl,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -200,10 +201,10 @@ function AIActivityDot({ index }: { index: number }) {
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { farmerName, insights, scanHistory, farms, activeFarmId, setActiveFarmId } = useApp();
+  const { farmerName, insights, scanHistory, farms, activeFarmId, setActiveFarmId, syncStatus } = useApp();
   const activeFarm = useMemo(() => farms.find(f => f.id === activeFarmId) || farms[0], [farms, activeFarmId]);
   const topPad = Platform.OS === "web" ? 67 : insets.top + 10;
-  const { lat, lon, locationCity } = useMemo(() => ({
+  const { lat, lon, locationCity: activeCity } = useMemo(() => ({
     lat: activeFarm.lat,
     lon: activeFarm.lon,
     locationCity: activeFarm.location.split(",")[0].trim()
@@ -218,8 +219,8 @@ export default function HomeScreen() {
   }, []);
 
   // Live data hooks
-  const { weather, loading: weatherLoading, error: weatherError } = useWeather(lat, lon);
-  const { alerts, loading: alertsLoading } = useAlerts(lat, lon, locationCity, weather);
+  const { weather, loading: weatherLoading, error: weatherError, refresh: weatherRefresh } = useWeather(lat, lon);
+  const { alerts, loading: alertsLoading } = useAlerts(lat, lon, activeCity, weather);
 
   const todayScans = useMemo(() => scanHistory.filter(
     (s) => Date.now() - s.timestamp < 86400000,
@@ -265,7 +266,7 @@ export default function HomeScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ParticleBackground
         color={colors.primary}
-        count={14}
+        count={Platform.OS === "web" ? 14 : 6}
         width={winWidth}
         height={winHeight}
       />
@@ -280,6 +281,17 @@ export default function HomeScreen() {
           },
         ]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={weatherLoading || alertsLoading}
+            onRefresh={() => {
+              weatherRefresh();
+              // Alerts refresh is handled by the weather change
+            }}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       >
         {/* Header */}
         <Animated.View style={[styles.header, headerStyle]}>
@@ -311,6 +323,18 @@ export default function HomeScreen() {
                 ))}
               </View>
             </View>
+            {syncStatus !== "synced" && (
+              <View style={[styles.syncStatus, { backgroundColor: syncStatus === "syncing" ? colors.primary + "10" : "#EF444410", borderColor: syncStatus === "syncing" ? colors.primary + "30" : "#EF444430" }]}>
+                <Ionicons 
+                  name={syncStatus === "syncing" ? "cloud-upload" : "cloud-offline"} 
+                  size={10} 
+                  color={syncStatus === "syncing" ? colors.primary : "#EF4444"} 
+                />
+                <Text style={[styles.syncText, { color: syncStatus === "syncing" ? colors.primary : "#EF4444" }]}>
+                  {syncStatus === "syncing" ? "Syncing..." : "Offline"}
+                </Text>
+              </View>
+            )}
           </View>
         </Animated.View>
 
@@ -335,7 +359,10 @@ export default function HomeScreen() {
                 </Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={[styles.farmChip, { borderStyle: "dashed", borderColor: colors.mutedForeground }]}>
+            <TouchableOpacity 
+              onPress={() => router.push("/add-farm")}
+              style={[styles.farmChip, { borderStyle: "dashed", borderColor: colors.mutedForeground }]}
+            >
               <Ionicons name="add" size={14} color={colors.mutedForeground} />
               <Text style={[styles.farmChipText, { color: colors.mutedForeground }]}>Add Farm</Text>
             </TouchableOpacity>
@@ -445,7 +472,7 @@ export default function HomeScreen() {
             weather={weather}
             loading={weatherLoading}
             error={weatherError}
-            city={locationCity}
+            city={activeCity}
           />
         </EntranceCard>
 
@@ -644,6 +671,22 @@ const styles = StyleSheet.create({
   },
   aiLabel: { fontSize: 11, fontFamily: "Inter_500Medium" },
   aiDots: { flexDirection: "row", gap: 2 },
+  syncStatus: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  syncText: {
+    fontSize: 9,
+    fontWeight: "700",
+    fontFamily: "Inter_700Bold",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
   bell: {
     width: 38,
     height: 38,

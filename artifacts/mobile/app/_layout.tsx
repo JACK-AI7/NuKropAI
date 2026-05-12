@@ -60,9 +60,15 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      SplashScreen.hideAsync().catch(() => {});
+    }, 5000); // 5s safety timeout
+
     if (fontsLoaded || fontError) {
+      clearTimeout(timer);
       SplashScreen.hideAsync();
     }
+    return () => clearTimeout(timer);
   }, [fontsLoaded, fontError]);
 
   if (!fontsLoaded && !fontError) return null;

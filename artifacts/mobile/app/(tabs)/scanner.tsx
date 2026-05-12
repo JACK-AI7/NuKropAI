@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
+import * as Device from "expo-device";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -201,6 +202,8 @@ export default function ScannerScreen() {
         });
 
         let cloudUrl = uri;
+        let uploadSucceeded = false;
+
         if (user) {
           try {
             const response = await fetch(uri);
@@ -209,9 +212,11 @@ export default function ScannerScreen() {
             const storageRef = ref(storage, `scans/${user.uid}/${imageId}.jpg`);
             await uploadBytes(storageRef, blob);
             cloudUrl = await getDownloadURL(storageRef);
+            uploadSucceeded = true;
           } catch (storageErr) {
-            console.error("Cloud storage upload failed:", storageErr);
-            // Fallback to local URI if cloud upload fails
+            console.warn("Cloud storage upload failed, using local URI:", storageErr);
+            // Non-blocking for the user, but we should log it
+            logEvent(user.uid, "upload_failure", { error: String(storageErr) });
           }
         }
 
@@ -232,21 +237,35 @@ export default function ScannerScreen() {
         });
 
         // Log analytics
-        logEvent(user?.uid, "scan", {
+        logEvent(user?.uid, "scan_success", {
           disease: data.disease,
           confidence: data.confidence,
           severity: data.severity,
           isHealthy: data.isHealthy,
+          cloudSync: uploadSucceeded,
         });
       } catch (err: any) {
         if (err.name === "AbortError") return;
         setIsScanning(false);
-        setError(err.message || "AI Service temporarily unavailable. Please check your connection.");
+        
+        const isNetworkError = err.message?.toLowerCase().includes("network") || err.message?.toLowerCase().includes("fetch");
+        const userMsg = isNetworkError 
+          ? "Connection too weak for AI analysis. Please move to an area with better signal and retry." 
+          : (err.message || "AI Service temporarily unavailable. Please try again in a moment.");
+          
+        setError(userMsg);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        
+        // Log to Crashlytics / Analytics
+        logEvent(user?.uid, "scan_error", {
+          message: err.message,
+          type: isNetworkError ? "network" : "api",
+        });
       }
     },
     [addScanRecord, resultOpacity, resultY, showResult, user]
   );
+
 
   const pickImage = useCallback(async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -257,9 +276,13 @@ export default function ScannerScreen() {
       );
       return;
     }
+    // Adaptive quality based on device memory for stability
+    const totalMem = Device.totalMemory ?? 4000000000;
+    const quality = totalMem < 3000000000 ? 0.4 : 0.6;
+
     const picked = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      quality: 0.6,
+      quality,
       base64: true,
     });
     if (!picked.canceled && picked.assets[0]) {
@@ -278,7 +301,11 @@ export default function ScannerScreen() {
       );
       return;
     }
-    const photo = await ImagePicker.launchCameraAsync({ quality: 0.6, base64: true });
+    // Adaptive quality based on device memory for stability
+    const totalMem = Device.totalMemory ?? 4000000000;
+    const quality = totalMem < 3000000000 ? 0.4 : 0.6;
+
+    const photo = await ImagePicker.launchCameraAsync({ quality, base64: true });
     if (!photo.canceled && photo.assets[0]) {
       const { uri, base64 } = photo.assets[0];
       runScan(uri, base64 ?? "");

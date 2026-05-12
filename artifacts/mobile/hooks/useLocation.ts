@@ -25,10 +25,15 @@ export function useLocation(): void {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted" || cancelled) return;
 
+        // 1. Try last known position for instant feedback
+        const lastLoc = await Location.getLastKnownPositionAsync();
+        if (lastLoc && !cancelled) {
+          setLocation(lastLoc.coords.latitude, lastLoc.coords.longitude, "Locating...");
+        }
+
+        // 2. Get accurate position
         const loc = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.Balanced,
-          timeInterval: 0,
-          distanceInterval: 0,
         });
 
         if (cancelled) return;
@@ -47,8 +52,8 @@ export function useLocation(): void {
         if (!cancelled) {
           setLocation(latitude, longitude, city);
         }
-      } catch (_) {
-        // Keep default Hyderabad coordinates
+      } catch (err) {
+        console.warn("[useLocation] error:", err);
       }
     };
 

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { AppState, type AppStateStatus } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { useRouter } from "expo-router";
 import { db } from "@/utils/firebase";
 import { useAuth } from "./AuthContext";
 import { logAuditAction, SecurityActions } from "@/utils/security";
@@ -52,6 +53,7 @@ export interface Farm {
     trend: "up" | "down" | "stable";
     lastUpdated: string;
   };
+  activePests: string[];
 }
 
 interface GlobalState {
@@ -77,6 +79,8 @@ interface GlobalState {
   scanHistory: ScanRecord[];
   chatHistory: ChatMessage[];
   insights: AIInsight[];
+  lat: number;
+  lon: number;
   notificationPrefs: {
     weather: boolean;
     disease: boolean;
@@ -84,6 +88,7 @@ interface GlobalState {
     reminders: boolean;
   };
   hasSeenOnboarding: boolean;
+  syncStatus: "synced" | "syncing" | "error";
   setFarmerName: (name: string) => void;
   setLanguage: (lang: Language) => void;
   setHasSeenOnboarding: (val: boolean) => void;
@@ -122,10 +127,12 @@ const DEFAULT_FARM: Farm = {
     score: 0.72,
     trend: "up",
     lastUpdated: new Date().toISOString()
-  }
+  },
+  activePests: []
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const { user } = useAuth();
   const [farmerName, setFarmerNameState] = useState("Rajesh Kumar");
   const [language, setLanguageState] = useState<Language>("en");
@@ -149,10 +156,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [locationCity, setLocationCityState] = useState("Hyderabad");
+  const [locationLat, setLocationLat] = useState(17.385);
+  const [locationLon, setLocationLon] = useState(78.486);
 
+  const [syncStatus, setSyncStatus] = useState<"synced" | "syncing" | "error">("synced");
   const isCloudSyncing = useRef(false);
 
-  const activeFarm = farms.find(f => f.id === activeFarmId) || farms[0];
+  const activeFarm = farms.find(f => f.id === activeFarmId) || farms[0] || DEFAULT_FARM;
 
   useEffect(() => {
     const load = async () => {
@@ -183,17 +193,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const snap = await getDoc(userDocRef);
         if (snap.exists()) {
-          const data = snap.data();
-          if (data.farmerName) setFarmerNameState(data.farmerName);
-          if (data.farms) setFarmsState(data.farms);
-          if (data.activeFarmId) setActiveFarmIdState(data.activeFarmId);
-          if (data.language) setLanguageState(data.language);
-          if (data.userRole) setUserRoleState(data.userRole);
-          if (data.notificationPrefs) setNotificationPrefsState(data.notificationPrefs);
-          if (data.scanHistory) setScanHistory(data.scanHistory);
-          if (data.chatHistory) setChatHistory(data.chatHistory);
-          if (state.insights) setInsights(state.insights);
-          if (data.hasSeenOnboarding !== undefined) setHasSeenOnboardingState(data.hasSeenOnboarding);
+          const cloudData = snap.data();
+          const localSaved = await AsyncStorage.getItem("nukropai_state_v3");
+          const localData = localSaved ? JSON.parse(localSaved) : null;
+
+          // Conflict resolution: latest updatedAt wins
+          if (!localData || (cloudData.updatedAt && cloudData.updatedAt > (localData.updatedAt || 0))) {
+            if (cloudData.farmerName) setFarmerNameState(cloudData.farmerName);
+            if (cloudData.farms) setFarmsState(cloudData.farms);
+            if (cloudData.activeFarmId) setActiveFarmIdState(cloudData.activeFarmId);
+            if (cloudData.language) setLanguageState(cloudData.language);
+            if (cloudData.userRole) setUserRoleState(cloudData.userRole);
+            if (cloudData.notificationPrefs) setNotificationPrefsState(cloudData.notificationPrefs);
+            if (cloudData.scanHistory) setScanHistory(cloudData.scanHistory);
+            if (cloudData.chatHistory) setChatHistory(cloudData.chatHistory);
+            if (cloudData.insights) setInsights(cloudData.insights);
+            if (cloudData.hasSeenOnboarding !== undefined) setHasSeenOnboardingState(cloudData.hasSeenOnboarding);
+          } else if (localData && (!cloudData.updatedAt || localData.updatedAt > cloudData.updatedAt)) {
+            // Local is newer, push to cloud
+            await setDoc(userDocRef, localData, { merge: true });
+          }
         }
       } catch (err) { console.error("Sync error:", err); }
     };
@@ -215,13 +234,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => unsub();
   }, [user]);
 
-  const syncTimer = useRef<NodeJS.Timeout | null>(null);
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const saveState = useCallback(async () => {
     if (syncTimer.current) clearTimeout(syncTimer.current);
     
     syncTimer.current = setTimeout(async () => {
       try {
+        setSyncStatus("syncing");
         const stateToSave = {
           farmerName,
           farms,
@@ -246,8 +266,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           await setDoc(userDocRef, stateToSave, { merge: true });
           setTimeout(() => { isCloudSyncing.current = false; }, 1000);
         }
+        setSyncStatus("synced");
       } catch (err) {
         console.error("[AppContext] Local/Cloud sync failed:", err);
+        setSyncStatus("error");
         isCloudSyncing.current = false;
       }
     }, 2500); // 2.5s throttle
@@ -291,8 +313,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         scanHistory,
         chatHistory,
         insights,
+        lat: activeFarm.lat,
+        lon: activeFarm.lon,
         notificationPrefs,
         hasSeenOnboarding,
+        syncStatus,
         setFarmerName,
         setLanguage,
         setHasSeenOnboarding,

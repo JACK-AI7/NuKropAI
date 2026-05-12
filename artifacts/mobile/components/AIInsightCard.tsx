@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { router } from "expo-router";
 import { useColors } from "@/hooks/useColors";
 import type { AIInsight } from "@/contexts/AppContext";
 
@@ -52,6 +53,15 @@ export function AIInsightCard({ insight }: { insight: AIInsight }) {
           <View style={styles.tag}>
             <Text style={[styles.tagText, { color: colors.primary }]}>{insight.crop}</Text>
           </View>
+        )}
+        {(insight.type === "danger" || insight.type === "warning") && (
+          <TouchableOpacity 
+            style={[styles.actionBtn, { backgroundColor: s.color + "15", borderColor: s.color + "30" }]}
+            onPress={() => router.push("/(tabs)/chat")}
+          >
+            <Text style={[styles.actionBtnText, { color: s.color }]}>Consult AI Advisor</Text>
+            <Ionicons name="arrow-forward" size={12} color={s.color} />
+          </TouchableOpacity>
         )}
       </View>
     </View>
@@ -106,5 +116,20 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 11,
     fontFamily: "Inter_500Medium",
+  },
+  actionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 10,
+  },
+  actionBtnText: {
+    fontSize: 12,
+    fontWeight: "700",
+    fontFamily: "Inter_700Bold",
   },
 });

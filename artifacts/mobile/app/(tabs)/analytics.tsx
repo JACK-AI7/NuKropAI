@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -18,6 +18,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
+import * as Device from "expo-device";
+import { Tabs, router } from "expo-router";
 import { useApp } from "@/contexts/AppContext";
 import { useMarket } from "@/hooks/useMarket";
 import { useWeather } from "@/hooks/useWeather";
@@ -105,13 +107,15 @@ function CountUpText({
   to: number;
   suffix?: string;
   duration?: number;
-  style?: object;
+  style?: any;
 }) {
   const [displayed, setDisplayed] = useState(0);
+  const [editLoc, setLocInput] = useState<string | null>(null);
+  const { locationCity } = useApp();
   const hasAnimated = useRef(false);
   useEffect(() => {
     if (hasAnimated.current) {
-      setDisplayed(to);
+      if (!editLoc) setLocInput(locationCity);
       return;
     }
     hasAnimated.current = true;
@@ -123,7 +127,7 @@ function CountUpText({
       if (i >= steps) clearInterval(interval);
     }, duration / steps);
     return () => clearInterval(interval);
-  }, [to, duration]);
+  }, [to, duration, editLoc, locationCity]);
   return (
     <Text style={style}>
       {displayed}
@@ -176,16 +180,22 @@ function StatBlock({
   );
 }
 
+const buildFarmingAdvice = (temp: number, humidity: number, rain: number, role: string) => {
+  if (rain > 5) return "Heavy rain expected. Avoid pesticide application and clear drainage.";
+  if (humidity > 85) return "High humidity detected. Watch for fungal outbreaks in tomatoes/chillies.";
+  if (temp > 38) return "Heat stress risk. Schedule irrigation for early morning or late evening.";
+  return "Ideal conditions for routine maintenance and harvesting.";
+};
+
 export default function AnalyticsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { scanHistory, language, locationCity, lat, lon } = useApp();
+  const { scanHistory, language, locationCity, lat, lon, userRole, farms, activeFarmId } = useApp();
   const topPad = Platform.OS === "web" ? 67 : insets.top + 10;
 
   const [aiRec, setAiRec] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
 
-  // Live market prices
   const { market, loading: marketLoading, error: marketError, refresh: refreshMarket } = useMarket(
     locationCity ?? "Telangana",
   );
@@ -197,68 +207,10 @@ export default function AnalyticsScreen() {
   const [profitEst, setProfitEst] = useState<ProfitForecast | null>(null);
   const [coopStats, setCoopStats] = useState<CooperativeStats | null>(null);
   const [districtInsights, setDistrictInsights] = useState<DistrictInsight[]>([]);
-  const [anomalies, setAnomalies] = useState<AnomalyEvent[]>([]);
-  const [mlMetrics, setMlMetrics] = useState<MLMetrics | null>(null);
-  const [sysHealth, setSysHealth] = useState<SystemHealth | null>(null);
+  const [advisorStats] = useState<{assignedFarms: number, activeOutbreaks: number, pendingRecommendations: number} | null>(null);
   
-  const { weather } = useWeather(lat, lon);
-  const { cropsGrown, farmLocation, farms, userRole, advisorStats, activeFarmId } = useApp();
+  const { weather } = useWeather(lat, lon) as { weather: any };
   const activeFarm = farms.find(f => f.id === activeFarmId) || farms[0];
-
-  useEffect(() => {
-    const loadPredictive = async () => {
-      try {
-        const stateName = activeFarm.location.split(",").pop()?.trim() || "Telangana";
-        const regionalOutbreaks = await fetchRegionalOutbreaks(stateName);
-        setOutbreaks(regionalOutbreaks);
-
-        if (weather) {
-          const calculatedRisks = calculateDiseaseRisk(weather.humidity, weather.temp, regionalOutbreaks);
-          setRisks(calculatedRisks);
-
-          const mainCrop = activeFarm.crops[0]?.name || "Rice";
-          const est = calculateYield(mainCrop, healthPct, "low", { 
-            temp: weather.temp, 
-            humidity: weather.humidity, 
-            rain: weather.rain || 0 
-          }, regionalOutbreaks.length);
-          setYieldEst(est);
-
-          if (market) {
-            const cropMarketData = market.crops.find(c => c.name === mainCrop);
-            if (cropMarketData) {
-              const pEst = forecastProfit(est, cropMarketData.price);
-              setProfitEst(pEst);
-            }
-          }
-        }
-
-        const regionalCals = getCalendarForRegion(stateName, activeFarm.crops.map(c => c.name));
-        setCalendars(regionalCals);
-
-        if (userRole !== "farmer") {
-          setCoopStats(aggregateCooperativeData(farms));
-          setDistrictInsights(getDistrictIntelligence());
-          
-          const [perf, health] = await Promise.all([
-            getMLPerformanceReport(stateName),
-            getSystemHealth()
-          ]);
-          setMlMetrics(perf);
-          setSysHealth(health);
-        }
-        
-        const detected = await processAnomalyPipeline([
-          { type: "ndvi", value: activeFarm.ndvi.score * 100 },
-          { type: "moisture", value: activeFarm.soilHealth.moisture }
-        ]);
-        setAnomalies(detected);
-      } catch (err) {
-        console.error("Predictive load error:", err);
-      }
-    };
-    loadPredictive();
-  }, [weather, market, healthPct, userRole, farms, activeFarm]);
 
   const totalScans = 20 + scanHistory.length;
   const diseasesFound = scanHistory.filter((s) => s.severity !== "low").length + 12;
@@ -267,6 +219,67 @@ export default function AnalyticsScreen() {
     Math.round(Math.max(60, 100 - (diseasesFound / Math.max(totalScans, 1)) * 60)),
     [diseasesFound, totalScans]
   );
+
+  useEffect(() => {
+    const loadPredictive = async () => {
+      // Performance Guard: Skip heavy predictive logic on 2GB RAM devices to prevent OOM
+      const totalMem = Device.totalMemory ?? 4000000000;
+      const isLowEnd = totalMem < 3000000000;
+
+      try {
+        const stateName = activeFarm.location.split(",").pop()?.trim() || "Telangana";
+        const regionalOutbreaks = await fetchRegionalOutbreaks(stateName);
+        setOutbreaks(regionalOutbreaks);
+
+        if (weather) {
+          const current = weather.current;
+          const advice = buildFarmingAdvice(current.temp, current.humidity, current.rain, userRole);
+          setAiRec(advice);
+
+          if (!isLowEnd) {
+            const calculatedRisks = calculateDiseaseRisk(weather.humidity, weather.temp, regionalOutbreaks);
+            setRisks(calculatedRisks);
+
+            const mainCrop = activeFarm.crops[0] || "Rice";
+            const est = calculateYield(mainCrop, healthPct, "low", { 
+              temp: weather.temp, 
+              humidity: weather.humidity, 
+              rain: weather.rain || 0 
+            }, regionalOutbreaks.length);
+            setYieldEst(est);
+
+            if (market) {
+              const cropMarketData = market.crops.find(c => c.name === mainCrop);
+              if (cropMarketData) {
+                const pEst = forecastProfit(est, cropMarketData.price);
+                setProfitEst(pEst);
+              }
+            }
+          }
+        }
+
+        if (!isLowEnd) {
+          const regionalCals = getCalendarForRegion(stateName, activeFarm.crops);
+          setCalendars(regionalCals);
+        }
+
+        if (userRole !== "farmer" && !isLowEnd) {
+          setCoopStats(aggregateCooperativeData(farms));
+          setDistrictInsights(getDistrictIntelligence());
+        }
+        
+        if (!isLowEnd) {
+          await processAnomalyPipeline([
+            { type: "ndvi", value: activeFarm.ndvi.score * 100 },
+            { type: "moisture", value: activeFarm.soilHealth.moisture }
+          ]);
+        }
+      } catch (err) {
+        console.error("Predictive load error:", err);
+      }
+    };
+    loadPredictive();
+  }, [weather, market, healthPct, userRole, farms, activeFarm]);
 
   const diseaseBreakdown = useMemo(() => {
     const diseaseMap = scanHistory.reduce<Record<string, number>>((acc, s) => {
@@ -287,7 +300,7 @@ export default function AnalyticsScreen() {
       : FALLBACK_DISEASES;
   }, [scanHistory]);
 
-  const { weeklyData, maxScans } = useMemo(() => {
+  const { weeklyData: forecast, maxScans } = useMemo(() => {
     const now = Date.now();
     const data = DAYS.map((day, i) => {
       const start = now - (6 - i) * 86400000;
@@ -306,33 +319,6 @@ export default function AnalyticsScreen() {
     });
     return { weeklyData: data, maxScans: Math.max(...data.map((d) => d.scans)) };
   }, [scanHistory]);
-
-  useEffect(() => {
-    const fetchRec = async () => {
-      setAiLoading(true);
-      try {
-        const data = await request<{ reply: string }>("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: `Based on ${totalScans} total scans with ${diseasesFound} diseases detected (${healthPct}% health score), give me a concise 2-sentence weekly farm advisory with one specific action to take this week.`,
-            language,
-            history: [],
-          }),
-        });
-        setAiRec(data.reply);
-      } catch (_) {
-        setAiRec(
-          `Based on this week's data, early blight is the most common threat. Apply Mancozeb 75 WP @ 2.5g/L before the upcoming rain window on Thursday.`,
-        );
-      } finally {
-        setAiLoading(false);
-      }
-    };
-    fetchRec();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const farmTwin = activeFarm;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -353,7 +339,6 @@ export default function AnalyticsScreen() {
           AI-powered crop health insights
         </Text>
 
-        {/* AI Advisor / Enterprise Dashboard Overlay */}
         {userRole !== "farmer" && (
           <View style={styles.advisorHeader}>
             <View style={styles.advisorBadge}>
@@ -401,30 +386,27 @@ export default function AnalyticsScreen() {
         {userRole !== "farmer" && districtInsights.length > 0 && (
           <GlassCard style={styles.card}>
             <Text style={[styles.cardTitle, { color: colors.foreground }]}>District Intelligence</Text>
-            <View style={styles.districtTable}>
-              {districtInsights.map((di, i) => (
-                <View key={i} style={[styles.districtRow, { borderBottomWidth: i < districtInsights.length - 1 ? 1 : 0, borderBottomColor: colors.border }]}>
-                  <View style={styles.districtInfo}>
-                    <Text style={[styles.districtName, { color: colors.foreground }]}>{di.district}</Text>
-                    <Text style={[styles.districtMeta, { color: colors.mutedForeground }]}>{di.activeOutbreaks} Outbreaks</Text>
-                  </View>
-                  <View style={styles.districtStats}>
-                    <Text style={[styles.districtScore, { color: di.avgNDVI > 0.75 ? "#22C55E" : "#F59E0B" }]}>{(di.avgNDVI * 100).toFixed(0)}% NDVI</Text>
-                    <Text style={[styles.districtRain, { color: di.rainfallStatus === "Deficit" ? "#EF4444" : colors.primary }]}>{di.rainfallStatus}</Text>
-                  </View>
+            {districtInsights.map((di, i) => (
+              <View key={i} style={[styles.districtRow, { borderBottomWidth: i < districtInsights.length - 1 ? 1 : 0, borderBottomColor: colors.border }]}>
+                <View style={styles.districtInfo}>
+                  <Text style={[styles.districtName, { color: colors.foreground }]}>{di.district}</Text>
+                  <Text style={[styles.districtMeta, { color: colors.mutedForeground }]}>{di.activeOutbreaks} Outbreaks</Text>
                 </View>
-              ))}
-            </View>
+                <View style={styles.districtStats}>
+                  <Text style={[styles.districtScore, { color: di.avgNDVI > 0.75 ? "#22C55E" : "#F59E0B" }]}>{(di.avgNDVI * 100).toFixed(0)}% NDVI</Text>
+                  <Text style={[styles.districtRain, { color: di.rainfallStatus === "Deficit" ? "#EF4444" : colors.primary }]}>{di.rainfallStatus}</Text>
+                </View>
+              </View>
+            ))}
           </GlassCard>
         )}
 
-        {/* Yield & Profitability Forecast */}
         {yieldEst && profitEst && (
           <GlassCard style={styles.card}>
             <View style={styles.recRow}>
               <Ionicons name="trending-up" size={18} color={colors.accent} />
               <Text style={[styles.cardTitle, { color: colors.foreground, marginBottom: 0 }]}>
-                Seasonal Forecast ({activeFarm.crops[0]?.name || "Main Crop"})
+                Seasonal Forecast ({activeFarm.crops[0] || "Main Crop"})
               </Text>
             </View>
             <View style={styles.forecastGrid}>
@@ -460,7 +442,6 @@ export default function AnalyticsScreen() {
               </Text>
             </View>
 
-            {/* Crop Stress Modeling */}
             {yieldEst.stresses.length > 0 && (
               <View style={styles.stressSection}>
                 <Text style={[styles.stressTitle, { color: colors.foreground }]}>Crop Stress Indicators</Text>
@@ -484,7 +465,6 @@ export default function AnalyticsScreen() {
           </GlassCard>
         )}
 
-        {/* Farm Digital Twin: Soil Health */}
         <GlassCard style={styles.card}>
           <View style={styles.recRow}>
             <Ionicons name="leaf" size={18} color="#22C55E" />
@@ -496,7 +476,7 @@ export default function AnalyticsScreen() {
             <View style={styles.soilItem}>
               <Text style={[styles.soilLbl, { color: colors.mutedForeground }]}>Nitrogen (N)</Text>
               <View style={styles.soilMetric}>
-                <Text style={[styles.soilVal, { color: colors.foreground }]}>{farmTwin.soilHealth.npk.n}</Text>
+                <Text style={[styles.soilVal, { color: colors.foreground }]}>{activeFarm.soilHealth.npk.n}</Text>
                 <Text style={styles.soilUnit}>kg/ha</Text>
               </View>
               <View style={[styles.soilIndicator, { backgroundColor: "#22C55E40" }]} />
@@ -504,7 +484,7 @@ export default function AnalyticsScreen() {
             <View style={styles.soilItem}>
               <Text style={[styles.soilLbl, { color: colors.mutedForeground }]}>Phosphorus (P)</Text>
               <View style={styles.soilMetric}>
-                <Text style={[styles.soilVal, { color: colors.foreground }]}>{farmTwin.soilHealth.npk.p}</Text>
+                <Text style={[styles.soilVal, { color: colors.foreground }]}>{activeFarm.soilHealth.npk.p}</Text>
                 <Text style={styles.soilUnit}>kg/ha</Text>
               </View>
               <View style={[styles.soilIndicator, { backgroundColor: "#F59E0B40" }]} />
@@ -512,7 +492,7 @@ export default function AnalyticsScreen() {
             <View style={styles.soilItem}>
               <Text style={[styles.soilLbl, { color: colors.mutedForeground }]}>Potassium (K)</Text>
               <View style={styles.soilMetric}>
-                <Text style={[styles.soilVal, { color: colors.foreground }]}>{farmTwin.soilHealth.npk.k}</Text>
+                <Text style={[styles.soilVal, { color: colors.foreground }]}>{activeFarm.soilHealth.npk.k}</Text>
                 <Text style={styles.soilUnit}>kg/ha</Text>
               </View>
               <View style={[styles.soilIndicator, { backgroundColor: "#22C55E40" }]} />
@@ -520,7 +500,7 @@ export default function AnalyticsScreen() {
             <View style={styles.soilItem}>
               <Text style={[styles.soilLbl, { color: colors.mutedForeground }]}>Soil pH</Text>
               <View style={styles.soilMetric}>
-                <Text style={[styles.soilVal, { color: colors.foreground }]}>{farmTwin.soilHealth.ph}</Text>
+                <Text style={[styles.soilVal, { color: colors.foreground }]}>{activeFarm.soilHealth.ph}</Text>
                 <Text style={styles.soilUnit}>pH</Text>
               </View>
               <View style={[styles.soilIndicator, { backgroundColor: "#22C55E40" }]} />
@@ -533,9 +513,6 @@ export default function AnalyticsScreen() {
             </Text>
           </View>
         </GlassCard>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          AI-powered crop health insights
-        </Text>
 
         <View style={styles.statsGrid}>
           <StatBlock
@@ -574,7 +551,7 @@ export default function AnalyticsScreen() {
           <Text style={[styles.cardTitle, { color: colors.foreground }]}>
             Disease Breakdown
           </Text>
-          {diseaseBreakdown.map((d, i) => (
+          {diseaseBreakdown.map((d: any, i: number) => (
             <View key={i} style={styles.breakRow}>
               <View style={styles.breakLabel}>
                 <View style={[styles.dot, { backgroundColor: d.color }]} />
@@ -624,7 +601,7 @@ export default function AnalyticsScreen() {
             </View>
           </View>
           <View style={styles.chart}>
-            {weeklyData.map((d, i) => (
+            {forecast.map((d: any, i: number) => (
               <View key={i} style={styles.chartCol}>
                 <View style={styles.barGroup}>
                   <ColBar
@@ -650,7 +627,6 @@ export default function AnalyticsScreen() {
           </View>
         </GlassCard>
 
-        {/* Live Market Prices */}
         <MarketCard
           market={market}
           loading={marketLoading}
@@ -658,7 +634,6 @@ export default function AnalyticsScreen() {
           onRefresh={refreshMarket}
         />
 
-        {/* Predictive Disease Risk */}
         {risks.length > 0 && (
           <GlassCard style={styles.card}>
             <View style={styles.recRow}>
@@ -676,6 +651,9 @@ export default function AnalyticsScreen() {
                       {Math.round(risk.probability * 100)}% Risk
                     </Text>
                   </View>
+                  <Text style={[styles.factorText, { color: colors.foreground, marginBottom: 5, fontWeight: "600" }]}>
+                    Active Pests: {activeFarm.activePests?.join(", ") ?? "None"}
+                  </Text>
                   <View style={styles.riskFactors}>
                     {risk.factors.map((f, fi) => (
                       <View key={fi} style={styles.factorItem}>

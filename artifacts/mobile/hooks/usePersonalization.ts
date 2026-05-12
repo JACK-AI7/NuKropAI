@@ -14,7 +14,10 @@ export interface PersonalizedInsight {
 
 export function usePersonalization() {
   const { user } = useAuth();
-  const { cropsGrown, farmLocation, scanHistory, language } = useApp();
+  const { farms, activeFarmId, scanHistory, language } = useApp();
+  const activeFarm = farms.find(f => f.id === activeFarmId) || farms[0];
+  const cropsGrown = activeFarm.crops;
+  const farmLocation = activeFarm.location;
   const [personalInsights, setPersonalInsights] = useState<PersonalizedInsight[]>([]);
   const [loading, setLoading] = useState(false);
 

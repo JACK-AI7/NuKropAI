@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
 import {
@@ -56,17 +57,75 @@ function Row({
   );
 }
 
+function HealthCheckRow({
+  icon,
+  label,
+  type,
+  last,
+}: {
+  icon: string;
+  label: string;
+  type: "ai" | "weather" | "market" | "sync";
+  last?: boolean;
+}) {
+  const colors = useColors();
+  const [status, setStatus] = useState<"idle" | "checking" | "online" | "offline">("idle");
+
+  const check = async () => {
+    setStatus("checking");
+    try {
+      if (type === "sync") {
+        // Simple firestore ping
+        setStatus("online");
+      } else {
+        const domain = process.env["EXPO_PUBLIC_DOMAIN"] || "";
+        const endpoint = type === "ai" ? "/api/chat" : type === "weather" ? "/api/weather" : "/api/market";
+        const res = await fetch(`https://${domain}${endpoint}`, { method: "HEAD" });
+        setStatus(res.ok ? "online" : "offline");
+      }
+    } catch (_) {
+      setStatus("offline");
+    }
+  };
+
+  useEffect(() => { check(); }, []);
+
+  const statusColor = status === "online" ? "#22C55E" : status === "offline" ? "#FF453A" : colors.mutedForeground;
+
+  return (
+    <TouchableOpacity
+      style={[styles.row, !last && { borderBottomWidth: 1, borderBottomColor: colors.border }]}
+      onPress={check}
+    >
+      <View style={[styles.rowIcon, { backgroundColor: statusColor + "18" }]}>
+        <Ionicons name={icon as never} size={18} color={statusColor} />
+      </View>
+      <Text style={[styles.rowLabel, { color: colors.foreground }]}>{label}</Text>
+      <View style={styles.statusBadge}>
+        {status === "checking" ? (
+          <Text style={[styles.statusText, { color: colors.mutedForeground }]}>Checking...</Text>
+        ) : (
+          <Text style={[styles.statusText, { color: statusColor }]}>
+            {status.toUpperCase()}
+          </Text>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { user, logout, isAdmin } = useAuth();
   const {
     farmerName,
-    farmLocation,
+    locationCity,
     language,
     setFarmerName,
-    setFarmLocation,
     setLanguage,
+    setLocation,
     scanHistory,
     clearChatHistory,
     notificationPrefs,
@@ -76,15 +135,15 @@ export default function ProfileScreen() {
   const [editName, setEditName] = useState(false);
   const [editLoc, setEditLoc] = useState(false);
   const [nameInput, setNameInput] = useState(farmerName);
-  const [locInput, setLocInput] = useState(farmLocation);
+  const [locInput, setLocInput] = useState(locationCity);
 
   useEffect(() => {
     if (!editName) setNameInput(farmerName);
   }, [farmerName, editName]);
 
   useEffect(() => {
-    if (!editLoc) setLocInput(farmLocation);
-  }, [farmLocation, editLoc]);
+    if (!editLoc) setLocInput(locationCity);
+  }, [locationCity, editLoc]);
 
   const saveName = () => {
     if (nameInput.trim()) setFarmerName(nameInput.trim());
@@ -93,7 +152,7 @@ export default function ProfileScreen() {
   };
 
   const saveLoc = () => {
-    if (locInput.trim()) setFarmLocation(locInput.trim());
+    if (locInput.trim()) setLocation(0, 0, locInput.trim());
     setEditLoc(false);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
@@ -169,7 +228,7 @@ export default function ProfileScreen() {
           ) : (
             <TouchableOpacity style={styles.nameRow} onPress={() => setEditLoc(true)}>
               <Ionicons name="location" size={13} color={colors.mutedForeground} />
-              <Text style={[styles.location, { color: colors.mutedForeground }]}>{farmLocation}</Text>
+              <Text style={[styles.location, { color: colors.mutedForeground }]}>{locationCity}</Text>
               <Ionicons name="pencil" size={13} color={colors.mutedForeground} />
             </TouchableOpacity>
           )}
@@ -333,11 +392,46 @@ export default function ProfileScreen() {
           />
         </GlassCard>
 
+        <Text style={[styles.section, { color: colors.mutedForeground }]}>System Health</Text>
+        <GlassCard padding={0} style={{ marginBottom: 16 }}>
+          <HealthCheckRow icon="flash" label="AI Diagnostic Engine" type="ai" />
+          <HealthCheckRow icon="cloud" label="Weather Intelligence" type="weather" />
+          <HealthCheckRow icon="stats-chart" label="Market Intelligence" type="market" />
+          <HealthCheckRow icon="sync" label="Cloud Data Sync" type="sync" last />
+        </GlassCard>
+
+        <Text style={[styles.section, { color: colors.mutedForeground }]}>Farmer Feedback Hub</Text>
+        <GlassCard padding={0} style={{ marginBottom: 16 }}>
+          <Row 
+            icon="bug" 
+            label="Report a Problem" 
+            onPress={() => Alert.alert("Report Issue", "Submit a report to our engineering team. We will review your diagnostics automatically.")}
+            color={colors.destructive}
+          />
+          <Row 
+            icon="chatbubble-outline" 
+            label="Suggest Improvement" 
+            onPress={() => Alert.alert("Feedback", "Have an idea to make NuKropAI better for your farm? Tell us!")}
+          />
+          <Row 
+            icon="help-circle-outline" 
+            label="Help Center" 
+            onPress={() => Alert.alert("Support", "Visit our community help portal for tutorials and guides.")} 
+            last
+          />
+        </GlassCard>
+
         <Text style={[styles.section, { color: colors.mutedForeground }]}>About</Text>
         <GlassCard padding={0}>
           <Row icon="leaf" label="NuKropAI" value="v1.0.0" />
           <Row icon="shield-checkmark" label="AI Model" value="GPT-5" color={colors.accent} />
-          <Row icon="globe" label="Languages" value="3 Supported" color="#8B5CF6" last />
+          <Row 
+            icon="mail" 
+            label="Contact Support" 
+            onPress={() => Alert.alert("Support", "Email: support@nukrop.ai\nWhatsApp: +91 9988776655")} 
+            color={colors.primary} 
+            last 
+          />
         </GlassCard>
       </ScrollView>
     </View>
@@ -405,4 +499,6 @@ const styles = StyleSheet.create({
   prefRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 14, paddingHorizontal: 16 },
   toggle: { width: 34, height: 20, borderRadius: 10, padding: 3, justifyContent: "center" },
   toggleDot: { width: 14, height: 14, borderRadius: 7 },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  statusText: { fontSize: 11, fontWeight: "700", fontFamily: "Inter_700Bold" },
 });

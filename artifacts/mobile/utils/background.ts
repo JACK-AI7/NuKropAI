@@ -21,9 +21,12 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
 
     // Simulate checking Firestore for new targeted alerts
     const userDoc = await getDoc(doc(db, "users", userId));
-    const data = userDoc.data();
+    const { farms, activeFarmId } = state;
+    const activeFarm = farms.find((f: any) => f.id === activeFarmId) || farms[0];
+    const { lat, lon } = activeFarm;
+    const data = userDoc.data() as any;
     
-    if (data?.pendingAlerts?.length > 0) {
+    if (data && data.pendingAlerts && data.pendingAlerts.length > 0) {
       const alert = data.pendingAlerts[0];
       await Notifications.scheduleNotificationAsync({
         content: {
@@ -33,6 +36,9 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
         },
         trigger: null,
       });
+      if (data && BackgroundFetch) {
+        console.log("[Background] Fetched weather update:", data);
+      }
       return BackgroundFetch.BackgroundFetchResult.NewData;
     }
 
@@ -44,7 +50,7 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
 
 export async function registerBackgroundFetchAsync() {
   return BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-    minimumInterval: 60 * 15, // 15 minutes
+    minimumInterval: 60 * 60, // 60 minutes
     stopOnTerminate: false,
     startOnBoot: true,
   });

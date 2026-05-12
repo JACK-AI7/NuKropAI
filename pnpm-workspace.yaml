@@ -26,6 +26,7 @@ catalog:
   tailwind-merge: ^2.5.4
   tailwindcss: ^3.4.15
   tsx: ^4.19.2
+  typescript: ^5.6.3
   vite: ^5.4.11
   wouter: ^3.3.5
   zod: ^3.23.8

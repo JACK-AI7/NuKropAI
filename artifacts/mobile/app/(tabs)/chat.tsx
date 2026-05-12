@@ -81,8 +81,9 @@ export default function ChatScreen() {
     chatHistory, 
     addChatMessage,
     farmerName,
-    farmLocation,
-    cropsGrown,
+    locationCity,
+    farms,
+    activeFarmId,
     scanHistory
   } = useApp();
   const [input, setInput] = useState("");
@@ -138,11 +139,12 @@ export default function ChatScreen() {
           .slice(-12)
           .map((m) => ({ role: m.role, content: m.content }));
         
-        // Context Enrichment
+        const activeFarm = farms.find((f: any) => f.id === activeFarmId) || farms[0];
+        const currentCrops = activeFarm?.crops || [];
         const userContext = {
           farmerName,
-          location: farmLocation,
-          crops: cropsGrown,
+          location: locationCity,
+          crops: currentCrops,
           recentDiseases: scanHistory.slice(0, 5).map(s => s.disease),
           language,
         };
