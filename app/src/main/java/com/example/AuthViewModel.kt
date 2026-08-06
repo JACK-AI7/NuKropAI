@@ -90,7 +90,7 @@ class AuthViewModel : ViewModel() {
                 val credentialManager = androidx.credentials.CredentialManager.create(context)
                 val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId("AutoNodeAi")
+                    .setServerClientId("NuKrop.AI")
                     .setAutoSelectEnabled(false)
                     .build()
                 val request = androidx.credentials.GetCredentialRequest.Builder()
