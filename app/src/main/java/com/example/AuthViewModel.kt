@@ -33,7 +33,7 @@ class AuthViewModel : ViewModel() {
                             _currentUser.value = status.session.user
                         }
                         else -> {
-                            if (_currentUser.value != "Guest") {
+                            if (_currentUser.value != "Guest" && _currentUser.value != "Google Farmer") {
                                 _currentUser.value = null
                             }
                         }
