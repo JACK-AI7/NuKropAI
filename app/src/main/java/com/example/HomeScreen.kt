@@ -32,6 +32,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import com.example.ui.theme.*
 import com.google.android.gms.location.LocationServices
@@ -87,8 +89,8 @@ fun HomeScreen(
 
             // ── Hero Section ──────────────────────────────────────
             Box(Modifier.fillMaxWidth().height(260.dp)) {
-                AsyncImage(
-                    model = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80",
+                Image(
+                    painter = painterResource(id = R.drawable.farm_bg),
                     contentDescription = "Farm background",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -210,24 +212,16 @@ fun HomeScreen(
             Spacer(Modifier.height(10.dp))
             Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Science, "Scan Crop", "AI Disease & Pest Detect", NuKropAccent, onNavigateToScan)
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Landscape, "Scan Soil", "AI Soil Health Analysis", Color(0xFF8BC34A), onNavigateToScan)
+                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_scan, Icons.Filled.Science, "Scan Crop", "AI Disease & Pest Detect", NuKropAccent, onNavigateToScan)
+                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_soil, Icons.Filled.Landscape, "Scan Soil", "AI Soil Health Analysis", Color(0xFF8BC34A), onNavigateToScan)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Analytics, "Market Rates", "Live Mandi Prices", Color(0xFF64B5F6), onNavigateToMarket)
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.SmartToy, "AI Advisor", "Ask Any Farm Question", Color(0xFFBA68C8), onNavigateToChat)
+                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_mandi, Icons.Filled.Analytics, "Market Rates", "Live Mandi Prices", Color(0xFF64B5F6), onNavigateToMarket)
+                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_advisor, Icons.Filled.SmartToy, "AI Advisor", "Ask Any Farm Question", Color(0xFFBA68C8), onNavigateToChat)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.AccountBalance, "Loan & Subsidy", "Govt Schemes Matcher", Color(0xFFFFB74D), onNavigateToFinance)
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Navigation, "Field Navigator", "GPS Route & Coverage", Color(0xFFE57373), onNavigateToAutopilot)
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Download, "Saved Reports", "View downloaded files", NuKropBadgeGreen, {
-                        try {
-                            context.startActivity(android.content.Intent(android.app.DownloadManager.ACTION_VIEW_DOWNLOADS))
-                        } catch (e: Exception) { }
-                    })
-                    Spacer(Modifier.weight(1f))
+                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_subsidy, Icons.Filled.AccountBalance, "Loan & Subsidy", "Govt Schemes Matcher", Color(0xFFFFB74D), onNavigateToFinance)
+                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_weather, Icons.Filled.Cloud, "Weather Alerts", "Hyperlocal GPS Alerts", Color(0xFFE57373), onNavigateToAutopilot)
                 }
             }
 
@@ -421,21 +415,35 @@ fun SectionHeader(title: String, icon: ImageVector) {
 }
 
 @Composable
-fun QuickActionTile(modifier: Modifier, icon: ImageVector, title: String, subtitle: String, accentColor: Color, onClick: () -> Unit) {
+fun QuickActionTile(modifier: Modifier, imageRes: Int, icon: ImageVector, title: String, subtitle: String, accentColor: Color, onClick: () -> Unit) {
     Box(
-        modifier = modifier.clip(RoundedCornerShape(16.dp))
-            .background(Brush.verticalGradient(listOf(Color(0xFF1E2A12), Color(0xFF141A0A))))
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF141A0A)) // Dark base for glassmorphism
             .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
-            .padding(14.dp)
     ) {
         Column {
-            Box(Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(accentColor.copy(0.15f)), Alignment.Center) {
-                Icon(icon, null, tint = accentColor, modifier = Modifier.size(22.dp))
+            // Image Half
+            Box(Modifier.fillMaxWidth().height(90.dp)) {
+                Image(
+                    painter = painterResource(id = imageRes),
+                    contentDescription = title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                // Soft gradient overlay to blend into the card text area
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xFF141A0A)))))
             }
-            Spacer(Modifier.height(10.dp))
-            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-            Text(subtitle, fontSize = 10.sp, color = NuKropTextMuted, lineHeight = 14.sp, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            // Content Half
+            Column(Modifier.padding(12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(icon, null, tint = accentColor, modifier = Modifier.size(16.dp))
+                    Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1)
+                }
+                Spacer(Modifier.height(6.dp))
+                Text(subtitle, fontSize = 10.sp, color = NuKropTextMuted, lineHeight = 14.sp, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            }
         }
     }
 }
