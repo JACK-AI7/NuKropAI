@@ -31,13 +31,37 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: 
-    radial-gradient(ellipse at top right, rgba(46, 90, 28, 0.4) 0%, transparent 55%),
-    radial-gradient(ellipse at bottom left, rgba(200, 232, 55, 0.06) 0%, transparent 50%),
-    linear-gradient(180deg, #0B0F07 0%, #0d1209 100%);
-  background-attachment: fixed;
+  background-color: #0B0F07; /* Fallback */
   color: var(--nukrop-text);
   overflow-x: hidden;
+}
+
+/* Dynamic Image Background */
+.dynamic-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/farm_bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  filter: blur(8px) brightness(0.6) saturate(1.5);
+  transform: scale(1.05); /* Prevents blur edges from showing */
+  z-index: 0;
+}
+
+.dynamic-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at top right, rgba(46, 90, 28, 0.4) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(11, 15, 7, 0.2) 0%, rgba(11, 15, 7, 0.9) 100%);
+  z-index: 1;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -48,25 +72,53 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Glassmorphism card utility */
 .glass-card {
-  background: rgba(18, 24, 12, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(200, 232, 55, 0.12);
-  border-radius: 18px;
+  background: rgba(18, 24, 12, 0.35); /* More transparent for background to bleed through */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
   box-shadow: 
-    0 8px 32px 0 rgba(0, 0, 0, 0.5),
-    0 1px 0 0 rgba(200, 232, 55, 0.06) inset,
-    0 -1px 0 0 rgba(0,0,0,0.3) inset;
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    0 16px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(200, 232, 55, 0.28);
+  border-color: rgba(200, 232, 55, 0.4);
   box-shadow: 
-    0 12px 48px 0 rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(200, 232, 55, 0.05),
-    0 1px 0 0 rgba(200, 232, 55, 0.08) inset;
-  transform: translateY(-1px);
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(200, 232, 55, 0.1),
+    inset 0 1px 0 rgba(200, 232, 55, 0.2);
+  transform: translateY(-4px) scale(1.01);
+}
+
+/* React Bits style floating animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float-delayed {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float-delayed {
+  animation: float-delayed 7s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+/* Gradient Text utility */
+.text-gradient {
+  background: linear-gradient(135deg, #FFFFFF 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Animated radar gradient background */

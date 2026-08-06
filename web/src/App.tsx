@@ -1,9 +1,13 @@
 import React from 'react';
-import { Sprout, Smartphone, Apple, AlertTriangle, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Sprout, Smartphone, Apple, AlertTriangle, ShieldCheck, ChevronRight, ScanLine, TrendingUp, Landmark, CloudRain, Layers, Globe, MapPin, MessageCircle } from 'lucide-react';
 
 export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* Background Elements */}
+      <div className="dynamic-bg"></div>
+      <div className="dynamic-overlay"></div>
       
       {/* Top Header */}
       <header style={{ 
@@ -25,7 +29,7 @@ export default function App() {
         </div>
       </header>
 
-      <main style={{ flex: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+      <main style={{ flex: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 10 }}>
         
         {/* Background Gradients */}
         <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50vw', height: '50vw', background: 'radial-gradient(circle, rgba(200,232,55,0.05) 0%, transparent 70%)', zIndex: 0, pointerEvents: 'none' }}></div>
@@ -59,7 +63,7 @@ export default function App() {
         <section style={{ width: '100%', maxWidth: '1200px', padding: '0 24px 80px 24px', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px' }}>
           
           {/* Problem Card */}
-          <div className="glass-card" style={{ padding: '40px', background: 'rgba(18, 24, 12, 0.4)' }}>
+          <div className="glass-card animate-float" style={{ padding: '40px' }}>
             <div style={{ width: '48px', height: '48px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
               <AlertTriangle style={{ color: 'var(--nukrop-error)', width: '24px', height: '24px' }} />
             </div>
@@ -70,7 +74,7 @@ export default function App() {
           </div>
 
           {/* Solution Card */}
-          <div className="glass-card" style={{ padding: '40px', background: 'rgba(200, 232, 55, 0.03)', border: '1px solid rgba(200, 232, 55, 0.15)' }}>
+          <div className="glass-card animate-float-delayed" style={{ padding: '40px' }}>
             <div style={{ width: '48px', height: '48px', background: 'linear-gradient(135deg, var(--nukrop-accent) 0%, var(--nukrop-accent-dark) 100%)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', boxShadow: '0 8px 24px rgba(200, 232, 55, 0.2)' }}>
               <ShieldCheck style={{ color: 'var(--nukrop-dark)', width: '24px', height: '24px' }} />
             </div>
@@ -80,6 +84,123 @@ export default function App() {
             </p>
           </div>
 
+        </section>
+
+        {/* Feature Showcase Section */}
+        <section style={{ width: '100%', maxWidth: '1200px', padding: '0 24px 80px 24px', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '32px', color: 'white', fontWeight: 'bold' }}>Unmatched Capabilities</h2>
+            <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '18px' }}>The tools you need to maximize your harvest.</p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
+            
+            {/* Feature 1: AI Scanner */}
+            <div className="glass-card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: '220px', backgroundImage: 'url("/feature_scan.jpg")', backgroundSize: 'cover', backgroundPosition: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}></div>
+              <div style={{ padding: '28px' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px', color: 'white', marginBottom: '10px' }}>
+                  <ScanLine style={{ color: 'var(--nukrop-accent)', width: '22px', height: '22px', flexShrink: 0 }} />
+                  AI Crop Scanning
+                </h3>
+                <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '14px', lineHeight: 1.6 }}>
+                  Point your camera at any crop leaf. Llama 3.2 Vision AI instantly diagnoses diseases, pests, and nutrient deficiencies with exact treatment dosages.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 2: Mandi Prices */}
+            <div className="glass-card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: '220px', backgroundImage: 'url("/feature_mandi.jpg")', backgroundSize: 'cover', backgroundPosition: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}></div>
+              <div style={{ padding: '28px' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px', color: 'white', marginBottom: '10px' }}>
+                  <TrendingUp style={{ color: '#D4F040', width: '22px', height: '22px', flexShrink: 0 }} />
+                  Live Mandi Rates
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--nukrop-accent)', background: 'rgba(200,232,55,0.1)', padding: '2px 8px', borderRadius: '100px' }}><MapPin style={{ width: '10px', height: '10px' }} />Location Based</span>
+                </h3>
+                <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '14px', lineHeight: 1.6 }}>
+                  Fetches real-time commodity prices from your nearest Mandi using GPS and the Government of India's live API. No middlemen, no hidden rates.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 3: Subsidy Matcher */}
+            <div className="glass-card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: '220px', backgroundImage: 'url("/feature_subsidy.jpg")', backgroundSize: 'cover', backgroundPosition: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}></div>
+              <div style={{ padding: '28px' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px', color: 'white', marginBottom: '10px' }}>
+                  <Landmark style={{ color: '#64B5F6', width: '22px', height: '22px', flexShrink: 0 }} />
+                  Loan & Subsidy Finder
+                </h3>
+                <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '14px', lineHeight: 1.6 }}>
+                  AI scans thousands of Central & State government schemes and auto-matches subsidies and loans you're eligible for based on your farm profile.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 4: Weather Alerts */}
+            <div className="glass-card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: '220px', backgroundImage: 'url("/feature_weather.jpg")', backgroundSize: 'cover', backgroundPosition: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}></div>
+              <div style={{ padding: '28px' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px', color: 'white', marginBottom: '10px' }}>
+                  <CloudRain style={{ color: '#F59E0B', width: '22px', height: '22px', flexShrink: 0 }} />
+                  Weather Alerts
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#F59E0B', background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: '100px' }}><MapPin style={{ width: '10px', height: '10px' }} />Location Based</span>
+                </h3>
+                <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '14px', lineHeight: 1.6 }}>
+                  Hyperlocal weather forecasts and real-time storm, frost, and heatwave alerts sent directly to your phone based on your exact GPS location.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 5: Soil Scanner */}
+            <div className="glass-card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: '220px', backgroundImage: 'url("/feature_soil.jpg")', backgroundSize: 'cover', backgroundPosition: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}></div>
+              <div style={{ padding: '28px' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px', color: 'white', marginBottom: '10px' }}>
+                  <Layers style={{ color: '#A78BFA', width: '22px', height: '22px', flexShrink: 0 }} />
+                  AI Soil Scanner
+                </h3>
+                <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '14px', lineHeight: 1.6 }}>
+                  Photograph your soil sample and receive a detailed AI-powered analysis of pH, nitrogen, phosphorus, and potassium levels with fertilizer recommendations.
+                </p>
+              </div>
+            </div>
+
+            {/* Feature 6: AI Advisor */}
+            <div className="glass-card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: '220px', backgroundImage: 'url("/feature_advisor.jpg")', backgroundSize: 'cover', backgroundPosition: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}></div>
+              <div style={{ padding: '28px' }}>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '18px', color: 'white', marginBottom: '10px' }}>
+                  <MessageCircle style={{ color: '#34D399', width: '22px', height: '22px', flexShrink: 0 }} />
+                  AI Farm Advisor
+                </h3>
+                <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '14px', lineHeight: 1.6 }}>
+                  Ask any farming question in your language. Our Llama-powered AI advisor provides expert guidance on crop rotation, pest control, irrigation, and best practices 24/7.
+                </p>
+              </div>
+            </div>
+            
+          </div>
+        </section>
+
+        {/* Multi-Language Support Section */}
+        <section style={{ width: '100%', maxWidth: '1200px', padding: '0 24px 80px 24px', zIndex: 1 }}>
+          <div className="glass-card" style={{ padding: '48px 40px', textAlign: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '20px' }}>
+              <Globe style={{ color: 'var(--nukrop-accent)', width: '32px', height: '32px' }} />
+              <h2 style={{ fontSize: '28px', color: 'white', fontWeight: 'bold' }}>Available in Your Language</h2>
+            </div>
+            <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '16px', lineHeight: 1.6, maxWidth: '700px', margin: '0 auto 32px auto' }}>
+              Every feature — AI scanning, Mandi prices, subsidies, weather alerts, and soil analysis — is fully available in all major Indian languages. Use the app the way you think.
+            </p>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {['English', 'हिन्दी', 'తెలుగు', 'தமிழ்', 'मराठी'].map((lang) => (
+                <span key={lang} style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: 'white', fontSize: '16px', fontWeight: '600' }}>{lang}</span>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* Download Hub */}
@@ -118,7 +239,7 @@ export default function App() {
 
       </main>
 
-      <footer style={{ padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)', zIndex: 1 }}>
+      <footer style={{ padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)', position: 'relative', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '16px' }}>
           <Sprout style={{ color: 'var(--nukrop-text-muted)', width: '20px', height: '20px' }} />
           <span style={{ fontSize: '16px', fontFamily: 'Outfit', fontWeight: 'bold', color: 'var(--nukrop-text-dim)' }}>NuKropAI</span>
