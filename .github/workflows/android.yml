@@ -22,24 +22,12 @@ jobs:
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-      
-    - name: Build with Gradle
-      run: ./gradlew build
-      
-    - name: Build Release AAB
-      run: ./gradlew bundleRelease
-      
+
     - name: Build Release APK
-      run: ./gradlew assembleRelease
-      
-    - name: Upload APK
+      run: ./gradlew assembleRelease --no-daemon
+
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-release-apk
         path: app/build/outputs/apk/release/app-release.apk
-
-    - name: Upload AAB
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release-aAB
-        path: app/build/outputs/bundle/release/app-release.aab

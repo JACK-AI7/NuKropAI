@@ -3,6 +3,7 @@ package com.example
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -293,7 +294,33 @@ fun LoginScreen(
                         }
                     }
 
-                    Spacer(Modifier.height(20.dp))
+                    Spacer(Modifier.height(14.dp))
+
+                    // Google (Gmail) Sign-In Button
+                    OutlinedButton(
+                        onClick = { viewModel.signInWithGoogle(context) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(26.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0x15FFFFFF)),
+                        border = BorderStroke(1.dp, Color(0x40FFFFFF))
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text("🌐", fontSize = 18.sp)
+                            Text(
+                                "Continue with Google (Gmail)",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(14.dp))
 
                     // Continue as Guest Button
                     TextButton(

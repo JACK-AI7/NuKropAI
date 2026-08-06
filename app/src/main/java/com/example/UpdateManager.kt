@@ -33,7 +33,7 @@ object UpdateManager {
     // Your GitHub repository. Change to the real release URL when you publish.
     // Format: https://github.com/<user>/<repo>/releases/latest/download/<filename>
     private const val APK_DOWNLOAD_URL =
-        "https://github.com/nukropai/nukrop-android/releases/latest/download/nukrop-enterprise.apk"
+        "https://github.com/JACK-AI7/NuKropAI/releases/latest/download/app-release.apk"
 
     private const val CURRENT_VERSION = "1.0.0"
 
@@ -47,7 +47,7 @@ object UpdateManager {
             try {
                 // Try to get version from GitHub releases API
                 val req = Request.Builder()
-                    .url("https://api.github.com/repos/nukropai/nukrop-android/releases/latest")
+                    .url("https://api.github.com/repos/JACK-AI7/NuKropAI/releases/latest")
                     .header("Accept", "application/vnd.github.v3+json")
                     .build()
                 val resp = client.newCall(req).execute()
