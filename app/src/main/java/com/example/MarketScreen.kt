@@ -133,7 +133,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Icon(Icons.Filled.LocationOn, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
                                     val locText = if (userMandi.isNotEmpty()) "$userMandi, $userState" else if (userState.isNotEmpty()) userState else AppStrings.get("auto_detect", lang)
-                                    Text(locText, fontSize = 11.sp, color = if (userState.isNotEmpty()) NuKropAccent else NuKropTextMuted, fontWeight = FontWeight.Bold)
+                                    Text(locText, fontSize = 11.sp, color = if (userState.isNotEmpty()) NuKropAccent else NuKropTextMuted, fontWeight = FontWeight.Bold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 120.dp))
                                 }
                             }
                         }
@@ -265,6 +265,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                         MandiLiveCard(record, lang, context)
                     }
                 }
+                Spacer(Modifier.height(180.dp))
             }
         }
     }

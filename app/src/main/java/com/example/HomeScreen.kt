@@ -221,6 +221,14 @@ fun HomeScreen(
                     QuickActionTile(Modifier.weight(1f), Icons.Filled.AccountBalance, "Loan & Subsidy", "Govt Schemes Matcher", Color(0xFFFFB74D), onNavigateToFinance)
                     QuickActionTile(Modifier.weight(1f), Icons.Filled.Navigation, "Field Navigator", "GPS Route & Coverage", Color(0xFFE57373), onNavigateToAutopilot)
                 }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Download, "Saved Reports", "View downloaded files", NuKropBadgeGreen, {
+                        try {
+                            context.startActivity(android.content.Intent(android.app.DownloadManager.ACTION_VIEW_DOWNLOADS))
+                        } catch (e: Exception) { }
+                    })
+                    Spacer(Modifier.weight(1f))
+                }
             }
 
             Spacer(Modifier.height(20.dp))
@@ -333,6 +341,7 @@ fun HomeScreen(
             )
             tips.forEach { (icon, title, desc) -> TipCard(icon, title, desc); Spacer(Modifier.height(8.dp)) }
 
+            Spacer(Modifier.height(180.dp))
         }
     }
 }
@@ -426,7 +435,7 @@ fun QuickActionTile(modifier: Modifier, icon: ImageVector, title: String, subtit
             }
             Spacer(Modifier.height(10.dp))
             Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-            Text(subtitle, fontSize = 10.sp, color = NuKropTextMuted, lineHeight = 14.sp)
+            Text(subtitle, fontSize = 10.sp, color = NuKropTextMuted, lineHeight = 14.sp, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }

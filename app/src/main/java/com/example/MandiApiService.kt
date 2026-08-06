@@ -142,38 +142,42 @@ object MandiApiService {
 
         // PATH 1: Try backend Redis cache (ultra-fast)
         try {
-            val stateEnc = URLEncoder.encode(state.trim(), "UTF-8")
-            val commEnc = URLEncoder.encode(commodity.trim(), "UTF-8")
-            val url = "$BACKEND_URL?state=$stateEnc&commodity=$commEnc"
-            val request = Request.Builder().url(url).build()
-
-            val responseBody = client.newCall(request).execute().use { response ->
-                if (response.isSuccessful) response.body?.string() else null
-            }
-
-            if (!responseBody.isNullOrBlank()) {
-                val root = json.parseToJsonElement(responseBody).jsonObject
-                val recordsArray = root["records"]?.jsonArray
-                if (recordsArray != null) {
-                    val records = recordsArray.mapNotNull { el ->
-                        runCatching {
-                            val obj = el.jsonObject
-                            MandiRecord(
-                                state = obj["state"]?.jsonPrimitive?.content ?: "",
-                                district = obj["district"]?.jsonPrimitive?.content ?: "",
-                                market = obj["market"]?.jsonPrimitive?.content ?: "",
-                                commodity = obj["commodity"]?.jsonPrimitive?.content ?: "",
-                                variety = obj["variety"]?.jsonPrimitive?.content ?: "",
-                                minPrice = obj["minPrice"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
-                                maxPrice = obj["maxPrice"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
-                                modalPrice = obj["modalPrice"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
-                                arrivalDate = obj["arrivalDate"]?.jsonPrimitive?.content ?: ""
-                            )
-                        }.getOrNull()
-                    }
-                    if (records.isNotEmpty()) return@withContext Result.success(records)
+            val backendResult = kotlinx.coroutines.withTimeoutOrNull(1000L) {
+                val stateEnc = URLEncoder.encode(state.trim(), "UTF-8")
+                val commEnc = URLEncoder.encode(commodity.trim(), "UTF-8")
+                val url = "$BACKEND_URL?state=$stateEnc&commodity=$commEnc"
+                val request = Request.Builder().url(url).build()
+    
+                val responseBody = client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) response.body?.string() else null
                 }
+    
+                if (!responseBody.isNullOrBlank()) {
+                    val root = json.parseToJsonElement(responseBody).jsonObject
+                    val recordsArray = root["records"]?.jsonArray
+                    if (recordsArray != null) {
+                        val records = recordsArray.mapNotNull { el ->
+                            runCatching {
+                                val obj = el.jsonObject
+                                MandiRecord(
+                                    state = obj["state"]?.jsonPrimitive?.content ?: "",
+                                    district = obj["district"]?.jsonPrimitive?.content ?: "",
+                                    market = obj["market"]?.jsonPrimitive?.content ?: "",
+                                    commodity = obj["commodity"]?.jsonPrimitive?.content ?: "",
+                                    variety = obj["variety"]?.jsonPrimitive?.content ?: "",
+                                    minPrice = obj["minPrice"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
+                                    maxPrice = obj["maxPrice"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
+                                    modalPrice = obj["modalPrice"]?.jsonPrimitive?.doubleOrNull ?: 0.0,
+                                    arrivalDate = obj["arrivalDate"]?.jsonPrimitive?.content ?: ""
+                                )
+                            }.getOrNull()
+                        }
+                        if (records.isNotEmpty()) return@withTimeoutOrNull Result.success(records)
+                    }
+                }
+                null
             }
+            if (backendResult != null) return@withContext backendResult
         } catch (_: Exception) {
             // Backend not reachable (physical device without local server) — fall through to gov API
         }

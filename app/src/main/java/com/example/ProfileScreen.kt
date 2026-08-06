@@ -237,7 +237,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
             Text("Sign Out", color = NuKropError, fontWeight = FontWeight.SemiBold)
         }
 
-        Spacer(modifier = Modifier.height(100.dp))
+        Spacer(modifier = Modifier.height(180.dp))
     }
 }
 
