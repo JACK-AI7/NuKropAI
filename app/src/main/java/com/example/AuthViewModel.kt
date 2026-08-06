@@ -26,17 +26,21 @@ class AuthViewModel : ViewModel() {
     init {
         // Collect supabase session updates
         viewModelScope.launch {
-            supabase.auth.sessionStatus.collect { status ->
-                when (status) {
-                    is io.github.jan.supabase.auth.status.SessionStatus.Authenticated -> {
-                        _currentUser.value = status.session.user
-                    }
-                    else -> {
-                        if (_currentUser.value != "Guest") {
-                            _currentUser.value = null
+            try {
+                supabase.auth.sessionStatus.collect { status ->
+                    when (status) {
+                        is io.github.jan.supabase.auth.status.SessionStatus.Authenticated -> {
+                            _currentUser.value = status.session.user
+                        }
+                        else -> {
+                            if (_currentUser.value != "Guest") {
+                                _currentUser.value = null
+                            }
                         }
                     }
                 }
+            } catch (e: Throwable) {
+                android.util.Log.e("AuthViewModel", "Session status collect error: ${e.message}")
             }
         }
     }

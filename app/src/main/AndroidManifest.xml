@@ -46,19 +46,6 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <!-- Disable Firebase auto-init to prevent crash on startup -->
-        <provider
-            android:name="com.google.firebase.provider.FirebaseInitProvider"
-            android:authorities="${applicationId}.firebaseinitprovider"
-            android:exported="false"
-            android:initOrder="100"
-            tools:replace="android:initOrder"
-            tools:node="replace" />
-
-        <meta-data
-            android:name="firebase_data_collection_default_enabled"
-            android:value="false" />
-
     </application>
 
 </manifest>
