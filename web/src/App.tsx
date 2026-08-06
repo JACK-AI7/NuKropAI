@@ -220,7 +220,7 @@ export default function App() {
             </p>
             
             <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="/NuKropAI.apk" download className="nukrop-btn" style={{ padding: '18px 32px', fontSize: '16px', borderRadius: '16px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <a href="/NuKropAI_v1.0.apk" download className="nukrop-btn" style={{ padding: '18px 32px', fontSize: '16px', borderRadius: '16px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <Smartphone style={{ width: '20px', height: '20px' }} />
                 <span>Download Android APK</span>
                 <ChevronRight style={{ width: '16px', height: '16px', marginLeft: '4px' }} />
