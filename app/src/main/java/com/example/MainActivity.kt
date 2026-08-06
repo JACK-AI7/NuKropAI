@@ -25,6 +25,9 @@ import androidx.work.WorkManager
 import androidx.work.ExistingPeriodicWorkPolicy
 import java.util.concurrent.TimeUnit
 import com.example.ui.theme.*
+import android.Manifest
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
 
 sealed class Tab(val route: String, val icon: String, val labelKey: String) {
     object Home   : Tab("home",    "🏠", "nav_home")
@@ -37,10 +40,23 @@ sealed class Tab(val route: String, val icon: String, val labelKey: String) {
 }
 
 class MainActivity : ComponentActivity() {
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        // Handle permission responses if needed
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LanguageManager.init(this)
         
+        // Request essential permissions on startup
+        val permissionsToRequest = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
+
         val workRequest = PeriodicWorkRequestBuilder<AlertWorker>(1, TimeUnit.HOURS).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork("AlertWorker", ExistingPeriodicWorkPolicy.KEEP, workRequest)
 

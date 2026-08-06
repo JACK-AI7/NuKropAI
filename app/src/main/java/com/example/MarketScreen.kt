@@ -32,11 +32,11 @@ fun MarketScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val lang = LanguageManager.currentLanguage.collectAsState().value
     
-    var query by remember { mutableStateOf("") }
-    var activeSearchQuery by remember { mutableStateOf("") }
-    var activeSearchState by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf("Wheat") }
+    var activeSearchQuery by remember { mutableStateOf("Wheat") }
+    var activeSearchState by remember { mutableStateOf("Maharashtra") }
     
-    var userState by remember { mutableStateOf("") }
+    var userState by remember { mutableStateOf("Maharashtra") }
     var userMandi by remember { mutableStateOf("") }
     var detectingLoc by remember { mutableStateOf(false) }
     

@@ -78,8 +78,15 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(DarkBg1, DarkBg2, DarkBg3)))
+            .background(DarkBg3)
     ) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(id = R.drawable.farm_bg),
+            contentDescription = "Farm Background",
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        Box(modifier = Modifier.fillMaxSize().background(Color(0xD90A0F06))) // Dark overlay for readability
         // Animated background glow orbs
         Box(
             modifier = Modifier

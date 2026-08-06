@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.app.Application
+import android.content.Context
+import androidx.lifecycle.AndroidViewModel
 
 sealed class AuthState {
     object Idle : AuthState()
@@ -16,7 +19,9 @@ sealed class AuthState {
     data class Error(val message: String) : AuthState()
 }
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
+    private val prefs = application.getSharedPreferences("nukrop_auth", Context.MODE_PRIVATE)
+
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
@@ -24,6 +29,12 @@ class AuthViewModel : ViewModel() {
     val currentUser = _currentUser.asStateFlow()
 
     init {
+        // Load saved session to prevent auto-logout
+        val savedUser = prefs.getString("user_name", null)
+        if (savedUser != null) {
+            _currentUser.value = savedUser
+            _authState.value = AuthState.Success
+        }
         // Collect supabase session updates
         viewModelScope.launch {
             try {
@@ -31,10 +42,12 @@ class AuthViewModel : ViewModel() {
                     when (status) {
                         is io.github.jan.supabase.auth.status.SessionStatus.Authenticated -> {
                             _currentUser.value = status.session.user
+                            prefs.edit().putString("user_name", status.session.user?.email).apply()
                         }
                         else -> {
                             if (_currentUser.value != "Guest" && _currentUser.value != "Google Farmer") {
                                 _currentUser.value = null
+                                prefs.edit().clear().apply()
                             }
                         }
                     }
@@ -110,14 +123,17 @@ class AuthViewModel : ViewModel() {
                     } catch (_: Exception) {}
 
                     _currentUser.value = googleIdTokenCredential.displayName ?: googleIdTokenCredential.id
+                    prefs.edit().putString("user_name", _currentUser.value as String).apply()
                     _authState.value = AuthState.Success
                 } else {
                     _currentUser.value = "Google Farmer"
+                    prefs.edit().putString("user_name", "Google Farmer").apply()
                     _authState.value = AuthState.Success
                 }
             } catch (e: Exception) {
                 // Smooth fallback for devices without Web Client ID registered on device
                 _currentUser.value = "Google Farmer"
+                prefs.edit().putString("user_name", "Google Farmer").apply()
                 _authState.value = AuthState.Success
             }
         }
@@ -127,12 +143,14 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             try { supabase.auth.signOut() } catch (_: Exception) {}
             _currentUser.value = null
+            prefs.edit().clear().apply()
             _authState.value = AuthState.Idle
         }
     }
 
     fun continueAsGuest() {
         _currentUser.value = "Guest"
+        prefs.edit().putString("user_name", "Guest").apply()
         _authState.value = AuthState.Success
     }
 

@@ -212,16 +212,16 @@ fun HomeScreen(
             Spacer(Modifier.height(10.dp))
             Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_scan, Icons.Filled.Science, "Scan Crop", "AI Disease & Pest Detect", NuKropAccent, onNavigateToScan)
-                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_soil, Icons.Filled.Landscape, "Scan Soil", "AI Soil Health Analysis", Color(0xFF8BC34A), onNavigateToScan)
+                    QuickActionTile(Modifier.weight(1f), "🐛", "Scan Crop", "AI Disease & Pest Detect", NuKropAccent, onNavigateToScan)
+                    QuickActionTile(Modifier.weight(1f), "🌱", "Scan Soil", "AI Soil Health Analysis", Color(0xFF8BC34A), onNavigateToScan)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_mandi, Icons.Filled.Analytics, "Market Rates", "Live Mandi Prices", Color(0xFF64B5F6), onNavigateToMarket)
-                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_advisor, Icons.Filled.SmartToy, "AI Advisor", "Ask Any Farm Question", Color(0xFFBA68C8), onNavigateToChat)
+                    QuickActionTile(Modifier.weight(1f), "📈", "Market Rates", "Live Mandi Prices", Color(0xFF64B5F6), onNavigateToMarket)
+                    QuickActionTile(Modifier.weight(1f), "🤖", "AI Advisor", "Ask Any Farm Question", Color(0xFFBA68C8), onNavigateToChat)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_subsidy, Icons.Filled.AccountBalance, "Loan & Subsidy", "Govt Schemes Matcher", Color(0xFFFFB74D), onNavigateToFinance)
-                    QuickActionTile(Modifier.weight(1f), R.drawable.feature_weather, Icons.Filled.Cloud, "Weather Alerts", "Hyperlocal GPS Alerts", Color(0xFFE57373), onNavigateToAutopilot)
+                    QuickActionTile(Modifier.weight(1f), "💰", "Loan & Subsidy", "Govt Schemes Matcher", Color(0xFFFFB74D), onNavigateToFinance)
+                    QuickActionTile(Modifier.weight(1f), "🌦️", "Weather Alerts", "Hyperlocal GPS Alerts", Color(0xFFE57373), onNavigateToAutopilot)
                 }
             }
 
@@ -415,35 +415,21 @@ fun SectionHeader(title: String, icon: ImageVector) {
 }
 
 @Composable
-fun QuickActionTile(modifier: Modifier, imageRes: Int, icon: ImageVector, title: String, subtitle: String, accentColor: Color, onClick: () -> Unit) {
+fun QuickActionTile(modifier: Modifier, emoji: String, title: String, subtitle: String, accentColor: Color, onClick: () -> Unit) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFF141A0A)) // Dark base for glassmorphism
             .border(1.dp, accentColor.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
+            .padding(16.dp)
     ) {
         Column {
-            // Image Half
-            Box(Modifier.fillMaxWidth().height(90.dp)) {
-                Image(
-                    painter = painterResource(id = imageRes),
-                    contentDescription = title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-                // Soft gradient overlay to blend into the card text area
-                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xFF141A0A)))))
-            }
-            // Content Half
-            Column(Modifier.padding(12.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(icon, null, tint = accentColor, modifier = Modifier.size(16.dp))
-                    Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1)
-                }
-                Spacer(Modifier.height(6.dp))
-                Text(subtitle, fontSize = 10.sp, color = NuKropTextMuted, lineHeight = 14.sp, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            }
+            Text(emoji, fontSize = 24.sp)
+            Spacer(Modifier.height(12.dp))
+            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1)
+            Spacer(Modifier.height(6.dp))
+            Text(subtitle, fontSize = 10.sp, color = NuKropTextMuted, lineHeight = 14.sp, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }
