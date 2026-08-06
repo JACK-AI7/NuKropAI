@@ -1,5 +1,4 @@
-import React from 'react';
-import { Download, Smartphone, Apple } from 'lucide-react';
+import { Smartphone, Apple } from 'lucide-react';
 
 export default function Hero() {
   return (

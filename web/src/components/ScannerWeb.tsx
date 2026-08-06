@@ -1,4 +1,3 @@
-import React from 'react';
 import { ScanSearch, UploadCloud, Cpu } from 'lucide-react';
 
 export default function ScannerWeb() {

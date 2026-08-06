@@ -1,4 +1,3 @@
-import React from 'react';
 import { Sprout, Smartphone, Apple, AlertTriangle, ShieldCheck, ChevronRight, ScanLine, TrendingUp, Landmark, CloudRain, Layers, Globe, MapPin, MessageCircle } from 'lucide-react';
 
 export default function App() {
