@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # TimescaleDB includes PostGIS in its HA/PostGIS docker image variants
+  timescaledb:
+    image: timescale/timescaledb-ha:pg15
+    container_name: nukrop_db
+    environment:
+      POSTGRES_USER: enterprise_ai
+      POSTGRES_PASSWORD: securepassword123
+      POSTGRES_DB: ai_os_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/home/postgres/pgdata/data
+      - ./infra/db/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U enterprise_ai -d ai_os_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: nukrop_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  emqx:
+    image: emqx/emqx:5.3.0
+    container_name: nukrop_mqtt
+    ports:
+      - "1883:1883"     # MQTT/TCP
+      - "8083:8083"     # MQTT/WS
+      - "8084:8084"     # MQTT/WSS
+      - "8883:8883"     # MQTT/SSL
+      - "18083:18083"   # EMQX Dashboard
+    environment:
+      EMQX_DASHBOARD__DEFAULT_USERNAME: admin
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: public_admin_pw
+    volumes:
+      - emqx_data:/opt/emqx/data
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  redis_data:
+  emqx_data:

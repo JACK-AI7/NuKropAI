@@ -1,0 +1,8 @@
+{
+  "name": "Agriculture AI OS",
+  "description": "Complete Predictive Farming Intelligence OS with disease sensing and soil intelligence.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

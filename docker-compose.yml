@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: nukrop_db
+    environment:
+      POSTGRES_USER: enterprise_ai
+      POSTGRES_PASSWORD: securepassword123
+      POSTGRES_DB: ai_os_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+    restart: always
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nukrop_api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_CONNECTION_STRING=postgresql://enterprise_ai:securepassword123@postgres:5432/ai_os_db
+      - JWT_SECRET=SUPER_SECURE_JWT_SECRET_KEY_12345
+      - JWT_REFRESH_SECRET=SUPER_SECURE_REFRESH_SECRET_KEY_98765
+    depends_on:
+      - postgres
+    restart: always
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: nukrop_web
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    restart: always
+
+  proxy:
+    image: nginx:alpine
+    container_name: nukrop_proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - web
+    restart: always
+
+volumes:
+  pgdata:

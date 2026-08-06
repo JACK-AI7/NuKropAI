@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Expose the Download directory where the APK is saved -->
+    <external-files-path name="downloads" path="Download/" />
+    
+    <!-- Also expose standard external downloads just in case -->
+    <external-path name="external_files" path="." />
+</paths>

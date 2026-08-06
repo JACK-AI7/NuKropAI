@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  # Local MQTT Broker for offline communication with ESP32/Tuya devices
+  local_broker:
+    image: eclipse-mosquitto:2
+    container_name: nukrop_edge_mqtt
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: unless-stopped
+
+  # Python Edge Controller (Handles offline orchestration & Cloud Sync)
+  edge_controller:
+    build: ./edge-controller
+    container_name: nukrop_edge_controller
+    depends_on:
+      - local_broker
+    environment:
+      LOCAL_MQTT_HOST: "local_broker"
+      CLOUD_MQTT_HOST: "mqtt.nukrop.io" # E.g., The EMQX cloud broker
+      FARM_ID: "farm_12345"
+    restart: always

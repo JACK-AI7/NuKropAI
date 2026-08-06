@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'nukrop_iot_core'
+    metrics_path: '/api/v1/metrics' # Fastify exposes this
+    static_configs:
+      - targets: ['api:3000']

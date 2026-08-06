@@ -1,0 +1,313 @@
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: #E2E8F0;
+  background-color: #0B0F07;
+
+  /* Color Palette Matching NuKrop App */
+  --nukrop-dark: #0B0F07;
+  --nukrop-surface: #12180C;
+  --nukrop-card: #182210;
+  --nukrop-green: #2E5A1C;
+  --nukrop-accent: #C8E837;
+  --nukrop-accent-dark: #AEC82D;
+  --nukrop-accent-glow: rgba(200, 232, 55, 0.35);
+  --nukrop-text: #F8FAFC;
+  --nukrop-text-muted: #64748B;
+  --nukrop-text-dim: #94A3B8;
+  --nukrop-error: #EF4444;
+  --nukrop-warning: #F59E0B;
+  --nukrop-green-badge: #10B981;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: 
+    radial-gradient(ellipse at top right, rgba(46, 90, 28, 0.4) 0%, transparent 55%),
+    radial-gradient(ellipse at bottom left, rgba(200, 232, 55, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #0B0F07 0%, #0d1209 100%);
+  background-attachment: fixed;
+  color: var(--nukrop-text);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Glassmorphism card utility */
+.glass-card {
+  background: rgba(18, 24, 12, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 232, 55, 0.12);
+  border-radius: 18px;
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.5),
+    0 1px 0 0 rgba(200, 232, 55, 0.06) inset,
+    0 -1px 0 0 rgba(0,0,0,0.3) inset;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(200, 232, 55, 0.28);
+  box-shadow: 
+    0 12px 48px 0 rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(200, 232, 55, 0.05),
+    0 1px 0 0 rgba(200, 232, 55, 0.08) inset;
+  transform: translateY(-1px);
+}
+
+/* Animated radar gradient background */
+.radar-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.radar-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.04) 0%, transparent 60%);
+  animation: radarPulse 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.radar-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+.radar-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--nukrop-error), transparent);
+  animation: scan 3s linear infinite;
+  z-index: 2;
+}
+
+@keyframes radarPulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes scan {
+  0% { top: 0%; opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 232, 55, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 232, 55, 0.4);
+}
+
+/* Custom Input Styling */
+.nukrop-input {
+  background: rgba(18, 24, 12, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: white;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.nukrop-input::placeholder {
+  color: var(--nukrop-text-muted);
+}
+
+.nukrop-input:focus {
+  border-color: var(--nukrop-accent);
+  box-shadow: 0 0 0 3px rgba(200, 232, 55, 0.15);
+  background: rgba(24, 34, 16, 0.95);
+}
+
+.nukrop-input option {
+  background: #182210;
+  color: white;
+}
+
+/* Premium Button Styling */
+.nukrop-btn {
+  background: linear-gradient(135deg, var(--nukrop-accent) 0%, var(--nukrop-accent-dark) 100%);
+  color: var(--nukrop-dark);
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.01em;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(200, 232, 55, 0.25);
+  white-space: nowrap;
+}
+
+.nukrop-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #D4F040 0%, var(--nukrop-accent) 100%);
+  box-shadow: 0 6px 20px rgba(200, 232, 55, 0.4);
+  transform: translateY(-1px);
+}
+
+.nukrop-btn:active:not(:disabled) {
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 2px 8px rgba(200, 232, 55, 0.2);
+}
+
+.nukrop-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.nukrop-btn-secondary {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--nukrop-text-dim);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.nukrop-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.13);
+  color: white;
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.nukrop-btn-danger {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  color: white;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+}
+
+.nukrop-btn-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #F87171 0%, #EF4444 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+  transform: translateY(-1px);
+}
+
+/* Badge colors */
+.badge {
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.badge-green {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-yellow {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--nukrop-warning);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--nukrop-error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Live indicators */
+.live-pulse {
+  width: 8px;
+  height: 8px;
+  background-color: var(--nukrop-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 var(--nukrop-accent-glow);
+  animation: livePulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 var(--nukrop-accent-glow);
+  }
+  60% {
+    transform: scale(1);
+    box-shadow: 0 0 0 7px rgba(200, 232, 55, 0);
+  }
+  100% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(200, 232, 55, 0);
+  }
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0% { background-position: -500px 0; }
+  100% { background-position: 500px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 75%);
+  background-size: 500px 100%;
+  animation: shimmer 1.8s infinite linear;
+}
+
+/* Fade-in animation for content loaded */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+/* Pulse for legacy skeleton use */
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+
+

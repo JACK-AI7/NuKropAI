@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agriculture-ai-os-backend
+  labels:
+    app: ag-ai-os
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: ag-ai-os
+  template:
+    metadata:
+      labels:
+        app: ag-ai-os
+        tier: backend
+    spec:
+      containers:
+      - name: ag-ai-core
+        image: gcr.io/your-project/agriculture-ai-os:production
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: TFLITE_EDGE_SYNC_ENABLED
+          value: "true"
+        - name: KAFKA_BROKER
+          value: "kafka-telemetry-cluster:9092"
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 3000
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 3000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ag-ai-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agriculture-ai-os-backend
+  minReplicas: 5
+  maxReplicas: 100
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

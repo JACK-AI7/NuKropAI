@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enterprise-ai-backend
+  labels:
+    app: enterprise-ai
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: enterprise-ai
+  template:
+    metadata:
+      labels:
+        app: enterprise-ai
+    spec:
+      containers:
+      - name: enterprise-ai-backend
+        image: gcr.io/your-project/enterprise-ai-backend:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: DB_HOST
+          value: "postgres-svc"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enterprise-ai-svc
+spec:
+  selector:
+    app: enterprise-ai
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
