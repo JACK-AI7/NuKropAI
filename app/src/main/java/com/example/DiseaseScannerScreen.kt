@@ -37,6 +37,13 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.File
+import android.os.Environment
+import android.content.ContentValues
+import android.provider.MediaStore
+import android.widget.Toast
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Download
 
 enum class ScanMode { CROP, SOIL }
 
@@ -300,11 +307,11 @@ fun CameraScanner(modifier: Modifier, scanMode: ScanMode, onBack: () -> Unit) {
             Modifier.fillMaxWidth().background(Color(0xDD0D1208)).statusBarsPadding().padding(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onBack) { Text("←", fontSize = 22.sp, color = NuKropText) }
+            IconButton(onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText) }
             Column {
                 Text(if (scanMode == ScanMode.CROP) "Crop Disease & Pest Scan" else "Soil Health Analysis",
                     fontSize = 15.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                Text("Powered by OpenRouter Vision AI", fontSize = 10.sp, color = accent)
+                Text("Powered by NuKrop Vision AI", fontSize = 10.sp, color = accent)
             }
         }
 
@@ -312,7 +319,7 @@ fun CameraScanner(modifier: Modifier, scanMode: ScanMode, onBack: () -> Unit) {
         Box(Modifier.align(Alignment.BottomCenter).padding(bottom = 230.dp)) {
             Box(Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xBB0D1208)).padding(horizontal = 16.dp, vertical = 8.dp)) {
                 Text(
-                    if (scanning) "🔬 Analyzing with OpenRouter AI..."
+                    if (scanning) "🔬 Analyzing with NuKrop AI..."
                     else if (scanMode == ScanMode.CROP) "📍 Point at crop leaves / stem / fruit"
                     else "📍 Point at soil sample clearly",
                     fontSize = 13.sp, color = if (scanning) accent else NuKropTextMuted
@@ -412,10 +419,10 @@ fun ScanResultView(modifier: Modifier, raw: String, mode: ScanMode, accent: Colo
     Column(modifier.fillMaxSize().background(NuKropDark).verticalScroll(scroll)) {
         // Header
         Row(Modifier.fillMaxWidth().background(NuKropSurface).statusBarsPadding().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onBack) { Text("←", fontSize = 22.sp, color = NuKropText) }
+            IconButton(onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText) }
             Column {
                 Text("AI Analysis Complete", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                Text("Results powered by OpenRouter Vision", fontSize = 10.sp, color = NuKropTextMuted)
+                Text("Results powered by NuKrop Vision AI", fontSize = 10.sp, color = NuKropTextMuted)
             }
         }
 
@@ -433,15 +440,121 @@ fun ScanResultView(modifier: Modifier, raw: String, mode: ScanMode, accent: Colo
             else RawResultFallback(raw)
         }
 
-        Spacer(Modifier.height(16.dp))
-        Row(Modifier.fillMaxWidth().padding(16.dp), Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onBack, Modifier.weight(1f).height(50.dp), shape = RoundedCornerShape(25.dp),
-                border = BorderStroke(1.dp, NuKropTextDim)) { Text("← Back", color = NuKropTextMuted) }
-            Button(onRescan, Modifier.weight(1f).height(50.dp), shape = RoundedCornerShape(25.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = accent)) {
-                Text("Scan Again", color = NuKropDark, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(
+                onClick = { saveReportToDownloads(context, raw) },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(25.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = NuKropCard)
+            ) {
+                Icon(Icons.Filled.Download, contentDescription = "Save", tint = accent, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Save to Mobile", color = accent, fontWeight = FontWeight.Bold)
+            }
+            
+            Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onBack, Modifier.weight(1f).height(50.dp), shape = RoundedCornerShape(25.dp),
+                    border = BorderStroke(1.dp, NuKropTextDim)) { 
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropTextMuted, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Back", color = NuKropTextMuted) 
+                }
+                Button(onRescan, Modifier.weight(1f).height(50.dp), shape = RoundedCornerShape(25.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = accent)) {
+                    Text("Scan Again", color = NuKropDark, fontWeight = FontWeight.Bold)
+                }
             }
         }
+    }
+}
+
+fun saveReportToDownloads(context: android.content.Context, content: String) {
+    try {
+        // Format the raw JSON into a readable text report
+        val formattedContent = runCatching {
+            val d = parseCropJson(content)
+            if (d != null) {
+                """
+                NuKropAI Scan Report
+                ====================
+                Status: ${d.status}
+                Diagnosis: ${d.name}
+                Confidence: ${d.confidence}%
+                Severity: ${d.severity}
+                
+                SYMPTOMS
+                --------
+                ${d.symptoms}
+                
+                CAUSE
+                -----
+                ${d.cause}
+                
+                TREATMENT PLAN
+                --------------
+                ${d.treatment}
+                
+                PREVENTION
+                ----------
+                ${d.prevention}
+                
+                PRODUCTS RECOMMENDED
+                --------------------
+                ${d.products.joinToString("\n") { (info, stores) -> 
+                    "- ${info.first} (Dose: ${info.second})\n  Buy: ${stores.firstOrNull()?.url ?: "Search locally"}"
+                }}
+                """.trimIndent()
+            } else {
+                val s = parseSoilJson(content)
+                if (s != null) {
+                    """
+                    NuKropAI Soil Report
+                    ====================
+                    Soil Type: ${s.soilType}
+                    Est. pH: ${s.estimatedPH}
+                    Texture: ${s.texture}
+                    Organic Matter: ${s.organicMatter}
+                    
+                    DEFICIENCIES
+                    ------------
+                    ${s.deficiencies.joinToString(", ")}
+                    
+                    IMPROVEMENTS
+                    ------------
+                    ${s.improvements}
+                    
+                    SUITABLE CROPS
+                    --------------
+                    ${s.suitableCrops.joinToString(", ")}
+                    
+                    FERTILIZERS
+                    -----------
+                    ${s.fertilizers.joinToString("\n") { (info, stores) -> 
+                        "- ${info.first} (Dose: ${info.second})\n  Buy: ${stores.firstOrNull()?.url ?: "Search locally"}"
+                    }}
+                    """.trimIndent()
+                } else content
+            }
+        }.getOrDefault(content)
+
+        val resolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "NuKropAI_Report_${System.currentTimeMillis()}.txt")
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+        val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+        if (uri != null) {
+            resolver.openOutputStream(uri)?.use { os ->
+                os.write(formattedContent.toByteArray())
+            }
+            Toast.makeText(context, "Saved to Downloads!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Failed to save file", Toast.LENGTH_SHORT).show()
+        }
+    } catch (e: Exception) {
+        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
 

@@ -75,17 +75,19 @@ fun LoanScreen(onNavigateBack: () -> Unit) {
                 }
             }
         } else {
+            val stateName = "Maharashtra" // Normally derived from LocationManager
+            val realSubsidies = remember { SubsidiesApiService.getSubsidiesForState(stateName) }
+            
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 Box(Modifier.clip(RoundedCornerShape(8.dp)).background(NuKropBadgeGreen.copy(alpha=0.15f)).padding(8.dp)) {
-                    Text("✓ AI Found 3 Eligible Schemes for your 5-Acre Tomato Farm in Maharashtra.", color = NuKropBadgeGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("✓ AI Found ${realSubsidies.size} Eligible Schemes for your Farm in $stateName.", color = NuKropBadgeGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(Modifier.height(16.dp))
 
-                SchemeCard("PM-KISAN Samman Nidhi", "₹6,000 / year", "Direct income support. You are fully eligible based on land holding.", Color(0xFF64B5F6))
-                Spacer(Modifier.height(12.dp))
-                SchemeCard("PMFBY (Crop Insurance)", "90% Premium Subsidy", "Protect against weather damage. Deadline in 12 days.", NuKropWarning)
-                Spacer(Modifier.height(12.dp))
-                SchemeCard("Solar Pump Subsidy (KUSUM)", "60% Cost Coverage", "Available for upgrading your currently tracked Borewell Motor to solar.", NuKropAccent)
+                realSubsidies.forEach { subsidy ->
+                    SchemeCard(subsidy.name, subsidy.amount, subsidy.description, Color(0xFF64B5F6))
+                    Spacer(Modifier.height(12.dp))
+                }
             }
         }
     }

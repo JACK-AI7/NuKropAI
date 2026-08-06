@@ -187,7 +187,7 @@ fun HomeScreen(
             Box(
                 Modifier.fillMaxWidth()
                     .background(Color(0xFF141A0A))
-                    .border(Dp = 0.5.dp, color = NuKropAccent.copy(0.2f))
+                    .border(0.5.dp, color = NuKropAccent.copy(0.2f))
             ) {
                 if (tickerLoading || tickerItems.isEmpty()) {
                     Row(
@@ -493,7 +493,3 @@ fun TaskScheduleCard(crop: String, day: String, task: String, accent: Color) {
     }
 }
 
-// Extension for Border without named Dp param clash
-private fun Modifier.border(Dp: androidx.compose.ui.unit.Dp, color: Color): Modifier = this.then(
-    Modifier.border(Dp, color)
-)

@@ -37,8 +37,8 @@ object GeminiVisionService {
     )
 
     private val VISION_MODELS = listOf(
-        "llama-3.2-11b-vision-preview",
-        "llama-3.2-90b-vision-preview"
+        "qwen/qwen3.6-27b",
+        "llama-3.2-11b-vision-preview"
     )
 
     private fun parseText(body: String): String {
@@ -205,7 +205,14 @@ Respond ONLY in this exact JSON format (no markdown, no extra text):
   "products": [
     {
       "name": "REAL brand name pesticide",
-      "url": "https://example.com/product"
+      "dose": "Exact dosage e.g. 2ml/L",
+      "stores": [
+        {
+          "name": "Amazon India",
+          "url": "https://www.amazon.in/s?k=brand+name+pesticide",
+          "icon": "🛒"
+        }
+      ]
     }
   ],
   "prevention": "1 step prevention tip"
@@ -218,13 +225,20 @@ Respond ONLY in this exact JSON format (no markdown, no extra text):
   "texture": "Fine",
   "estimatedPH": "6.5-7.5",
   "organicMatter": "Medium",
-  "deficiencies": "Possible Nitrogen deficiency",
+  "deficiencies": ["Nitrogen"],
   "improvements": "Add organic compost",
   "suitableCrops": ["Wheat", "Soybean"],
   "fertilizers": [
     {
       "name": "Urea 46%",
-      "url": "https://example.com/urea"
+      "dose": "50kg/acre",
+      "stores": [
+        {
+          "name": "Amazon India",
+          "url": "https://www.amazon.in/s?k=Urea+fertilizer",
+          "icon": "🛒"
+        }
+      ]
     }
   ]
 }"""

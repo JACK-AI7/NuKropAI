@@ -20,6 +20,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.ExistingPeriodicWorkPolicy
+import java.util.concurrent.TimeUnit
 import com.example.ui.theme.*
 
 sealed class Tab(val route: String, val icon: String, val labelKey: String) {
@@ -36,6 +40,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LanguageManager.init(this)
+        
+        val workRequest = PeriodicWorkRequestBuilder<AlertWorker>(1, TimeUnit.HOURS).build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("AlertWorker", ExistingPeriodicWorkPolicy.KEEP, workRequest)
+
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
