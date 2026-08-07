@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -25,7 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.ui.theme.*
-import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.shape.CircleShape
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -35,7 +42,8 @@ fun HomeScreen(
     onNavigateToMarket: () -> Unit = {},
     onNavigateToChat: () -> Unit = {},
     onNavigateToAutopilot: () -> Unit = {},
-    onNavigateToFinance: () -> Unit = {}
+    onNavigateToFinance: () -> Unit = {},
+    onNavigateToSavedReports: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -64,38 +72,71 @@ fun HomeScreen(
 
     val tickerItems by PriceTickerService.tickerItems.collectAsState()
     val tickerLoading by PriceTickerService.isLoading.collectAsState()
+    val now = remember { SimpleDateFormat("d MMM yyyy | h:mm a", Locale.getDefault()).format(Date()) }
 
     Box(modifier = modifier.fillMaxSize().background(Color(0xFF0D1208))) {
         Column(Modifier.fillMaxSize().verticalScroll(scrollState).padding(bottom = 100.dp)) { // padding for nav bar
 
-            // Top Weather Pill
-            Box(Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 12.dp)) {
+            // Hero Section
+            Box(Modifier.fillMaxWidth().height(260.dp)) {
+                Image(
+                    painter = painterResource(id = R.drawable.farm_bg),
+                    contentDescription = "Farm background",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                // Gradient overlay
                 Box(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color(0xFF141A0A))
-                        .border(1.dp, Color(0x30C8E837), RoundedCornerShape(16.dp))
-                        .clickable { if (!hasLocation) locLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) }
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(listOf(Color(0x88000000), Color(0xFF0D1208)))
+                    )
+                )
+                // Header row
+                Row(
+                    Modifier.fillMaxWidth().statusBarsPadding().padding(16.dp),
+                    Arrangement.SpaceBetween, Alignment.CenterVertically
                 ) {
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                        if (weatherLoading) {
-                            Text("Fetching live weather...", color = NuKropTextMuted, fontSize = 12.sp)
-                        } else if (weather != null) {
-                            val w = weather!!
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(w.emoji, fontSize = 20.sp)
-                                Spacer(Modifier.width(8.dp))
-                                Column {
-                                    Text("${w.temperature}C", color = NuKropText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                                    Text("Feels ${w.feelsLike}C", color = NuKropTextMuted, fontSize = 10.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Box(Modifier.size(44.dp).clip(CircleShape)
+                            .background(Brush.linearGradient(listOf(NuKropGreen, NuKropAccent))),
+                            Alignment.Center
+                        ) { Icon(Icons.Filled.Person, null, tint = NuKropDark, modifier = Modifier.size(24.dp)) }
+                        Column {
+                            Text("Good ${greeting()}, Farmer!", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(now, fontSize = 10.sp, color = Color.White.copy(alpha = 0.7f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                }
+                
+                // Weather Pill inside Hero
+                Box(Modifier.align(Alignment.BottomCenter).padding(16.dp).fillMaxWidth()) {
+                    Box(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color(0x99000000))
+                            .border(1.dp, Color(0x40C8E837), RoundedCornerShape(16.dp))
+                            .clickable { if (!hasLocation) locLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) }
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            if (weatherLoading) {
+                                Text("Fetching live weather...", color = Color.White.copy(0.7f), fontSize = 12.sp)
+                            } else if (weather != null) {
+                                val w = weather!!
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(w.emoji, fontSize = 20.sp)
+                                    Spacer(Modifier.width(8.dp))
+                                    Column {
+                                        Text("${w.temperature}C", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                        Text("Feels ${w.feelsLike}C", color = Color.White.copy(0.7f), fontSize = 10.sp)
+                                    }
                                 }
+                                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    WeatherDetail(Icons.Default.WaterDrop, "${w.humidity}%")
+                                    WeatherDetail(Icons.Default.Air, "${w.windSpeed}km/h")
+                                    WeatherDetail(Icons.Default.Water, "${w.precipitation}mm")
+                                }
+                            } else {
+                                Text(weatherError ?: "Weather unavailable", color = NuKropWarning, fontSize = 12.sp)
                             }
-                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                WeatherDetail(Icons.Default.WaterDrop, "${w.humidity}%")
-                                WeatherDetail(Icons.Default.Air, "${w.windSpeed}km/h")
-                                WeatherDetail(Icons.Default.Water, "${w.precipitation}mm")
-                            }
-                        } else {
-                            Text(weatherError ?: "Weather unavailable", color = NuKropWarning, fontSize = 12.sp)
                         }
                     }
                 }
@@ -149,7 +190,7 @@ fun HomeScreen(
                     QuickActionTile(Modifier.weight(1f), Icons.Filled.Navigation, "Field Navigator", "GPS Route & Coverage", Color(0xFFE57373), onNavigateToAutopilot)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(0.5f), Icons.Filled.Download, "Saved Reports", "View downloaded files", Color(0xFF81C784)) {}
+                    QuickActionTile(Modifier.weight(0.5f), Icons.Filled.Download, "Saved Reports", "View downloaded files", Color(0xFF81C784), onNavigateToSavedReports)
                     Spacer(Modifier.weight(0.5f))
                 }
             }
@@ -215,8 +256,12 @@ fun WeatherDetail(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(12.dp))
         Spacer(Modifier.width(4.dp))
-        Text(text, color = NuKropText, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Text(text, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
     }
+}
+
+private fun greeting(): String = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
+    in 0..11 -> "Morning"; in 12..16 -> "Afternoon"; else -> "Evening"
 }
 
 @SuppressLint("MissingPermission")

@@ -145,7 +145,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                     value = query,
                     onValueChange = { query = it },
                     placeholder = { Text("Enter crop (e.g. Tomato, Wheat...)", fontSize = 14.sp, color = NuKropTextDim) },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1A2210),
@@ -165,10 +165,11 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                             activeSearchState = userState
                         }
                     },
+                    modifier = Modifier.height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     enabled = !loading,
                     colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp)
+                    contentPadding = PaddingValues(horizontal = 24.dp)
                 ) {
                     if (loading) CircularProgressIndicator(color = NuKropDark, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                     else Text("Search", color = NuKropDark, fontWeight = FontWeight.Bold, fontSize = 16.sp)
@@ -183,7 +184,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                     value = userState,
                     onValueChange = { userState = it },
                     placeholder = { Text("State (e.g. Punjab)", fontSize = 13.sp, color = NuKropTextDim) },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1A2210),
@@ -197,7 +198,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                     value = userMandi,
                     onValueChange = { userMandi = it },
                     placeholder = { Text("Mandi (e.g. Khanna)", fontSize = 13.sp, color = NuKropTextDim) },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(56.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF1A2210),

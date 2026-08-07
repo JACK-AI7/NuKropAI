@@ -10,15 +10,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ChatBubble
-import androidx.compose.material.icons.filled.Science
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,14 +29,15 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 
-sealed class Tab(val route: String, val icon: ImageVector, val labelKey: String) {
-    object Home   : Tab("home",    Icons.Filled.Home, "nav_home")
-    object Scan   : Tab("scan",    Icons.Filled.Science, "nav_scan")
-    object Chat   : Tab("chat",    Icons.Filled.ChatBubble, "nav_chat")
-    object Market : Tab("market",  Icons.Filled.BarChart, "nav_market")
-    object Profile: Tab("profile", Icons.Filled.Person, "nav_profile")
-    object Autopilot: Tab("autopilot", Icons.Filled.Navigation, "nav_autopilot")
-    object Finance: Tab("finance", Icons.Filled.AccountBalance, "nav_finance")
+sealed class Tab(val route: String, val icon: String, val labelKey: String) {
+    object Home   : Tab("home",    "≡ƒÅá", "nav_home")
+    object Scan   : Tab("scan",    "≡ƒö¼", "nav_scan")
+    object Chat   : Tab("chat",    "≡ƒÆ¼", "nav_chat")
+    object Market : Tab("market",  "≡ƒôè", "nav_market")
+    object Profile: Tab("profile", "≡ƒæñ", "nav_profile")
+    object Autopilot: Tab("autopilot", "🚜", "nav_autopilot")
+    object Finance: Tab("finance", "💰", "nav_finance")
+    object SavedReports: Tab("saved_reports", "📂", "nav_reports")
 }
 
 class MainActivity : ComponentActivity() {
@@ -131,7 +123,7 @@ fun MainApp(authViewModel: AuthViewModel) {
                                     .border(2.dp, if (sel) NuKropAccent else Color(0x50C8E837), CircleShape)
                                     .clickable { current = tab },
                                 Alignment.Center
-                            ) { Icon(tab.icon, contentDescription = null, tint = NuKropDark, modifier = Modifier.size(28.dp)) }
+                            ) { Text(tab.icon, fontSize = 24.sp) }
                         } else {
                             Column(
                                 Modifier
@@ -141,7 +133,7 @@ fun MainApp(authViewModel: AuthViewModel) {
                                     .padding(horizontal = 16.dp, vertical = 8.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Icon(tab.icon, contentDescription = null, tint = if (sel) NuKropAccent else NuKropTextDim, modifier = Modifier.size(24.dp))
+                                Text(tab.icon, fontSize = 20.sp)
                                 Spacer(Modifier.height(2.dp))
                                 Text(AppStrings.get(tab.labelKey, lang), fontSize = 10.sp,
                                     color = if (sel) NuKropAccent else NuKropTextDim,
@@ -165,7 +157,8 @@ fun MainApp(authViewModel: AuthViewModel) {
                         onNavigateToMarket = { current = Tab.Market },
                         onNavigateToChat = { current = Tab.Chat },
                         onNavigateToAutopilot = { current = Tab.Autopilot },
-                        onNavigateToFinance = { current = Tab.Finance }
+                        onNavigateToFinance = { current = Tab.Finance },
+                        onNavigateToSavedReports = { current = Tab.SavedReports }
                     )
                     Tab.Autopilot -> TractorAutopilotScreen(onNavigateBack = { current = Tab.Home })
                     Tab.Finance   -> LoanScreen(onNavigateBack = { current = Tab.Home })
@@ -173,6 +166,7 @@ fun MainApp(authViewModel: AuthViewModel) {
                     Tab.Chat    -> ChatScreen()
                     Tab.Market  -> MarketScreen()
                     Tab.Profile -> ProfileScreen(onSignOut = { authViewModel.signOut() })
+                    Tab.SavedReports -> SavedReportsScreen(onNavigateBack = { current = Tab.Home })
                 }
             }
         }
