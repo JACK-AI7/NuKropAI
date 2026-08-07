@@ -31,10 +31,10 @@ fun MarketScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val lang = LanguageManager.currentLanguage.collectAsState().value
     
-    var query by remember { mutableStateOf("") }
-    var activeSearchQuery by remember { mutableStateOf("") }
-    var userState by remember { mutableStateOf("") }
-    var activeSearchState by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf("Wheat") }
+    var activeSearchQuery by remember { mutableStateOf("Wheat") }
+    var userState by remember { mutableStateOf("Maharashtra") }
+    var activeSearchState by remember { mutableStateOf("Maharashtra") }
     var userMandi by remember { mutableStateOf("") }
     
     var detectingLoc by remember { mutableStateOf(false) }
@@ -49,6 +49,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                 val loc = LocationHelper.getCurrentLocationStateAndMandi(context)
                 if (loc != null) {
                     userState = loc.first
+                    activeSearchState = loc.first
                     userMandi = loc.second
                 }
                 detectingLoc = false
@@ -56,13 +57,14 @@ fun MarketScreen(modifier: Modifier = Modifier) {
         }
     }
 
-    // Auto-detect location if available but don't force a search until user hits Search
+    // Auto-detect location if available and set activeSearchState
     LaunchedEffect(Unit) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             val loc = LocationHelper.getCurrentLocationStateAndMandi(context)
             if (loc != null) {
-                if (userState.isEmpty()) userState = loc.first
-                if (userMandi.isEmpty()) userMandi = loc.second
+                userState = loc.first
+                activeSearchState = loc.first
+                userMandi = loc.second
             }
         }
     }

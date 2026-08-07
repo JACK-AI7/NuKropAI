@@ -36,7 +36,10 @@ object GeminiVisionService {
         "llama-3.1-8b-instant"
     )
 
-    private val VISION_MODELS = listOf("qwen/qwen3.6-27b")
+    private val VISION_MODELS = listOf(
+        "llama-3.2-11b-vision-preview",
+        "llama-3.2-90b-vision-preview"
+    )
 
     private fun parseText(body: String): String {
         if (body.isBlank()) return "API Error: Empty response from Groq server"
@@ -62,7 +65,7 @@ object GeminiVisionService {
             val langName = LanguageManager.getLanguageName(lang)
             val translationInstruction = if (lang != "en") " YOU MUST RESPOND ENTIRELY AND STRICTLY IN THE $langName LANGUAGE. However, if a JSON format is requested, keep the JSON structure and keys strictly in English, and only translate the values." else ""
             
-            val finalPrompt = prompt + translationInstruction + "\nCRITICAL: Answer extremely concisely, maximum 1 sentence per field."
+            val finalPrompt = prompt + translationInstruction + "\nCRITICAL: Respond ONLY with a single raw JSON object. DO NOT include any reasoning, chain of thought, intro text, or markdown code blocks."
             val escapedPrompt = finalPrompt.replace("\\", "\\\\").replace("\"", "\\\"", false).replace("\n", "\\n", false)
             
             for (model in VISION_MODELS) {
@@ -71,6 +74,7 @@ object GeminiVisionService {
                         val body = """
                         {
                           "model": "$model",
+                          "response_format": {"type": "json_object"},
                           "messages": [
                             {
                               "role": "user",
