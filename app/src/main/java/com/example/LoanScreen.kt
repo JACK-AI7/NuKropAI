@@ -2,6 +2,7 @@ package com.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -126,7 +127,7 @@ fun LoanScreen(onNavigateBack: () -> Unit) {
 
                     val colors = listOf(Color(0xFF64B5F6), NuKropWarning, NuKropAccent, Color(0xFFBA68C8))
                     realSubsidies.forEachIndexed { index, subsidy ->
-                        SchemeCard(subsidy.name, subsidy.amount, subsidy.description, colors[index % colors.size])
+                        SchemeCard(subsidy.name, subsidy.amount, subsidy.description, subsidy.url, colors[index % colors.size])
                         Spacer(Modifier.height(12.dp))
                     }
                     Spacer(Modifier.height(40.dp))
@@ -137,13 +138,25 @@ fun LoanScreen(onNavigateBack: () -> Unit) {
 }
 
 @Composable
-fun SchemeCard(title: String, amount: String, desc: String, accent: Color) {
+fun SchemeCard(title: String, amount: String, desc: String, url: String, accent: Color) {
+    val context = LocalContext.current
+    
+    val openUrl = {
+        if (url.isNotBlank()) {
+            try {
+                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                context.startActivity(intent)
+            } catch (e: Exception) { }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(NuKropCard)
             .border(1.dp, accent.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+            .clickable { openUrl() }
             .padding(16.dp)
     ) {
         Column {
@@ -158,14 +171,14 @@ fun SchemeCard(title: String, amount: String, desc: String, accent: Color) {
             Text(desc, fontSize = 12.sp, color = NuKropTextMuted, lineHeight = 19.sp)
             Spacer(Modifier.height(14.dp))
             Button(
-                onClick = {},
+                onClick = openUrl,
                 modifier = Modifier.fillMaxWidth().height(42.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = accent.copy(alpha = 0.15f))
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Icon(Icons.Default.Edit, null, tint = accent, modifier = Modifier.size(16.dp))
-                    Text("Apply Now", color = accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Icon(Icons.Default.OpenInNew, null, tint = accent, modifier = Modifier.size(16.dp))
+                    Text("Apply on Official Portal 🌐", color = accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
