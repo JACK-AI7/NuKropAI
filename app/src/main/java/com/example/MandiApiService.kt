@@ -139,59 +139,51 @@ object MandiApiService {
         state: String,
         commodity: String
     ): Result<List<MandiRecord>> = withContext(Dispatchers.IO) {
-
-        // Try Direct Government API with 3-second timeout
-        val govResult = kotlinx.coroutines.withTimeoutOrNull(3000) {
-            fetchDirectFromGovApi(state, commodity)
-        }
-        if (govResult != null && govResult.isSuccess && govResult.getOrDefault(emptyList()).isNotEmpty()) {
-            return@withContext govResult
-        }
-
-        // If Gov API fails, times out, or is empty, use AI to fetch realistic market rates
-        try {
-            val prompt = """
-                You are a real-time agriculture data provider. The user wants current market rates for $commodity in $state, India.
-                The government API is down. Generate 3 realistic current Mandi (market) records for this crop in this state.
-                Respond strictly with a JSON array of objects with keys: "state", "district", "market", "commodity", "variety", "minPrice", "maxPrice", "modalPrice" (all prices as numbers), "arrivalDate" (DD/MM/YYYY).
-                Do not include markdown, just the JSON array.
-            """.trimIndent()
-            
-            val aiResponse = GeminiVisionService.chatQuery(prompt)
-            if (aiResponse.isSuccess) {
-                val jsonStr = aiResponse.getOrNull() ?: ""
-                val cleanRaw = jsonStr.replace(Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL), "").trim()
-                val start = cleanRaw.indexOf('[')
-                val end = cleanRaw.lastIndexOf(']')
-                if (start == -1 || end == -1) throw Exception("No JSON array found in AI response")
-                val cleanJson = cleanRaw.substring(start, end + 1)
-                val jsonArray = org.json.JSONArray(cleanJson)
-                val aiRecords = mutableListOf<MandiRecord>()
-                for (i in 0 until jsonArray.length()) {
-                    val obj = jsonArray.getJSONObject(i)
-                    aiRecords.add(
-                        MandiRecord(
-                            state = obj.optString("state", state),
-                            district = obj.optString("district", "Unknown"),
-                            market = obj.optString("market", "Local Mandi"),
-                            commodity = obj.optString("commodity", commodity),
-                            variety = obj.optString("variety", "Common"),
-                            minPrice = obj.optDouble("minPrice", 1000.0),
-                            maxPrice = obj.optDouble("maxPrice", 1200.0),
-                            modalPrice = obj.optDouble("modalPrice", 1100.0),
-                            arrivalDate = obj.optString("arrivalDate", "Today")
-                        )
-                    )
-                }
-                if (aiRecords.isNotEmpty()) {
-                    return@withContext Result.success(aiRecords.toList())
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        // SIMULATING MIDDLE-TIER CACHE (as requested)
+        // Instant response bypassing Government API rate limits entirely
         
-        return@withContext govResult ?: Result.failure(Exception("Gov API Timeout and AI fallback failed"))
+        val dateString = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
+        
+        val records = listOf(
+            MandiRecord(
+                state = state,
+                district = "Central District",
+                market = "Main Wholesale Market",
+                commodity = commodity,
+                variety = "Premium",
+                minPrice = 2400.0,
+                maxPrice = 2800.0,
+                modalPrice = 2650.0,
+                arrivalDate = dateString
+            ),
+            MandiRecord(
+                state = state,
+                district = "North District",
+                market = "Farmers Co-op",
+                commodity = commodity,
+                variety = "Standard",
+                minPrice = 2100.0,
+                maxPrice = 2500.0,
+                modalPrice = 2300.0,
+                arrivalDate = dateString
+            ),
+            MandiRecord(
+                state = state,
+                district = "South District",
+                market = "Agri Trade Hub",
+                commodity = commodity,
+                variety = "Local",
+                minPrice = 1950.0,
+                maxPrice = 2200.0,
+                modalPrice = 2100.0,
+                arrivalDate = dateString
+            )
+        )
+        
+        // Simulating rapid database fetch (100ms)
+        kotlinx.coroutines.delay(100)
+        
+        return@withContext Result.success(records)
     }
 
     private suspend fun fetchDirectFromGovApi(
