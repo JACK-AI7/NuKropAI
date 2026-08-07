@@ -162,6 +162,8 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                 }
             )
             
+            Spacer(modifier = Modifier.height(12.dp))
+            
             Box {
                 SettingsItem(
                     icon = Icons.Default.Language, 
@@ -192,6 +194,8 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                     }
                 }
             }
+            
+            Spacer(modifier = Modifier.height(12.dp))
 
             SettingsItem(
                 icon = Icons.Default.Shield, 
@@ -199,6 +203,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                 subtitle = "Manage your data",
                 onClick = { showPrivacyDialog = true }
             )
+            Spacer(modifier = Modifier.height(12.dp))
             SettingsItem(
                 icon = Icons.Default.Help, 
                 title = "Help & Support", 
@@ -211,6 +216,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                     try { context.startActivity(intent) } catch (e: Exception) { }
                 }
             )
+            Spacer(modifier = Modifier.height(12.dp))
             SettingsItem(
                 icon = Icons.Default.Info, 
                 title = "About NuKropAI", 

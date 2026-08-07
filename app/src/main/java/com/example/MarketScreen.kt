@@ -99,9 +99,9 @@ fun MarketScreen(modifier: Modifier = Modifier) {
     ) {
         // Header
         Column(Modifier.fillMaxWidth().statusBarsPadding().padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(AppStrings.get("market_rates", lang), fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = NuKropText)
-                Spacer(Modifier.width(12.dp))
+            Text(AppStrings.get("market_rates", lang), fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = NuKropText)
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 // Live Cached Badge
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -274,7 +274,13 @@ fun MarketScreen(modifier: Modifier = Modifier) {
             } else if (error != null) {
                 Text(error, color = NuKropWarning, modifier = Modifier.align(Alignment.Center))
             } else {
-                Text("No data available from Gov API.", color = NuKropTextMuted, modifier = Modifier.align(Alignment.Center))
+                // Not loading, but records are empty
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.Center)) {
+                    Icon(Icons.Filled.Warning, contentDescription = null, tint = NuKropTextDim, modifier = Modifier.size(48.dp))
+                    Spacer(Modifier.height(16.dp))
+                    Text("No market rates found.", color = NuKropTextMuted, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    Text("Try a different crop or state.", color = NuKropTextDim, fontSize = 13.sp)
+                }
             }
         }
     }

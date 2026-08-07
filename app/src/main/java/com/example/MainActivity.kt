@@ -30,11 +30,11 @@ import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
 
 sealed class Tab(val route: String, val icon: String, val labelKey: String) {
-    object Home   : Tab("home",    "≡ƒÅá", "nav_home")
-    object Scan   : Tab("scan",    "≡ƒö¼", "nav_scan")
-    object Chat   : Tab("chat",    "≡ƒÆ¼", "nav_chat")
-    object Market : Tab("market",  "≡ƒôè", "nav_market")
-    object Profile: Tab("profile", "≡ƒæñ", "nav_profile")
+    object Home   : Tab("home",    "🏠", "nav_home")
+    object Scan   : Tab("scan",    "🔬", "nav_scan")
+    object Chat   : Tab("chat",    "💬", "nav_chat")
+    object Market : Tab("market",  "📊", "nav_market")
+    object Profile: Tab("profile", "👤", "nav_profile")
     object Autopilot: Tab("autopilot", "🚜", "nav_autopilot")
     object Finance: Tab("finance", "💰", "nav_finance")
     object SavedReports: Tab("saved_reports", "📂", "nav_reports")
