@@ -53,6 +53,7 @@ data class Store(val name: String, val url: String, val icon: String)
 data class CropScanData(
     val status: String, val name: String, val confidence: Int, val severity: String,
     val symptoms: String, val cause: String, val treatment: String, val prevention: String,
+    val details: String,
     val products: List<Pair<Pair<String, String>, List<Store>>> // Pair(Name to Dose, Stores)
 )
 
@@ -60,6 +61,7 @@ data class SoilScanData(
     val soilType: String, val estimatedPH: String, val texture: String,
     val organicMatter: String, val deficiencies: List<String>,
     val suitableCrops: List<String>, val improvements: String,
+    val details: String,
     val fertilizers: List<Pair<Pair<String, String>, List<Store>>>
 )
 
@@ -82,7 +84,8 @@ fun parseCropJson(raw: String): CropScanData? = runCatching {
         }
     } ?: emptyList()
     CropScanData(j.optString("status"), j.optString("name"), j.optInt("confidence"), j.optString("severity"),
-        j.optString("symptoms"), j.optString("cause"), j.optString("treatment"), j.optString("prevention"), prods)
+        j.optString("symptoms"), j.optString("cause"), j.optString("treatment"), j.optString("prevention"),
+        j.optString("details"), prods)
 }.getOrNull()
 
 fun parseSoilJson(raw: String): SoilScanData? = runCatching {
@@ -106,7 +109,7 @@ fun parseSoilJson(raw: String): SoilScanData? = runCatching {
         }
     } ?: emptyList()
     SoilScanData(j.optString("soilType"), j.optString("estimatedPH"), j.optString("texture"),
-        j.optString("organicMatter"), defs, crops, j.optString("improvements"), ferts)
+        j.optString("organicMatter"), defs, crops, j.optString("improvements"), j.optString("details"), ferts)
 }.getOrNull()
 @Composable
 fun DiseaseScannerScreen(modifier: Modifier = Modifier) {
@@ -473,83 +476,17 @@ fun ScanResultView(modifier: Modifier, raw: String, mode: ScanMode, accent: Colo
 
 fun saveReportToDownloads(context: android.content.Context, content: String) {
     try {
-        // Format the raw JSON into a readable text report
-        val formattedContent = runCatching {
-            val d = parseCropJson(content)
-            if (d != null) {
-                """
-                NuKropAI Scan Report
-                ====================
-                Status: ${d.status}
-                Diagnosis: ${d.name}
-                Confidence: ${d.confidence}%
-                Severity: ${d.severity}
-                
-                SYMPTOMS
-                --------
-                ${d.symptoms}
-                
-                CAUSE
-                -----
-                ${d.cause}
-                
-                TREATMENT PLAN
-                --------------
-                ${d.treatment}
-                
-                PREVENTION
-                ----------
-                ${d.prevention}
-                
-                PRODUCTS RECOMMENDED
-                --------------------
-                ${d.products.joinToString("\n") { (info, stores) -> 
-                    "- ${info.first} (Dose: ${info.second})\n  Buy: ${stores.firstOrNull()?.url ?: "Search locally"}"
-                }}
-                """.trimIndent()
-            } else {
-                val s = parseSoilJson(content)
-                if (s != null) {
-                    """
-                    NuKropAI Soil Report
-                    ====================
-                    Soil Type: ${s.soilType}
-                    Est. pH: ${s.estimatedPH}
-                    Texture: ${s.texture}
-                    Organic Matter: ${s.organicMatter}
-                    
-                    DEFICIENCIES
-                    ------------
-                    ${s.deficiencies.joinToString(", ")}
-                    
-                    IMPROVEMENTS
-                    ------------
-                    ${s.improvements}
-                    
-                    SUITABLE CROPS
-                    --------------
-                    ${s.suitableCrops.joinToString(", ")}
-                    
-                    FERTILIZERS
-                    -----------
-                    ${s.fertilizers.joinToString("\n") { (info, stores) -> 
-                        "- ${info.first} (Dose: ${info.second})\n  Buy: ${stores.firstOrNull()?.url ?: "Search locally"}"
-                    }}
-                    """.trimIndent()
-                } else content
-            }
-        }.getOrDefault(content)
-
+        val cleanRaw = content.replace(Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL), "").trim()
         val resolver = context.contentResolver
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "NuKropAI_Report_${System.currentTimeMillis()}.txt")
-            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "NuKropAI_Report_${System.currentTimeMillis()}.json")
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
             put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
         }
         val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
         if (uri != null) {
             resolver.openOutputStream(uri)?.use { os ->
-                os.write(formattedContent.toByteArray())
+                os.write(cleanRaw.toByteArray())
             }
             Toast.makeText(context, "Saved to Downloads!", Toast.LENGTH_SHORT).show()
         } else {
@@ -585,9 +522,10 @@ fun CropResultUI(d: CropScanData, accent: Color, context: android.content.Contex
         }
     }
 
-    if (d.symptoms.isNotEmpty()) ResultBlock("👁️ Symptoms Observed", d.symptoms)
-    if (d.treatment.isNotEmpty()) ResultBlock("💊 Treatment Plan", d.treatment)
+    if (d.symptoms.isNotEmpty()) ResultBlock("🦠 Symptoms Observed", d.symptoms)
+    if (d.treatment.isNotEmpty()) ResultBlock("💉 Treatment Plan", d.treatment)
     if (d.prevention.isNotEmpty()) ResultBlock("🛡️ Prevention", d.prevention)
+    if (d.details.isNotEmpty()) ResultBlock("ℹ️ Detailed Insights", d.details)
     if (d.products.isNotEmpty()) {
         Text("🛒 Buy Recommended Products", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = NuKropText,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp))
@@ -610,9 +548,10 @@ fun SoilResultUI(d: SoilScanData, accent: Color, context: android.content.Contex
             }
         }
     }
-    if (d.deficiencies.isNotEmpty()) ResultBlock("⚠️  Likely Deficiencies", d.deficiencies.joinToString(" • "))
-    if (d.suitableCrops.isNotEmpty()) ResultBlock("🌾 Best Crops to Grow", d.suitableCrops.joinToString(", "))
-    if (d.improvements.isNotEmpty()) ResultBlock("💡 Improvement Tips", d.improvements)
+    if (d.deficiencies.isNotEmpty()) ResultBlock("📉 Likely Deficiencies", d.deficiencies.joinToString(" • "))
+    if (d.suitableCrops.isNotEmpty()) ResultBlock("🌱 Best Crops to Grow", d.suitableCrops.joinToString(", "))
+    if (d.improvements.isNotEmpty()) ResultBlock("🛠 Improvement Tips", d.improvements)
+    if (d.details.isNotEmpty()) ResultBlock("ℹ️ Detailed Insights", d.details)
     if (d.fertilizers.isNotEmpty()) {
         Text("🛒 Recommended Fertilizers", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = NuKropText,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp))

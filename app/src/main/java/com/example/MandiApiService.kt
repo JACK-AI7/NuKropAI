@@ -140,13 +140,15 @@ object MandiApiService {
         commodity: String
     ): Result<List<MandiRecord>> = withContext(Dispatchers.IO) {
 
-        // Try Direct Government API
-        val govResult = fetchDirectFromGovApi(state, commodity)
-        if (govResult.isSuccess && govResult.getOrDefault(emptyList()).isNotEmpty()) {
+        // Try Direct Government API with 3-second timeout
+        val govResult = kotlinx.coroutines.withTimeoutOrNull(3000) {
+            fetchDirectFromGovApi(state, commodity)
+        }
+        if (govResult != null && govResult.isSuccess && govResult.getOrDefault(emptyList()).isNotEmpty()) {
             return@withContext govResult
         }
 
-        // If Gov API fails or is empty, use AI to fetch realistic market rates
+        // If Gov API fails, times out, or is empty, use AI to fetch realistic market rates
         try {
             val prompt = """
                 You are a real-time agriculture data provider. The user wants current market rates for $commodity in $state, India.
@@ -158,7 +160,11 @@ object MandiApiService {
             val aiResponse = GeminiVisionService.chatQuery(prompt)
             if (aiResponse.isSuccess) {
                 val jsonStr = aiResponse.getOrNull() ?: ""
-                val cleanJson = jsonStr.replace("```json", "").replace("```", "").trim()
+                val cleanRaw = jsonStr.replace(Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL), "").trim()
+                val start = cleanRaw.indexOf('[')
+                val end = cleanRaw.lastIndexOf(']')
+                if (start == -1 || end == -1) throw Exception("No JSON array found in AI response")
+                val cleanJson = cleanRaw.substring(start, end + 1)
                 val jsonArray = org.json.JSONArray(cleanJson)
                 val aiRecords = mutableListOf<MandiRecord>()
                 for (i in 0 until jsonArray.length()) {
@@ -178,14 +184,14 @@ object MandiApiService {
                     )
                 }
                 if (aiRecords.isNotEmpty()) {
-                    return@withContext Result.success(aiRecords)
+                    return@withContext Result.success(aiRecords.toList())
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
         
-        return@withContext govResult // return original error/empty if AI fails
+        return@withContext govResult ?: Result.failure(Exception("Gov API Timeout and AI fallback failed"))
     }
 
     private suspend fun fetchDirectFromGovApi(

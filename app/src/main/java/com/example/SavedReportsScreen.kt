@@ -11,6 +11,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -85,6 +87,47 @@ fun SavedReportsScreen(onNavigateBack: () -> Unit) {
         }
     }
 
+    var selectedReportContent by remember { mutableStateOf<String?>(null) }
+    var selectedReportName by remember { mutableStateOf<String>("") }
+
+    if (selectedReportContent != null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF0D1208))
+                .padding(bottom = 100.dp) // padding for nav bar
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { selectedReportContent = null }) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText)
+                }
+                Spacer(Modifier.width(8.dp))
+                Text(selectedReportName, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = NuKropText)
+            }
+            rememberScrollState().let { scrollState ->
+                Column(Modifier.fillMaxSize().verticalScroll(scrollState)) {
+                    val crop = parseCropJson(selectedReportContent!!)
+                    val soil = parseSoilJson(selectedReportContent!!)
+                    if (crop != null && (crop.status.isNotEmpty() || crop.name.isNotEmpty())) {
+                        CropResultUI(crop, NuKropBadgeGreen, context) // Using a fallback accent color
+                    } else if (soil != null && soil.soilType.isNotEmpty()) {
+                        SoilResultUI(soil, NuKropBadgeGreen, context)
+                    } else {
+                        // Fallback text view if it's the old .txt report format
+                        RawResultFallback(selectedReportContent!!)
+                    }
+                }
+            }
+        }
+        return
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -128,13 +171,13 @@ fun SavedReportsScreen(onNavigateBack: () -> Unit) {
                 items(reports) { report ->
                     ReportCard(report) {
                         try {
-                            val intent = Intent(Intent.ACTION_VIEW).apply {
-                                setDataAndType(report.uri, "text/plain")
-                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            context.contentResolver.openInputStream(report.uri)?.use { stream ->
+                                val text = stream.bufferedReader().use { it.readText() }
+                                selectedReportContent = text
+                                selectedReportName = report.name
                             }
-                            context.startActivity(Intent.createChooser(intent, "Open Report"))
                         } catch (e: Exception) {
-                            // Handle if no viewer available
+                            // ignore or toast
                         }
                     }
                 }

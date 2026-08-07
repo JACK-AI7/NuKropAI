@@ -106,6 +106,9 @@ fun HomeScreen(
                             Text(now, fontSize = 10.sp, color = Color.White.copy(alpha = 0.7f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
+                    IconButton(onClick = { /* TODO Notifications */ }, modifier = Modifier.size(44.dp).clip(CircleShape).background(Color(0x33FFFFFF))) {
+                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(22.dp))
+                    }
                 }
                 
                 // Weather Pill inside Hero
@@ -241,7 +244,7 @@ fun HomeScreen(
                                 Text("Growing Wheat • 2.5 km away", color = NuKropTextMuted, fontSize = 11.sp)
                             }
                         }
-                        Button(onClick = {}, colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent.copy(alpha=0.15f)), contentPadding = PaddingValues(0.dp), modifier = Modifier.size(70.dp, 30.dp), shape = RoundedCornerShape(8.dp)) {
+                        Button(onClick = onNavigateToChat, colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent.copy(alpha=0.15f)), contentPadding = PaddingValues(0.dp), modifier = Modifier.size(70.dp, 30.dp), shape = RoundedCornerShape(8.dp)) {
                             Text("Connect", color = NuKropAccent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }

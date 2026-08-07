@@ -200,6 +200,7 @@ Respond ONLY in this exact JSON format (no markdown, no extra text):
   "symptoms": "Very brief symptom description",
   "cause": "Exact causative organism",
   "treatment": "Precise chemical or organic treatment plan",
+  "details": "Detailed biological information, lifecycle, or advanced agronomic insights about this condition (3-4 sentences).",
   "products": [
     {
       "name": "REAL brand name pesticide",
@@ -225,6 +226,7 @@ Respond ONLY in this exact JSON format (no markdown, no extra text):
   "organicMatter": "Medium",
   "deficiencies": ["Nitrogen"],
   "improvements": "Add organic compost",
+  "details": "Detailed analysis of soil profile, structure, and advanced agronomical insights (3-4 sentences).",
   "suitableCrops": ["Wheat", "Soybean"],
   "fertilizers": [
     {
