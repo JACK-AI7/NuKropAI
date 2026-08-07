@@ -219,6 +219,35 @@ fun HomeScreen(
                 }
             }
 
+            Spacer(Modifier.height(32.dp))
+
+            // Fellow Farmers Near You
+            Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Group, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Fellow Farmers Near You", color = NuKropText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.height(12.dp))
+            Box(Modifier.padding(horizontal = 16.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(NuKropCard).border(1.dp, NuKropBadgeGreen.copy(alpha=0.3f), RoundedCornerShape(16.dp)).padding(16.dp)) {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(modifier = Modifier.size(36.dp).clip(androidx.compose.foundation.shape.CircleShape).background(NuKropAccent.copy(alpha=0.2f)), contentAlignment = Alignment.Center) {
+                                Text("R", color = NuKropAccent, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            Column {
+                                Text("Ramesh Singh", color = NuKropText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Text("Growing Wheat • 2.5 km away", color = NuKropTextMuted, fontSize = 11.sp)
+                            }
+                        }
+                        Button(onClick = {}, colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent.copy(alpha=0.15f)), contentPadding = PaddingValues(0.dp), modifier = Modifier.size(70.dp, 30.dp), shape = RoundedCornerShape(8.dp)) {
+                            Text("Connect", color = NuKropAccent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+
             Spacer(Modifier.height(40.dp))
         }
     }

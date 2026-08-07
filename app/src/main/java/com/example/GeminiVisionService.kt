@@ -71,6 +71,7 @@ object GeminiVisionService {
                         val body = """
                         {
                           "model": "$model",
+                          "response_format": {"type": "json_object"},
                           "messages": [
                             {
                               "role": "user",

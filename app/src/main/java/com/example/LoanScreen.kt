@@ -165,7 +165,7 @@ fun SchemeCard(title: String, amount: String, desc: String, accent: Color) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Icon(Icons.Default.Edit, null, tint = accent, modifier = Modifier.size(16.dp))
-                    Text("Auto-Fill Application", color = accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("Apply Now", color = accent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

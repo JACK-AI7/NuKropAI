@@ -334,7 +334,8 @@ fun ChatBubble(msg: ChatMessage, tts: android.speech.tts.TextToSpeech?) {
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(NuKropAccent.copy(alpha = 0.15f))
                                 .clickable {
-                                    tts?.speak(msg.text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, null)
+                                    val cleanText = msg.text.replace(Regex("[*#~_]"), "").replace("-", " ")
+                                    tts?.speak(cleanText, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, null)
                                 }
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {

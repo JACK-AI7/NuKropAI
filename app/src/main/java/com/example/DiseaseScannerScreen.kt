@@ -64,8 +64,9 @@ data class SoilScanData(
 )
 
 fun parseCropJson(raw: String): CropScanData? = runCatching {
-    val start = raw.indexOf('{'); val end = raw.lastIndexOf('}'); if (start == -1 || end == -1) throw Exception("No JSON found")
-    val j = org.json.JSONObject(raw.substring(start, end + 1))
+    val cleanRaw = raw.replace(Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL), "").trim()
+    val start = cleanRaw.indexOf('{'); val end = cleanRaw.lastIndexOf('}'); if (start == -1 || end == -1) throw Exception("No JSON found")
+    val j = org.json.JSONObject(cleanRaw.substring(start, end + 1))
     val prods = j.optJSONArray("products")?.let { arr ->
         (0 until arr.length()).mapNotNull { i ->
             val obj = arr.optJSONObject(i) ?: return@mapNotNull null
@@ -85,8 +86,9 @@ fun parseCropJson(raw: String): CropScanData? = runCatching {
 }.getOrNull()
 
 fun parseSoilJson(raw: String): SoilScanData? = runCatching {
-    val start = raw.indexOf('{'); val end = raw.lastIndexOf('}'); if (start == -1 || end == -1) throw Exception("No JSON found")
-    val j = org.json.JSONObject(raw.substring(start, end + 1))
+    val cleanRaw = raw.replace(Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL), "").trim()
+    val start = cleanRaw.indexOf('{'); val end = cleanRaw.lastIndexOf('}'); if (start == -1 || end == -1) throw Exception("No JSON found")
+    val j = org.json.JSONObject(cleanRaw.substring(start, end + 1))
     val defs = j.optJSONArray("likelyDeficiencies")?.let { arr -> (0 until arr.length()).map { i -> arr.optString(i) } } ?: emptyList()
     val crops = j.optJSONArray("suitableCrops")?.let { arr -> (0 until arr.length()).map { i -> arr.optString(i) } } ?: emptyList()
     val ferts = j.optJSONArray("fertilizers")?.let { arr ->
