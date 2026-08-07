@@ -308,7 +308,7 @@ fun MandiRecordCard(record: MandiRecord) {
                         Text("${record.district}, ${record.state}", fontSize = 12.sp, color = NuKropTextMuted)
                     }
                 }
-                Text("s ${record.modalPrice}", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = NuKropAccent)
+                Text("₹ ${record.modalPrice.toInt()} / Qtl", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = NuKropAccent)
             }
             Spacer(Modifier.height(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -318,11 +318,11 @@ fun MandiRecordCard(record: MandiRecord) {
                 }
                 Column {
                     Text("Min Price", fontSize = 10.sp, color = NuKropTextDim)
-                    Text("s ${record.minPrice}", fontSize = 14.sp, color = NuKropText)
+                    Text("₹ ${record.minPrice.toInt()}", fontSize = 14.sp, color = NuKropText)
                 }
                 Column {
                     Text("Max Price", fontSize = 10.sp, color = NuKropTextDim)
-                    Text("s ${record.maxPrice}", fontSize = 14.sp, color = NuKropText)
+                    Text("₹ ${record.maxPrice.toInt()}", fontSize = 14.sp, color = NuKropText)
                 }
             }
             Spacer(Modifier.height(12.dp))
