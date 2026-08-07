@@ -38,7 +38,7 @@ object GeminiVisionService {
 
     private val VISION_MODELS = listOf(
         "llama-3.2-11b-vision-preview",
-        "llama-3.2-90b-vision-preview"
+        "qwen/qwen3.6-27b"
     )
 
     private fun parseText(body: String): String {
@@ -65,7 +65,7 @@ object GeminiVisionService {
             val langName = LanguageManager.getLanguageName(lang)
             val translationInstruction = if (lang != "en") " YOU MUST RESPOND ENTIRELY AND STRICTLY IN THE $langName LANGUAGE. However, if a JSON format is requested, keep the JSON structure and keys strictly in English, and only translate the values." else ""
             
-            val finalPrompt = prompt + translationInstruction + "\nCRITICAL: Respond ONLY with a single raw JSON object. DO NOT include any reasoning, chain of thought, intro text, or markdown code blocks."
+            val finalPrompt = prompt + translationInstruction + "\nCRITICAL: Respond ONLY with valid raw JSON object. DO NOT include any reasoning, thinking text, or intro text."
             val escapedPrompt = finalPrompt.replace("\\", "\\\\").replace("\"", "\\\"", false).replace("\n", "\\n", false)
             
             for (model in VISION_MODELS) {
@@ -74,7 +74,6 @@ object GeminiVisionService {
                         val body = """
                         {
                           "model": "$model",
-                          "response_format": {"type": "json_object"},
                           "messages": [
                             {
                               "role": "user",

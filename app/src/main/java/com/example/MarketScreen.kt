@@ -261,7 +261,8 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                     
                     // Filter records if user typed a specific mandi
                     val filtered = if (userMandi.isNotBlank()) {
-                        records.filter { it.market.contains(userMandi, ignoreCase = true) }
+                        val matches = records.filter { it.market.contains(userMandi, ignoreCase = true) || it.district.contains(userMandi, ignoreCase = true) }
+                        if (matches.isNotEmpty()) matches else records
                     } else records
 
                     if (filtered.isEmpty()) {
