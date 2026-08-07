@@ -36,7 +36,7 @@ object GeminiVisionService {
         "llama-3.1-8b-instant"
     )
 
-    private val VISION_MODELS = listOf("llama-3.2-11b-vision-preview")
+    private val VISION_MODELS = listOf("qwen/qwen3.6-27b")
 
     private fun parseText(body: String): String {
         if (body.isBlank()) return "API Error: Empty response from Groq server"
