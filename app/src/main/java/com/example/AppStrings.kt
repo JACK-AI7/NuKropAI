@@ -39,6 +39,8 @@ object AppStrings {
             "weather_alerts" to "Market & Weather Alerts Active",
             "nav_autopilot" to "Autopilot",
             "nav_finance" to "Finance",
+            "nav_rental" to "Equipment",
+            "nav_khata" to "Farm Khata",
             "good_farmer" to "Good %s, Farmer!",
             "quick_actions" to "Quick Actions",
             "scan_crop" to "Scan Crop",

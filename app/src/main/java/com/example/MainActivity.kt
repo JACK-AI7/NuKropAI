@@ -38,6 +38,8 @@ sealed class Tab(val route: String, val icon: String, val labelKey: String) {
     object Autopilot: Tab("autopilot", "🚜", "nav_autopilot")
     object Finance: Tab("finance", "💰", "nav_finance")
     object SavedReports: Tab("saved_reports", "📂", "nav_reports")
+    object EquipmentRental: Tab("equipment_rental", "🚜", "nav_rental")
+    object FarmKhata: Tab("farm_khata", "🧾", "nav_khata")
 }
 
 class MainActivity : ComponentActivity() {
@@ -158,7 +160,9 @@ fun MainApp(authViewModel: AuthViewModel) {
                         onNavigateToChat = { current = Tab.Chat },
                         onNavigateToAutopilot = { current = Tab.Autopilot },
                         onNavigateToFinance = { current = Tab.Finance },
-                        onNavigateToSavedReports = { current = Tab.SavedReports }
+                        onNavigateToSavedReports = { current = Tab.SavedReports },
+                        onNavigateToEquipmentRental = { current = Tab.EquipmentRental },
+                        onNavigateToFarmKhata = { current = Tab.FarmKhata }
                     )
                     Tab.Autopilot -> TractorAutopilotScreen(onNavigateBack = { current = Tab.Home })
                     Tab.Finance   -> LoanScreen(onNavigateBack = { current = Tab.Home })
@@ -167,6 +171,8 @@ fun MainApp(authViewModel: AuthViewModel) {
                     Tab.Market  -> MarketScreen()
                     Tab.Profile -> ProfileScreen(onSignOut = { authViewModel.signOut() })
                     Tab.SavedReports -> SavedReportsScreen(onNavigateBack = { current = Tab.Home })
+                    Tab.EquipmentRental -> EquipmentRentalScreen(onNavigateBack = { current = Tab.Home }, onNavigateToChat = { current = Tab.Chat })
+                    Tab.FarmKhata -> FarmKhataScreen(onNavigateBack = { current = Tab.Home })
                 }
             }
         }

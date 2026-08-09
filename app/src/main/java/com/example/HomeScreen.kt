@@ -43,7 +43,9 @@ fun HomeScreen(
     onNavigateToChat: () -> Unit = {},
     onNavigateToAutopilot: () -> Unit = {},
     onNavigateToFinance: () -> Unit = {},
-    onNavigateToSavedReports: () -> Unit = {}
+    onNavigateToSavedReports: () -> Unit = {},
+    onNavigateToEquipmentRental: () -> Unit = {},
+    onNavigateToFarmKhata: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -193,7 +195,11 @@ fun HomeScreen(
                     QuickActionTile(Modifier.weight(1f), Icons.Filled.Navigation, "Field Navigator", "GPS Route & Coverage", Color(0xFFE57373), onNavigateToAutopilot)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(0.5f), Icons.Filled.Download, "Saved Reports", "View downloaded files", Color(0xFF81C784), onNavigateToSavedReports)
+                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Build, "Equipment Rental", "Rent Tractors & Drones", Color(0xFF4DD0E1), onNavigateToEquipmentRental)
+                    QuickActionTile(Modifier.weight(1f), Icons.Filled.ReceiptLong, "Digital Khata", "Farm Ledger & Credit Score", Color(0xFF81C784), onNavigateToFarmKhata)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    QuickActionTile(Modifier.weight(0.5f), Icons.Filled.Download, "Saved Reports", "View downloaded files", Color(0xFFAED581), onNavigateToSavedReports)
                     Spacer(Modifier.weight(0.5f))
                 }
             }
