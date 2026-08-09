@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
 
 data class EquipmentItem(
+    val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
     val category: String,
     val rate: String,
@@ -41,52 +42,55 @@ data class EquipmentItem(
 @Composable
 fun EquipmentRentalScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToChat: () -> Unit
+    onNavigateToPeerChat: (name: String, info: String, phone: String) -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    var showAddDialog by remember { mutableStateOf(false) }
 
-    val equipmentList = remember {
-        listOf(
-            EquipmentItem(
-                name = "Mahindra 575 DI Tractor (45 HP)",
-                category = "Tractor & Tillage",
-                rate = "₹450 / Hour",
-                owner = "Verma Farms (Rajesh Verma)",
-                distance = "3.2 km away",
-                phone = "9876543210",
-                isAvailable = true,
-                icon = "🚜"
-            ),
-            EquipmentItem(
-                name = "DJI Agras T40 Spraying Drone",
-                category = "Pesticide Drone Spraying",
-                rate = "₹350 / Acre",
-                owner = "AgriTech Kisan Co-op",
-                distance = "5.0 km away",
-                phone = "9812345678",
-                isAvailable = true,
-                icon = "🛸"
-            ),
-            EquipmentItem(
-                name = "CLAAS Crop Combine Harvester",
-                category = "Harvester",
-                rate = "₹1,200 / Hour",
-                owner = "Suresh Patel",
-                distance = "8.5 km away",
-                phone = "9765432109",
-                isAvailable = false,
-                icon = "⚙️"
-            ),
-            EquipmentItem(
-                name = "Solar Drip Irrigation Pump (5 HP)",
-                category = "Irrigation Pump",
-                rate = "₹150 / Day",
-                owner = "Ramesh Singh",
-                distance = "2.1 km away",
-                phone = "9988776655",
-                isAvailable = true,
-                icon = "💧"
+    var equipmentList by remember {
+        mutableStateOf(
+            listOf(
+                EquipmentItem(
+                    name = "Mahindra 575 DI Tractor (45 HP)",
+                    category = "Tractor & Tillage",
+                    rate = "₹450 / Hour",
+                    owner = "Verma Farms (Rajesh Verma)",
+                    distance = "3.2 km away",
+                    phone = "9876543210",
+                    isAvailable = true,
+                    icon = "🚜"
+                ),
+                EquipmentItem(
+                    name = "DJI Agras T40 Spraying Drone",
+                    category = "Pesticide Drone Spraying",
+                    rate = "₹350 / Acre",
+                    owner = "AgriTech Kisan Co-op",
+                    distance = "5.0 km away",
+                    phone = "9812345678",
+                    isAvailable = true,
+                    icon = "🛸"
+                ),
+                EquipmentItem(
+                    name = "CLAAS Crop Combine Harvester",
+                    category = "Harvester",
+                    rate = "₹1,200 / Hour",
+                    owner = "Suresh Patel",
+                    distance = "8.5 km away",
+                    phone = "9765432109",
+                    isAvailable = false,
+                    icon = "⚙️"
+                ),
+                EquipmentItem(
+                    name = "Solar Drip Irrigation Pump (5 HP)",
+                    category = "Irrigation Pump",
+                    rate = "₹150 / Day",
+                    owner = "Ramesh Singh",
+                    distance = "2.1 km away",
+                    phone = "9988776655",
+                    isAvailable = true,
+                    icon = "💧"
+                )
             )
         )
     }
@@ -103,15 +107,29 @@ fun EquipmentRentalScreen(
                 .background(Color(0xCC141A0A))
                 .statusBarsPadding()
                 .padding(horizontal = 8.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = onNavigateBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText)
+                }
+                Spacer(Modifier.width(4.dp))
+                Column {
+                    Text("P2P Equipment & Drone Rental", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropText)
+                    Text("Rent tractors, drones & machinery directly", fontSize = 11.sp, color = NuKropTextMuted)
+                }
             }
-            Spacer(Modifier.width(4.dp))
-            Column {
-                Text("P2P Equipment & Drone Rental", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                Text("Rent nearby tractors, drones & harvesters directly", fontSize = 11.sp, color = NuKropTextMuted)
+
+            Button(
+                onClick = { showAddDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Icon(Icons.Default.Add, null, tint = NuKropDark, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("List Mine", color = NuKropDark, fontSize = 11.sp, fontWeight = FontWeight.Bold)
             }
         }
 
@@ -141,16 +159,90 @@ fun EquipmentRentalScreen(
             }
 
             equipmentList.forEach { item ->
-                EquipmentCard(item = item, onChatClick = onNavigateToChat, onCallClick = {
-                    try {
-                        val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${item.phone}"))
-                        context.startActivity(intent)
-                    } catch (_: Exception) {}
-                })
+                EquipmentCard(
+                    item = item,
+                    onChatClick = { onNavigateToPeerChat(item.owner, item.name, item.phone) },
+                    onCallClick = {
+                        try {
+                            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${item.phone}"))
+                            context.startActivity(intent)
+                        } catch (_: Exception) {}
+                    }
+                )
             }
 
             Spacer(Modifier.height(80.dp))
         }
+    }
+
+    if (showAddDialog) {
+        var nameInput by remember { mutableStateOf("") }
+        var categoryInput by remember { mutableStateOf("Tractor") }
+        var rateInput by remember { mutableStateOf("") }
+        var phoneInput by remember { mutableStateOf("") }
+        var locationInput by remember { mutableStateOf("Pune, Maharashtra") }
+
+        AlertDialog(
+            onDismissRequest = { showAddDialog = false },
+            containerColor = NuKropCard,
+            title = { Text("List Vehicle / Equipment", color = NuKropText, fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(
+                        value = nameInput,
+                        onValueChange = { nameInput = it },
+                        label = { Text("Vehicle Name (e.g. Swaraj 744 FE)", color = NuKropTextMuted) },
+                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = NuKropText, unfocusedTextColor = NuKropText)
+                    )
+                    OutlinedTextField(
+                        value = rateInput,
+                        onValueChange = { rateInput = it },
+                        label = { Text("Rental Rate (e.g. ₹400 / Hour)", color = NuKropTextMuted) },
+                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = NuKropText, unfocusedTextColor = NuKropText)
+                    )
+                    OutlinedTextField(
+                        value = phoneInput,
+                        onValueChange = { phoneInput = it },
+                        label = { Text("Phone Number", color = NuKropTextMuted) },
+                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = NuKropText, unfocusedTextColor = NuKropText)
+                    )
+                    OutlinedTextField(
+                        value = locationInput,
+                        onValueChange = { locationInput = it },
+                        label = { Text("Location / District", color = NuKropTextMuted) },
+                        colors = OutlinedTextFieldDefaults.colors(focusedTextColor = NuKropText, unfocusedTextColor = NuKropText)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (nameInput.isNotBlank() && rateInput.isNotBlank()) {
+                            val newItem = EquipmentItem(
+                                name = nameInput.trim(),
+                                category = categoryInput,
+                                rate = rateInput.trim(),
+                                owner = "My Listed Vehicle",
+                                distance = locationInput,
+                                phone = if (phoneInput.isBlank()) "9876543210" else phoneInput.trim(),
+                                isAvailable = true,
+                                icon = if (categoryInput.contains("Drone", ignoreCase = true)) "🛸" else "🚜"
+                            )
+                            equipmentList = listOf(newItem) + equipmentList
+                        }
+                        showAddDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent)
+                ) {
+                    Text("Publish Listing", color = NuKropDark, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddDialog = false }) {
+                    Text("Cancel", color = NuKropTextMuted)
+                }
+            }
+        )
     }
 }
 

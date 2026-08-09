@@ -90,20 +90,23 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                     color = NuKropTextMuted
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                // Member badge
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(NuKropAccent.copy(alpha = 0.15f))
-                        .border(1.dp, NuKropAccent.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
-                        .padding(horizontal = 16.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        "🌟 Premium Member",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = NuKropAccent
-                    )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // Member badge
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(NuKropAccent.copy(alpha = 0.15f))
+                            .border(1.dp, NuKropAccent.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                            .padding(horizontal = 14.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            "🌟 Premium Member",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = NuKropAccent
+                        )
+                    }
                 }
             }
         }

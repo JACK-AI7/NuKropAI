@@ -40,6 +40,7 @@ sealed class Tab(val route: String, val icon: String, val labelKey: String) {
     object SavedReports: Tab("saved_reports", "📂", "nav_reports")
     object EquipmentRental: Tab("equipment_rental", "🚜", "nav_rental")
     object FarmKhata: Tab("farm_khata", "🧾", "nav_khata")
+    data class PeerChat(val name: String, val info: String, val phone: String) : Tab("peer_chat", "💬", "nav_chat")
 }
 
 class MainActivity : ComponentActivity() {
@@ -171,8 +172,17 @@ fun MainApp(authViewModel: AuthViewModel) {
                     Tab.Market  -> MarketScreen()
                     Tab.Profile -> ProfileScreen(onSignOut = { authViewModel.signOut() })
                     Tab.SavedReports -> SavedReportsScreen(onNavigateBack = { current = Tab.Home })
-                    Tab.EquipmentRental -> EquipmentRentalScreen(onNavigateBack = { current = Tab.Home }, onNavigateToChat = { current = Tab.Chat })
+                    Tab.EquipmentRental -> EquipmentRentalScreen(
+                        onNavigateBack = { current = Tab.Home },
+                        onNavigateToPeerChat = { name, info, phone -> current = Tab.PeerChat(name, info, phone) }
+                    )
                     Tab.FarmKhata -> FarmKhataScreen(onNavigateBack = { current = Tab.Home })
+                    is Tab.PeerChat -> PeerChatScreen(
+                        recipientName = (tab as Tab.PeerChat).name,
+                        recipientInfo = (tab as Tab.PeerChat).info,
+                        recipientPhone = (tab as Tab.PeerChat).phone,
+                        onNavigateBack = { current = Tab.Home }
+                    )
                 }
             }
         }
