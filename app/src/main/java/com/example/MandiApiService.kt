@@ -81,44 +81,7 @@ object MandiApiService {
         val key = "${state.trim().lowercase()}_${commodity.trim().lowercase()}"
         activeFlows[key]?.let { return it.asStateFlow() }
 
-        val dateString = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
-        val defaultRecords = listOf(
-            MandiRecord(
-                state = state,
-                district = "Central District",
-                market = "Main Wholesale Market",
-                commodity = commodity,
-                variety = "Premium",
-                minPrice = 2400.0,
-                maxPrice = 2800.0,
-                modalPrice = 2650.0,
-                arrivalDate = dateString
-            ),
-            MandiRecord(
-                state = state,
-                district = "North District",
-                market = "Farmers Co-op",
-                commodity = commodity,
-                variety = "Standard",
-                minPrice = 2100.0,
-                maxPrice = 2500.0,
-                modalPrice = 2300.0,
-                arrivalDate = dateString
-            ),
-            MandiRecord(
-                state = state,
-                district = "South District",
-                market = "Agri Trade Hub",
-                commodity = commodity,
-                variety = "Local",
-                minPrice = 1950.0,
-                maxPrice = 2200.0,
-                modalPrice = 2100.0,
-                arrivalDate = dateString
-            )
-        )
-
-        val flow = MutableStateFlow<MandiState>(MandiState.Success(defaultRecords, defaultRecords.size))
+        val flow = MutableStateFlow<MandiState>(MandiState.Loading)
         activeFlows[key] = flow
 
         val job = serviceScope.launch {
@@ -131,8 +94,8 @@ object MandiApiService {
                     },
                     onFailure = { error ->
                         flow.value = MandiState.Error(
-                            message = error.message ?: "Network error",
-                            staleData = lastGoodData[key] ?: defaultRecords
+                            message = error.message ?: "Live Mandi data connection error",
+                            staleData = lastGoodData[key]
                         )
                     }
                 )
@@ -169,51 +132,26 @@ object MandiApiService {
         state: String,
         commodity: String
     ): Result<List<MandiRecord>> = withContext(Dispatchers.IO) {
-        // SIMULATING MIDDLE-TIER CACHE (as requested)
-        // Instant response bypassing Government API rate limits entirely
-        
-        val dateString = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault()).format(java.util.Date())
-        
-        val records = listOf(
-            MandiRecord(
-                state = state,
-                district = "Central District",
-                market = "Main Wholesale Market",
-                commodity = commodity,
-                variety = "Premium",
-                minPrice = 2400.0,
-                maxPrice = 2800.0,
-                modalPrice = 2650.0,
-                arrivalDate = dateString
-            ),
-            MandiRecord(
-                state = state,
-                district = "North District",
-                market = "Farmers Co-op",
-                commodity = commodity,
-                variety = "Standard",
-                minPrice = 2100.0,
-                maxPrice = 2500.0,
-                modalPrice = 2300.0,
-                arrivalDate = dateString
-            ),
-            MandiRecord(
-                state = state,
-                district = "South District",
-                market = "Agri Trade Hub",
-                commodity = commodity,
-                variety = "Local",
-                minPrice = 1950.0,
-                maxPrice = 2200.0,
-                modalPrice = 2100.0,
-                arrivalDate = dateString
-            )
-        )
-        
-        // Simulating rapid database fetch (100ms)
-        kotlinx.coroutines.delay(100)
-        
-        return@withContext Result.success(records)
+        // 1. Query Real Data from Supabase Database
+        val supabaseRecords = SupabaseApi.fetchMandiRates(state, commodity)
+        if (supabaseRecords.isNotEmpty()) {
+            return@withContext Result.success(supabaseRecords)
+        }
+
+        // 2. Query Direct Agmarknet Government API (Real-Time)
+        val govResult = fetchDirectFromGovApi(state, commodity)
+        if (govResult.isSuccess && govResult.getOrDefault(emptyList()).isNotEmpty()) {
+            return@withContext govResult
+        }
+
+        // Return last known good cached data if available, or failure
+        val key = "${state.trim().lowercase()}_${commodity.trim().lowercase()}"
+        val cached = lastGoodData[key]
+        if (!cached.isNullOrEmpty()) {
+            return@withContext Result.success(cached)
+        }
+
+        return@withContext Result.failure(Exception("Live Mandi feed temporarily unavailable for $commodity in $state"))
     }
 
     private suspend fun fetchDirectFromGovApi(

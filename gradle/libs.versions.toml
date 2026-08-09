@@ -92,6 +92,8 @@ roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi
 roborazzi-junit-rule = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
 supabase-bom = { group = "io.github.jan-tennert.supabase", name = "bom", version.ref = "supabaseBom" }
 supabase-auth = { group = "io.github.jan-tennert.supabase", name = "auth-kt", version.ref = "supabaseBom" }
+supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt", version.ref = "supabaseBom" }
+supabase-realtime = { group = "io.github.jan-tennert.supabase", name = "realtime-kt", version.ref = "supabaseBom" }
 ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
 firebase-ai = { group = "com.google.firebase", name = "firebase-vertexai" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }

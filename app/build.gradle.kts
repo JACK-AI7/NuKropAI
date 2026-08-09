@@ -94,6 +94,8 @@ dependencies {
   implementation(libs.coil.compose)
   // implementation(libs.converter.moshi)
   implementation(libs.supabase.auth)
+  implementation(libs.supabase.postgrest)
+  implementation(libs.supabase.realtime)
   implementation(libs.ktor.client.android)
   implementation("androidx.credentials:credentials:1.3.0")
   implementation("androidx.credentials:credentials-play-services-auth:1.3.0")

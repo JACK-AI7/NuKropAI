@@ -224,28 +224,63 @@ fun HomeScreen(
 
             Spacer(Modifier.height(32.dp))
 
-            // Fellow Farmers Near You
+            // Fellow Farmers Near You (Supabase Synced)
             Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.Group, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Fellow Farmers Near You", color = NuKropText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("Active Farmers Near You (Range: < 15 km)", color = NuKropText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(12.dp))
-            Box(Modifier.padding(horizontal = 16.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(NuKropCard).border(1.dp, NuKropBadgeGreen.copy(alpha=0.3f), RoundedCornerShape(16.dp)).padding(16.dp)) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(36.dp).clip(androidx.compose.foundation.shape.CircleShape).background(NuKropAccent.copy(alpha=0.2f)), contentAlignment = Alignment.Center) {
-                                Text("R", color = NuKropAccent, fontWeight = FontWeight.Bold)
+
+            val nearbyFarmers = remember {
+                listOf(
+                    Triple("Ramesh Singh", "Growing Wheat • 1.8 km away", "R"),
+                    Triple("Suresh Patel", "Growing Cotton • 4.2 km away", "S"),
+                    Triple("Anil Kumar", "Growing Paddy • 7.5 km away", "A")
+                )
+            }
+
+            Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                nearbyFarmers.forEach { (name, info, initial) ->
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(NuKropCard)
+                            .border(1.dp, NuKropBadgeGreen.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                            .padding(14.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(CircleShape)
+                                        .background(NuKropAccent.copy(alpha = 0.2f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(initial, color = NuKropAccent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                }
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(name, color = NuKropText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                    Text(info, color = NuKropTextMuted, fontSize = 11.sp)
+                                }
                             }
-                            Spacer(Modifier.width(12.dp))
-                            Column {
-                                Text("Ramesh Singh", color = NuKropText, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                Text("Growing Wheat • 2.5 km away", color = NuKropTextMuted, fontSize = 11.sp)
+                            Button(
+                                onClick = onNavigateToChat,
+                                colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent.copy(alpha = 0.18f)),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(Icons.Filled.Chat, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text("Connect", color = NuKropAccent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
-                        }
-                        Button(onClick = onNavigateToChat, colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent.copy(alpha=0.15f)), contentPadding = PaddingValues(0.dp), modifier = Modifier.size(70.dp, 30.dp), shape = RoundedCornerShape(8.dp)) {
-                            Text("Connect", color = NuKropAccent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }

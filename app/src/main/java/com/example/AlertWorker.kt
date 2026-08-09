@@ -41,19 +41,21 @@ class AlertWorker(appContext: Context, workerParams: WorkerParameters) :
                     val currentModalPrice = specificMandiRecord.modalPrice
                     val threshold = if (crop.targetPrice > 0.0) crop.targetPrice else crop.basePrice
                     
-                    if (currentModalPrice >= threshold && currentModalPrice > crop.basePrice) {
-                        val increaseAmt = currentModalPrice - crop.basePrice
-                        val lang = LanguageManager.currentLanguage.value
-                        val title = AppStrings.get("weather_alerts", lang)
-                        val msg = if (crop.targetPrice > 0.0) {
-                            "Target Price Reached! ${crop.crop} in ${crop.mandi} has hit Rs.$currentModalPrice (Target: Rs.${crop.targetPrice})."
+                    val diff = currentModalPrice - crop.basePrice
+                    val isSignificantChange = kotlin.math.abs(diff) >= 50.0 // Rs 50 variance
+                    
+                    if (isSignificantChange || (crop.targetPrice > 0.0 && currentModalPrice >= crop.targetPrice)) {
+                        val direction = if (diff >= 0) "📈 Hike" else "📉 Drop"
+                        val changeText = if (diff >= 0) "increased by ₹${diff.toInt()}" else "dropped by ₹${kotlin.math.abs(diff.toInt())}"
+                        
+                        val title = "🌾 Mandi Price Alert ($direction)"
+                        val msg = if (crop.targetPrice > 0.0 && currentModalPrice >= crop.targetPrice) {
+                            "Target Price Reached! ${crop.crop} in ${crop.mandi} has hit ₹${currentModalPrice.toInt()}/Qtl (Target: ₹${crop.targetPrice.toInt()})."
                         } else {
-                            "Price Alert: ${crop.crop} in ${crop.mandi} has increased by Rs.$increaseAmt! Current price is Rs.$currentModalPrice."
+                            "Price $direction: ${crop.crop} in ${crop.mandi} has $changeText/Qtl! Current price: ₹${currentModalPrice.toInt()}/Qtl."
                         }
                         
                         sendNotification(title, msg)
-                        
-                        // Update the base price and clear the target so we don't spam them
                         PriceTracker.addOrUpdateTrackedCrop(applicationContext, crop.state, crop.mandi, crop.crop, currentModalPrice, 0.0)
                     }
                 }
