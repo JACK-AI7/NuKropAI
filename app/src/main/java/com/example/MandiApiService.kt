@@ -133,9 +133,13 @@ object MandiApiService {
         commodity: String
     ): Result<List<MandiRecord>> = withContext(Dispatchers.IO) {
         // 1. Query Real Data from Supabase Database
-        val supabaseRecords = SupabaseApi.fetchMandiRates(state, commodity)
-        if (supabaseRecords.isNotEmpty()) {
-            return@withContext Result.success(supabaseRecords)
+        try {
+            val supabaseRecords = SupabaseApi.fetchMandiRates(state, commodity)
+            if (supabaseRecords.isNotEmpty()) {
+                return@withContext Result.success(supabaseRecords)
+            }
+        } catch (e: Exception) {
+            // Silently fallback to gov api if supabase fails
         }
 
         // 2. Query Direct Agmarknet Government API (Real-Time)

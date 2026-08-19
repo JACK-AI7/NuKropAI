@@ -327,20 +327,7 @@ fun LoginScreen(
                         }
                     }
 
-                    Spacer(Modifier.height(14.dp))
 
-                    // Continue as Guest Button
-                    TextButton(
-                        onClick = { viewModel.continueAsGuest() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            "Skip for now · Continue as Guest",
-                            color = Color(0x99FFFFFF),
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp
-                        )
-                    }
                 }
             }
 
