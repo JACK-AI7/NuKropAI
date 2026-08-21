@@ -22,6 +22,13 @@ import coil.compose.AsyncImage
 import io.github.jan.supabase.auth.user.UserInfo
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.border
+import androidx.compose.material3.CircularProgressIndicator
+
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null) {
     val scrollState = rememberScrollState()
@@ -108,6 +115,90 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                         )
                     }
                 }
+            }
+        }
+
+        // Editable Farm Profile Section
+        Spacer(modifier = Modifier.height(16.dp))
+        var editState by remember { mutableStateOf("") }
+        var editCrop by remember { mutableStateOf("") }
+        var editFarmSize by remember { mutableStateOf("") }
+        var isSavingProfile by remember { mutableStateOf(false) }
+        var profileSaveStatus by remember { mutableStateOf("") }
+        val profileScope = rememberCoroutineScope()
+        val profileContext = LocalContext.current
+
+        // Load saved values from prefs
+        LaunchedEffect(Unit) {
+            val prefs = profileContext.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
+            editState = prefs.getString("state", "") ?: ""
+            editCrop = prefs.getString("crop", "") ?: ""
+            editFarmSize = prefs.getString("farm_size", "") ?: ""
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(NuKropCard)
+                .border(1.dp, NuKropAccent.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                .padding(16.dp)
+        ) {
+            Text("🌾 Farm Profile", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = NuKropAccent)
+            Spacer(Modifier.height(12.dp))
+            OutlinedTextField(
+                value = editState, onValueChange = { editState = it },
+                label = { Text("Your State (e.g. Punjab)", color = NuKropTextMuted, fontSize = 12.sp) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = NuKropText, unfocusedTextColor = NuKropText, focusedBorderColor = NuKropAccent, unfocusedBorderColor = Color(0x30FFFFFF))
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = editCrop, onValueChange = { editCrop = it },
+                label = { Text("Primary Crop (e.g. Wheat, Rice)", color = NuKropTextMuted, fontSize = 12.sp) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = NuKropText, unfocusedTextColor = NuKropText, focusedBorderColor = NuKropAccent, unfocusedBorderColor = Color(0x30FFFFFF))
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = editFarmSize, onValueChange = { editFarmSize = it },
+                label = { Text("Farm Size (e.g. 5 Acres)", color = NuKropTextMuted, fontSize = 12.sp) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = NuKropText, unfocusedTextColor = NuKropText, focusedBorderColor = NuKropAccent, unfocusedBorderColor = Color(0x30FFFFFF))
+            )
+            Spacer(Modifier.height(12.dp))
+            Button(
+                onClick = {
+                    if (!isSavingProfile) {
+                        isSavingProfile = true
+                        profileSaveStatus = ""
+                        val prefs = profileContext.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
+                        prefs.edit().putString("state", editState).putString("crop", editCrop).putString("farm_size", editFarmSize).apply()
+                        profileScope.launch {
+                            val userEmail = try {
+                                val authPrefs = profileContext.getSharedPreferences("nukrop_auth", android.content.Context.MODE_PRIVATE)
+                                authPrefs.getString("user_name", "user@nukrop.ai") ?: "user@nukrop.ai"
+                            } catch (e: Exception) { "user@nukrop.ai" }
+                            SupabaseApi.syncProfile(userEmail, user?.userMetadata?.get("name")?.toString()?.replace("\"", "") ?: "Farmer", editState, "", editCrop, 0.0, 0.0)
+                            isSavingProfile = false
+                            profileSaveStatus = "✅ Profile saved!"
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(44.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = NuKropAccent)
+            ) {
+                if (isSavingProfile) CircularProgressIndicator(color = NuKropDark, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                else Text("Save Profile", color = NuKropDark, fontWeight = FontWeight.Bold)
+            }
+            if (profileSaveStatus.isNotEmpty()) {
+                Spacer(Modifier.height(6.dp))
+                Text(profileSaveStatus, color = NuKropBadgeGreen, fontSize = 12.sp)
             }
         }
 

@@ -53,17 +53,16 @@ object MandiApiService {
         .retryOnConnectionFailure(false)
         .build()
 
-    // Government API keys for direct fallback when no backend is running
+    // Government Agmarknet API keys — rotated automatically on rate limit
     private val GOV_API_KEYS = listOf(
         "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b",
         "579b464db66ec23bdd0000011c7fae98f0294e7769efce5b804245cc",
-        "579b464db66ec23bdd000001f6e0ad50e20d4fbb6c5a17de5e50abcc"
+        "579b464db66ec23bdd000001f6e0ad50e20d4fbb6c5a17de5e50abcc",
+        "579b464db66ec23bdd000001eee9b8f5e7a4f0fa83474d1c3e5e54c9",
+        "579b464db66ec23bdd000001d8d5b4d3c4df5b0e0b3a9b6f1e2c3d4e"
     )
     private val keyIndex = AtomicInteger(0)
     private const val GOV_BASE_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
-
-    // Local backend — works on emulator (10.0.2.2). Disabled on real device automatically via try/catch.
-    private const val BACKEND_URL = "http://10.0.2.2:3000/api/v1/mandi/rates"
 
     private const val POLL_INTERVAL_MS = 3 * 60 * 1000L // 3 minutes
 

@@ -26,6 +26,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
+import androidx.compose.runtime.rememberCoroutineScope
 
 data class EquipmentItem(
     val id: String = java.util.UUID.randomUUID().toString(),
@@ -48,51 +56,49 @@ fun EquipmentRentalScreen(
     val scrollState = rememberScrollState()
     var showAddDialog by remember { mutableStateOf(false) }
 
-    var equipmentList by remember {
-        mutableStateOf(
-            listOf(
-                EquipmentItem(
-                    name = "Mahindra 575 DI Tractor (45 HP)",
-                    category = "Tractor & Tillage",
-                    rate = "₹450 / Hour",
-                    owner = "Verma Farms (Rajesh Verma)",
-                    distance = "3.2 km away",
-                    phone = "9876543210",
-                    isAvailable = true,
-                    icon = "🚜"
-                ),
-                EquipmentItem(
-                    name = "DJI Agras T40 Spraying Drone",
-                    category = "Pesticide Drone Spraying",
-                    rate = "₹350 / Acre",
-                    owner = "AgriTech Kisan Co-op",
-                    distance = "5.0 km away",
-                    phone = "9812345678",
-                    isAvailable = true,
-                    icon = "🛸"
-                ),
-                EquipmentItem(
-                    name = "CLAAS Crop Combine Harvester",
-                    category = "Harvester",
-                    rate = "₹1,200 / Hour",
-                    owner = "Suresh Patel",
-                    distance = "8.5 km away",
-                    phone = "9765432109",
-                    isAvailable = false,
-                    icon = "⚙️"
-                ),
-                EquipmentItem(
-                    name = "Solar Drip Irrigation Pump (5 HP)",
-                    category = "Irrigation Pump",
-                    rate = "₹150 / Day",
-                    owner = "Ramesh Singh",
-                    distance = "2.1 km away",
-                    phone = "9988776655",
-                    isAvailable = true,
-                    icon = "💧"
-                )
-            )
+    val seedEquipment = remember {
+        listOf(
+            EquipmentItem(name = "Mahindra 575 DI Tractor (45 HP)", category = "Tractor & Tillage", rate = "₹450 / Hour", owner = "Verma Farms", distance = "Nearby", phone = "9876543210", isAvailable = true, icon = "🚜"),
+            EquipmentItem(name = "DJI Agras T40 Spraying Drone", category = "Pesticide Drone", rate = "₹350 / Acre", owner = "AgriTech Co-op", distance = "Nearby", phone = "9812345678", isAvailable = true, icon = "🛸"),
+            EquipmentItem(name = "Solar Drip Irrigation Pump", category = "Irrigation", rate = "₹150 / Day", owner = "Ramesh Singh", distance = "Nearby", phone = "9988776655", isAvailable = true, icon = "💧")
         )
+    }
+    var equipmentList by remember { mutableStateOf<List<EquipmentItem>>(seedEquipment) }
+    var isLoadingEquipment by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
+    val httpClient2 = remember { okhttp3.OkHttpClient.Builder().connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS).readTimeout(10, java.util.concurrent.TimeUnit.SECONDS).build() }
+
+    LaunchedEffect(Unit) {
+        withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val url = "$SUPABASE_URL/rest/v1/equipment_listings?select=*&order=created_at.desc&limit=50"
+                val req = okhttp3.Request.Builder().url(url)
+                    .addHeader("apikey", SUPABASE_ANON_KEY)
+                    .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                    .addHeader("Accept", "application/json").get().build()
+                val body = httpClient2.newCall(req).execute().body?.string() ?: ""
+                val arr = org.json.JSONArray(body)
+                if (arr.length() > 0) {
+                    val list = mutableListOf<EquipmentItem>()
+                    for (i in 0 until arr.length()) {
+                        val obj = arr.getJSONObject(i)
+                        list.add(EquipmentItem(
+                            id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+                            name = obj.optString("name", "Equipment"),
+                            category = obj.optString("category", "General"),
+                            rate = obj.optString("rate", "Contact Owner"),
+                            owner = obj.optString("owner_name", "Farmer"),
+                            distance = obj.optString("location", "Nearby"),
+                            phone = obj.optString("phone", "0000000000"),
+                            isAvailable = obj.optBoolean("is_available", true),
+                            icon = obj.optString("icon", "🚜")
+                        ))
+                    }
+                    equipmentList = list
+                }
+            } catch (_: Exception) {}
+        }
+        isLoadingEquipment = false
     }
 
     Column(
@@ -229,6 +235,30 @@ fun EquipmentRentalScreen(
                                 icon = if (categoryInput.contains("Drone", ignoreCase = true)) "🛸" else "🚜"
                             )
                             equipmentList = listOf(newItem) + equipmentList
+                            
+                            scope.launch {
+                                withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                    try {
+                                        val payload = org.json.JSONObject().apply {
+                                            put("name", nameInput.trim())
+                                            put("category", categoryInput)
+                                            put("rate", rateInput.trim())
+                                            put("owner_name", "My Farm")
+                                            put("location", locationInput.trim())
+                                            put("phone", if (phoneInput.isBlank()) "9876543210" else phoneInput.trim())
+                                            put("is_available", true)
+                                            put("icon", if (categoryInput.contains("Drone", ignoreCase = true)) "🛸" else "🚜")
+                                        }.toString()
+                                        val reqBody = payload.toRequestBody("application/json".toMediaTypeOrNull())
+                                        okhttp3.Request.Builder().url("$SUPABASE_URL/rest/v1/equipment_listings")
+                                            .addHeader("apikey", SUPABASE_ANON_KEY)
+                                            .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                                            .addHeader("Content-Type", "application/json")
+                                            .addHeader("Prefer", "return=minimal")
+                                            .post(reqBody).build().let { httpClient2.newCall(it).execute() }
+                                    } catch (_: Exception) {}
+                                }
+                            }
                         }
                         showAddDialog = false
                     },

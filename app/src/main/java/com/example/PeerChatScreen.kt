@@ -26,6 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.concurrent.TimeUnit
 
 data class PeerMessage(
     val id: String,
@@ -33,6 +44,55 @@ data class PeerMessage(
     val isFromMe: Boolean,
     val timestamp: String
 )
+
+private val chatHttpClient = OkHttpClient.Builder()
+    .connectTimeout(10, TimeUnit.SECONDS)
+    .readTimeout(10, TimeUnit.SECONDS)
+    .build()
+
+suspend fun fetchPeerMessages(myId: String, recipientId: String): List<PeerMessage> = withContext(Dispatchers.IO) {
+    try {
+        val url = "$SUPABASE_URL/rest/v1/peer_messages?or=(and(sender_id.eq.${myId},recipient_id.eq.${recipientId}),and(sender_id.eq.${recipientId},recipient_id.eq.${myId}))&order=created_at.asc&limit=100"
+        val req = Request.Builder().url(url)
+            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+            .addHeader("Accept", "application/json").get().build()
+        val body = chatHttpClient.newCall(req).execute().body?.string() ?: return@withContext emptyList()
+        val arr = JSONArray(body)
+        val list = mutableListOf<PeerMessage>()
+        for (i in 0 until arr.length()) {
+            val obj = arr.getJSONObject(i)
+            val ts = obj.optString("created_at", "")
+            val formatted = if (ts.length >= 16) ts.substring(11, 16) else ts
+            list.add(PeerMessage(
+                id = obj.optString("id", "$i"),
+                text = obj.optString("message", ""),
+                isFromMe = obj.optString("sender_id", "") == myId,
+                timestamp = formatted
+            ))
+        }
+        list
+    } catch (e: Exception) { emptyList() }
+}
+
+suspend fun sendPeerMessage(myId: String, recipientId: String, text: String): Boolean = withContext(Dispatchers.IO) {
+    try {
+        val payload = JSONObject().apply {
+            put("sender_id", myId)
+            put("recipient_id", recipientId)
+            put("message", text)
+        }.toString()
+        val body = payload.toRequestBody("application/json".toMediaTypeOrNull())
+        val req = Request.Builder().url("$SUPABASE_URL/rest/v1/peer_messages")
+            .addHeader("apikey", SUPABASE_ANON_KEY)
+            .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Prefer", "return=minimal")
+            .post(body).build()
+        val response = chatHttpClient.newCall(req).execute()
+        response.isSuccessful
+    } catch (e: Exception) { false }
+}
 
 @Composable
 fun PeerChatScreen(
@@ -44,20 +104,35 @@ fun PeerChatScreen(
     val context = LocalContext.current
     var input by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
-    var messages by remember {
-        mutableStateOf(
-            listOf(
-                PeerMessage("1", "Hello! Is your farming equipment available for rent this week?", true, "10:15 AM"),
-                PeerMessage("2", "Yes brother, Mahindra Tractor & Drip Pump are ready in Pune.", false, "10:17 AM"),
-                PeerMessage("3", "Great! What is the hourly rate and pickup location?", true, "10:20 AM")
-            )
-        )
+    // Use logged-in user email as ID, fallback to device ID
+    val myId = remember {
+        try {
+            val prefs = context.getSharedPreferences("nukrop_auth", android.content.Context.MODE_PRIVATE)
+            prefs.getString("user_name", null) ?: android.provider.Settings.Secure.getString(context.contentResolver, android.provider.Settings.Secure.ANDROID_ID) ?: "unknown_user"
+        } catch (e: Exception) { "unknown_user" }
     }
+    val recipientId = recipientName.lowercase().replace(" ", "_")
 
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
-            listState.animateScrollToItem(messages.size - 1)
+    var messages by remember { mutableStateOf<List<PeerMessage>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var isSending by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Load messages and poll every 5 seconds
+    LaunchedEffect(myId, recipientId) {
+        while (true) {
+            val fetched = fetchPeerMessages(myId, recipientId)
+            if (fetched.isNotEmpty() || isLoading) {
+                messages = fetched
+                isLoading = false
+                if (fetched.isNotEmpty()) {
+                    listState.animateScrollToItem(fetched.size - 1)
+                }
+            }
+            if (isLoading) isLoading = false
+            delay(5000L)
         }
     }
 
@@ -81,18 +156,11 @@ fun PeerChatScreen(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText)
                 }
                 Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
+                    modifier = Modifier.size(40.dp).clip(CircleShape)
                         .background(NuKropAccent.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        recipientName.take(1).uppercase(),
-                        color = NuKropAccent,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
+                    Text(recipientName.take(1).uppercase(), color = NuKropAccent, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 }
                 Spacer(Modifier.width(10.dp))
                 Column {
@@ -100,27 +168,52 @@ fun PeerChatScreen(
                     Text(recipientInfo, fontSize = 11.sp, color = NuKropBadgeGreen)
                 }
             }
-
             IconButton(onClick = {
-                try {
-                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$recipientPhone"))
-                    context.startActivity(intent)
-                } catch (_: Exception) {}
+                try { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$recipientPhone"))) } catch (_: Exception) {}
             }) {
                 Icon(Icons.Default.Phone, contentDescription = "Call", tint = NuKropAccent)
             }
         }
 
         // Messages List
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            items(messages) { msg ->
-                PeerMessageBubble(msg)
+        Box(modifier = Modifier.weight(1f)) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = NuKropAccent,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else if (messages.isEmpty()) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("💬", fontSize = 48.sp)
+                    Spacer(Modifier.height(8.dp))
+                    Text("No messages yet. Say hello!", color = NuKropTextMuted, fontSize = 14.sp)
+                    Spacer(Modifier.height(4.dp))
+                    Text("Messages are saved securely in the cloud.", color = NuKropTextDim, fontSize = 11.sp)
+                }
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(messages, key = { it.id }) { msg ->
+                        PeerMessageBubble(msg)
+                    }
+                }
             }
+        }
+
+        errorMessage?.let { err ->
+            Text(
+                err,
+                color = Color(0xFFFF6B6B),
+                fontSize = 11.sp,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)
+            )
         }
 
         // Input Bar
@@ -147,23 +240,41 @@ fun PeerChatScreen(
                     focusedTextColor = NuKropText,
                     unfocusedTextColor = NuKropText
                 ),
-                maxLines = 3
+                maxLines = 3,
+                enabled = !isSending
             )
-
             IconButton(
                 onClick = {
-                    if (input.isNotBlank()) {
-                        val timeStr = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date())
-                        messages = messages + PeerMessage(System.currentTimeMillis().toString(), input.trim(), true, timeStr)
+                    val msg = input.trim()
+                    if (msg.isNotBlank() && !isSending) {
+                        isSending = true
+                        errorMessage = null
+                        val optimistic = PeerMessage(
+                            id = System.currentTimeMillis().toString(),
+                            text = msg,
+                            isFromMe = true,
+                            timestamp = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())
+                        )
+                        messages = messages + optimistic
                         input = ""
+                        scope.launch {
+                            val ok = sendPeerMessage(myId, recipientId, msg)
+                            isSending = false
+                            if (!ok) {
+                                errorMessage = "⚠ Message failed to send. Check your internet connection."
+                                messages = messages.filter { it.id != optimistic.id }
+                            }
+                        }
                     }
                 },
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
+                modifier = Modifier.size(48.dp).clip(CircleShape)
                     .background(if (input.isNotBlank()) NuKropAccent else Color.Gray.copy(alpha = 0.3f))
             ) {
-                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = NuKropDark)
+                if (isSending) {
+                    CircularProgressIndicator(color = NuKropDark, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                } else {
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = NuKropDark)
+                }
             }
         }
     }
@@ -178,14 +289,11 @@ fun PeerMessageBubble(msg: PeerMessage) {
         Box(
             modifier = Modifier
                 .widthIn(max = 280.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = if (msg.isFromMe) 16.dp else 4.dp,
-                        bottomEnd = if (msg.isFromMe) 4.dp else 16.dp
-                    )
-                )
+                .clip(RoundedCornerShape(
+                    topStart = 16.dp, topEnd = 16.dp,
+                    bottomStart = if (msg.isFromMe) 16.dp else 4.dp,
+                    bottomEnd = if (msg.isFromMe) 4.dp else 16.dp
+                ))
                 .background(if (msg.isFromMe) NuKropAccent.copy(alpha = 0.22f) else NuKropCard)
                 .border(1.dp, if (msg.isFromMe) NuKropAccent.copy(alpha = 0.4f) else Color.White.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
                 .padding(horizontal = 14.dp, vertical = 10.dp)
@@ -193,12 +301,7 @@ fun PeerMessageBubble(msg: PeerMessage) {
             Column {
                 Text(msg.text, color = NuKropText, fontSize = 14.sp, lineHeight = 19.sp)
                 Spacer(Modifier.height(4.dp))
-                Text(
-                    msg.timestamp,
-                    color = NuKropTextMuted,
-                    fontSize = 10.sp,
-                    modifier = Modifier.align(Alignment.End)
-                )
+                Text(msg.timestamp, color = NuKropTextMuted, fontSize = 10.sp, modifier = Modifier.align(Alignment.End))
             }
         }
     }

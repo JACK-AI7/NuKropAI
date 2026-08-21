@@ -21,6 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
 
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+
 data class KhataEntry(
     val title: String,
     val category: String,
@@ -35,17 +44,54 @@ fun FarmKhataScreen(
 ) {
     val scrollState = rememberScrollState()
     var showAddDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val httpClient = remember { okhttp3.OkHttpClient.Builder().connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS).readTimeout(10, java.util.concurrent.TimeUnit.SECONDS).build() }
 
-    var entries by remember {
-        mutableStateOf(
-            listOf(
-                KhataEntry("Wheat Harvest Sale", "Crop Sale", 125000.0, true, "Yesterday"),
-                KhataEntry("IFFCO NPK Fertilizer 50kg", "Fertilizer", 1450.0, false, "05 Aug"),
-                KhataEntry("FMC Coragen Pesticide", "Pesticides", 1800.0, false, "01 Aug"),
-                KhataEntry("Tractor Fuel (Diesel 20L)", "Fuel", 1900.0, false, "28 Jul"),
-                KhataEntry("Harvest Labor Wages (3 Workers)", "Labor", 3600.0, false, "25 Jul")
-            )
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val myId = remember {
+        try {
+            val prefs = context.getSharedPreferences("nukrop_auth", android.content.Context.MODE_PRIVATE)
+            prefs.getString("user_name", null) ?: "unknown_user"
+        } catch (e: Exception) { "unknown_user" }
+    }
+
+    val seedEntries = remember {
+        listOf(
+            KhataEntry("Wheat Harvest Sale", "Crop Sale", 125000.0, true, "Yesterday"),
+            KhataEntry("IFFCO NPK Fertilizer 50kg", "Fertilizer", 1450.0, false, "05 Aug"),
+            KhataEntry("Tractor Fuel (Diesel 20L)", "Fuel", 1900.0, false, "28 Jul")
         )
+    }
+    var entries by remember { mutableStateOf<List<KhataEntry>>(seedEntries) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(myId) {
+        withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                val url = "$SUPABASE_URL/rest/v1/farm_khata_entries?select=*&user_id=eq.$myId&order=created_at.desc&limit=100"
+                val req = okhttp3.Request.Builder().url(url)
+                    .addHeader("apikey", SUPABASE_ANON_KEY)
+                    .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                    .addHeader("Accept", "application/json").get().build()
+                val body = httpClient.newCall(req).execute().body?.string() ?: ""
+                val arr = org.json.JSONArray(body)
+                if (arr.length() > 0) {
+                    val list = mutableListOf<KhataEntry>()
+                    for (i in 0 until arr.length()) {
+                        val obj = arr.getJSONObject(i)
+                        list.add(KhataEntry(
+                            title = obj.optString("title", "Entry"),
+                            category = obj.optString("category", "General"),
+                            amount = obj.optDouble("amount", 0.0),
+                            isIncome = obj.optBoolean("is_income", false),
+                            date = obj.optString("entry_date", "Today")
+                        ))
+                    }
+                    entries = list
+                }
+            } catch (_: Exception) {}
+        }
+        isLoading = false
     }
 
     val totalIncome = entries.filter { it.isIncome }.sumOf { it.amount }
@@ -234,7 +280,29 @@ fun FarmKhataScreen(
                     onClick = {
                         val amt = amountInput.toDoubleOrNull() ?: 0.0
                         if (titleInput.isNotBlank() && amt > 0.0) {
-                            entries = listOf(KhataEntry(titleInput, categoryInput, amt, isIncomeInput, "Today")) + entries
+                            val newEntry = KhataEntry(titleInput, categoryInput, amt, isIncomeInput, "Today")
+                            entries = listOf(newEntry) + entries
+                            scope.launch {
+                                withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                    try {
+                                        val payload = org.json.JSONObject().apply {
+                                            put("user_id", myId)
+                                            put("title", titleInput.trim())
+                                            put("category", categoryInput)
+                                            put("amount", amt)
+                                            put("is_income", isIncomeInput)
+                                            put("entry_date", java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault()).format(java.util.Date()))
+                                        }.toString()
+                                        val reqBody = payload.toRequestBody("application/json".toMediaTypeOrNull())
+                                        okhttp3.Request.Builder().url("$SUPABASE_URL/rest/v1/farm_khata_entries")
+                                            .addHeader("apikey", SUPABASE_ANON_KEY)
+                                            .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                                            .addHeader("Content-Type", "application/json")
+                                            .addHeader("Prefer", "return=minimal")
+                                            .post(reqBody).build().let { httpClient.newCall(it).execute() }
+                                    } catch (_: Exception) {}
+                                }
+                            }
                         }
                         showAddDialog = false
                     },

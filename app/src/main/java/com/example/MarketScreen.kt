@@ -33,11 +33,11 @@ fun MarketScreen(modifier: Modifier = Modifier) {
     
     var query by remember { mutableStateOf("Wheat") }
     var activeSearchQuery by remember { mutableStateOf("Wheat") }
-    var userState by remember { mutableStateOf("Maharashtra") }
-    var activeSearchState by remember { mutableStateOf("Maharashtra") }
+    var userState by remember { mutableStateOf("") }
+    var activeSearchState by remember { mutableStateOf("") }
     var userMandi by remember { mutableStateOf("") }
     
-    var detectingLoc by remember { mutableStateOf(false) }
+    var detectingLoc by remember { mutableStateOf(true) }
     
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -50,6 +50,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                 if (loc != null) {
                     userState = loc.first
                     activeSearchState = loc.first
+                    activeSearchQuery = "Wheat"
                     userMandi = loc.second
                 }
                 detectingLoc = false
@@ -57,17 +58,35 @@ fun MarketScreen(modifier: Modifier = Modifier) {
         }
     }
 
-    // Auto-detect location if available and set activeSearchState
+    // Auto-detect location on open and trigger auto-search
     LaunchedEffect(Unit) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             val loc = LocationHelper.getCurrentLocationStateAndMandi(context)
             if (loc != null) {
                 userState = loc.first
                 activeSearchState = loc.first
+                activeSearchQuery = "Wheat"
                 userMandi = loc.second
+            } else {
+                // Fallback to saved profile state
+                val prefs = context.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
+                val savedState = prefs.getString("state", "Maharashtra") ?: "Maharashtra"
+                userState = savedState
+                activeSearchState = savedState
+                activeSearchQuery = "Wheat"
             }
+        } else {
+            permLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+            // Use fallback state while waiting for permission
+            val prefs = context.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
+            val savedState = prefs.getString("state", "Maharashtra") ?: "Maharashtra"
+            userState = savedState
+            activeSearchState = savedState
+            activeSearchQuery = "Wheat"
         }
+        detectingLoc = false
     }
+
 
     // Reactively watch based on active state and query
     val mandiFlow = remember(activeSearchState, activeSearchQuery) {
