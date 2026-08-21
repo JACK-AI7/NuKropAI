@@ -45,7 +45,7 @@ export default function Hero() {
         </p>
 
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="/NuKropAI_v1.0.apk" download className="nukrop-btn" style={{ padding: '16px 28px', fontSize: '16px', borderRadius: '14px', textDecoration: 'none' }}>
+          <a href="/NuKropAI_v2.0.apk" download className="nukrop-btn" style={{ padding: '16px 28px', fontSize: '16px', borderRadius: '14px', textDecoration: 'none' }}>
             <Smartphone style={{ width: '20px', height: '20px' }} />
             Download for Android
           </a>
