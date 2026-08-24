@@ -31,9 +31,11 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     init {
         // Load saved session to prevent auto-logout
         val savedUser = prefs.getString("user_name", null)
-        if (savedUser != null) {
+        if (savedUser != null && savedUser != "Guest" && savedUser != "Google Farmer") {
             _currentUser.value = savedUser
             _authState.value = AuthState.Success
+        } else if (savedUser == "Guest" || savedUser == "Google Farmer") {
+            prefs.edit().clear().apply()
         }
         // Collect supabase session updates
         viewModelScope.launch {
@@ -71,7 +73,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     this.password = pass
                 }
                 _authState.value = AuthState.Success
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 _authState.value = AuthState.Error(e.message ?: "Sign up failed")
             }
         }
@@ -90,7 +92,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     this.password = pass
                 }
                 _authState.value = AuthState.Success
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 _authState.value = AuthState.Error(e.message ?: "Login failed")
             }
         }
@@ -130,11 +132,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     prefs.edit().putString("user_name", "Google Farmer").apply()
                     _authState.value = AuthState.Success
                 }
-            } catch (e: Exception) {
-                // Smooth fallback for devices without Web Client ID registered on device
-                _currentUser.value = "Google Farmer"
-                prefs.edit().putString("user_name", "Google Farmer").apply()
-                _authState.value = AuthState.Success
+            } catch (e: Throwable) {
+                // Strictly enforce Google login - no fallback bypass
+                _authState.value = AuthState.Error("Google Sign-In failed. Please use Email/Password.")
             }
         }
     }
@@ -149,9 +149,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun continueAsGuest() {
-        _currentUser.value = "Guest"
-        prefs.edit().putString("user_name", "Guest").apply()
-        _authState.value = AuthState.Success
+        _authState.value = AuthState.Error("Guest mode is disabled. Please create an account.")
     }
 
     fun setError(message: String) {

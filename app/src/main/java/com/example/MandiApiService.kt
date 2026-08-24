@@ -165,7 +165,8 @@ object MandiApiService {
         val startKey = keyIndex.get() % GOV_API_KEYS.size
 
         for (attempt in 0 until GOV_API_KEYS.size) {
-            val currentKey = GOV_API_KEYS[(startKey + attempt) % GOV_API_KEYS.size]
+            val idx = (startKey + attempt) % GOV_API_KEYS.size
+            val currentKey = GOV_API_KEYS[idx]
             try {
                 val stateEnc = URLEncoder.encode(state.trim(), "UTF-8")
                 val commEnc = URLEncoder.encode(commodity.trim(), "UTF-8")
@@ -188,19 +189,25 @@ object MandiApiService {
                 val responseBody = client.newCall(request).execute().use { response ->
                     when (response.code) {
                         429 -> {
-                            keyIndex.incrementAndGet()
-                            lastError = "Rate limited, rotating API key..."
+                            val next = (idx + 1) % GOV_API_KEYS.size
+                            keyIndex.set(next)
+                            lastError = "Rate limited, rotating API key to index $next..."
                             return@use null
                         }
                         401, 403 -> {
-                            lastError = "Auth error on key $attempt"
+                            // Reset back to primary authorized Key 1 (index 0) to prevent permanent 403 lockup
+                            keyIndex.set(0)
+                            lastError = "Auth error on key index $idx (reset to primary key)"
                             return@use null
                         }
                         in 500..599 -> {
                             lastError = "Server error ${response.code}"
                             return@use null
                         }
-                        else -> if (response.isSuccessful) response.body?.string() else {
+                        else -> if (response.isSuccessful) {
+                            keyIndex.set(idx)
+                            response.body?.string()
+                        } else {
                             lastError = "HTTP ${response.code}"
                             null
                         }
@@ -234,6 +241,8 @@ object MandiApiService {
                 lastError = e.localizedMessage ?: "Network exception"
             }
         }
+        // If all attempts failed, ensure key index is reset to Primary Key 1 for subsequent calls
+        keyIndex.set(0)
         Result.failure(Exception("Gov API unavailable: $lastError"))
     }
 }

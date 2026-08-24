@@ -151,7 +151,7 @@ fun PeerChatScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onNavigateBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText)
                 }
@@ -163,9 +163,9 @@ fun PeerChatScreen(
                     Text(recipientName.take(1).uppercase(), color = NuKropAccent, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 }
                 Spacer(Modifier.width(10.dp))
-                Column {
-                    Text(recipientName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                    Text(recipientInfo, fontSize = 11.sp, color = NuKropBadgeGreen)
+                Column(modifier = Modifier.weight(1f, fill = false)) {
+                    Text(recipientName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    Text(recipientInfo, fontSize = 11.sp, color = NuKropBadgeGreen, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                 }
             }
             IconButton(onClick = {
@@ -221,6 +221,7 @@ fun PeerChatScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xEE141A0A))
+                .imePadding()
                 .navigationBarsPadding()
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -258,11 +259,17 @@ fun PeerChatScreen(
                         messages = messages + optimistic
                         input = ""
                         scope.launch {
-                            val ok = sendPeerMessage(myId, recipientId, msg)
-                            isSending = false
-                            if (!ok) {
-                                errorMessage = "⚠ Message failed to send. Check your internet connection."
+                            try {
+                                val ok = sendPeerMessage(myId, recipientId, msg)
+                                if (!ok) {
+                                    errorMessage = "⚠ Message failed to send. Check your internet connection."
+                                    messages = messages.filter { it.id != optimistic.id }
+                                }
+                            } catch (e: Exception) {
+                                errorMessage = "⚠ Message failed to send: ${e.message}"
                                 messages = messages.filter { it.id != optimistic.id }
+                            } finally {
+                                isSending = false
                             }
                         }
                     }

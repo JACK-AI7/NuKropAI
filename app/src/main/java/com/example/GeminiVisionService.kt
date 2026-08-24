@@ -32,13 +32,15 @@ object GeminiVisionService {
     private const val BASE = "https://api.groq.com/openai/v1/chat/completions"
     
     private val MODELS = listOf(
-        "llama-3.3-70b-versatile",
-        "llama-3.1-8b-instant"
+        "groq/compound-mini",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b"
     )
 
     private val VISION_MODELS = listOf(
-        "llama-3.2-11b-vision-preview",
-        "qwen/qwen3.6-27b"
+        "groq/compound-mini",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b"
     )
 
     private fun parseText(body: String): String {
@@ -50,10 +52,16 @@ object GeminiVisionService {
                 val msg = errObj?.get("message")?.jsonPrimitive?.content ?: "Unknown API Error"
                 return "API Error: $msg"
             }
-            element["choices"]
+            val content = element["choices"]
                 ?.jsonArray?.getOrNull(0)?.jsonObject
                 ?.get("message")?.jsonObject
-                ?.get("content")?.jsonPrimitive?.content ?: "API Error: No response content found"
+                ?.get("content")?.jsonPrimitive?.content ?: return "API Error: No response content found"
+
+            // Strip reasoning/thought tags like <think>...</think> before returning content
+            val cleaned = content.replace(Regex("(?s)<think>.*?</think>"), "")
+                .replace(Regex("(?s)<thought>.*?</thought>"), "")
+                .trim()
+            if (cleaned.isBlank()) content.trim() else cleaned
         } catch (e: Exception) { "API Error: Parse failed (${e.message}). Raw: $body" }
     }
 
@@ -100,7 +108,6 @@ object GeminiVisionService {
                             return@withContext Result.success(parsed)
                         } else {
                             lastError = parsed
-                            if (resp.code != 429) break
                         }
                     } catch (e: Exception) { lastError = "Exception: ${e.message}" }
                 }
@@ -142,7 +149,6 @@ object GeminiVisionService {
                             return@withContext Result.success(parsed)
                         } else {
                             lastError = parsed
-                            if (resp.code != 429) break
                         }
                     } catch (e: Exception) { lastError = "Exception: ${e.message}" }
                 }
@@ -184,7 +190,6 @@ object GeminiVisionService {
                             return@withContext Result.success(parsed)
                         } else {
                             lastError = parsed
-                            if (resp.code != 429) break
                         }
                     } catch (e: Exception) { lastError = "Exception: ${e.message}" }
                 }

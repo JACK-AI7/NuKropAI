@@ -94,12 +94,15 @@ fun DevicePairingScreen(modifier: Modifier = Modifier) {
         // Simulating the CameraX success callback
         LaunchedEffect(isScanning) {
             if (isScanning) {
-                kotlinx.coroutines.delay(2000)
-                // In production, this data comes from MLKit Vision QR parser
-                val mockQrData = "nukrop://pair?mac=00:1B:44:11:3A:B7&provider=mqtt"
-                scannedResult = mockQrData
-                pairingStatus = "BOUND"
-                isScanning = false
+                try {
+                    kotlinx.coroutines.delay(2000)
+                    // In production, this data comes from MLKit Vision QR parser
+                    val mockQrData = "nukrop://pair?mac=00:1B:44:11:3A:B7&provider=mqtt"
+                    scannedResult = mockQrData
+                    pairingStatus = "BOUND"
+                } finally {
+                    isScanning = false
+                }
                 
                 // Usually we would call NuKropIotManager.registerDevice(mockQrData)
             }

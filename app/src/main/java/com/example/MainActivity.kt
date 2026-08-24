@@ -96,6 +96,7 @@ fun MainApp(authViewModel: AuthViewModel) {
 
     Scaffold(
         containerColor = Color(0xFF0D1208),
+        contentWindowInsets = WindowInsets(0.dp),
         bottomBar = {
             Box(
                 Modifier

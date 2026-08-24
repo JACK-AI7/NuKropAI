@@ -163,6 +163,7 @@ fun ChatScreen(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xCC141A0A))
+                .imePadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -182,16 +183,14 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                     }
                 }
                 Row(
-                    verticalAlignment = Alignment.Bottom, // Align to bottom so they stay aligned as text expands
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     // Camera / Attachment Icon
                     var showAttachMenu by remember { mutableStateOf(false) }
                     Box(
                         modifier = Modifier
-                            .height(56.dp) // Match OutlinedTextField default minimum height
-                            .width(48.dp)
-                            .padding(bottom = 4.dp) // Fine-tune alignment to the visible field border
+                            .size(48.dp)
                             .clip(CircleShape)
                             .background(NuKropCard)
                             .clickable { showAttachMenu = true },
@@ -217,9 +216,7 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                     // Voice Input Button
                     Box(
                         modifier = Modifier
-                            .height(56.dp)
-                            .width(48.dp)
-                            .padding(bottom = 4.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
                             .background(NuKropCard)
                             .clickable {
@@ -259,9 +256,7 @@ fun ChatScreen(modifier: Modifier = Modifier) {
                     val canSend = (input.isNotBlank() || imageBytes != null) && generatingStatus.isEmpty()
                     Box(
                         modifier = Modifier
-                            .height(56.dp)
-                            .width(48.dp)
-                            .padding(bottom = 4.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
                             .background(if (canSend) NuKropAccent else NuKropCard)
                             .clickable(enabled = canSend) {

@@ -81,12 +81,20 @@ class ChatViewModel(private val repository: ChatRepository, private val applicat
         _generatingStatus.value = if (imageBytes != null) "Analyzing image..." else "Thinking..."
 
         viewModelScope.launch {
-            // Persist user prompt
-            repository.insertMessage(ChatMessageEntity(userMsg.id, userMsg.text, userMsg.isUser, false))
-            if (imageBytes != null) {
-                streamImageResponse(prompt, imageBytes, assistantPlaceholderId)
-            } else {
-                streamResponse(prompt, assistantPlaceholderId)
+            try {
+                // Persist user prompt
+                repository.insertMessage(ChatMessageEntity(userMsg.id, userMsg.text, userMsg.isUser, false))
+                if (imageBytes != null) {
+                    streamImageResponse(prompt, imageBytes, assistantPlaceholderId)
+                } else {
+                    streamResponse(prompt, assistantPlaceholderId)
+                }
+            } catch (e: Throwable) {
+                val err = e.message ?: "Failed to process message"
+                updateMessage(assistantPlaceholderId, "Error connecting to AI: $err", isLoading = false, isError = true)
+                repository.insertMessage(ChatMessageEntity(assistantPlaceholderId, "Error connecting to AI: $err", false, true))
+            } finally {
+                _generatingStatus.value = ""
             }
         }
     }

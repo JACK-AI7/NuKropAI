@@ -116,6 +116,7 @@ fun LoginScreen(
                 .verticalScroll(scrollState)
                 .statusBarsPadding()
                 .navigationBarsPadding()
+                .imePadding()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -370,11 +371,11 @@ fun NuKropTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        leadingIcon = {
+            Text(icon, fontSize = 16.sp, modifier = Modifier.padding(start = 8.dp))
+        },
         placeholder = {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(icon, fontSize = 16.sp)
-                Text(placeholder, color = Color(0x66FFFFFF), fontSize = 14.sp)
-            }
+            Text(placeholder, color = Color(0x66FFFFFF), fontSize = 14.sp)
         },
         visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
         trailingIcon = if (isPassword) {

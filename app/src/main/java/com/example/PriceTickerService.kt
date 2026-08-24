@@ -78,8 +78,8 @@ object PriceTickerService {
 
                 if (fetched.isNotEmpty()) {
                     _tickerItems.value = fetched
-                    _isLoading.value = false
                 }
+                _isLoading.value = false
 
                 delay(3 * 60 * 1000L) // Refresh every 3 minutes
             }

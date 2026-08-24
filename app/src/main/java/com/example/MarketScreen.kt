@@ -46,14 +46,18 @@ fun MarketScreen(modifier: Modifier = Modifier) {
         if (perms[Manifest.permission.ACCESS_FINE_LOCATION] == true || perms[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
             detectingLoc = true
             scope.launch {
-                val loc = LocationHelper.getCurrentLocationStateAndMandi(context)
-                if (loc != null) {
-                    userState = loc.first
-                    activeSearchState = loc.first
-                    activeSearchQuery = "Wheat"
-                    userMandi = loc.second
+                try {
+                    val loc = LocationHelper.getCurrentLocationStateAndMandi(context)
+                    if (loc != null) {
+                        userState = loc.first
+                        activeSearchState = loc.first
+                        activeSearchQuery = "Wheat"
+                        userMandi = loc.second
+                    }
+                } catch (_: Exception) {
+                } finally {
+                    detectingLoc = false
                 }
-                detectingLoc = false
             }
         }
     }
@@ -266,7 +270,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
             } else if (loading && records.isNullOrEmpty()) {
                 CircularProgressIndicator(color = NuKropAccent, modifier = Modifier.align(Alignment.Center))
             } else if (!records.isNullOrEmpty()) {
-                Column(Modifier.verticalScroll(scrollState).padding(bottom = 100.dp)) {
+                Column(Modifier.verticalScroll(scrollState).padding(bottom = 80.dp)) {
                     // 7-Day AI Price Forecast Card
                     val avgModal = records.map { it.modalPrice }.average()
                     val forecastPeak = (avgModal * 1.054).toInt()
@@ -356,17 +360,18 @@ fun MandiRecordCard(record: MandiRecord) {
     ) {
         Column {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.clip(RoundedCornerShape(8.dp)).background(NuKropAccent.copy(alpha=0.15f)).padding(8.dp)) {
                         Icon(Icons.Filled.AutoGraph, null, tint = NuKropAccent, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text(record.market, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                        Text("${record.district}, ${record.state}", fontSize = 12.sp, color = NuKropTextMuted)
+                    Column(Modifier.weight(1f)) {
+                        Text(record.market, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                        Text("${record.district}, ${record.state}", fontSize = 12.sp, color = NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                     }
                 }
-                Text("₹ ${record.modalPrice.toInt()} / Qtl", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = NuKropAccent)
+                Spacer(Modifier.width(8.dp))
+                Text("₹ ${record.modalPrice.toInt()} / Qtl", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = NuKropAccent, maxLines = 1)
             }
             Spacer(Modifier.height(16.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

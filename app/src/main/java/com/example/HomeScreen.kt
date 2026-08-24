@@ -77,7 +77,7 @@ fun HomeScreen(
     val now = remember { SimpleDateFormat("d MMM yyyy | h:mm a", Locale.getDefault()).format(Date()) }
 
     Box(modifier = modifier.fillMaxSize().background(Color(0xFF0D1208))) {
-        Column(Modifier.fillMaxSize().verticalScroll(scrollState).padding(bottom = 100.dp)) { // padding for nav bar
+        Column(Modifier.fillMaxSize().verticalScroll(scrollState)) {
 
             // Hero Section
             Box(Modifier.fillMaxWidth().height(260.dp)) {
@@ -292,7 +292,7 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(Modifier.height(40.dp))
+            Spacer(Modifier.height(80.dp))
         }
     }
 }
@@ -319,7 +319,7 @@ fun QuickActionTile(modifier: Modifier, icon: ImageVector, title: String, subtit
             Spacer(Modifier.height(16.dp))
             Text(title, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1)
             Spacer(Modifier.height(4.dp))
-            Text(subtitle, fontSize = 11.sp, color = NuKropTextMuted, lineHeight = 14.sp, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(subtitle, fontSize = 10.sp, color = NuKropTextMuted, lineHeight = 14.sp, minLines = 2, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }

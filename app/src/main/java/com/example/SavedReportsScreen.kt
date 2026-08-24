@@ -48,41 +48,45 @@ fun SavedReportsScreen(onNavigateBack: () -> Unit) {
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            val reportList = mutableListOf<SavedReport>()
-            val projection = arrayOf(
-                MediaStore.Files.FileColumns._ID,
-                MediaStore.Files.FileColumns.DISPLAY_NAME,
-                MediaStore.Files.FileColumns.DATE_MODIFIED,
-                MediaStore.Files.FileColumns.SIZE,
-                MediaStore.Files.FileColumns.RELATIVE_PATH
-            )
-            val selection = "${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE ?"
-            val selectionArgs = arrayOf("NuKropAI_Report_%")
-            val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
+        try {
+            withContext(Dispatchers.IO) {
+                val reportList = mutableListOf<SavedReport>()
+                val projection = arrayOf(
+                    MediaStore.Files.FileColumns._ID,
+                    MediaStore.Files.FileColumns.DISPLAY_NAME,
+                    MediaStore.Files.FileColumns.DATE_MODIFIED,
+                    MediaStore.Files.FileColumns.SIZE,
+                    MediaStore.Files.FileColumns.RELATIVE_PATH
+                )
+                val selection = "${MediaStore.Files.FileColumns.DISPLAY_NAME} LIKE ?"
+                val selectionArgs = arrayOf("NuKropAI_Report_%")
+                val sortOrder = "${MediaStore.Files.FileColumns.DATE_MODIFIED} DESC"
 
-            context.contentResolver.query(
-                MediaStore.Files.getContentUri("external"),
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder
-            )?.use { cursor ->
-                val idCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
-                val nameCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
-                val dateCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
-                val sizeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
+                context.contentResolver.query(
+                    MediaStore.Files.getContentUri("external"),
+                    projection,
+                    selection,
+                    selectionArgs,
+                    sortOrder
+                )?.use { cursor ->
+                    val idCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID)
+                    val nameCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME)
+                    val dateCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)
+                    val sizeCol = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE)
 
-                while (cursor.moveToNext()) {
-                    val id = cursor.getLong(idCol)
-                    val name = cursor.getString(nameCol)
-                    val date = cursor.getLong(dateCol) * 1000L // convert to ms
-                    val size = cursor.getLong(sizeCol)
-                    val uri = Uri.withAppendedPath(MediaStore.Files.getContentUri("external"), id.toString())
-                    reportList.add(SavedReport(uri, name, date, size))
+                    while (cursor.moveToNext()) {
+                        val id = cursor.getLong(idCol)
+                        val name = cursor.getString(nameCol)
+                        val date = cursor.getLong(dateCol) * 1000L // convert to ms
+                        val size = cursor.getLong(sizeCol)
+                        val uri = Uri.withAppendedPath(MediaStore.Files.getContentUri("external"), id.toString())
+                        reportList.add(SavedReport(uri, name, date, size))
+                    }
                 }
+                reports = reportList
             }
-            reports = reportList
+        } catch (_: Exception) {
+        } finally {
             isLoading = false
         }
     }

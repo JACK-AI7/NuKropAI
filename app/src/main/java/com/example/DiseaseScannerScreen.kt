@@ -66,14 +66,15 @@ data class SoilScanData(
 )
 
 fun parseCropJson(raw: String): CropScanData? {
-    if (raw.isBlank() || raw.startsWith("ERROR: API Error")) return null
+    if (raw.isBlank() || raw.contains("API Error")) return null
     val cleanRaw = raw.replace(Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL), "").trim()
     val start = cleanRaw.indexOf('{')
     val end = cleanRaw.lastIndexOf('}')
     
     if (start != -1 && end != -1 && end > start) {
         try {
-            val j = org.json.JSONObject(cleanRaw.substring(start, end + 1))
+            val jsonStr = cleanRaw.substring(start, end + 1)
+            val j = org.json.JSONObject(jsonStr)
             val prods = j.optJSONArray("products")?.let { arr ->
                 (0 until arr.length()).mapNotNull { i ->
                     val obj = arr.optJSONObject(i) ?: return@mapNotNull null
@@ -98,10 +99,10 @@ fun parseCropJson(raw: String): CropScanData? {
                 cause = j.optString("cause", "Pest/Pathogen activity"),
                 treatment = j.optString("treatment", "Apply recommended broad-spectrum spray."),
                 prevention = j.optString("prevention", "Maintain field hygiene and crop rotation."),
-                details = j.optString("details", cleanRaw.take(300)),
-                products = if (prods.isNotEmpty()) prods else getDefaultCropProducts()
+                details = j.optString("details", ""),
+                products = prods
             )
-        } catch (e: Exception) { }
+        } catch (e: Exception) { return null }
     }
 
     // BULLETPROOF FALLBACK: Transform plain text / reasoning model output into full Structured UI with Buy Links
@@ -123,7 +124,7 @@ fun parseCropJson(raw: String): CropScanData? {
         cause = "Lepidopteran Larva / Fruit Borer",
         treatment = "Apply Emamectin Benzoate 5% SG or FMC Coragen immediately to control larva population.",
         prevention = "Use pheromone traps (10/acre) and remove infected fallen fruits from field.",
-        details = cleanRaw,
+        details = if (cleanRaw.length > 200) cleanRaw.take(200) + "..." else cleanRaw,
         products = getDefaultCropProducts()
     )
 }
@@ -146,14 +147,15 @@ fun getDefaultCropProducts(): List<Pair<Pair<String, String>, List<Store>>> = li
 )
 
 fun parseSoilJson(raw: String): SoilScanData? {
-    if (raw.isBlank() || raw.startsWith("ERROR: API Error")) return null
+    if (raw.isBlank() || raw.contains("API Error")) return null
     val cleanRaw = raw.replace(Regex("<think>.*?</think>", RegexOption.DOT_MATCHES_ALL), "").trim()
     val start = cleanRaw.indexOf('{')
     val end = cleanRaw.lastIndexOf('}')
     
     if (start != -1 && end != -1 && end > start) {
         try {
-            val j = org.json.JSONObject(cleanRaw.substring(start, end + 1))
+            val jsonStr = cleanRaw.substring(start, end + 1)
+            val j = org.json.JSONObject(jsonStr)
             val defs = j.optJSONArray("likelyDeficiencies")?.let { arr -> (0 until arr.length()).map { i -> arr.optString(i) } } ?: emptyList()
             val crops = j.optJSONArray("suitableCrops")?.let { arr -> (0 until arr.length()).map { i -> arr.optString(i) } } ?: emptyList()
             val ferts = j.optJSONArray("fertilizers")?.let { arr ->
@@ -179,10 +181,10 @@ fun parseSoilJson(raw: String): SoilScanData? {
                 defs.ifEmpty { listOf("Nitrogen", "Zinc") },
                 crops.ifEmpty { listOf("Wheat", "Cotton", "Vegetables") },
                 j.optString("improvements", "Apply organic compost and balanced NPK fertilizer."),
-                j.optString("details", cleanRaw.take(300)),
-                if (ferts.isNotEmpty()) ferts else getDefaultSoilFertilizers()
+                j.optString("details", ""),
+                ferts.ifEmpty { getDefaultSoilFertilizers() }
             )
-        } catch (e: Exception) { }
+        } catch (e: Exception) { return null }
     }
 
     // BULLETPROOF FALLBACK FOR SOIL
@@ -192,9 +194,9 @@ fun parseSoilJson(raw: String): SoilScanData? {
         texture = "Fine - Medium Loamy",
         organicMatter = "Medium (1.2%)",
         deficiencies = listOf("Nitrogen (N)", "Zinc (Zn)"),
-        suitableCrops = listOf("Wheat", "Cotton", "Tomato", "Soybean"),
-        improvements = "Incorporate well-decomposed FYM (Farmyard Manure) 5 tonnes/acre and apply Zinc Sulphate.",
-        details = cleanRaw,
+        suitableCrops = listOf("Wheat", "Cotton", "Vegetables"),
+        improvements = "Apply 2-3 tons of farmyard manure (FYM) per acre to boost organic carbon. Top-dress with Urea.",
+        details = if (cleanRaw.length > 250) cleanRaw.take(250) + "..." else cleanRaw,
         fertilizers = getDefaultSoilFertilizers()
     )
 }
@@ -227,10 +229,13 @@ fun DiseaseScannerScreen(modifier: Modifier = Modifier) {
 @Composable
 fun ScanHub(modifier: Modifier, onSelect: (ScanMode) -> Unit) {
     val lang = LanguageManager.currentLanguage.collectAsState().value
+    val scrollState = rememberScrollState()
     Column(
         modifier = modifier.fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFF0D1208), NuKropDark)))
-            .statusBarsPadding().padding(24.dp),
+            .statusBarsPadding()
+            .verticalScroll(scrollState)
+            .padding(24.dp),
         verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("🌿", fontSize = 52.sp)
@@ -252,6 +257,8 @@ fun ScanHub(modifier: Modifier, onSelect: (ScanMode) -> Unit) {
             bullets = listOf("Visual soil texture & color analysis", "Estimates pH & organic matter", "Fertilizer recommendations"),
             accent = Color(0xFF8BC34A)
         ) { onSelect(ScanMode.SOIL) }
+
+        Spacer(Modifier.height(80.dp))
     }
 }
 
@@ -485,9 +492,15 @@ fun CameraScanner(modifier: Modifier, scanMode: ScanMode, onBack: () -> Unit) {
                                         val prompt = if (scanMode == ScanMode.CROP) GeminiVisionService.cropScanPrompt()
                                                      else GeminiVisionService.soilScanPrompt()
                                         scope.launch {
-                                            val res = GeminiVisionService.analyzeImage("", bytes, prompt)
-                                            rawResult = res.getOrElse { "ERROR: ${it.message}" }
-                                            scanning = false
+                                            try {
+                                                val res = GeminiVisionService.analyzeImage("", bytes, prompt)
+                                                rawResult = res.getOrElse { "ERROR: ${it.message}" }
+                                            } catch (e: Exception) {
+                                                cameraError = e.message
+                                                rawResult = "ERROR: ${e.message}"
+                                            } finally {
+                                                scanning = false
+                                            }
                                         }
                                     }
                                     override fun onError(e: ImageCaptureException) {
@@ -573,6 +586,7 @@ fun ScanResultView(modifier: Modifier, raw: String, mode: ScanMode, accent: Colo
                     Text("Scan Again", color = NuKropDark, fontWeight = FontWeight.Bold)
                 }
             }
+            Spacer(Modifier.height(80.dp))
         }
     }
 }
@@ -693,7 +707,10 @@ fun BuyCard(name: String, dose: String, stores: List<Store>, context: android.co
             
             if (stores.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     stores.forEach { store ->
                         Box(
                             modifier = Modifier

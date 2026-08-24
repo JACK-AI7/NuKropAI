@@ -100,9 +100,12 @@ fun LoanScreen(onNavigateBack: () -> Unit) {
 
                 LaunchedEffect(isAnalyzing) {
                     if (isAnalyzing) {
-                        delay(2000)
-                        isAnalyzing = false
-                        showResults = true
+                        try {
+                            delay(2000)
+                            showResults = true
+                        } finally {
+                            isAnalyzing = false
+                        }
                     }
                 }
             } else {
@@ -130,7 +133,7 @@ fun LoanScreen(onNavigateBack: () -> Unit) {
                         SchemeCard(subsidy.name, subsidy.amount, subsidy.description, subsidy.url, colors[index % colors.size])
                         Spacer(Modifier.height(12.dp))
                     }
-                    Spacer(Modifier.height(40.dp))
+                    Spacer(Modifier.height(80.dp))
                 }
             }
         }

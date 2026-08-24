@@ -179,13 +179,18 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                         val prefs = profileContext.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
                         prefs.edit().putString("state", editState).putString("crop", editCrop).putString("farm_size", editFarmSize).apply()
                         profileScope.launch {
-                            val userEmail = try {
-                                val authPrefs = profileContext.getSharedPreferences("nukrop_auth", android.content.Context.MODE_PRIVATE)
-                                authPrefs.getString("user_name", "user@nukrop.ai") ?: "user@nukrop.ai"
-                            } catch (e: Exception) { "user@nukrop.ai" }
-                            SupabaseApi.syncProfile(userEmail, user?.userMetadata?.get("name")?.toString()?.replace("\"", "") ?: "Farmer", editState, "", editCrop, 0.0, 0.0)
-                            isSavingProfile = false
-                            profileSaveStatus = "✅ Profile saved!"
+                            try {
+                                val userEmail = try {
+                                    val authPrefs = profileContext.getSharedPreferences("nukrop_auth", android.content.Context.MODE_PRIVATE)
+                                    authPrefs.getString("user_name", "user@nukrop.ai") ?: "user@nukrop.ai"
+                                } catch (e: Exception) { "user@nukrop.ai" }
+                                SupabaseApi.syncProfile(userEmail, user?.userMetadata?.get("name")?.toString()?.replace("\"", "") ?: "Farmer", editState, "", editCrop, 0.0, 0.0)
+                                profileSaveStatus = "✅ Profile saved!"
+                            } catch (e: Exception) {
+                                profileSaveStatus = "⚠ Error saving profile: ${e.message}"
+                            } finally {
+                                isSavingProfile = false
+                            }
                         }
                     }
                 },
@@ -337,7 +342,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
             Text("Sign Out", color = NuKropError, fontWeight = FontWeight.SemiBold)
         }
 
-        Spacer(modifier = Modifier.height(180.dp))
+        Spacer(modifier = Modifier.height(80.dp))
     }
 }
 
@@ -377,6 +382,7 @@ fun FarmListItem(name: String, area: String, status: String, isPrimary: Boolean)
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
+            modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -391,12 +397,13 @@ fun FarmListItem(name: String, area: String, status: String, isPrimary: Boolean)
             ) {
                 Text("🌾", fontSize = 22.sp)
             }
-            Column {
-                Text(name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = NuKropText)
-                Text("$area • $status", fontSize = 11.sp, color = NuKropTextMuted)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                Text("$area • $status", fontSize = 11.sp, color = NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             }
         }
         if (isPrimary) {
+            Spacer(Modifier.width(8.dp))
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
@@ -427,6 +434,7 @@ fun SettingsItem(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
+            modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -439,12 +447,12 @@ fun SettingsItem(
             ) {
                 Icon(icon, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(20.dp))
             }
-            Column {
-                Text(title, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = NuKropText)
-                Text(subtitle, fontSize = 11.sp, color = NuKropTextMuted)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                Text(subtitle, fontSize = 11.sp, color = NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             }
         }
+        Spacer(Modifier.width(8.dp))
         Icon(Icons.Default.ChevronRight, contentDescription = null, tint = NuKropTextDim, modifier = Modifier.size(18.dp))
     }
-    Spacer(modifier = Modifier.height(8.dp))
 }

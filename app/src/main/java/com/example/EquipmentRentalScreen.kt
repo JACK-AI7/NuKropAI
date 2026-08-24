@@ -69,36 +69,39 @@ fun EquipmentRentalScreen(
     val httpClient2 = remember { okhttp3.OkHttpClient.Builder().connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS).readTimeout(10, java.util.concurrent.TimeUnit.SECONDS).build() }
 
     LaunchedEffect(Unit) {
-        withContext(kotlinx.coroutines.Dispatchers.IO) {
-            try {
-                val url = "$SUPABASE_URL/rest/v1/equipment_listings?select=*&order=created_at.desc&limit=50"
-                val req = okhttp3.Request.Builder().url(url)
-                    .addHeader("apikey", SUPABASE_ANON_KEY)
-                    .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
-                    .addHeader("Accept", "application/json").get().build()
-                val body = httpClient2.newCall(req).execute().body?.string() ?: ""
-                val arr = org.json.JSONArray(body)
-                if (arr.length() > 0) {
-                    val list = mutableListOf<EquipmentItem>()
-                    for (i in 0 until arr.length()) {
-                        val obj = arr.getJSONObject(i)
-                        list.add(EquipmentItem(
-                            id = obj.optString("id", java.util.UUID.randomUUID().toString()),
-                            name = obj.optString("name", "Equipment"),
-                            category = obj.optString("category", "General"),
-                            rate = obj.optString("rate", "Contact Owner"),
-                            owner = obj.optString("owner_name", "Farmer"),
-                            distance = obj.optString("location", "Nearby"),
-                            phone = obj.optString("phone", "0000000000"),
-                            isAvailable = obj.optBoolean("is_available", true),
-                            icon = obj.optString("icon", "🚜")
-                        ))
+        try {
+            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val url = "$SUPABASE_URL/rest/v1/equipment_listings?select=*&order=created_at.desc&limit=50"
+                    val req = okhttp3.Request.Builder().url(url)
+                        .addHeader("apikey", SUPABASE_ANON_KEY)
+                        .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                        .addHeader("Accept", "application/json").get().build()
+                    val body = httpClient2.newCall(req).execute().body?.string() ?: ""
+                    val arr = org.json.JSONArray(body)
+                    if (arr.length() > 0) {
+                        val list = mutableListOf<EquipmentItem>()
+                        for (i in 0 until arr.length()) {
+                            val obj = arr.getJSONObject(i)
+                            list.add(EquipmentItem(
+                                id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+                                name = obj.optString("name", "Equipment"),
+                                category = obj.optString("category", "General"),
+                                rate = obj.optString("rate", "Contact Owner"),
+                                owner = obj.optString("owner_name", "Farmer"),
+                                distance = obj.optString("location", "Nearby"),
+                                phone = obj.optString("phone", "0000000000"),
+                                isAvailable = obj.optBoolean("is_available", true),
+                                icon = obj.optString("icon", "🚜")
+                            ))
+                        }
+                        equipmentList = list
                     }
-                    equipmentList = list
-                }
-            } catch (_: Exception) {}
+                } catch (_: Exception) {}
+            }
+        } finally {
+            isLoadingEquipment = false
         }
-        isLoadingEquipment = false
     }
 
     Column(

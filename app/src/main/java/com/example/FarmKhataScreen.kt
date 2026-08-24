@@ -66,32 +66,35 @@ fun FarmKhataScreen(
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(myId) {
-        withContext(kotlinx.coroutines.Dispatchers.IO) {
-            try {
-                val url = "$SUPABASE_URL/rest/v1/farm_khata_entries?select=*&user_id=eq.$myId&order=created_at.desc&limit=100"
-                val req = okhttp3.Request.Builder().url(url)
-                    .addHeader("apikey", SUPABASE_ANON_KEY)
-                    .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
-                    .addHeader("Accept", "application/json").get().build()
-                val body = httpClient.newCall(req).execute().body?.string() ?: ""
-                val arr = org.json.JSONArray(body)
-                if (arr.length() > 0) {
-                    val list = mutableListOf<KhataEntry>()
-                    for (i in 0 until arr.length()) {
-                        val obj = arr.getJSONObject(i)
-                        list.add(KhataEntry(
-                            title = obj.optString("title", "Entry"),
-                            category = obj.optString("category", "General"),
-                            amount = obj.optDouble("amount", 0.0),
-                            isIncome = obj.optBoolean("is_income", false),
-                            date = obj.optString("entry_date", "Today")
-                        ))
+        try {
+            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val url = "$SUPABASE_URL/rest/v1/farm_khata_entries?select=*&user_id=eq.$myId&order=created_at.desc&limit=100"
+                    val req = okhttp3.Request.Builder().url(url)
+                        .addHeader("apikey", SUPABASE_ANON_KEY)
+                        .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                        .addHeader("Accept", "application/json").get().build()
+                    val body = httpClient.newCall(req).execute().body?.string() ?: ""
+                    val arr = org.json.JSONArray(body)
+                    if (arr.length() > 0) {
+                        val list = mutableListOf<KhataEntry>()
+                        for (i in 0 until arr.length()) {
+                            val obj = arr.getJSONObject(i)
+                            list.add(KhataEntry(
+                                title = obj.optString("title", "Entry"),
+                                category = obj.optString("category", "General"),
+                                amount = obj.optDouble("amount", 0.0),
+                                isIncome = obj.optBoolean("is_income", false),
+                                date = obj.optString("entry_date", "Today")
+                            ))
+                        }
+                        entries = list
                     }
-                    entries = list
-                }
-            } catch (_: Exception) {}
+                } catch (_: Exception) {}
+            }
+        } finally {
+            isLoading = false
         }
-        isLoading = false
     }
 
     val totalIncome = entries.filter { it.isIncome }.sumOf { it.amount }
