@@ -68,14 +68,17 @@ fun SplashScreen(onStartFarming: () -> Unit) {
             )
         }
 
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
+                .verticalScroll(scrollState)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Top: Logo / Brand
-            Column(modifier = Modifier.padding(top = 48.dp)) {
+            Column(modifier = Modifier.padding(top = 16.dp)) {
                 Text(
                     text = "NuKropAI",
                     fontSize = 34.sp,

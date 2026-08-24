@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -111,7 +112,7 @@ fun LoanScreen(onNavigateBack: () -> Unit) {
             } else {
                 val realSubsidies = remember(userState) { SubsidiesApiService.getSubsidiesForState(userState) }
 
-                Column(Modifier.verticalScroll(rememberScrollState())) {
+                Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 120.dp)) {
                     Box(
                         Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
                             .background(NuKropBadgeGreen.copy(alpha = 0.12f))
@@ -187,3 +188,4 @@ fun SchemeCard(title: String, amount: String, desc: String, url: String, accent:
         }
     }
 }
+

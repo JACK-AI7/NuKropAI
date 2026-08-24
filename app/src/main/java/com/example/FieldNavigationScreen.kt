@@ -28,7 +28,7 @@ fun FieldNavigationScreen(modifier: Modifier = Modifier, onBack: () -> Unit = {}
     Column(modifier = modifier.fillMaxSize().background(NuKropDark)) {
         // Header
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -91,7 +91,9 @@ fun FieldNavigationScreen(modifier: Modifier = Modifier, onBack: () -> Unit = {}
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(NuKropSurface)
+                .navigationBarsPadding()
                 .padding(20.dp)
+                .padding(bottom = 80.dp)
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("Operation Metrics", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropText)
@@ -101,10 +103,10 @@ fun FieldNavigationScreen(modifier: Modifier = Modifier, onBack: () -> Unit = {}
             }
             Spacer(Modifier.height(16.dp))
             
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                MetricCard("Area Covered", if (isTracking) "1.2 Ha" else "0.0 Ha", Icons.Filled.SquareFoot)
-                MetricCard("Distance", if (isTracking) "0.8 km" else "0.0 km", Icons.Filled.Route)
-                MetricCard("Fuel Est.", if (isTracking) "2.4 L" else "0.0 L", Icons.Filled.LocalGasStation)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                MetricCard(Modifier.weight(1f), "Area Covered", if (isTracking) "1.2 Ha" else "0.0 Ha", Icons.Filled.SquareFoot)
+                MetricCard(Modifier.weight(1f), "Distance", if (isTracking) "0.8 km" else "0.0 km", Icons.Filled.Route)
+                MetricCard(Modifier.weight(1f), "Fuel Est.", if (isTracking) "2.4 L" else "0.0 L", Icons.Filled.LocalGasStation)
             }
             
             Spacer(Modifier.height(24.dp))
@@ -127,19 +129,18 @@ fun FieldNavigationScreen(modifier: Modifier = Modifier, onBack: () -> Unit = {}
 }
 
 @Composable
-fun MetricCard(title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
+fun MetricCard(modifier: Modifier = Modifier, title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(NuKropCard)
             .border(1.dp, Color(0x10FFFFFF), RoundedCornerShape(12.dp))
-            .padding(12.dp)
-            .width(100.dp),
+            .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(icon, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(20.dp))
         Spacer(Modifier.height(8.dp))
-        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-        Text(title, fontSize = 10.sp, color = NuKropTextMuted)
+        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+        Text(title, fontSize = 10.sp, color = NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
     }
 }

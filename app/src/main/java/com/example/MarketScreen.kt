@@ -261,7 +261,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        Divider(color = Color(0x30FFFFFF))
+        HorizontalDivider(color = Color(0x30FFFFFF))
 
         // Results Section
         Box(Modifier.fillMaxSize().padding(16.dp)) {

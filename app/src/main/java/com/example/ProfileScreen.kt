@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -304,7 +305,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
             )
             Spacer(modifier = Modifier.height(12.dp))
             SettingsItem(
-                icon = Icons.Default.Help, 
+                icon = Icons.AutoMirrored.Filled.Help, 
                 title = "Help & Support", 
                 subtitle = "FAQs, contact us",
                 onClick = {
@@ -456,3 +457,4 @@ fun SettingsItem(
         Icon(Icons.Default.ChevronRight, contentDescription = null, tint = NuKropTextDim, modifier = Modifier.size(18.dp))
     }
 }
+

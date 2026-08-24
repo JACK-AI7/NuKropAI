@@ -12,6 +12,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
 val SUPABASE_URL = "https://yxjqseiegwjdfnccdchk.supabase.co"
@@ -37,7 +38,9 @@ object SupabaseApi {
      */
     suspend fun fetchMandiRates(state: String, commodity: String): List<MandiRecord> = withContext(Dispatchers.IO) {
         try {
-            val url = "$SUPABASE_URL/rest/v1/mandi_live_rates?select=*&state=ilike.*${state.trim()}*&commodity=ilike.*${commodity.trim()}*&order=id.desc&limit=20"
+            val stateEnc = URLEncoder.encode(state.trim(), "UTF-8")
+            val commEnc = URLEncoder.encode(commodity.trim(), "UTF-8")
+            val url = "$SUPABASE_URL/rest/v1/mandi_live_rates?select=*&state=ilike.*$stateEnc*&commodity=ilike.*$commEnc*&order=id.desc&limit=20"
             val request = Request.Builder()
                 .url(url)
                 .addHeader("apikey", SUPABASE_ANON_KEY)
@@ -46,9 +49,10 @@ object SupabaseApi {
                 .get()
                 .build()
 
-            val response = httpClient.newCall(request).execute()
-            val body = response.body?.string() ?: ""
-            if (!response.isSuccessful || body.isBlank()) return@withContext emptyList()
+            val (isSuccessful, body) = httpClient.newCall(request).execute().use { response ->
+                Pair(response.isSuccessful, response.body?.string() ?: "")
+            }
+            if (!isSuccessful || body.isBlank()) return@withContext emptyList()
 
             val jsonArray = JSONArray(body)
             val list = mutableListOf<MandiRecord>()
@@ -100,7 +104,7 @@ object SupabaseApi {
                 .post(body)
                 .build()
 
-            httpClient.newCall(request).execute()
+            httpClient.newCall(request).execute().use { /* close response stream */ }
         } catch (_: Exception) {}
     }
 }

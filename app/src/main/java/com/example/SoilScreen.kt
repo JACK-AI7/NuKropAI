@@ -144,13 +144,14 @@ fun SoilScreen(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Default.PowerSettingsNew, null, tint = if (iotState.isRunning) NuKropBadgeGreen else NuKropTextMuted, modifier = Modifier.size(24.dp))
-                        Column {
-                            Text("Borewell Motor", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                            Text(if (iotState.isRunning) "Status: RUNNING (${iotState.amperage}A)" else "Status: OFF (0.0A)", fontSize = 11.sp, color = if (iotState.isRunning) NuKropBadgeGreen else NuKropTextMuted)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Borewell Motor", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                            Text(if (iotState.isRunning) "Status: RUNNING (${iotState.amperage}A)" else "Status: OFF (0.0A)", fontSize = 11.sp, color = if (iotState.isRunning) NuKropBadgeGreen else NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                         }
                     }
+                    Spacer(Modifier.width(8.dp))
                     
                     val isPending = commandState == CommandState.PENDING || commandState == CommandState.VERIFICATION
                     if (isPending) {
@@ -179,13 +180,14 @@ fun SoilScreen(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Default.Message, null, tint = Color(0xFF25D366), modifier = Modifier.size(20.dp))
-                        Column {
-                            Text("WhatsApp Alerts", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                            Text("Get notified when motor runs", fontSize = 10.sp, color = NuKropTextMuted)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("WhatsApp Alerts", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                            Text("Get notified when motor runs", fontSize = 10.sp, color = NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                         }
                     }
+                    Spacer(Modifier.width(8.dp))
                     Switch(
                         checked = whatsappAlerts,
                         onCheckedChange = { whatsappAlerts = it },
@@ -288,3 +290,4 @@ fun SensorTile(modifier: Modifier, title: String, value: String, status: String,
         }
     }
 }
+

@@ -4,9 +4,12 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,6 +30,7 @@ fun TractorAutopilotScreen(onNavigateBack: () -> Unit) {
     var steeringAngle by remember { mutableStateOf(0f) }
     var speed by remember { mutableStateOf(0f) }
     var satellites by remember { mutableStateOf(4) }
+    val scrollState = rememberScrollState()
     
     // Simulate RTK GPS Telemetry
     LaunchedEffect(isAutopilotActive) {
@@ -48,7 +52,9 @@ fun TractorAutopilotScreen(onNavigateBack: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(NuKropDark)
-            .padding(16.dp)
+            .statusBarsPadding()
+            .verticalScroll(scrollState)
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp)
     ) {
         // Header
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -95,7 +101,7 @@ fun TractorAutopilotScreen(onNavigateBack: () -> Unit) {
             TelemetryTile(Modifier.weight(1f), "Deviation", if(isAutopilotActive) "± 2.1 cm" else "--", Icons.Default.Straighten, NuKropBadgeGreen)
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Engage Button
         Button(
@@ -107,7 +113,7 @@ fun TractorAutopilotScreen(onNavigateBack: () -> Unit) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(if (isAutopilotActive) "DISENGAGE AUTOPILOT" else "ENGAGE AUTOPILOT", color = NuKropDark, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(80.dp))
     }
 }
 
@@ -129,3 +135,4 @@ fun TelemetryTile(modifier: Modifier, title: String, value: String, icon: androi
         }
     }
 }
+

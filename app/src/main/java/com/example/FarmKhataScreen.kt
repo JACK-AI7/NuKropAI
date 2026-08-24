@@ -129,7 +129,7 @@ fun FarmKhataScreen(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .padding(16.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Net Profit Card
@@ -205,7 +205,7 @@ fun FarmKhataScreen(
                             .padding(14.dp)
                     ) {
                         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Box(
                                     modifier = Modifier
                                         .size(36.dp)
@@ -220,16 +220,18 @@ fun FarmKhataScreen(
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
-                                Column {
-                                    Text(entry.title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                                    Text("${entry.category} • ${entry.date}", fontSize = 11.sp, color = NuKropTextMuted)
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(entry.title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                                    Text("${entry.category} • ${entry.date}", fontSize = 11.sp, color = NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                                 }
                             }
+                            Spacer(Modifier.width(8.dp))
                             Text(
                                 "${if (entry.isIncome) "+" else "-"}₹${String.format("%,.0f", entry.amount)}",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (entry.isIncome) NuKropBadgeGreen else Color(0xFFFF5252)
+                                color = if (entry.isIncome) NuKropBadgeGreen else Color(0xFFFF5252),
+                                maxLines = 1
                             )
                         }
                     }
@@ -322,3 +324,4 @@ fun FarmKhataScreen(
         )
     }
 }
+

@@ -19,7 +19,7 @@ import com.example.ui.theme.PrimaryNeon
 @Composable
 fun ScientificValidationScreen(modifier: Modifier = Modifier) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize().statusBarsPadding().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
@@ -40,6 +40,7 @@ fun ScientificValidationScreen(modifier: Modifier = Modifier) {
 
         item { ValidationItem("Late Blight TFLite Detection", "Sector 4 Tomato Field", "94% Model Confidence") }
         item { ValidationItem("Soil Potassium Deficiency", "Sector 2 East", "88% Model Confidence") }
+        item { Spacer(Modifier.height(80.dp)) }
     }
 }
 

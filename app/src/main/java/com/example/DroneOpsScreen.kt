@@ -260,5 +260,7 @@ fun DroneOpsScreen(modifier: Modifier = Modifier) {
                 )
             }
         }
+
+        item { Spacer(Modifier.height(80.dp)) }
     }
 }

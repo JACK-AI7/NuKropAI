@@ -17,7 +17,7 @@ import com.example.ui.theme.PrimaryNeon
 @Composable
 fun FoodSecurityScreen(modifier: Modifier = Modifier) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize().statusBarsPadding().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
@@ -44,7 +44,7 @@ fun FoodSecurityScreen(modifier: Modifier = Modifier) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Security, contentDescription = null, tint = PrimaryNeon)
                     Spacer(modifier = Modifier.width(16.dp))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text("National Supply State", fontWeight = FontWeight.Bold)
                         Text("Stable. Wheat surplus projected at +4.2%.", style = MaterialTheme.typography.bodySmall)
                     }
@@ -60,12 +60,14 @@ fun FoodSecurityScreen(modifier: Modifier = Modifier) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Assessment, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.width(16.dp))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text("Regional Shortage Warning", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
                         Text("Tomato deficit projected in District 7 due to heat stress.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
                     }
                 }
             }
         }
+
+        item { Spacer(Modifier.height(80.dp)) }
     }
 }

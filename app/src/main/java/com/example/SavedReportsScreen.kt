@@ -185,7 +185,7 @@ fun SavedReportsScreen(onNavigateBack: () -> Unit) {
                         }
                     }
                 }
-                item { Spacer(Modifier.height(100.dp)) }
+                item { Spacer(Modifier.height(80.dp)) }
             }
         }
     }
@@ -206,7 +206,7 @@ fun ReportCard(report: SavedReport, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(16.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
                     .clip(RoundedCornerShape(12.dp))
@@ -216,16 +216,18 @@ fun ReportCard(report: SavedReport, onClick: () -> Unit) {
                 Icon(Icons.Filled.Description, null, tint = NuKropAccent, modifier = Modifier.size(28.dp))
             }
             Spacer(Modifier.width(16.dp))
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = report.name,
                     color = NuKropText,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(dateString, color = NuKropTextMuted, fontSize = 12.sp)
+                    Text(dateString, color = NuKropTextMuted, fontSize = 12.sp, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                     Text(" \u2022 ", color = NuKropTextDim, fontSize = 12.sp)
                     Text(sizeString, color = NuKropTextDim, fontSize = 12.sp)
                 }

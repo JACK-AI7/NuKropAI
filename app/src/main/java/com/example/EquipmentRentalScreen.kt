@@ -146,7 +146,7 @@ fun EquipmentRentalScreen(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .padding(16.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             // Banner
@@ -291,7 +291,7 @@ fun EquipmentCard(item: EquipmentItem, onChatClick: () -> Unit, onCallClick: () 
     ) {
         Column {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.Top) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Box(
                         modifier = Modifier
                             .size(42.dp)
@@ -301,11 +301,12 @@ fun EquipmentCard(item: EquipmentItem, onChatClick: () -> Unit, onCallClick: () 
                     ) {
                         Text(item.icon, fontSize = 22.sp)
                     }
-                    Column {
-                        Text(item.name, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                        Text("${item.category} • ${item.distance}", fontSize = 11.sp, color = NuKropTextMuted)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(item.name, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                        Text("${item.category} • ${item.distance}", fontSize = 11.sp, color = NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                     }
                 }
+                Spacer(Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))

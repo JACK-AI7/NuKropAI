@@ -100,9 +100,10 @@ object GeminiVisionService {
                             .post(body.toRequestBody("application/json".toMediaType()))
                             .build()
                             
-                        val resp = client.newCall(req).execute()
-                        val text = resp.body?.string() ?: ""
-                        val parsed = parseText(text)
+                        val parsed = client.newCall(req).execute().use { resp ->
+                            val text = resp.body?.string() ?: ""
+                            parseText(text)
+                        }
                         
                         if (!parsed.startsWith("API Error")) {
                             return@withContext Result.success(parsed)
@@ -141,9 +142,10 @@ object GeminiVisionService {
                             .post(body.toRequestBody("application/json".toMediaType()))
                             .build()
                             
-                        val resp = client.newCall(req).execute()
-                        val text = resp.body?.string() ?: ""
-                        val parsed = parseText(text)
+                        val parsed = client.newCall(req).execute().use { resp ->
+                            val text = resp.body?.string() ?: ""
+                            parseText(text)
+                        }
                         
                         if (!parsed.startsWith("API Error")) {
                             return@withContext Result.success(parsed)
@@ -182,9 +184,10 @@ object GeminiVisionService {
                             .post(body.toRequestBody("application/json".toMediaType()))
                             .build()
                             
-                        val resp = client.newCall(req).execute()
-                        val text = resp.body?.string() ?: ""
-                        val parsed = parseText(text)
+                        val parsed = client.newCall(req).execute().use { resp ->
+                            val text = resp.body?.string() ?: ""
+                            parseText(text)
+                        }
                         
                         if (!parsed.startsWith("API Error")) {
                             return@withContext Result.success(parsed)

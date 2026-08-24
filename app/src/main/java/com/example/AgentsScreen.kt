@@ -19,7 +19,7 @@ import com.example.ui.theme.PrimaryNeonVariant
 @Composable
 fun AgentsScreen(modifier: Modifier = Modifier) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize().statusBarsPadding().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
@@ -34,6 +34,7 @@ fun AgentsScreen(modifier: Modifier = Modifier) {
         item { AgentCard("Predictive Yield Forecaster", "Analyzing regional weather impact on Q3 yields", Icons.Default.Analytics) }
         item { AgentCard("Intervention Engine", "Monitoring sector 4 for disease spread", Icons.Default.Code) }
         item { AgentCard("Drone Fleet Coordinator", "Triaging autonomous spray paths", Icons.Default.SupportAgent) }
+        item { Spacer(Modifier.height(80.dp)) }
     }
 }
 
@@ -55,9 +56,10 @@ fun AgentCard(name: String, status: String, icon: ImageVector) {
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text(text = status, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                Text(text = name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                Text(text = status, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             }
+            Spacer(modifier = Modifier.width(8.dp))
             Switch(
                 checked = true,
                 onCheckedChange = {},

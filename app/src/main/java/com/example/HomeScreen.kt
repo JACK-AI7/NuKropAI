@@ -10,6 +10,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -157,12 +158,12 @@ fun HomeScreen(
                         Spacer(Modifier.width(8.dp))
                         Text("Loading live market rates...", color = NuKropTextMuted, fontSize = 12.sp)
                     } else if (tickerItems.isEmpty()) {
-                        Icon(Icons.Filled.TrendingUp, null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
+                        Icon(Icons.AutoMirrored.Filled.TrendingUp, null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(8.dp))
                         Text("Live Gov Mandi Data Connected", color = NuKropAccent, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     } else {
                         val first = tickerItems.first()
-                        Icon(Icons.Filled.TrendingUp, null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
+                        Icon(Icons.AutoMirrored.Filled.TrendingUp, null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(8.dp))
                         Text("${first.commodity} (${first.market}) ,${first.modalPrice}", color = NuKropText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
@@ -196,7 +197,7 @@ fun HomeScreen(
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     QuickActionTile(Modifier.weight(1f), Icons.Filled.Build, "Equipment Rental", "Rent Tractors & Drones", Color(0xFF4DD0E1), onNavigateToEquipmentRental)
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.ReceiptLong, "Digital Khata", "Farm Ledger & Credit Score", Color(0xFF81C784), onNavigateToFarmKhata)
+                    QuickActionTile(Modifier.weight(1f), Icons.AutoMirrored.Filled.ReceiptLong, "Digital Khata", "Farm Ledger & Credit Score", Color(0xFF81C784), onNavigateToFarmKhata)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     QuickActionTile(Modifier.weight(0.5f), Icons.Filled.Download, "Saved Reports", "View downloaded files", Color(0xFFAED581), onNavigateToSavedReports)
@@ -283,7 +284,7 @@ fun HomeScreen(
                                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                                 shape = RoundedCornerShape(10.dp)
                             ) {
-                                Icon(Icons.Filled.Chat, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
+                                Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Connect", color = NuKropAccent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
@@ -355,3 +356,5 @@ private fun fetchWeather(context: android.content.Context, onResult: (WeatherDat
             .addOnFailureListener { onResult(null, it.message) }
     } catch (e: Exception) { onResult(null, e.message) }
 }
+
+

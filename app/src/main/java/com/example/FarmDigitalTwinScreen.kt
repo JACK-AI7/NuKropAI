@@ -396,13 +396,13 @@ fun FarmDigitalTwinScreen(modifier: Modifier = Modifier) {
             ) {
                 Icon(Icons.Default.Warning, contentDescription = null, tint = NuKropError)
                 Spacer(modifier = Modifier.width(16.dp))
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text("Moisture Stress Alert", fontWeight = FontWeight.Bold, color = NuKropError, fontSize = 14.sp)
                     Text("Sector 4 is showing high moisture stress (NDVI drop 8%). Open Valve 04 manually if auto-irrigation is disabled.", style = MaterialTheme.typography.bodySmall, color = NuKropTextMuted, lineHeight = 16.sp)
                 }
             }
         }
-        Spacer(modifier = Modifier.height(100.dp))
+        Spacer(modifier = Modifier.height(80.dp))
     }
 }
 
@@ -413,10 +413,11 @@ fun ValveRow(name: String, details: String, status: String, statusColor: Color, 
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
-            Text(name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = NuKropText)
-            Text(details, fontSize = 11.sp, color = NuKropTextMuted)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = NuKropText, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            Text(details, fontSize = 11.sp, color = NuKropTextMuted, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
         }
+        Spacer(Modifier.width(8.dp))
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))

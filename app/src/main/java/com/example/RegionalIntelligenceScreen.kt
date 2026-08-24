@@ -17,7 +17,7 @@ import com.example.ui.theme.PrimaryNeon
 @Composable
 fun RegionalIntelligenceScreen(modifier: Modifier = Modifier) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize().statusBarsPadding().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
@@ -44,7 +44,7 @@ fun RegionalIntelligenceScreen(modifier: Modifier = Modifier) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Warning, contentDescription = "Alert", tint = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.width(16.dp))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(text = "High Risk: Locust Swarm", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
                         Text(text = "District 4 - Expected impact in 72 hours", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
                     }
@@ -60,7 +60,7 @@ fun RegionalIntelligenceScreen(modifier: Modifier = Modifier) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Insights, contentDescription = "Forecasting", tint = PrimaryNeon)
                     Spacer(modifier = Modifier.width(16.dp))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(text = "Yield Forecasting", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         Text(text = "Aggregated prediction: 12% increase for Wheat", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -76,12 +76,14 @@ fun RegionalIntelligenceScreen(modifier: Modifier = Modifier) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Public, contentDescription = "Federated Learning", tint = MaterialTheme.colorScheme.tertiary)
                     Spacer(modifier = Modifier.width(16.dp))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(text = "Federated Learning Sync", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         Text(text = "Last synced: 4 mins ago (2.4M new telemetry points)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
         }
+
+        item { Spacer(Modifier.height(80.dp)) }
     }
 }

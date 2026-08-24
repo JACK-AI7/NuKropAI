@@ -2,7 +2,9 @@ package com.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.*
@@ -25,11 +27,14 @@ fun DevicePairingScreen(modifier: Modifier = Modifier) {
     var isScanning by remember { mutableStateOf(false) }
     var scannedResult by remember { mutableStateOf<String?>(null) }
     var pairingStatus by remember { mutableStateOf("IDLE") }
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(NuKropDark)
+            .statusBarsPadding()
+            .verticalScroll(scrollState)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -107,5 +112,7 @@ fun DevicePairingScreen(modifier: Modifier = Modifier) {
                 // Usually we would call NuKropIotManager.registerDevice(mockQrData)
             }
         }
+
+        Spacer(modifier = Modifier.height(80.dp))
     }
 }

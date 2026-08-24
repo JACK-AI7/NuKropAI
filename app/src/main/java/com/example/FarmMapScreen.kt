@@ -71,19 +71,24 @@ fun FarmMapScreen(modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = plot.name,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = NuKropText
+                            color = NuKropText,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
                         Text(
                             text = plot.coords,
                             fontSize = 10.sp,
-                            color = NuKropTextMuted
+                            color = NuKropTextMuted,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
                     }
+                    Spacer(Modifier.width(8.dp))
                     // Plot selector
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         PLOTS.forEachIndexed { index, _ ->
@@ -108,7 +113,9 @@ fun FarmMapScreen(modifier: Modifier = Modifier) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .navigationBarsPadding()
+                    .padding(16.dp)
+                    .padding(bottom = 80.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 FarmStatsPanel(plot = plot)

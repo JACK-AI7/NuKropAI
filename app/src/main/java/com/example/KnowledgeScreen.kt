@@ -18,7 +18,7 @@ import com.example.ui.theme.PrimaryNeon
 
 @Composable
 fun KnowledgeScreen(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = modifier.fillMaxSize().statusBarsPadding().padding(16.dp)) {
         Text(
             text = "Enterprise Knowledge Engine",
             style = MaterialTheme.typography.titleLarge,
@@ -40,12 +40,13 @@ fun KnowledgeScreen(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.weight(1f).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item { DocumentItem("Architecture Guidelines v4.pdf", "Vectorized: 2 mins ago", Icons.Default.Description) }
             item { DocumentItem("Engineering Onboarding repo", "Vectorized: 1 hr ago", Icons.Default.Folder) }
             item { DocumentItem("Q3 Financial Report", "Vectorized: 5 hrs ago", Icons.AutoMirrored.Filled.InsertDriveFile) }
+            item { Spacer(Modifier.height(80.dp)) }
         }
     }
 }
@@ -63,9 +64,21 @@ fun DocumentItem(title: String, subtitle: String, icon: ImageVector) {
             modifier = Modifier.size(32.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-            Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha=0.5f))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha=0.5f),
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
         }
     }
 }

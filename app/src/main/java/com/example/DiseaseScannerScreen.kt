@@ -42,7 +42,8 @@ import android.content.ContentValues
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Download
 
 enum class ScanMode { CROP, SOIL }
@@ -422,7 +423,7 @@ fun CameraScanner(modifier: Modifier, scanMode: ScanMode, onBack: () -> Unit) {
             Modifier.fillMaxWidth().background(Color(0xDD0D1208)).statusBarsPadding().padding(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = NuKropText) }
+            IconButton(onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText) }
             Column {
                 Text(if (scanMode == ScanMode.CROP) "Crop Disease & Pest Scan" else "Soil Health Analysis",
                     fontSize = 15.sp, fontWeight = FontWeight.Bold, color = NuKropText)
@@ -537,10 +538,10 @@ fun ScanResultView(modifier: Modifier, raw: String, mode: ScanMode, accent: Colo
     val context = LocalContext.current
     val scroll = rememberScrollState()
 
-    Column(modifier.fillMaxSize().background(NuKropDark).verticalScroll(scroll)) {
+    Column(modifier.fillMaxSize().background(NuKropDark).verticalScroll(scroll).padding(bottom = 120.dp)) {
         // Header
         Row(Modifier.fillMaxWidth().background(NuKropSurface).statusBarsPadding().padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = NuKropText) }
+            IconButton(onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropText) }
             Column {
                 Text("AI Analysis Complete", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropText)
                 Text("Results powered by NuKrop Vision AI", fontSize = 10.sp, color = NuKropTextMuted)
@@ -577,7 +578,7 @@ fun ScanResultView(modifier: Modifier, raw: String, mode: ScanMode, accent: Colo
             Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onBack, Modifier.weight(1f).height(50.dp), shape = RoundedCornerShape(25.dp),
                     border = BorderStroke(1.dp, NuKropTextDim)) { 
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = NuKropTextMuted, modifier = Modifier.size(18.dp))
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = NuKropTextMuted, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Back", color = NuKropTextMuted) 
                 }
