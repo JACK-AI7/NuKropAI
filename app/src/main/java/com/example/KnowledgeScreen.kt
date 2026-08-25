@@ -40,7 +40,7 @@ fun KnowledgeScreen(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
+            modifier = Modifier.weight(1f).fillMaxWidth().padding(bottom = 120.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item { DocumentItem("Architecture Guidelines v4.pdf", "Vectorized: 2 mins ago", Icons.Default.Description) }

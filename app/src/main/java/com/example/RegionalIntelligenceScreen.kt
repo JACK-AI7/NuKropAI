@@ -17,7 +17,7 @@ import com.example.ui.theme.PrimaryNeon
 @Composable
 fun RegionalIntelligenceScreen(modifier: Modifier = Modifier) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().statusBarsPadding().padding(16.dp),
+        modifier = modifier.fillMaxSize().statusBarsPadding().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {

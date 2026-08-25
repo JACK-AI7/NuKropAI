@@ -50,8 +50,9 @@ fun SoilScreen(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxSize()
             .background(NuKropDark)
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
