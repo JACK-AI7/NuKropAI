@@ -40,6 +40,12 @@ sealed class Tab(val route: String, val icon: String, val labelKey: String) {
     object SavedReports: Tab("saved_reports", "📂", "nav_reports")
     object EquipmentRental: Tab("equipment_rental", "🚜", "nav_rental")
     object FarmKhata: Tab("farm_khata", "🧾", "nav_khata")
+    object BioShieldRadar: Tab("bioshield_radar", "🛡️", "nav_bioshield")
+    object MandiPilot: Tab("mandipilot", "📈", "nav_mandipilot")
+    object GramHaul: Tab("gramhaul", "🚚", "nav_gramhaul")
+    object AgriStackPassport: Tab("agristack_passport", "🪪", "nav_agristack")
+    object YantraShare: Tab("yantrashare", "🚜", "nav_yantra")
+    object BioRx: Tab("biorx", "🌿", "nav_biorx")
     data class PeerChat(val name: String, val info: String, val phone: String) : Tab("peer_chat", "💬", "nav_chat")
 }
 
@@ -164,7 +170,13 @@ fun MainApp(authViewModel: AuthViewModel) {
                         onNavigateToFinance = { current = Tab.Finance },
                         onNavigateToSavedReports = { current = Tab.SavedReports },
                         onNavigateToEquipmentRental = { current = Tab.EquipmentRental },
-                        onNavigateToFarmKhata = { current = Tab.FarmKhata }
+                        onNavigateToFarmKhata = { current = Tab.FarmKhata },
+                        onNavigateToBioShield = { current = Tab.BioShieldRadar },
+                        onNavigateToMandiPilot = { current = Tab.MandiPilot },
+                        onNavigateToGramHaul = { current = Tab.GramHaul },
+                        onNavigateToAgriStack = { current = Tab.AgriStackPassport },
+                        onNavigateToYantraShare = { current = Tab.YantraShare },
+                        onNavigateToBioRx = { current = Tab.BioRx }
                     )
                     Tab.Autopilot -> TractorAutopilotScreen(onNavigateBack = { current = Tab.Home })
                     Tab.Finance   -> LoanScreen(onNavigateBack = { current = Tab.Home })
@@ -178,6 +190,12 @@ fun MainApp(authViewModel: AuthViewModel) {
                         onNavigateToPeerChat = { name, info, phone -> current = Tab.PeerChat(name, info, phone) }
                     )
                     Tab.FarmKhata -> FarmKhataScreen(onNavigateBack = { current = Tab.Home })
+                    Tab.BioShieldRadar -> BioShieldRadarScreen(onNavigateBack = { current = Tab.Home })
+                    Tab.MandiPilot -> MandiPilotScreen(onNavigateBack = { current = Tab.Home })
+                    Tab.GramHaul -> GramHaulScreen(onNavigateBack = { current = Tab.Home })
+                    Tab.AgriStackPassport -> AgriStackPassportScreen(onNavigateBack = { current = Tab.Home })
+                    Tab.YantraShare -> YantraShareScreen(onNavigateBack = { current = Tab.Home })
+                    Tab.BioRx -> BioRxScreen(onNavigateBack = { current = Tab.Home })
                     is Tab.PeerChat -> PeerChatScreen(
                         recipientName = (tab as Tab.PeerChat).name,
                         recipientInfo = (tab as Tab.PeerChat).info,

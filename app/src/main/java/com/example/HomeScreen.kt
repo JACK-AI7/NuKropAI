@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.model.OutbreakAlert
+import com.example.ui.VoiceOsOverlay
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -46,11 +47,18 @@ fun HomeScreen(
     onNavigateToFinance: () -> Unit = {},
     onNavigateToSavedReports: () -> Unit = {},
     onNavigateToEquipmentRental: () -> Unit = {},
-    onNavigateToFarmKhata: () -> Unit = {}
+    onNavigateToFarmKhata: () -> Unit = {},
+    onNavigateToBioShield: () -> Unit = {},
+    onNavigateToMandiPilot: () -> Unit = {},
+    onNavigateToGramHaul: () -> Unit = {},
+    onNavigateToAgriStack: () -> Unit = {},
+    onNavigateToYantraShare: () -> Unit = {},
+    onNavigateToBioRx: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    var showVoiceOs by remember { mutableStateOf(false) }
 
     var weather by remember { mutableStateOf<WeatherData?>(null) }
     var weatherError by remember { mutableStateOf<String?>(null) }
@@ -148,8 +156,23 @@ fun HomeScreen(
                             Text(now, fontSize = 10.sp, color = Color.White.copy(alpha = 0.7f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
-                    IconButton(onClick = { /* Notifications */ }, modifier = Modifier.size(44.dp).clip(CircleShape).background(Color(0x33FFFFFF))) {
-                        Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(22.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(NuKropAccent)
+                                .clickable { showVoiceOs = true }
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("🎙️", fontSize = 12.sp)
+                                Spacer(Modifier.width(4.dp))
+                                Text("VoiceOS", fontSize = 11.sp, color = NuKropDark, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                        IconButton(onClick = { /* Notifications */ }, modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0x33FFFFFF))) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(20.dp))
+                        }
                     }
                 }
                 
@@ -235,8 +258,16 @@ fun HomeScreen(
                     QuickActionTile(Modifier.weight(1f), Icons.Filled.Navigation, "Field Navigator", "GPS Route & Coverage", Color(0xFFE57373), onNavigateToAutopilot)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Build, "Equipment Rental", "Rent Tractors & Drones", Color(0xFF4DD0E1), onNavigateToEquipmentRental)
-                    QuickActionTile(Modifier.weight(1f), Icons.AutoMirrored.Filled.ReceiptLong, "Digital Khata", "Farm Ledger & Credit Score", Color(0xFF81C784), onNavigateToFarmKhata)
+                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Shield, "BioShield Radar", "Spatial Outbreak Defense", Color(0xFFEF5350), onNavigateToBioShield)
+                    QuickActionTile(Modifier.weight(1f), Icons.AutoMirrored.Filled.TrendingUp, "MandiPilot", "Arbitrage & Price Discovery", Color(0xFF42A5F5), onNavigateToMandiPilot)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    QuickActionTile(Modifier.weight(1f), Icons.Filled.LocalShipping, "GramHaul", "Shared Rural Logistics", Color(0xFFFFA726), onNavigateToGramHaul)
+                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Badge, "AgriStack Passport", "Sovereign Soil & Credit Score", Color(0xFF66BB6A), onNavigateToAgriStack)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Build, "YantraShare Hub", "P2P Machinery & Escrow", Color(0xFF26C6DA), onNavigateToYantraShare)
+                    QuickActionTile(Modifier.weight(1f), Icons.Filled.Eco, "BioRx Formulator", "Indigenous Organic Recipes", Color(0xFFC8E837), onNavigateToBioRx)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     QuickActionTile(Modifier.weight(0.5f), Icons.Filled.Download, "Saved Reports", "View downloaded files", Color(0xFFAED581), onNavigateToSavedReports)
@@ -318,6 +349,20 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+
+        if (showVoiceOs) {
+            VoiceOsOverlay(
+                onDismiss = { showVoiceOs = false },
+                onNavigateToRoute = { route ->
+                    when (route) {
+                        "market" -> onNavigateToMarket()
+                        "scanner" -> onNavigateToScan()
+                        "equipment" -> onNavigateToYantraShare()
+                        "logistics" -> onNavigateToGramHaul()
+                    }
+                }
+            )
         }
     }
 }

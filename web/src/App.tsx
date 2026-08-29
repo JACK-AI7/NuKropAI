@@ -184,6 +184,86 @@ export default function App() {
           </div>
         </section>
 
+        {/* Enterprise AgriTech Suite (v2.0) Section */}
+        <section style={{ width: '100%', maxWidth: '1200px', padding: '0 24px 80px 24px', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'inline-flex', padding: '4px 14px', background: 'rgba(200, 232, 55, 0.1)', border: '1px solid rgba(200, 232, 55, 0.3)', borderRadius: '100px', marginBottom: '12px' }}>
+              <span style={{ fontSize: '12px', color: 'var(--nukrop-accent)', fontWeight: '700', letterSpacing: '0.05em' }}>ENTERPRISE EXPANSION</span>
+            </div>
+            <h2 style={{ fontSize: '32px', color: 'white', fontWeight: 'bold' }}>Sovereign AgriTech Infrastructure</h2>
+            <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '16px', maxWidth: '750px', margin: '8px auto 0 auto', lineHeight: 1.6 }}>
+              7 next-generation modules bridging India AgriStack, spatial bio-defense, shared logistics, and vernacular speech AI.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+            
+            {/* Enterprise 1: Vernacular VoiceOS */}
+            <div className="glass-card" style={{ padding: '28px', border: '1px solid rgba(200, 232, 55, 0.25)' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>🎙️</div>
+              <h3 style={{ fontSize: '18px', color: 'white', marginBottom: '8px', fontWeight: '700' }}>Vernacular VoiceOS</h3>
+              <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '13px', lineHeight: 1.6 }}>
+                Sub-800ms bidirectional speech AI in Telugu, Hindi, Tamil, Kannada, Marathi & Punjabi with acoustic field-noise suppression.
+              </p>
+            </div>
+
+            {/* Enterprise 2: BioShield Radar */}
+            <div className="glass-card" style={{ padding: '28px', border: '1px solid rgba(239, 83, 80, 0.25)' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>🛡️</div>
+              <h3 style={{ fontSize: '18px', color: 'white', marginBottom: '8px', fontWeight: '700' }}>BioShield Radar</h3>
+              <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '13px', lineHeight: 1.6 }}>
+                Spatial-temporal outbreak cluster defense triggering geo-fenced community warnings & preemptive bio-barrier spray protocols.
+              </p>
+            </div>
+
+            {/* Enterprise 3: MandiPilot */}
+            <div className="glass-card" style={{ padding: '28px', border: '1px solid rgba(66, 165, 245, 0.25)' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>📈</div>
+              <h3 style={{ fontSize: '18px', color: 'white', marginBottom: '8px', fontWeight: '700' }}>MandiPilot Arbitrage</h3>
+              <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '13px', lineHeight: 1.6 }}>
+                Real-time APMC price discovery across ≥5 mandis deducting freight, market cess & transit spoilage to maximize net farmer revenue.
+              </p>
+            </div>
+
+            {/* Enterprise 4: GramHaul */}
+            <div className="glass-card" style={{ padding: '28px', border: '1px solid rgba(255, 167, 38, 0.25)' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>🚚</div>
+              <h3 style={{ fontSize: '18px', color: 'white', marginBottom: '8px', fontWeight: '700' }}>GramHaul Shared Logistics</h3>
+              <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '13px', lineHeight: 1.6 }}>
+                Rural farm-to-mandi produce pooling with dynamic proportional cost-sharing (saving up to 70% vs solo vehicle hire) & cold-chain matching.
+              </p>
+            </div>
+
+            {/* Enterprise 5: AgriStack Health Passport */}
+            <div className="glass-card" style={{ padding: '28px', border: '1px solid rgba(102, 187, 106, 0.25)' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>🪪</div>
+              <h3 style={{ fontSize: '18px', color: 'white', marginBottom: '8px', fontWeight: '700' }}>AgriStack Health Passport</h3>
+              <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '13px', lineHeight: 1.6 }}>
+                Sovereign digital farmer ID, digitized Soil Health Card (NPK, SOC, pH), and algorithmic credit scoring (300-900) for instant KCC underwriting.
+              </p>
+            </div>
+
+            {/* Enterprise 6: YantraShare Hub */}
+            <div className="glass-card" style={{ padding: '28px', border: '1px solid rgba(38, 198, 218, 0.25)' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>🚜</div>
+              <h3 style={{ fontSize: '18px', color: 'white', marginBottom: '8px', fontWeight: '700' }}>YantraShare Hub</h3>
+              <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '13px', lineHeight: 1.6 }}>
+                P2P farm machinery network (tractors, spray drones, harvesters) with live IoT telematics, geofencing & milestone-protected escrow.
+              </p>
+            </div>
+
+            {/* Enterprise 7: BioRx */}
+            <div className="glass-card" style={{ padding: '28px', border: '1px solid rgba(200, 232, 55, 0.25)' }}>
+              <div style={{ fontSize: '28px', marginBottom: '12px' }}>🌿</div>
+              <h3 style={{ fontSize: '18px', color: 'white', marginBottom: '8px', fontWeight: '700' }}>BioRx Formulator</h3>
+              <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '13px', lineHeight: 1.6 }}>
+                Indigenous natural recipes (Jeevamrutha, Neemastra, Dashaparni Ark) with exact acreage-calibrated ingredient ratios & voice walkthroughs.
+              </p>
+            </div>
+
+          </div>
+        </section>
+
         {/* Multi-Language Support Section */}
         <section style={{ width: '100%', maxWidth: '1200px', padding: '0 24px 80px 24px', zIndex: 1 }}>
           <div className="glass-card" style={{ padding: '48px 40px', textAlign: 'center' }}>
