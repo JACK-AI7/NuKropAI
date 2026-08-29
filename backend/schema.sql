@@ -499,3 +499,214 @@ CREATE TABLE IF NOT EXISTS public.domain_events (
 );
 CREATE INDEX IF NOT EXISTS idx_domain_events_aggregate ON public.domain_events(aggregate_id);
 CREATE INDEX IF NOT EXISTS idx_domain_events_type_time ON public.domain_events(event_type, created_at DESC);
+
+-- 29. Disease Scans (Anonymous on-device telemetry logs)
+CREATE TABLE IF NOT EXISTS public.disease_scans (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    disease_name VARCHAR(100) NOT NULL,
+    crop_name VARCHAR(100) NOT NULL DEFAULT 'General',
+    state VARCHAR(100) NOT NULL,
+    district VARCHAR(100) NOT NULL DEFAULT '',
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    severity VARCHAR(50) NOT NULL DEFAULT 'Moderate',
+    confidence INTEGER NOT NULL DEFAULT 90 CHECK (confidence BETWEEN 0 AND 100),
+    scanned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_disease_scans_state_disease_time ON public.disease_scans(state, disease_name, scanned_at DESC);
+CREATE INDEX IF NOT EXISTS idx_disease_scans_time ON public.disease_scans(scanned_at DESC);
+CREATE INDEX IF NOT EXISTS idx_disease_scans_crop ON public.disease_scans(crop_name);
+
+-- 30. State Adjacencies (Symmetric Indian State Boundary Graph)
+CREATE TABLE IF NOT EXISTS public.state_adjacencies (
+    id SERIAL PRIMARY KEY,
+    state VARCHAR(100) NOT NULL,
+    neighbor_state VARCHAR(100) NOT NULL,
+    border_risk_weight NUMERIC(4, 2) NOT NULL DEFAULT 1.00,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_state_neighbor UNIQUE (state, neighbor_state)
+);
+CREATE INDEX IF NOT EXISTS idx_state_adjacencies_state ON public.state_adjacencies(state);
+CREATE INDEX IF NOT EXISTS idx_state_adjacencies_neighbor ON public.state_adjacencies(neighbor_state);
+
+-- 31. Outbreak Alerts (Epicenters & Early Warnings)
+CREATE TABLE IF NOT EXISTS public.outbreak_alerts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    disease_name VARCHAR(100) NOT NULL,
+    source_state VARCHAR(100) NOT NULL,
+    target_state VARCHAR(100) NOT NULL,
+    alert_type VARCHAR(50) NOT NULL CHECK (alert_type IN ('EPICENTER', 'EARLY_WARNING')),
+    severity VARCHAR(50) NOT NULL DEFAULT 'MODERATE' CHECK (severity IN ('LOW', 'MODERATE', 'HIGH', 'CRITICAL')),
+    scan_count INTEGER NOT NULL DEFAULT 0,
+    threshold_density INTEGER NOT NULL DEFAULT 100,
+    time_window_hours INTEGER NOT NULL DEFAULT 168,
+    message TEXT NOT NULL,
+    recommended_action TEXT NOT NULL,
+    predicted_market_impact_pct NUMERIC(6, 2) NOT NULL DEFAULT 0.00,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_outbreak_alert_state UNIQUE (disease_name, source_state, target_state, alert_type)
+);
+CREATE INDEX IF NOT EXISTS idx_outbreak_alerts_target_active ON public.outbreak_alerts(target_state, is_active);
+CREATE INDEX IF NOT EXISTS idx_outbreak_alerts_source_disease ON public.outbreak_alerts(source_state, disease_name);
+CREATE INDEX IF NOT EXISTS idx_outbreak_alerts_disease_active ON public.outbreak_alerts(disease_name, is_active);
+
+-- Trigger Function for Outbreak Density Evaluation & Early Warning Fan-out
+CREATE OR REPLACE FUNCTION public.fn_evaluate_disease_outbreak()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_scan_count INTEGER;
+    v_window_hours INTEGER := 168; -- 7 days rolling window
+    v_threshold INTEGER := 100;
+    v_severity VARCHAR(50);
+    v_epicenter_msg TEXT;
+    v_epicenter_action TEXT;
+    v_epicenter_impact NUMERIC(6,2);
+    v_neighbor_record RECORD;
+    v_neighbor_msg TEXT;
+    v_neighbor_action TEXT;
+    v_neighbor_impact NUMERIC(6,2);
+BEGIN
+    SELECT COUNT(*)
+    INTO v_scan_count
+    FROM public.disease_scans
+    WHERE disease_name = NEW.disease_name
+      AND state = NEW.state
+      AND scanned_at >= NOW() - (v_window_hours || ' hours')::INTERVAL;
+
+    IF v_scan_count >= v_threshold THEN
+        IF v_scan_count >= 300 THEN
+            v_severity := 'CRITICAL';
+            v_epicenter_impact := 35.00;
+            v_neighbor_impact := 20.00;
+        ELSIF v_scan_count >= 200 THEN
+            v_severity := 'HIGH';
+            v_epicenter_impact := 25.00;
+            v_neighbor_impact := 15.00;
+        ELSE
+            v_severity := 'MODERATE';
+            v_epicenter_impact := 15.00;
+            v_neighbor_impact := 8.00;
+        END IF;
+
+        v_epicenter_msg := 'CRITICAL OUTBREAK DETECTED: ' || NEW.disease_name || ' outbreak confirmed in ' || NEW.state || ' with ' || v_scan_count || ' recent scan detections crossing density threshold (' || v_threshold || ').';
+        v_epicenter_action := 'Deploy immediate containment, quarantine affected fields, apply targeted chemical/biological fungicides or insecticides, and alert local Krishi Vigyan Kendra (KVK).';
+
+        -- 1. Upsert EPICENTER alert for source state
+        INSERT INTO public.outbreak_alerts (
+            disease_name,
+            source_state,
+            target_state,
+            alert_type,
+            severity,
+            scan_count,
+            threshold_density,
+            time_window_hours,
+            message,
+            recommended_action,
+            predicted_market_impact_pct,
+            is_active,
+            updated_at
+        ) VALUES (
+            NEW.disease_name,
+            NEW.state,
+            NEW.state,
+            'EPICENTER',
+            v_severity,
+            v_scan_count,
+            v_threshold,
+            v_window_hours,
+            v_epicenter_msg,
+            v_epicenter_action,
+            v_epicenter_impact,
+            TRUE,
+            NOW()
+        )
+        ON CONFLICT (disease_name, source_state, target_state, alert_type)
+        DO UPDATE SET
+            severity = EXCLUDED.severity,
+            scan_count = EXCLUDED.scan_count,
+            message = EXCLUDED.message,
+            recommended_action = EXCLUDED.recommended_action,
+            predicted_market_impact_pct = EXCLUDED.predicted_market_impact_pct,
+            is_active = TRUE,
+            updated_at = NOW();
+
+        -- 2. Fan out EARLY_WARNING alerts for all adjacent neighboring states
+        FOR v_neighbor_record IN
+            SELECT neighbor_state, border_risk_weight
+            FROM public.state_adjacencies
+            WHERE state = NEW.state
+        LOOP
+            v_neighbor_msg := 'EARLY WARNING: Outbreak of ' || NEW.disease_name || ' detected in neighboring ' || NEW.state || ' (' || v_scan_count || ' active scans). High risk of trans-boundary spore/pest vector transmission to ' || v_neighbor_record.neighbor_state || '.';
+            v_neighbor_action := 'Inspect border district fields daily, prepare preventative spraying protocols, and monitor Mandi arrivals from ' || NEW.state || '.';
+
+            INSERT INTO public.outbreak_alerts (
+                disease_name,
+                source_state,
+                target_state,
+                alert_type,
+                severity,
+                scan_count,
+                threshold_density,
+                time_window_hours,
+                message,
+                recommended_action,
+                predicted_market_impact_pct,
+                is_active,
+                updated_at
+            ) VALUES (
+                NEW.disease_name,
+                NEW.state,
+                v_neighbor_record.neighbor_state,
+                'EARLY_WARNING',
+                CASE WHEN v_severity = 'CRITICAL' THEN 'HIGH' ELSE 'MODERATE' END,
+                v_scan_count,
+                v_threshold,
+                v_window_hours,
+                v_neighbor_msg,
+                v_neighbor_action,
+                ROUND(v_neighbor_impact * v_neighbor_record.border_risk_weight, 2),
+                TRUE,
+                NOW()
+            )
+            ON CONFLICT (disease_name, source_state, target_state, alert_type)
+            DO UPDATE SET
+                severity = EXCLUDED.severity,
+                scan_count = EXCLUDED.scan_count,
+                message = EXCLUDED.message,
+                recommended_action = EXCLUDED.recommended_action,
+                predicted_market_impact_pct = EXCLUDED.predicted_market_impact_pct,
+                is_active = TRUE,
+                updated_at = NOW();
+        END LOOP;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_disease_scan_outbreak_eval ON public.disease_scans;
+CREATE TRIGGER trg_disease_scan_outbreak_eval
+AFTER INSERT ON public.disease_scans
+FOR EACH ROW
+EXECUTE FUNCTION public.fn_evaluate_disease_outbreak();
+
+-- Row Level Security (RLS) Policies
+ALTER TABLE public.disease_scans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.state_adjacencies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.outbreak_alerts ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public read and write on disease_scans') THEN
+        CREATE POLICY "Allow public read and write on disease_scans" ON public.disease_scans FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public read and write on state_adjacencies') THEN
+        CREATE POLICY "Allow public read and write on state_adjacencies" ON public.state_adjacencies FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public read and write on outbreak_alerts') THEN
+        CREATE POLICY "Allow public read and write on outbreak_alerts" ON public.outbreak_alerts FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+

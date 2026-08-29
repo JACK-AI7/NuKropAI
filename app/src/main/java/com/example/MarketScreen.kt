@@ -1,30 +1,35 @@
 package com.example
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.AutoGraph
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.platform.LocalContext
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import com.example.market.*
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
-import androidx.compose.material.icons.filled.Bolt
+import java.util.Locale
 
 @Composable
 fun MarketScreen(modifier: Modifier = Modifier) {
@@ -91,7 +96,6 @@ fun MarketScreen(modifier: Modifier = Modifier) {
         detectingLoc = false
     }
 
-
     // Reactively watch based on active state and query
     val mandiFlow = remember(activeSearchState, activeSearchQuery) {
         if (activeSearchState.isNotBlank() && activeSearchQuery.isNotBlank()) {
@@ -117,6 +121,30 @@ fun MarketScreen(modifier: Modifier = Modifier) {
         is MandiState.Success -> mandiState.records
         is MandiState.Error -> mandiState.staleData
         else -> null
+    }
+
+    // Correlate active search crop and state with regional disease outbreaks
+    var marketImpact by remember { mutableStateOf<MarketPriceImpact?>(null) }
+    var impactLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(activeSearchQuery, activeSearchState, records) {
+        if (activeSearchQuery.isNotBlank() && activeSearchState.isNotBlank()) {
+            impactLoading = true
+            try {
+                val res = MarketImpactRepository.getImpactForCrop(
+                    cropName = activeSearchQuery,
+                    state = activeSearchState,
+                    mandiRecords = records ?: emptyList()
+                )
+                marketImpact = res.getOrNull()
+            } catch (_: Exception) {
+                marketImpact = null
+            } finally {
+                impactLoading = false
+            }
+        } else {
+            marketImpact = null
+        }
     }
 
     Column(
@@ -160,7 +188,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                 }
             }
             Spacer(Modifier.height(8.dp))
-            Text("Direct Agmarknet Govt API Integration Gov & Redis", fontSize = 12.sp, color = NuKropTextMuted)
+            Text("Direct Agmarknet Govt API Integration & Econometric Early Warning", fontSize = 12.sp, color = NuKropTextMuted)
             
             Spacer(Modifier.height(24.dp))
 
@@ -241,7 +269,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
             Text("Popular Crops", color = NuKropTextMuted, fontSize = 14.sp)
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                val crops = listOf("Tomato", "Wheat", "Onion", "Cotton", "Potato")
+                val crops = listOf("Tomato", "Wheat", "Onion", "Cotton", "Potato", "Chilli", "Rice")
                 crops.forEach { c ->
                     Box(
                         Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xFF1A2210))
@@ -266,14 +294,21 @@ fun MarketScreen(modifier: Modifier = Modifier) {
         // Results Section
         Box(Modifier.fillMaxSize().padding(16.dp)) {
             if (activeSearchQuery.isEmpty() || activeSearchState.isEmpty()) {
-                // Empty state handled naturally (just blank area below)
+                // Empty state handled naturally
             } else if (loading && records.isNullOrEmpty()) {
                 CircularProgressIndicator(color = NuKropAccent, modifier = Modifier.align(Alignment.Center))
             } else if (!records.isNullOrEmpty()) {
-                Column(Modifier.verticalScroll(scrollState).padding(bottom = 80.dp)) {
+                Column(Modifier.verticalScroll(scrollState).padding(bottom = 120.dp)) {
+                    
+                    // Outbreak Market Impact Card (Inserted Above 7-Day Forecast)
+                    if (marketImpact != null) {
+                        OutbreakMarketImpactCard(impact = marketImpact!!)
+                        Spacer(Modifier.height(16.dp))
+                    }
+
                     // 7-Day AI Price Forecast Card
                     val avgModal = records.map { it.modalPrice }.average()
-                    val forecastPeak = (avgModal * 1.054).toInt()
+                    val forecastPeak = if (marketImpact != null) marketImpact!!.predictedModalPrice.toInt() else (avgModal * 1.054).toInt()
 
                     Box(
                         modifier = Modifier
@@ -300,7 +335,7 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                             }
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                "AI Market Trend Analysis: Prices for $activeSearchQuery in $activeSearchState are projected to rise +5.4% over the next 4 days, peaking at ₹$forecastPeak / Qtl on Thursday due to regional demand.",
+                                "AI Market Trend Analysis: Prices for $activeSearchQuery in $activeSearchState are projected to peak at ₹$forecastPeak / Qtl on Thursday based on regional demand and supply volume.",
                                 color = NuKropTextMuted,
                                 fontSize = 12.sp,
                                 lineHeight = 18.sp
@@ -345,6 +380,182 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                     Spacer(Modifier.height(16.dp))
                     Text("No market rates found.", color = NuKropTextMuted, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                     Text("Try a different crop or state.", color = NuKropTextDim, fontSize = 13.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OutbreakMarketImpactCard(
+    impact: MarketPriceImpact,
+    modifier: Modifier = Modifier
+) {
+    val isSurge = impact.direction == ImpactDirection.SURGE
+    val isDrop = impact.direction == ImpactDirection.DROP
+    val riskColor = when (impact.riskLevel) {
+        MarketRiskLevel.CRITICAL -> Color(0xFFEF5350)
+        MarketRiskLevel.HIGH -> Color(0xFFFF7043)
+        MarketRiskLevel.MODERATE -> Color(0xFFFFCA28)
+        MarketRiskLevel.LOW -> NuKropBadgeGreen
+    }
+    val directionColor = if (isSurge) NuKropBadgeGreen else if (isDrop) NuKropError else NuKropAccent
+    val formattedDelta = String.format(Locale.US, "%+.1f%%", impact.deltaPercentage)
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(riskColor.copy(alpha = 0.10f))
+            .border(1.5.dp, riskColor.copy(alpha = 0.45f), RoundedCornerShape(18.dp))
+            .padding(16.dp)
+    ) {
+        Column {
+            // Header: Title & Badges
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(
+                        if (isSurge) Icons.Filled.TrendingUp else if (isDrop) Icons.Filled.TrendingDown else Icons.Filled.AutoGraph,
+                        contentDescription = null,
+                        tint = directionColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Text(
+                        "Outbreak Price Shock Assessment",
+                        color = NuKropText,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(riskColor.copy(alpha = 0.25f))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        "RISK: ${impact.riskLevel.name}",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = riskColor
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            // Price Comparison Row (Current vs Predicted Peak)
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0x40000000))
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("Current Modal Price", fontSize = 10.sp, color = NuKropTextDim)
+                    Text("₹ ${impact.currentModalPrice.toInt()} / Qtl", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = NuKropText)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Projected Delta", fontSize = 10.sp, color = NuKropTextDim)
+                    Text(
+                        formattedDelta,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = directionColor
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text("Predicted Peak (Day ${impact.estimatedPeakDays})", fontSize = 10.sp, color = NuKropTextDim)
+                    Text("₹ ${impact.predictedModalPrice.toInt()} / Qtl", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = directionColor)
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // Confidence & Mechanism Badges
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(NuKropAccent.copy(alpha = 0.15f))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text("Confidence: ${impact.confidenceScore}%", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuKropAccent)
+                }
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0x33FFFFFF))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text("Mechanism: ${impact.mechanism.name.replace("_", " ")}", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = NuKropText)
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            // Farmer Action Advisory
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0x33000000))
+                    .padding(10.dp)
+            ) {
+                Column {
+                    Text("💡 Farmer Action Advisory:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = NuKropAccent)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        impact.recommendedFarmerAction,
+                        fontSize = 11.sp,
+                        color = NuKropText,
+                        lineHeight = 16.sp
+                    )
+                }
+            }
+
+            // Affected Mandis Breakdown
+            if (impact.affectedMarkets.isNotEmpty()) {
+                Spacer(Modifier.height(12.dp))
+                Text("Affected APMC Mandis Breakdown:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = NuKropTextMuted)
+                Spacer(Modifier.height(6.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    impact.affectedMarkets.take(3).forEach { market ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0x22000000))
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(market.marketName, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = NuKropText)
+                                Text("${market.district}, ${market.state}", fontSize = 10.sp, color = NuKropTextDim)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("₹ ${market.predictedModalPrice.toInt()}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = directionColor)
+                                Text(
+                                    String.format(Locale.US, "%+.1f%%", market.deltaPercentage),
+                                    fontSize = 10.sp,
+                                    color = directionColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

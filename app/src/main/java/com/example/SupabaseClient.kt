@@ -107,4 +107,29 @@ object SupabaseApi {
             httpClient.newCall(request).execute().use { /* close response stream */ }
         } catch (_: Exception) {}
     }
+
+    /**
+     * Record an anonymous disease scan in Supabase `disease_scans`
+     */
+    suspend fun recordDiseaseScan(payload: com.example.model.DiseaseScanPayload): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val result = DiseaseAggregationService.recordScan(payload)
+            result.getOrDefault(false)
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Fetch active outbreak alerts for a given target state
+     */
+    suspend fun fetchOutbreakAlerts(state: String): List<com.example.model.OutbreakAlertRecord> = withContext(Dispatchers.IO) {
+        try {
+            val result = DiseaseAggregationService.fetchActiveAlerts(state)
+            result.getOrDefault(emptyList())
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
 }
+

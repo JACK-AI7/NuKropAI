@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
@@ -17,23 +18,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
-import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.example.model.OutbreakAlert
 import com.example.ui.theme.*
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.shape.CircleShape
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -56,19 +56,57 @@ fun HomeScreen(
     var weatherError by remember { mutableStateOf<String?>(null) }
     var weatherLoading by remember { mutableStateOf(true) }
 
+    var userState by remember { mutableStateOf("Maharashtra") }
+    var activeAlerts by remember { mutableStateOf<List<OutbreakAlert>>(emptyList()) }
+    var alertsLoading by remember { mutableStateOf(true) }
+
     val hasLocation = remember {
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
     val locLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) scope.launch { fetchWeather(context) { w, e -> weather = w; weatherError = e; weatherLoading = false } }
-        else { weatherLoading = false; weatherError = "Location permission denied" }
+        if (granted) {
+            scope.launch {
+                fetchWeather(context) { w, e -> weather = w; weatherError = e; weatherLoading = false }
+                val loc = LocationHelper.getCurrentLocationStateAndMandi(context)
+                if (loc != null && loc.first.isNotBlank()) {
+                    userState = loc.first
+                }
+            }
+        } else {
+            weatherLoading = false
+            weatherError = "Location permission denied"
+        }
     }
+
+    LaunchedEffect(userState) {
+        alertsLoading = true
+        try {
+            val result = DiseaseAggregationService.fetchActiveAlerts(userState)
+            activeAlerts = result.getOrElse { emptyList() }
+        } catch (_: Exception) {
+            activeAlerts = emptyList()
+        } finally {
+            alertsLoading = false
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (hasLocation) {
             fetchWeather(context) { w, e -> weather = w; weatherError = e; weatherLoading = false }
+            val loc = LocationHelper.getCurrentLocationStateAndMandi(context)
+            if (loc != null && loc.first.isNotBlank()) {
+                userState = loc.first
+            } else {
+                val prefs = context.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
+                val savedState = prefs.getString("state", "Maharashtra") ?: "Maharashtra"
+                userState = savedState
+            }
         } else {
             weatherLoading = false
             weatherError = "Tap to grant location"
+            val prefs = context.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
+            val savedState = prefs.getString("state", "Maharashtra") ?: "Maharashtra"
+            userState = savedState
         }
         PriceTickerService.start()
     }
@@ -78,7 +116,7 @@ fun HomeScreen(
     val now = remember { SimpleDateFormat("d MMM yyyy | h:mm a", Locale.getDefault()).format(Date()) }
 
     Box(modifier = modifier.fillMaxSize().background(Color(0xFF0D1208))) {
-        Column(Modifier.fillMaxSize().verticalScroll(scrollState)) {
+        Column(Modifier.fillMaxSize().verticalScroll(scrollState).padding(bottom = 120.dp)) {
 
             // Hero Section
             Box(Modifier.fillMaxWidth().height(260.dp)) {
@@ -100,8 +138,9 @@ fun HomeScreen(
                     Arrangement.SpaceBetween, Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Box(Modifier.size(44.dp).clip(CircleShape)
-                            .background(Brush.linearGradient(listOf(NuKropGreen, NuKropAccent))),
+                        Box(
+                            Modifier.size(44.dp).clip(CircleShape)
+                                .background(Brush.linearGradient(listOf(NuKropGreen, NuKropAccent))),
                             Alignment.Center
                         ) { Icon(Icons.Filled.Person, null, tint = NuKropDark, modifier = Modifier.size(24.dp)) }
                         Column {
@@ -109,7 +148,7 @@ fun HomeScreen(
                             Text(now, fontSize = 10.sp, color = Color.White.copy(alpha = 0.7f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
-                    IconButton(onClick = { /* TODO Notifications */ }, modifier = Modifier.size(44.dp).clip(CircleShape).background(Color(0x33FFFFFF))) {
+                    IconButton(onClick = { /* Notifications */ }, modifier = Modifier.size(44.dp).clip(CircleShape).background(Color(0x33FFFFFF))) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(22.dp))
                     }
                 }
@@ -165,7 +204,7 @@ fun HomeScreen(
                         val first = tickerItems.first()
                         Icon(Icons.AutoMirrored.Filled.TrendingUp, null, tint = NuKropAccent, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("${first.commodity} (${first.market}) ,${first.modalPrice}", color = NuKropText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("${first.commodity} (${first.market}) ₹${first.modalPrice}", color = NuKropText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -207,27 +246,14 @@ fun HomeScreen(
 
             Spacer(Modifier.height(32.dp))
 
-            // Hyperlocal Pest Prediction AI
-            Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.Radar, contentDescription = null, tint = NuKropAccent, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Hyperlocal Pest Prediction AI", color = NuKropText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-            Spacer(Modifier.height(12.dp))
-            Box(Modifier.padding(horizontal = 16.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(NuKropWarning.copy(alpha=0.15f)).border(1.dp, NuKropWarning.copy(alpha=0.4f), RoundedCornerShape(16.dp)).padding(16.dp)) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Icon(Icons.Filled.Warning, null, tint = NuKropWarning, modifier = Modifier.size(18.dp))
-                        Text("High Risk: Fall Armyworm", color = NuKropWarning, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Text("Detected 4.2km West in Rampur. Wind: East 12 km/h. Arrival: ~18 hours.", color = NuKropText, fontSize = 12.sp, lineHeight = 18.sp)
-                    Spacer(Modifier.height(12.dp))
-                    Button(onClick = {}, colors = ButtonDefaults.buttonColors(containerColor = NuKropWarning), shape = RoundedCornerShape(8.dp), modifier = Modifier.fillMaxWidth().height(40.dp)) {
-                        Text("View Action Plan", color = NuKropDark, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                    }
-                }
-            }
+            // Dynamic Regional Outbreak Alert Section
+            RegionalOutbreakAlertSection(
+                userState = userState,
+                alerts = activeAlerts,
+                loading = alertsLoading,
+                onNavigateToMarket = onNavigateToMarket,
+                onNavigateToScan = onNavigateToScan
+            )
 
             Spacer(Modifier.height(32.dp))
 
@@ -292,8 +318,251 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+}
 
-            Spacer(Modifier.height(80.dp))
+@Composable
+fun RegionalOutbreakAlertSection(
+    userState: String,
+    alerts: List<OutbreakAlert>,
+    loading: Boolean,
+    onNavigateToMarket: () -> Unit,
+    onNavigateToScan: () -> Unit
+) {
+    Column(Modifier.padding(horizontal = 16.dp)) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Filled.Radar,
+                    contentDescription = null,
+                    tint = if (alerts.isNotEmpty()) NuKropWarning else NuKropAccent,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Regional Outbreak Alerts ($userState)",
+                    color = NuKropText,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            if (alerts.isNotEmpty()) {
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(NuKropError.copy(alpha = 0.2f))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        "${alerts.size} ACTIVE",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = NuKropError
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        if (loading) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(NuKropCard)
+                    .padding(20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    CircularProgressIndicator(color = NuKropAccent, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    Text("Scanning National Outbreak Early Warning Grid...", color = NuKropTextMuted, fontSize = 12.sp)
+                }
+            }
+        } else if (alerts.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                alerts.forEach { alert ->
+                    OutbreakAlertHomeCard(alert = alert, onNavigateToMarket = onNavigateToMarket)
+                }
+            }
+        } else {
+            // Calm state / All Clear in Grid
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(NuKropBadgeGreen.copy(alpha = 0.08f))
+                    .border(1.dp, NuKropBadgeGreen.copy(alpha = 0.30f), RoundedCornerShape(16.dp))
+                    .padding(16.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(
+                        Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(NuKropBadgeGreen.copy(alpha = 0.20f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("🛡️", fontSize = 18.sp)
+                    }
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            "National Outbreak Grid: Normal",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = NuKropBadgeGreen
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            "No epidemic alerts detected in $userState. Scan density is below warning threshold (< 100 scans in 7 days).",
+                            fontSize = 11.sp,
+                            color = NuKropTextMuted,
+                            lineHeight = 16.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OutbreakAlertHomeCard(
+    alert: OutbreakAlert,
+    onNavigateToMarket: () -> Unit
+) {
+    val isEpicenter = alert.alertType.equals("EPICENTER", ignoreCase = true)
+    val severityUpper = alert.severity.uppercase(Locale.ROOT)
+    val alertColor = when (severityUpper) {
+        "CRITICAL" -> Color(0xFFEF5350)
+        "HIGH" -> Color(0xFFFF7043)
+        "MODERATE" -> Color(0xFFFFCA28)
+        else -> NuKropBadgeGreen
+    }
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(alertColor.copy(alpha = 0.12f))
+            .border(1.5.dp, alertColor.copy(alpha = 0.45f), RoundedCornerShape(16.dp))
+            .padding(16.dp)
+    ) {
+        Column {
+            // Header Row: Type badge + Severity badge
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Box(
+                        Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(if (isEpicenter) Color(0xFFD32F2F) else Color(0xFFF57C00))
+                            .padding(horizontal = 7.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = if (isEpicenter) "🔴 EPICENTER OUTBREAK" else "🟠 EARLY WARNING ALERT",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(alertColor.copy(alpha = 0.25f))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = "RISK: ${alert.severity}",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = alertColor
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // Disease Title & Origin
+            Text(
+                text = alert.diseaseName,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = NuKropText
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = if (isEpicenter) "Epicenter Location: ${alert.sourceState}" else "Origin: ${alert.sourceState} ➔ Spread Vector: ${alert.targetState}",
+                fontSize = 12.sp,
+                color = NuKropTextMuted,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            // Scan Density Trigger explanation
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0x33000000))
+                    .padding(8.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Filled.Bolt, null, tint = alertColor, modifier = Modifier.size(14.dp))
+                    Text(
+                        text = "Scan Density: ${alert.scanCount} scans recorded (> ${alert.thresholdDensity} threshold in 7 days)",
+                        fontSize = 11.sp,
+                        color = NuKropText,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = alert.message,
+                fontSize = 12.sp,
+                color = NuKropTextMuted,
+                lineHeight = 17.sp
+            )
+
+            Spacer(Modifier.height(8.dp))
+            // Price impact teaser
+            if (alert.predictedMarketImpactPct > 0) {
+                Text(
+                    text = "📈 Predicted Mandi Price Shock: +${alert.predictedMarketImpactPct}%",
+                    fontSize = 12.sp,
+                    color = alertColor,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            // CTA Button to view market price impact
+            Button(
+                onClick = onNavigateToMarket,
+                colors = ButtonDefaults.buttonColors(containerColor = alertColor),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(42.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.AutoMirrored.Filled.TrendingUp, null, tint = NuKropDark, modifier = Modifier.size(16.dp))
+                    Text("View Market Price Impact", color = NuKropDark, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                }
+            }
         }
     }
 }
@@ -356,5 +625,3 @@ private fun fetchWeather(context: android.content.Context, onResult: (WeatherDat
             .addOnFailureListener { onResult(null, it.message) }
     } catch (e: Exception) { onResult(null, e.message) }
 }
-
-

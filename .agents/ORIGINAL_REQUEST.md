@@ -75,3 +75,38 @@ Once the build passes:
 - [ ] Every file listed in R1 has at least one `bottom = 120.dp` or `bottom = 100.dp` padding applied to its main scrollable container
 - [ ] LoginScreen.kt and SplashScreen.kt are NOT modified
 
+## 2026-08-29T04:00:33Z
+
+# Teamwork Project Prompt — Final
+
+> Status: Launched
+> Goal: Execute teamwork_preview
+> Requested team: Use a full team
+
+A national crop disease aggregation and early warning system that tracks on-device pest scans, triggers regional alerts based on threshold density (e.g., 100 scans in a state), and calculates market price impact.
+
+Working directory: c:\Users\bjasw\Downloads\agriculture-ai-os
+Integrity mode: development
+
+## Requirements
+
+### R1. Scan Aggregation & Alert Backend
+Design a backend architecture (using the existing Supabase project) to record anonymous disease scans (disease name, location/state, timestamp). Implement logic (e.g., a Supabase Edge Function, Database Trigger, or Kotlin-side aggregation) that counts recent scans. If a specific pest crosses a density threshold in a region, generate an early warning alert for neighboring areas.
+
+### R2. Market Impact Calculator
+Implement logic that correlates severe regional outbreaks with a predicted impact on local mandi prices for that crop.
+
+### R3. Android UI Integration
+Update the NuKropAI app to push scan results to the aggregation backend after a successful on-device scan. Update the Home or Market screens to display active regional outbreak alerts and the predicted market price impact.
+
+## Acceptance Criteria
+
+### Backend & Logic
+- [ ] A clear backend implementation (SQL migration scripts or Kotlin logic) exists for the `disease_scans` and `outbreak_alerts` system.
+- [ ] Objective verification: An independent auditor agent must review the logic and confirm that recording 100 scans in one state will correctly result in an alert being generated.
+
+### Android App
+- [ ] The app successfully pushes new scan results to the backend.
+- [ ] The UI displays active alerts and price impacts.
+- [ ] Programmatic verification: Running `./gradlew assembleDebug` exits with code 0 (no compile errors).
+
