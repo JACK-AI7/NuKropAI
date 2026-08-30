@@ -1,4 +1,4 @@
-import { Sprout, Smartphone, Apple, AlertTriangle, ShieldCheck, ChevronRight, ScanLine, TrendingUp, Landmark, CloudRain, Layers, Globe, MapPin, MessageCircle } from 'lucide-react';
+import { Sprout, Smartphone, Apple, AlertTriangle, ShieldCheck, ChevronRight, ScanLine, TrendingUp, Landmark, CloudRain, Layers, Globe, MapPin, MessageCircle, Download } from 'lucide-react';
 
 export default function App() {
   return (
@@ -52,11 +52,77 @@ export default function App() {
             </span>
           </h1>
 
-          <p style={{ fontSize: 'clamp(18px, 2vw, 22px)', color: 'var(--nukrop-text-dim)', textAlign: 'center', maxWidth: '700px', lineHeight: 1.6, marginBottom: '60px' }}>
+          <p style={{ fontSize: 'clamp(18px, 2vw, 22px)', color: 'var(--nukrop-text-dim)', textAlign: 'center', maxWidth: '700px', lineHeight: 1.6, marginBottom: '40px' }}>
             A complete operating system engineered to eliminate crop loss and ensure fair market pricing through edge AI and live government data.
           </p>
 
+          {/* ── Download CTA ── */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', marginBottom: '60px' }}>
+            <a
+              href="/NuKropAI_v2.0.apk"
+              download="NuKropAI_v2.0.apk"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '16px 32px',
+                background: 'linear-gradient(135deg, var(--nukrop-accent) 0%, #D4F040 100%)',
+                color: 'var(--nukrop-dark)',
+                borderRadius: '14px',
+                fontWeight: '800',
+                fontSize: '17px',
+                textDecoration: 'none',
+                boxShadow: '0 8px 32px rgba(200, 232, 55, 0.35)',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-2px)';
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 12px 40px rgba(200,232,55,0.5)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)';
+                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 8px 32px rgba(200,232,55,0.35)';
+              }}
+            >
+              <Download style={{ width: '20px', height: '20px' }} />
+              Download NuKropAI
+              <span style={{
+                background: 'rgba(0,0,0,0.15)',
+                borderRadius: '8px',
+                padding: '2px 8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                letterSpacing: '0.04em',
+              }}>APK · 46 MB · v2.0</span>
+            </a>
+            <a
+              href="#features"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '16px 28px',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: 'white',
+                borderRadius: '14px',
+                fontWeight: '600',
+                fontSize: '16px',
+                textDecoration: 'none',
+              }}
+            >
+              Explore Features <ChevronRight style={{ width: '18px', height: '18px' }} />
+            </a>
+          </div>
+
+          {/* Android badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--nukrop-text-muted)', fontSize: '13px' }}>
+            <Smartphone style={{ width: '15px', height: '15px' }} />
+            <span>Android 7.0+ • Sideload enabled • 100% free</span>
+          </div>
+
         </section>
+
 
         {/* Problem / Solution Split */}
         <section style={{ width: '100%', maxWidth: '1200px', padding: '0 24px 80px 24px', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px' }}>
@@ -318,6 +384,42 @@ export default function App() {
 
       </main>
 
+      <section style={{ padding: '80px 24px', textAlign: 'center', background: 'rgba(200, 232, 55, 0.03)', borderTop: '1px solid rgba(200,232,55,0.08)', position: 'relative', zIndex: 10 }}>
+
+        <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', color: 'white', fontWeight: '800', marginBottom: '16px' }}>
+          Ready to transform your farm? 🌾
+        </h2>
+        <p style={{ color: 'var(--nukrop-text-dim)', fontSize: '18px', marginBottom: '40px', maxWidth: '500px', margin: '0 auto 40px auto' }}>
+          Download the NuKropAI Android app for free and start farming smarter today.
+        </p>
+        <a
+          href="/NuKropAI_v2.0.apk"
+          download="NuKropAI_v2.0.apk"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '18px 40px',
+            background: 'linear-gradient(135deg, var(--nukrop-accent) 0%, #D4F040 100%)',
+            color: 'var(--nukrop-dark)',
+            borderRadius: '16px',
+            fontWeight: '800',
+            fontSize: '20px',
+            textDecoration: 'none',
+            boxShadow: '0 12px 48px rgba(200, 232, 55, 0.4)',
+          }}
+        >
+          <Download style={{ width: '24px', height: '24px' }} />
+          Download NuKropAI v2.0
+        </a>
+        <p style={{ color: 'var(--nukrop-text-muted)', fontSize: '13px', marginTop: '24px' }}>
+          Android 7.0+ • APK · 46 MB • Sideload enabled
+        </p>
+        <p style={{ color: 'var(--nukrop-text-muted)', fontSize: '12px', marginTop: '8px' }}>
+          💡 To install: open the APK on your phone → tap "Install" → allow "Install from unknown sources" if prompted.
+        </p>
+      </section>
+
       <footer style={{ padding: '40px 24px', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)', position: 'relative', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '16px' }}>
           <Sprout style={{ color: 'var(--nukrop-text-muted)', width: '20px', height: '20px' }} />
@@ -330,3 +432,4 @@ export default function App() {
     </div>
   );
 }
+
