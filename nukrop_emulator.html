@@ -4821,7 +4821,7 @@ function handleFarmerLogout() {
 
   modal = document.createElement('div');
   modal.id = modalId;
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+  modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
     <div style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
@@ -4848,29 +4848,21 @@ function handleFarmerLogout() {
     </div>
   `;
 
-  document.body.appendChild(modal);
+  const chassis = document.querySelector('.phone-chassis'); if(chassis) chassis.appendChild(modal); else document.body.appendChild(modal);
 }
 
 function executeSignOutToLogin() {
   const modal = document.getElementById('farmer-logout-confirm-modal');
   if (modal) modal.remove();
-
-  // Clear session tokens
   localStorage.removeItem('nukrop_supabase_token');
   localStorage.removeItem('nukrop_supabase_uid');
   if (typeof currentSupabaseSession !== 'undefined') currentSupabaseSession = null;
+  // Completely reload the emulator app instance to ensure clean state
+  setTimeout(() => window.location.reload(), 150);
+}
 
-  // Reveal onboarding viewport & hide home screen
-  const mainShell = document.getElementById('screen-body');
-  const onboardingContainer = document.getElementById('onboarding-viewport') || document.getElementById('viewport');
-  if (onboardingContainer) {
-    onboardingContainer.style.display = 'block';
-  }
-  
-  // Set auth mode to Sign In and advance to login slide
-  authFormMode = 'signin';
-  advanceSlide('login');
-
+// Ensure the old func code doesn't break if partially matched
+function obsoleteSignOut() {
   if (typeof showPushNotificationToast === 'function') {
     showPushNotificationToast({
       title: TL('🔒 Signed Out Successfully', '🔒 విజయవంతంగా లాగౌట్ అయ్యారు', '🔒 सफलतापूर्वक लॉगआउट हुए'),
@@ -6978,7 +6970,7 @@ function openDriverCallModal(driverName, phone, vehicle, rating) {
 
   modal = document.createElement('div');
   modal.id = modalId;
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
+  modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
   
   modal.innerHTML = `
     <div style="background:#FFFFFF;border-radius:24px 24px 0 0;width:100%;max-width:440px;padding:24px 20px;box-shadow:0 -8px 32px rgba(0,0,0,0.18);animation:slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
@@ -7016,7 +7008,7 @@ function openDriverCallModal(driverName, phone, vehicle, rating) {
     </div>
   `;
 
-  document.body.appendChild(modal);
+  const chassis = document.querySelector('.phone-chassis'); if(chassis) chassis.appendChild(modal); else document.body.appendChild(modal);
 }
 
 // 2. KCC Instant Bank Disbursal Modal
@@ -7027,7 +7019,7 @@ function openKccDisbursalModal(amtStr = '₹50,000') {
 
   modal = document.createElement('div');
   modal.id = modalId;
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn 0.2s ease;';
+  modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn 0.2s ease;';
 
   const utrNo = 'DBT-KCC-' + Math.floor(10000000 + Math.random() * 90000000);
 
@@ -7061,7 +7053,7 @@ function openKccDisbursalModal(amtStr = '₹50,000') {
     </div>
   `;
 
-  document.body.appendChild(modal);
+  const chassis = document.querySelector('.phone-chassis'); if(chassis) chassis.appendChild(modal); else document.body.appendChild(modal);
 }
 
 // 3. KCC Limit Enhancement Modal
@@ -7072,7 +7064,7 @@ function openKccEnhanceModal() {
 
   modal = document.createElement('div');
   modal.id = modalId;
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn 0.2s ease;';
+  modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
     <div style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
@@ -7096,7 +7088,7 @@ function openKccEnhanceModal() {
     </div>
   `;
 
-  document.body.appendChild(modal);
+  const chassis = document.querySelector('.phone-chassis'); if(chassis) chassis.appendChild(modal); else document.body.appendChild(modal);
 }
 
 // 4. BioRx Recipe Modal with Audio Voice Guide (TTS)
@@ -7107,7 +7099,7 @@ function openBioRxRecipeModal(name, ingredients, steps, dosage) {
 
   modal = document.createElement('div');
   modal.id = modalId;
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
+  modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
 
   const fullText = `${name}. Ingredients: ${ingredients}. Steps: ${steps}. Dosage: ${dosage}.`;
 
@@ -7146,7 +7138,7 @@ function openBioRxRecipeModal(name, ingredients, steps, dosage) {
     </div>
   `;
 
-  document.body.appendChild(modal);
+  const chassis = document.querySelector('.phone-chassis'); if(chassis) chassis.appendChild(modal); else document.body.appendChild(modal);
 }
 
 // 5. Official Kisan Call Center Helpline Modal
@@ -7157,7 +7149,7 @@ function openKisanHelplineModal() {
 
   modal = document.createElement('div');
   modal.id = modalId;
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn 0.2s ease;';
+  modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
     <div style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
@@ -7186,7 +7178,7 @@ function openKisanHelplineModal() {
     </div>
   `;
 
-  document.body.appendChild(modal);
+  const chassis = document.querySelector('.phone-chassis'); if(chassis) chassis.appendChild(modal); else document.body.appendChild(modal);
 }
 
 // 6. Cloud Sync Status Notification Trigger
@@ -10596,9 +10588,9 @@ const APP_VIEWS = {
         <div style="background:#FFFFFF;border:1.2px solid #E2ECE2;border-radius:18px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,0.03);">
           
           <div onclick="openScreen('agristack', document.getElementById('tab-agristack'))" style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid #F1F5F9;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#EFF6FF;color:#2563EB;display:flex;align-items:center;justify-content:center;font-size:17px;">🪪</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('AgriStack Digital Passport & RoR', 'అగ్రిస్టాక్ డిజిటల్ పాస్‌పోర్ట్ & పట్టాదారు పాస్‌బుక్', 'एग्रीस्टैक डिजिटल पासपोर्ट व खतौनी')}</div>
                 <div style="font-size:10.5px;color:#64748B;font-weight:600;">Khata: 1104 · Survey No: 342/A (Govt Verified)</div>
               </div>
@@ -10607,9 +10599,9 @@ const APP_VIEWS = {
           </div>
 
           <div onclick="openSoilHealthModal()" style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid #F1F5F9;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#F0FDF4;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:17px;">🧪</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Digital Soil Health Card (SHC)', 'డిజిటల్ సాయిల్ హెల్త్ కార్డ్ (నేల పరీక్ష)', 'डिजिटल मृदा स्वास्थ्य कार्ड')}</div>
                 <div style="font-size:10.5px;color:#16A34A;font-weight:700;">NPK Balanced · pH 7.2 · Organic Carbon 0.68%</div>
               </div>
@@ -10618,9 +10610,9 @@ const APP_VIEWS = {
           </div>
 
           <div onclick="openScreen('loan', document.getElementById('tab-loan')||document.getElementById('tab-home'))" style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#FEF3C7;color:#D97706;display:flex;align-items:center;justify-content:center;font-size:17px;">💰</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Kisan Credit Card (KCC) & Subsidies', 'KCC పంట ఋణం & PM-కిసాన్ సబ్సిడీలు', 'केसीसी ऋण व सरकारी सब्सिडी (DBT)')}</div>
                 <div style="font-size:10.5px;color:#D97706;font-weight:700;">₹1.50 Lakh Active Limit @ 4% Subsidized ROI</div>
               </div>
@@ -10640,23 +10632,23 @@ const APP_VIEWS = {
           
           <!-- Language Selector Trigger -->
           <div onclick="openLanguageModal()" style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid #F1F5F9;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#F1F5F9;color:#0F172A;display:flex;align-items:center;justify-content:center;font-size:17px;">🌐</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('App Language (11 Indian Languages)', 'యాప్ భాష (11 భారతీయ భాషలు)', 'ऐप की भाषा (11 भारतीय भाषाएं)')}</div>
                 <div style="font-size:10.5px;color:#16A34A;font-weight:800;">
                   ${currentLang === 'te' ? '🇮🇳 తెలుగు (Telugu)' : (currentLang === 'hi' ? '🇮🇳 हिन्दी (Hindi)' : (currentLang === 'ta' ? '🇮🇳 தமிழ் (Tamil)' : '🇮🇳 English (India)'))}
                 </div>
               </div>
             </div>
-            <span style="font-size:11px;font-weight:900;color:#16A34A;background:#DCFCE7;padding:4px 9px;border-radius:8px;">${TL('Change', 'మార్చండి', 'बदलें')} ›</span>
+            <span style="flex-shrink:0;white-space:nowrap;font-size:11px;font-weight:900;color:#16A34A;background:#DCFCE7;padding:4px 9px;border-radius:8px;">${TL('Change', 'మార్చండి', 'बदलें')} ›</span>
           </div>
 
           <!-- Voice Assistant Toggle -->
           <div style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F1F5F9;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#EFF6FF;color:#2563EB;display:flex;align-items:center;justify-content:center;font-size:17px;">🔊</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Voice Assistant & Audio Readout', 'వాయిస్ అసిస్టెంట్ & ఆడియో వివరణ', 'वॉयस असिस्टेंट व ऑडियो व्याख्या')}</div>
                 <div style="font-size:10.5px;color:#64748B;font-weight:600;">${TL('Auto-reads crop scan diagnostics & spray advice', 'పంట వ్యాధి విశ్లేషణను ఆడియోలో చదువుతుంది', 'फसल रोग जांच व छिड़काव सलाह को बोलकर सुनाए')}</div>
               </div>
@@ -10668,9 +10660,9 @@ const APP_VIEWS = {
 
           <!-- Extreme Weather Push Alerts Toggle -->
           <div style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F1F5F9;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#FEF2F2;color:#DC2626;display:flex;align-items:center;justify-content:center;font-size:17px;">🔔</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Extreme Weather & Pest Alerts', 'వాతావరణ మార్పులు & పురుగుల అలర్ట్‌లు', 'मौसम चेतावनी व कीट प्रकोप अलर्ट')}</div>
                 <div style="font-size:10.5px;color:#64748B;font-weight:600;">${TL('Instant SMS & push notification before heavy storms', 'తుఫాను లేదా భారీ వర్ష సూచన ముందస్తు సమాచారం', 'भारी बारिश या कीट हमले से पहले सूचना')}</div>
               </div>
@@ -10682,9 +10674,9 @@ const APP_VIEWS = {
 
           <!-- Cloud Sync Status -->
           <div style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#F0FDF4;color:#16A34A;display:flex;align-items:center;justify-content:center;font-size:17px;">☁️</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Offline Edge-AI Cache & Cloud Sync', 'ఆఫ్‌లైన్ డాటా & క్లౌడ్ సింక్', 'ऑफ़लाइन डेटा व क्लाउड सिंक')}</div>
                 <div style="font-size:10.5px;color:#16A34A;font-weight:800;">🟢 ${TL('100% Synced to Supabase Cloud Engine', 'క్లౌడ్ లో భద్రపరచబడింది (100% Synced)', 'क्लाउड पर सुरक्षित (100% सिंक)')}</div>
               </div>
@@ -10706,21 +10698,21 @@ const APP_VIEWS = {
           
           <!-- Kisan Call Center Toll-Free Hotline -->
           <div onclick="openKisanHelplineModal()" style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid #F1F5F9;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#DCFCE7;color:#15803D;display:flex;align-items:center;justify-content:center;font-size:17px;">📞</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Kisan Call Center (1800-180-1551)', 'కిసాన్ కాల్ సెంటర్ టోల్-ఫ్రీ హెల్ప్‌లైన్', 'किसान कॉल सेंटर टोल-फ्री हेल्पलाइन')}</div>
                 <div style="font-size:10.5px;color:#15803D;font-weight:800;">${TL('Free 24x7 Expert Agronomist Support', '24x7 ఉచిత వ్యవసాయ శాస్త్రవేత్తల సలహాలు', '24x7 निःशुल्क विशेषज्ञ परामर्श')}</div>
               </div>
             </div>
-            <span style="font-size:11px;font-weight:900;color:#15803D;background:#DCFCE7;padding:4px 9px;border-radius:8px;">${TL('Call Free', 'కాల్ చేయండి', 'कॉल करें')} ›</span>
+            <span style="flex-shrink:0;white-space:nowrap;font-size:11px;font-weight:900;color:#15803D;background:#DCFCE7;padding:4px 9px;border-radius:8px;">${TL('Call Free', 'కాల్ చేయండి', 'कॉल करें')} ›</span>
           </div>
 
           <!-- Biometric Lock -->
           <div style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F1F5F9;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#F8FAFC;color:#0F172A;display:flex;align-items:center;justify-content:center;font-size:17px;">🔒</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Biometric Fingerprint Lock & PIN', 'ఫింగర్‌ప్రింట్ సెక్యూరిటీ లాక్', 'बायोमेट्रिक फिंगरप्रिंट लॉक')}</div>
                 <div style="font-size:10.5px;color:#64748B;font-weight:600;">${TL('Protects farm financial ledgers & identity', 'మీ ఖాతా లెక్కలు మరియు డాటాను రక్షిస్తుంది', 'खाता बही व पहचान को सुरक्षित रखें')}</div>
               </div>
@@ -10732,9 +10724,9 @@ const APP_VIEWS = {
 
           <!-- Privacy Policy Trigger -->
           <div onclick="openPrivacyPolicyModal()" style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid #F1F5F9;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#EFF6FF;color:#2563EB;display:flex;align-items:center;justify-content:center;font-size:17px;">📜</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Privacy Policy & DPDP Act 2023 Compliance', 'గోప్యతా విధానం (Privacy Policy & DPDP Act)', 'गोपनीयता नीति (Privacy Policy)')}</div>
                 <div style="font-size:10.5px;color:#64748B;font-weight:600;">${TL('100% Encrypted Farm Data · Zero Third-Party Sharing', 'మీ భూమి సమాచారం పూర్తి సురక్షితం', 'आपका डेटा 100% सुरक्षित व एन्क्रिप्टेड')}</div>
               </div>
@@ -10744,9 +10736,9 @@ const APP_VIEWS = {
 
           <!-- Terms of Service Trigger -->
           <div onclick="openTermsServiceModal()" style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
-            <div style="display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
               <div style="width:36px;height:36px;border-radius:10px;background:#F8FAFC;color:#64748B;display:flex;align-items:center;justify-content:center;font-size:17px;">⚖️</div>
-              <div>
+              <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Terms of Service & Agrarian Disclaimers', 'నిబంధనలు & షరతులు (Terms of Service)', 'नियम व शर्तें (Terms of Service)')}</div>
                 <div style="font-size:10.5px;color:#64748B;font-weight:600;">${TL('AI Diagnosis accuracy standards & Mandi guidelines', 'AI రోగ నిర్ధారణ & మార్కెట్ మార్గదర్శకాలు', 'AI रोग निदान व मंडी दिशानिर्देश')}</div>
               </div>
@@ -13182,6 +13174,7 @@ function openScreen(screenKey, tabElement) {
     container.classList.add('screen-fade');
     const viewFn = APP_VIEWS[screenKey] || APP_VIEWS.home;
     container.innerHTML = viewFn();
+    setTimeout(applyCustomCropDropdowns, 0);
   }
 
   const screenContainer = document.getElementById('screen-container');
@@ -13255,6 +13248,124 @@ function onFertUnitChange(unit) {
     label.textContent = unit === 'acre' ? 'Acre' : (unit === 'hectare' ? 'Hectare' : 'Gunta');
   }
   calcFertilizerDose();
+}
+
+
+/* ── INJECTED OPENFARM ICONS CUSTOM DROPDOWN ── */
+function applyCustomCropDropdowns() {
+  const selects = document.querySelectorAll('select[id$="-crop-select"]');
+  const OPENFARM_ICONS = {
+    cotton: 'https://raw.githubusercontent.com/openfarmcc/open-crop-icons/mainline/icons/cotton/cotton.svg',
+    chilli: 'https://raw.githubusercontent.com/openfarmcc/open-crop-icons/mainline/icons/birds-eye-chili/birds-eye-chili.svg',
+    paddy: 'https://raw.githubusercontent.com/openfarmcc/open-crop-icons/mainline/icons/rice/rice.svg',
+    tomato: 'https://raw.githubusercontent.com/openfarmcc/open-crop-icons/mainline/icons/tomato/tomato.svg',
+    maize: 'https://raw.githubusercontent.com/openfarmcc/open-crop-icons/mainline/icons/corn/corn.svg',
+    wheat: 'https://raw.githubusercontent.com/openfarmcc/open-crop-icons/mainline/icons/wheat/wheat.svg'
+  };
+
+  selects.forEach(select => {
+    if (select.dataset.customDropdownApplied) return;
+    select.dataset.customDropdownApplied = 'true';
+    select.style.display = 'none';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:relative;display:inline-block;';
+
+    const trigger = document.createElement('div');
+    trigger.style.cssText = select.getAttribute('style') || 'background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:24px;padding:6px 28px 6px 12px;font-size:13.5px;font-weight:800;color:#1E293B;cursor:pointer;';
+    trigger.style.display = 'flex';
+    trigger.style.alignItems = 'center';
+    trigger.style.gap = '6px';
+    trigger.style.paddingRight = '32px';
+    trigger.style.userSelect = 'none';
+    
+    const chevron = document.createElement('span');
+    chevron.innerHTML = 'v';
+    chevron.style.cssText = 'position:absolute;right:12px;font-size:10px;color:#64748B;pointer-events:none;';
+
+    const iconImg = document.createElement('img');
+    iconImg.style.cssText = 'width:20px;height:20px;object-fit:contain;pointer-events:none;';
+    
+    const textSpan = document.createElement('span');
+    textSpan.style.cssText = 'pointer-events:none;';
+
+    const updateTrigger = () => {
+      const val = select.value;
+      const opt = select.options[select.selectedIndex];
+      iconImg.src = OPENFARM_ICONS[val] || '';
+      
+      let rawText = opt.innerText.trim();
+      const parts = rawText.split(' ');
+      // If first part is an emoji, strip it
+      if (parts.length > 1 && [...parts[0]].length === 1 && parts[0].charCodeAt(0) > 255) {
+        textSpan.innerText = parts.slice(1).join(' ');
+      } else {
+        // Fallback robust emoji stripping
+        textSpan.innerText = rawText.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '') || parts.slice(1).join(' ') || rawText;
+      }
+    };
+    updateTrigger();
+
+    trigger.appendChild(iconImg);
+    trigger.appendChild(textSpan);
+    trigger.appendChild(chevron);
+
+    const list = document.createElement('div');
+    list.style.cssText = 'position:absolute;top:100%;left:0;margin-top:4px;background:#FFFFFF;border:1.2px solid #94A3B8;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,0.15);z-index:99999;display:none;flex-direction:column;min-width:160px;overflow:hidden;';
+    list.className = 'custom-crop-dropdown-list';
+
+    Array.from(select.options).forEach(opt => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:#0F172A;cursor:pointer;border-bottom:1px solid #F1F5F9;';
+      item.onmouseenter = () => item.style.background = '#EFF6FF';
+      item.onmouseleave = () => item.style.background = 'transparent';
+      
+      const img = document.createElement('img');
+      img.src = OPENFARM_ICONS[opt.value] || '';
+      img.style.cssText = 'width:22px;height:22px;object-fit:contain;pointer-events:none;';
+      
+      const txt = document.createElement('span');
+      txt.style.pointerEvents = 'none';
+      let rawText = opt.innerText.trim();
+      const parts = rawText.split(' ');
+      if (parts.length > 1 && [...parts[0]].length === 1 && parts[0].charCodeAt(0) > 255) {
+        txt.innerText = parts.slice(1).join(' ');
+      } else {
+        txt.innerText = rawText.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/gu, '') || parts.slice(1).join(' ') || rawText;
+      }
+
+      item.appendChild(img);
+      item.appendChild(txt);
+      
+      item.onclick = (e) => {
+        e.stopPropagation();
+        select.value = opt.value;
+        updateTrigger();
+        list.style.display = 'none';
+        select.dispatchEvent(new Event('change'));
+      };
+      
+      list.appendChild(item);
+    });
+
+    trigger.onclick = (e) => {
+      e.stopPropagation();
+      const isVisible = list.style.display === 'flex';
+      document.querySelectorAll('.custom-crop-dropdown-list').forEach(l => l.style.display = 'none');
+      list.style.display = isVisible ? 'none' : 'flex';
+    };
+    
+    wrapper.appendChild(trigger);
+    wrapper.appendChild(list);
+    select.parentNode.insertBefore(wrapper, select);
+  });
+
+  if (!window.dropdownListenerAdded) {
+    window.dropdownListenerAdded = true;
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.custom-crop-dropdown-list').forEach(l => l.style.display = 'none');
+    });
+  }
 }
 
 function calcFertilizerDose() {
