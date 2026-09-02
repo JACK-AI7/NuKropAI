@@ -8,6 +8,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
@@ -15,6 +17,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.IOException
 
 // Sealed class Tab kept so any references in test files or utilities compile without issue
 sealed class Tab(val route: String, val icon: String, val labelKey: String) {
@@ -42,32 +47,53 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var webView: WebView
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
+    private var cameraPhotoUri: Uri? = null
 
     private val fileChooserLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (filePathCallback != null) {
-            val data = result.data
-            val results: Array<Uri>? = if (result.resultCode == Activity.RESULT_OK && data != null) {
-                if (data.clipData != null) {
-                    val count = data.clipData!!.itemCount
-                    Array(count) { i -> data.clipData!!.getItemAt(i).uri }
-                } else if (data.data != null) {
-                    arrayOf(data.data!!)
-                } else null
-            } else null
+            var results: Array<Uri>? = null
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                if (data != null && (data.data != null || data.clipData != null)) {
+                    if (data.clipData != null) {
+                        val count = data.clipData!!.itemCount
+                        results = Array(count) { i -> data.clipData!!.getItemAt(i).uri }
+                    } else if (data.data != null) {
+                        results = arrayOf(data.data!!)
+                    }
+                } else if (cameraPhotoUri != null) {
+                    // Direct camera photo captured
+                    results = arrayOf(cameraPhotoUri!!)
+                }
+            }
             filePathCallback?.onReceiveValue(results)
             filePathCallback = null
+            cameraPhotoUri = null
         }
     }
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { _ -> }
+    ) { permissions ->
+        // Notify webview if camera permission status changed
+        if (permissions[Manifest.permission.CAMERA] == true) {
+            webView.evaluateJavascript("if (typeof onNativeCameraPermissionGranted === 'function') onNativeCameraPermissionGranted();", null)
+        }
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Native Android Status Bar & Navigation Bar styling to match app theme
+        window.statusBarColor = 0xFFF8FAF8.toInt()
+        window.navigationBarColor = 0xFFFFFFFF.toInt()
+        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true
+            isAppearanceLightNavigationBars = true
+        }
 
         // Request runtime permissions for Camera, Location, Storage
         val permissions = mutableListOf(
@@ -112,9 +138,11 @@ class MainActivity : ComponentActivity() {
             }
 
             webChromeClient = object : WebChromeClient() {
-                // Auto-grant Camera / Microphone for Disease Scanner
+                // Auto-grant Camera & Microphone for live crop scanner stream
                 override fun onPermissionRequest(request: PermissionRequest) {
-                    request.grant(request.resources)
+                    runOnUiThread {
+                        request.grant(request.resources)
+                    }
                 }
 
                 // Auto-grant Geolocation for Live Mandi Rates & Weather Radar
@@ -125,7 +153,7 @@ class MainActivity : ComponentActivity() {
                     callback.invoke(origin, true, false)
                 }
 
-                // File chooser for camera snap or gallery photo upload
+                // Native Camera Snap & File Chooser for Scanner
                 override fun onShowFileChooser(
                     webView: WebView?,
                     filePathCallback: ValueCallback<Array<Uri>>?,
@@ -134,12 +162,43 @@ class MainActivity : ComponentActivity() {
                     this@MainActivity.filePathCallback?.onReceiveValue(null)
                     this@MainActivity.filePathCallback = filePathCallback
 
-                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    // Prepare native Camera Intent
+                    val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    var photoFile: File? = null
+                    try {
+                        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                        photoFile = File.createTempFile("crop_scan_${System.currentTimeMillis()}", ".jpg", storageDir)
+                        cameraPhotoUri = FileProvider.getUriForFile(
+                            this@MainActivity,
+                            "${applicationContext.packageName}.provider",
+                            photoFile
+                        )
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraPhotoUri)
+                    } catch (ex: IOException) {
+                        cameraPhotoUri = null
+                    }
+
+                    // Prepare Gallery Intent
+                    val pickIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
                         addCategory(Intent.CATEGORY_OPENABLE)
                         type = "image/*"
-                        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
                     }
-                    fileChooserLauncher.launch(Intent.createChooser(intent, "Select Leaf Image"))
+
+                    // Build System Chooser with Camera + Gallery options
+                    val chooserIntent = Intent(Intent.ACTION_CHOOSER).apply {
+                        putExtra(Intent.EXTRA_INTENT, pickIntent)
+                        putExtra(Intent.EXTRA_TITLE, "Capture Crop Leaf or Select Image")
+                        if (photoFile != null) {
+                            putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(takePictureIntent))
+                        }
+                    }
+
+                    try {
+                        fileChooserLauncher.launch(chooserIntent)
+                    } catch (e: Exception) {
+                        this@MainActivity.filePathCallback = null
+                        return false
+                    }
                     return true
                 }
             }
@@ -168,10 +227,13 @@ class MainActivity : ComponentActivity() {
         // Handle Android physical/gesture back button
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // If the emulator has an open modal, close it first
+                // If live camera is running or modal open, close it cleanly
                 webView.evaluateJavascript(
                     """
                     (function() {
+                      if (typeof stopLiveCameraStream === 'function') {
+                        stopLiveCameraStream();
+                      }
                       const modals = document.querySelectorAll('[id$="-modal"], .modal-overlay, #farmer-logout-confirm-modal');
                       for (let m of modals) {
                         if (m && m.style.display !== 'none') {
@@ -210,6 +272,7 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         webView.onPause()
+        webView.evaluateJavascript("if (typeof stopLiveCameraStream === 'function') stopLiveCameraStream();", null)
     }
 
     override fun onDestroy() {

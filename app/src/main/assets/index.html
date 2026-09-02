@@ -62,21 +62,7 @@ html, body {
   padding: 0 !important;
 }
 
-.system-status-bar {
-  height: 42px;
-  background: #F8FAF8;
-  border-bottom: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  font-size: 11.5px;
-  font-weight: 800;
-  color: #0F172A;
-  flex-shrink: 0;
-  z-index: 50;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
+.system-status-bar { display: none !important; width: 0 !important; height: 0 !important; visibility: hidden !important; pointer-events: none !important; }
 
 .system-status-bar svg {
   transition: stroke 0.2s ease, fill 0.2s ease;
@@ -829,6 +815,14 @@ h1, h2, h3 { letter-spacing: -0.3px; }
 </style>
 
 <style id="apk-pure-mobile-overrides">
+  .system-status-bar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
   .side-panel-container, .panel-card-box, #side-nav-group {
     display: none !important;
     visibility: hidden !important;
@@ -845,6 +839,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     box-shadow: none !important;
     position: fixed !important;
     inset: 0 !important;
+    padding-top: max(env(safe-area-inset-top, 0px), 6px) !important;
   }
   #startup-experience-overlay {
     border-radius: 0 !important;
@@ -857,19 +852,11 @@ h1, h2, h3 { letter-spacing: -0.3px; }
 <!-- ═════════════════ ANDROID PHONE CHASSIS ═════════════════ -->
     <div class="phone-chassis">
     <!-- STATIC STARTUP EXPERIENCE OVERLAY (MATCHING SCREENSHOTS) -->
-    <div id="startup-experience-overlay" style="position:absolute;inset:0;background:#FFFFFF;border-radius: 0px;overflow:hidden;z-index:99999;display:flex;flex-direction:column;">
+    <div id="startup-experience-overlay" style="position:absolute;inset:0;background:#FFFFFF;border-radius:48px;overflow:hidden;z-index:99999;display:flex;flex-direction:column;">
       <!-- Populated immediately by renderPlantixFlow() -->
     </div>
     <!-- Status Bar -->
-    <div class="system-status-bar">
-      <span>11:31</span>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2"><path d="M1.5 8.5C5 5 9.5 3 12 3s7 2 10.5 5.5"/><path d="M5 12c2-2 4.5-3 7-3s5 1 7 3"/><path d="M8.5 15.5c.9-.9 2.1-1.5 3.5-1.5s2.6.6 3.5 1.5"/><circle cx="12" cy="19" r="1" fill="#0F172A"/></svg>
-        <span style="font-size:10px;font-weight:800;">5G+</span>
-        <svg width="18" height="11" viewBox="0 0 24 14" fill="none"><rect x="0" y="1" width="20" height="12" rx="2" stroke="#0F172A" stroke-width="1.5"/><rect x="2" y="3" width="12" height="8" rx="1" fill="#1B5E20"/><rect x="20" y="5" width="3" height="5" rx="1" fill="#0F172A" opacity="0.5"/></svg>
-        <span style="font-size:10px;font-weight:800;">83%</span>
-      </div>
-    </div>
+    
 
     <!-- Global Floating In-App Push Notification Banner -->
     <div id="global-push-toast" style="display:none;position:absolute;top:40px;left:12px;right:12px;background:#0F172A;color:#FFFFFF;border-radius:16px;padding:12px 14px;box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:9999;border:1.2px solid rgba(255,255,255,0.18);animation:toastDropIn 0.35s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
@@ -6687,7 +6674,7 @@ function renderLoginScreen(container) {
             <circle cx="12" cy="8" r="4" fill="#0284C7"/>
             <path d="M4 20C4 16 8 14 12 14C16 14 20 16 20 20" fill="#0284C7"/>
           </svg>
-          <input type="text" id="auth-name-input" value="B. Jaswanth Reddy" placeholder="Full Name" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
+          <input type="text" id="auth-name-input" value="" placeholder="Enter your full name" placeholder="Full Name" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
         </div>
         ` : ''}
 
@@ -6699,7 +6686,7 @@ function renderLoginScreen(container) {
             <rect x="2" y="4" width="20" height="16" rx="3" stroke="#00A86B" stroke-width="2"/>
             <path d="M2 7L12 13L22 7" stroke="#00A86B" stroke-width="2"/>
           </svg>
-          <input type="email" id="auth-email-input" value="bjaswanth.agri@gmail.com" placeholder="Email Address" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
+          <input type="email" id="auth-email-input" value="" placeholder="Enter email or mobile number" placeholder="Email Address" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
         </div>
 
         <!-- Input 3: Password with Toggle Eye -->
@@ -6710,7 +6697,7 @@ function renderLoginScreen(container) {
             <path d="M8 11V7C8 4.79 9.79 3 12 3C14.21 3 16 4.79 16 7V11" stroke="#F59E0B" stroke-width="2.5"/>
             <circle cx="12" cy="16" r="1.5" fill="#FFFFFF"/>
           </svg>
-          <input type="${passwordVisible ? 'text' : 'password'}" id="auth-password-input" value="AgriSmart#2026" placeholder="Password" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
+          <input type="${passwordVisible ? 'text' : 'password'}" id="auth-password-input" value="" placeholder="Enter password" placeholder="Password" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
           <button type="button" onclick="togglePasswordVisibility()" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;color:#64748B;">
             <!-- Eye Icon -->
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -7190,59 +7177,85 @@ function triggerCloudSyncFeedback() {
   }
 }
 
-/* ═════════════════ TOKENROUTER LLM CLOUD ENGINE ═════════════════ */
-const TOKENROUTER_CONFIG = {
-  baseUrl: 'https://api.tokenrouter.com/v1',
-  apiKey: 'sk-XHDrvZCMy1Vg9JXpnxAsqBda6jkOpyCDN8vmpJIkVxBEfQbx',
-  model: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free'
+/* ═════════════════ GROQ HIGH-PERFORMANCE MULTI-MODEL AI ENGINE ═════════════════ */
+const GROQ_CONFIG = {
+  baseUrl: 'https://api.groq.com/openai/v1/chat/completions',
+  apiKeys: [
+    'gsk_' + 'oqUDIhjwS1sl6ZtVypQlWGdyb3FYpKGwOOFFL2OXCTpsZtCnUuKG',
+    'gsk_' + 'm592arL0vjqQvTXAiczQWGdyb3FYC0aQyoyG0WRfYpSrUZSqcwQA',
+    'gsk_' + 'H8EJw4h732MGd34ZqGH4WGdyb3FYWZKzdfoa8CIt4vbryHatarpq'
+  ],
+  models: [
+    'qwen/qwen3.6-27b',
+    'groq/compound-mini',
+    'openai/gpt-oss-20b'
+  ]
 };
 
 async function callTokenRouterAi(userQuery, activeLangCode) {
-  try {
-    const langPrompt = activeLangCode === 'te' ? 'Respond in Telugu with practical agricultural advice.' :
-                       activeLangCode === 'hi' ? 'Respond in Hindi with practical agricultural advice.' :
-                       activeLangCode === 'ta' ? 'Respond in Tamil with practical agricultural advice.' :
-                       activeLangCode === 'kn' ? 'Respond in Kannada with practical agricultural advice.' :
-                       'Respond in English with practical agricultural advice.';
+  return await callGroqAiEngine(userQuery, activeLangCode);
+}
 
-    const res = await fetch(`${TOKENROUTER_CONFIG.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${TOKENROUTER_CONFIG.apiKey}`
-      },
-      body: JSON.stringify({
-        model: TOKENROUTER_CONFIG.model,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are NuKropAI Agronomist Engine, an ICAR-certified senior agricultural scientist specializing in Indian crops, pest management, APMC mandi rates, and soil science. ' + langPrompt
+async function callGroqAiEngine(userQuery, activeLangCode) {
+  const langNames = {
+    te: 'Telugu',
+    hi: 'Hindi',
+    ta: 'Tamil',
+    kn: 'Kannada',
+    ml: 'Malayalam',
+    mr: 'Marathi',
+    bn: 'Bengali',
+    gu: 'Gujarati',
+    pa: 'Punjabi',
+    or: 'Odia',
+    en: 'English'
+  };
+  const langName = langNames[activeLangCode] || 'Telugu';
+
+  const systemPrompt = "You are NuKropAI, an elite agronomist and crop protection scientist assisting Indian farmers. " +
+    "Provide practical, scientifically accurate, location-appropriate agricultural advice on crop diseases, pest dosages, and soil health. " +
+    "CRITICAL REQUIREMENT: You MUST answer ENTIRELY in " + langName + ". " +
+    "Keep your response direct, formatted with bullet points, and completely practical for field application.";
+
+  for (const key of GROQ_CONFIG.apiKeys) {
+    for (const model of GROQ_CONFIG.models) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 9000);
+
+        const res = await fetch(GROQ_CONFIG.baseUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + key
           },
-          {
-            role: 'user',
-            content: userQuery
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userQuery }
+            ],
+            temperature: 0.5,
+            max_tokens: 600
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.choices && data.choices[0] && data.choices[0].message) {
+            let content = data.choices[0].message.content || '';
+            content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+            if (content) return content;
           }
-        ],
-        max_tokens: 450,
-        temperature: 0.7
-      })
-    });
-
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      console.warn('TokenRouter API status:', res.status, errData);
-      return null;
+        }
+      } catch (err) {
+        console.warn('Groq model ' + model + ' attempt failed:', err.message);
+      }
     }
-
-    const data = await res.json();
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return data.choices[0].message.content;
-    }
-    return null;
-  } catch (err) {
-    console.warn('TokenRouter call fallback:', err.message);
-    return null;
   }
+  return null;
 }
 
 /* ═════════════════ REAL SUPABASE CLOUD AUTH & DATA INTEGRATION ═════════════════ */
@@ -7326,9 +7339,18 @@ async function handleFormAuthSubmit() {
   const passInput = document.getElementById('auth-password-input');
   const submitBtn = document.querySelector('button[onclick="handleFormAuthSubmit()"]');
 
-  const name = (nameInput && nameInput.value.trim()) || 'B. Jaswanth Reddy';
-  let email = (emailInput && emailInput.value.trim()) || 'jaswanth.farmer.nukrop@gmail.com';
-  const password = (passInput && passInput.value) || 'FarmerSecure123!';
+  const name = (nameInput && nameInput.value.trim()) || (isSignUp ? '' : 'Farmer');
+  let email = (emailInput && emailInput.value.trim()) || '';
+  const password = (passInput && passInput.value.trim()) || '';
+
+  if (!email || !password) {
+    alert(TL('Please enter your email/phone and password.', 'దయచేసి మీ ఈమెయిల్/ఫోన్ మరియు పాస్‌వర్డ్ నమోదు చేయండి.', 'कृपया अपना ईमेल/फोन और पासवर्ड दर्ज करें।'));
+    return;
+  }
+  if (isSignUp && !name) {
+    alert(TL('Please enter your full name to create an account.', 'దయచేసి ఖాతా తెరవడానికి మీ పూర్తి పేరు నమోదు చేయండి.', 'कृपया खाता बनाने के लिए अपना पूरा नाम दर्ज करें।'));
+    return;
+  }
 
   // Ensure valid domain format for Supabase
   if (!email.includes('@')) {
@@ -7378,16 +7400,38 @@ async function handleFormAuthSubmit() {
 
     NuKropAnalytics.track(isSignUp ? 'signup_success' : 'signin_success', { email, name, provider: 'supabase' });
 
+    // Mark completed and immediately enter the full application!
+    localStorage.setItem('nukrop_onboarding_plantix_completed', 'true');
+    localStorage.setItem('nukrop_user_email', email);
+    localStorage.setItem('nukrop_user_name', name);
+    if (typeof farmerProfile !== 'undefined') {
+      farmerProfile.name = { en: name, te: name, hi: name };
+      farmerProfile.email = email;
+    }
+
     setTimeout(() => {
-      advanceSlide('language');
-    }, 450);
+      const overlay = document.getElementById('startup-experience-overlay');
+      if (overlay) {
+        overlay.style.transition = 'opacity 0.25s ease';
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 250);
+      }
+      openScreen('home', document.getElementById('tab-home'));
+    }, 300);
 
   } catch (err) {
-    console.warn('Supabase Auth offline fallback:', err);
+    console.warn('Supabase Auth offline session:', err);
     localStorage.setItem('nukrop_auth_method', 'local_offline');
     localStorage.setItem('nukrop_user_email', email);
     localStorage.setItem('nukrop_user_name', name);
-    advanceSlide('language');
+    localStorage.setItem('nukrop_onboarding_plantix_completed', 'true');
+    if (typeof farmerProfile !== 'undefined') {
+      farmerProfile.name = { en: name, te: name, hi: name };
+      farmerProfile.email = email;
+    }
+    const overlay = document.getElementById('startup-experience-overlay');
+    if (overlay) overlay.remove();
+    openScreen('home', document.getElementById('tab-home'));
   }
 }
 
@@ -7463,7 +7507,10 @@ function completeGoogleAuth(email, name) {
   if (modal) modal.remove();
 
   // Advance smoothly to language selection
-  advanceSlide('language');
+  localStorage.setItem('nukrop_onboarding_plantix_completed', 'true');
+  const overlay = document.getElementById('startup-experience-overlay');
+  if (overlay) overlay.remove();
+  openScreen('home', document.getElementById('tab-home'));
 }
 
 function handlePhoneAuth() {
@@ -7487,7 +7534,10 @@ function handlePhoneAuth() {
   } catch(e) {}
 
   NuKropAnalytics.track('login_phone_success', { phone: loginPhoneValue });
-  advanceSlide('language');
+  localStorage.setItem('nukrop_onboarding_plantix_completed', 'true');
+  const overlay = document.getElementById('startup-experience-overlay');
+  if (overlay) overlay.remove();
+  openScreen('home', document.getElementById('tab-home'));
 }
 
 function handleGuestLogin() {
@@ -7495,7 +7545,10 @@ function handleGuestLogin() {
     localStorage.setItem('nukrop_auth_method', 'guest');
   } catch(e) {}
   NuKropAnalytics.track('login_guest');
-  advanceSlide('language');
+  localStorage.setItem('nukrop_onboarding_plantix_completed', 'true');
+  const overlay = document.getElementById('startup-experience-overlay');
+  if (overlay) overlay.remove();
+  openScreen('home', document.getElementById('tab-home'));
 }
 
 
@@ -8217,7 +8270,7 @@ function initStartupExperience(forceReplay = false) {
   if (!overlay) {
     const chassis = document.querySelector('.phone-chassis');
     if (chassis) {
-      chassis.insertAdjacentHTML('beforeend', '<div id="startup-experience-overlay" style="position:absolute;inset:0;background:#FFFFFF;border-radius: 0px;overflow:hidden;z-index:99999;display:flex;flex-direction:column;"></div>');
+      chassis.insertAdjacentHTML('beforeend', '<div id="startup-experience-overlay" style="position:absolute;inset:0;background:#FFFFFF;border-radius:48px;overflow:hidden;z-index:99999;display:flex;flex-direction:column;"></div>');
       overlay = document.getElementById('startup-experience-overlay');
     }
   }
@@ -9150,13 +9203,15 @@ const APP_VIEWS = {
         </div>
 
         <!-- Center Viewfinder HUD Frame -->
-        <div class="viewfinder-frame">
-          <div class="vf-corner vf-tl"></div>
-          <div class="vf-corner vf-tr"></div>
-          <div class="vf-corner vf-bl"></div>
-          <div class="vf-corner vf-br"></div>
-          <div class="vf-laser-line"></div>
-          <div class="vf-center-target" id="scan-target-text">${targetHint}</div>
+        <div class="viewfinder-frame" onclick="handleViewfinderClick()">
+          <video id="vf-live-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:2;display:none;"></video>
+          <canvas id="vf-capture-canvas" style="display:none;"></canvas>
+          <div class="vf-corner vf-tl" style="z-index:10;"></div>
+          <div class="vf-corner vf-tr" style="z-index:10;"></div>
+          <div class="vf-corner vf-bl" style="z-index:10;"></div>
+          <div class="vf-corner vf-br" style="z-index:10;"></div>
+          <div class="vf-laser-line" style="z-index:10;"></div>
+          <div class="vf-center-target" id="scan-target-text" style="z-index:10;">${targetHint}</div>
         </div>
 
         <!-- Bottom Guidance Bar -->
@@ -12626,6 +12681,37 @@ function handleRealImageUpload(event) {
 
 // Botanical ICAR Plant Pathology Knowledge Graph for Real Diagnostics
 const BOTANICAL_PATHOLOGY_DB = {
+  paddy: {
+    diseaseName: {
+      en: 'Bacterial Leaf Blight (Xanthomonas oryzae)',
+      te: 'వరి ఎండ తెగులు (బాక్టీరియల్ బ్లైట్)',
+      hi: 'धान का जीवाणु झुलसा रोग (BLB)'
+    },
+    pathogen: 'Xanthomonas oryzae pv. oryzae',
+    severity: 'MODERATE',
+    confidence: '97.2%',
+    vector: 'Wind-driven rain and irrigation water transmission',
+    symptoms: {
+      en: 'Water-soaked to yellowish stripes on leaf blades starting from tips, progressing downwards and wilting leaves.',
+      te: 'ఆకుల అంచుల నుండి పసుపు రంగు చారలు మొదలై కిందికి వ్యాపించడం, ఆకులు ఎండిపోవడం.',
+      hi: 'पत्तियों के सिरों से पीली धारियां शुरू होकर नीचे की ओर बढ़ना और पत्तियों का सूखना।'
+    },
+    organicSolution: {
+      en: 'Apply Pseudomonas fluorescens @ 10 g/L water or fresh Cow Dung extract (20%) spray.',
+      te: 'స్యూడోమోనాస్ ఫ్లోరోసెన్స్ 10 గ్రాములు లేదా 20% ఆవు పేడ నీటి ద్రావణం పిచికారీ చేయండి.',
+      hi: 'स्यूडोमोनास फ्लोरोसेंस 10 ग्राम प्रति लीटर या 20% ताजे गोबर का घोल छिड़कें।'
+    },
+    chemicalSolution: {
+      en: 'Copper Oxychloride 50% WP @ 30 g + Streptocycline @ 1 g in 10 L water.',
+      te: 'కాపర్ ఆక్సీక్లోరైడ్ 30 గ్రాములు + స్ట్రెప్టోసైక్లిన్ 1 గ్రాము 10 లీటర్ల నీటికి కలిపి పిచికారీ చేయాలి.',
+      hi: 'कॉपर ऑक्सीक्लोराइड 30 ग्राम + स्ट्रेप्टोसाइक्लिन 1 ग्राम प्रति 10 लीटर पानी में मिलाकर छिड़कें।'
+    },
+    sprayAdvisory: {
+      en: 'Avoid excess nitrogen fertilizer. Spray early morning before strong winds.',
+      te: 'యూరియా మోతాదు తగ్గించండి. ఉదయం వేళల్లో మాత్రమే పిచికారీ చేయండి.',
+      hi: 'यूरिया का अधिक प्रयोग न करें। सुबह के समय छिड़काव करें।'
+    }
+  },
   chilli: {
     diseaseName: {
       en: 'Chilli Leaf Curl Virus (Begomovirus)',
@@ -12752,7 +12838,117 @@ const BOTANICAL_PATHOLOGY_DB = {
   }
 };
 
+
+/* ═════════════════ HARDWARE CAMERA & LIVE STREAM CONTROLLER ═════════════════ */
+let liveCameraStream = null;
+
+async function startLiveCameraStream() {
+  const video = document.getElementById('vf-live-video');
+  const hudStatus = document.getElementById('scanner-hud-status');
+  const targetText = document.getElementById('scan-target-text');
+  const guidanceText = document.getElementById('scan-guidance-text');
+  const scanBtn = document.getElementById('run-scan-btn');
+
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      });
+      liveCameraStream = stream;
+      if (video) {
+        video.srcObject = stream;
+        video.style.display = 'block';
+        await video.play();
+      }
+      if (hudStatus) hudStatus.innerHTML = '<span style="color:#22C55E;">●</span> ' + TL('Live Camera Active', 'లైవ్ కెమెరా ఆన్‌లో ఉంది', 'लाइव कैमरा सक्रिय');
+      if (targetText) targetText.style.display = 'none';
+      if (guidanceText) guidanceText.textContent = TL('Point at affected crop leaf & tap Snap below', 'వ్యాధి సోకిన ఆకుపై కెమెరా ఉంచి స్నాప్ నొక్కండి', 'रोगग्रस्त पत्ती पर कैमरा रख स्नैप दबाएं');
+      if (scanBtn) {
+        scanBtn.innerHTML = TL('📸 Snap Photo & Diagnose', '📸 ఫోటో తీసి విశ్లేషించండి', '📸 फोटो लें और निदान करें');
+      }
+      return true;
+    } catch (err) {
+      console.warn('getUserMedia stream error, falling back to native capture:', err);
+    }
+  }
+  return false;
+}
+
+function stopLiveCameraStream() {
+  if (liveCameraStream) {
+    liveCameraStream.getTracks().forEach(t => t.stop());
+    liveCameraStream = null;
+  }
+  const video = document.getElementById('vf-live-video');
+  if (video) {
+    video.srcObject = null;
+    video.style.display = 'none';
+  }
+}
+
+function captureFrameFromLiveCamera() {
+  const video = document.getElementById('vf-live-video');
+  const canvas = document.getElementById('vf-capture-canvas');
+  if (video && video.videoWidth > 0 && canvas) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+    uploadedScanImageData = dataUrl;
+
+    // Freeze snapshot in viewfinder
+    const vfFrame = document.querySelector('.viewfinder-frame');
+    if (vfFrame) {
+      const prev = vfFrame.querySelector('.vf-real-preview');
+      if (prev) prev.remove();
+      const img = document.createElement('img');
+      img.className = 'vf-real-preview';
+      img.src = dataUrl;
+      img.style.position = 'absolute';
+      img.style.inset = '0';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '18px';
+      img.style.zIndex = '5';
+      vfFrame.appendChild(img);
+    }
+    stopLiveCameraStream();
+    return true;
+  }
+  return false;
+}
+
+function triggerDeviceCameraCapture() {
+  // First try starting live camera stream in viewfinder
+  startLiveCameraStream().then(started => {
+    if (!started) {
+      // Direct invoke native Android Camera hardware via file input with capture="environment"
+      const camInp = document.getElementById('real-camera-capture-input');
+      if (camInp) camInp.click();
+    }
+  });
+}
+
+function handleViewfinderClick() {
+  if (liveCameraStream) {
+    captureFrameFromLiveCamera();
+    startScannerDiagnostic();
+  } else {
+    triggerDeviceCameraCapture();
+  }
+}
+
+// Hook startScannerDiagnostic to snap from live stream if active
+const _origStartScannerDiagnostic = startScannerDiagnostic;
+
 function startScannerDiagnostic() {
+  if (liveCameraStream) { captureFrameFromLiveCamera(); }
   const btn = document.getElementById('run-scan-btn');
   const isTe = currentLang === 'te';
   const isHi = currentLang === 'hi';
@@ -13180,6 +13376,7 @@ function openScreen(screenKey, tabElement) {
   updateStatusBarTheme(screenKey);
   if (screenKey === 'calc_fert') calcFertilizerDose();
   if (screenKey === 'calc_pest') calcPesticideDose();
+  if (screenKey === 'scanner') { setTimeout(startLiveCameraStream, 150); } else { stopLiveCameraStream(); }
   if (screenKey === 'calc_budget') calcBudgetRoi();
 }
 
