@@ -28,38 +28,30 @@
   height: 0 !important;
 }
 
-html, body {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  background: #F8FAF8 !important;
-  font-family: 'Plus Jakarta Sans', 'Noto Sans Telugu', 'Noto Sans Devanagari', sans-serif !important;
-  color: #0F172A !important;
-  -webkit-font-smoothing: antialiased !important;
-  -webkit-tap-highlight-color: transparent !important;
+body {
+  background: transparent;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans Telugu', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 12px;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ═════════════════ SMARTPHONE EMULATOR CHASSIS ═════════════════ */
 .phone-chassis {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-  background: #F8FAF8 !important;
-  border-radius: 0px !important;
-  box-shadow: none !important;
-  border: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  position: fixed !important;
-  inset: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  width: 390px;
+  height: 844px;
+  background: #F8FAF8;
+  border-radius: 48px;
+  box-shadow:
+    0 0 0 10px #0F172A,
+    0 0 0 12px #334155,
+    0 40px 90px -15px rgba(0,0,0,0.65),
+    0 20px 40px -10px rgba(15,23,42,0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .system-status-bar { display: none !important; width: 0 !important; height: 0 !important; visibility: hidden !important; pointer-events: none !important; }
@@ -517,7 +509,18 @@ h1, h2, h3 { letter-spacing: -0.3px; }
   }
 </style>
 
-<style id="apk-pure-mobile-overrides">
+<style id="apk-pure-mobile-layer">
+  /* 1. Hide desktop side panel completely on mobile devices */
+  .side-panel-container {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* 2. Hide fake simulated HTML status bar (Android displays its own native status bar) */
   .system-status-bar {
     display: none !important;
     width: 0 !important;
@@ -526,24 +529,39 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     visibility: hidden !important;
     pointer-events: none !important;
   }
-  .side-panel-container, .panel-card-box, #side-nav-group {
-    display: none !important;
-    visibility: hidden !important;
-    width: 0 !important;
-    height: 0 !important;
-    pointer-events: none !important;
-  }
+
+  /* 3. Phone Chassis fills entire mobile viewport */
   .phone-chassis {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    border: none !important;
     position: fixed !important;
     inset: 0 !important;
-    padding-top: max(env(safe-area-inset-top, 0px), 6px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #F8FAF8 !important;
+    padding-top: max(env(safe-area-inset-top, 0px), 4px) !important;
   }
+
+  /* 4. Root HTML & Body styling */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+    background: #F8FAF8 !important;
+    font-family: 'Plus Jakarta Sans', 'Noto Sans Telugu', 'Noto Sans Devanagari', sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* 5. Overlay full bleed */
   #startup-experience-overlay {
     border-radius: 0 !important;
   }
@@ -552,14 +570,24 @@ h1, h2, h3 { letter-spacing: -0.3px; }
 </head>
 <body>
 
-<!-- ═════════════════ ANDROID PHONE CHASSIS ═════════════════ -->
+<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
+
+  <!-- ═════════════════ ANDROID PHONE CHASSIS ═════════════════ -->
     <div class="phone-chassis">
     <!-- STATIC STARTUP EXPERIENCE OVERLAY (MATCHING SCREENSHOTS) -->
     <div id="startup-experience-overlay" style="position:absolute;inset:0;background:#FFFFFF;border-radius:48px;overflow:hidden;z-index:99999;display:flex;flex-direction:column;">
       <!-- Populated immediately by renderPlantixFlow() -->
     </div>
     <!-- Status Bar -->
-    
+    <div class="system-status-bar">
+      <span>11:31</span>
+      <div style="display:flex;gap:5px;align-items:center;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2"><path d="M1.5 8.5C5 5 9.5 3 12 3s7 2 10.5 5.5"/><path d="M5 12c2-2 4.5-3 7-3s5 1 7 3"/><path d="M8.5 15.5c.9-.9 2.1-1.5 3.5-1.5s2.6.6 3.5 1.5"/><circle cx="12" cy="19" r="1" fill="#0F172A"/></svg>
+        <span style="font-size:10px;font-weight:800;">5G+</span>
+        <svg width="18" height="11" viewBox="0 0 24 14" fill="none"><rect x="0" y="1" width="20" height="12" rx="2" stroke="#0F172A" stroke-width="1.5"/><rect x="2" y="3" width="12" height="8" rx="1" fill="#1B5E20"/><rect x="20" y="5" width="3" height="5" rx="1" fill="#0F172A" opacity="0.5"/></svg>
+        <span style="font-size:10px;font-weight:800;">83%</span>
+      </div>
+    </div>
 
     <!-- Global Floating In-App Push Notification Banner -->
     <div id="global-push-toast" style="display:none;position:absolute;top:40px;left:12px;right:12px;background:#0F172A;color:#FFFFFF;border-radius:16px;padding:12px 14px;box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:9999;border:1.2px solid rgba(255,255,255,0.18);animation:toastDropIn 0.35s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
@@ -1066,7 +1094,41 @@ h1, h2, h3 { letter-spacing: -0.3px; }
   </div>
 
   <!-- ═════════════════ SIDEBAR CONTROLLER ═════════════════ -->
-  
+  <div class="side-panel-container">
+    <div class="panel-card-box">
+      <div class="panel-card-title">
+        <span>Production Verification</span>
+        <span style="background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:6px;font-size:9px;font-weight:800;">INTERACTIVE SPRAY MODAL</span>
+      </div>
+      <div style="font-size:11px;display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Language</span><span style="font-weight:800;color:#15803D;" id="side-cur-lang">తెలుగు (Telugu)</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Location</span><span style="font-weight:800;" id="side-loc-name">వరంగల్, తెలంగాణ</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Spraying Pill</span><span style="font-weight:800;color:#15803D;">Knapsack Man Icon</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Full Details</span><span style="font-weight:800;color:#EA580C;">Tap to Expand Modal</span></div>
+      </div>
+    </div>
+
+    <div class="panel-card-box">
+      <div class="panel-card-title">
+        <span>Feature Navigator</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr;gap:6px;" id="side-nav-group">
+        <button class="panel-nav-btn active" id="btn-home" onclick="openScreen('home',null);syncSideNav('btn-home')">🏠 Home Dashboard</button>
+        <button class="panel-nav-btn" id="btn-scanner" onclick="openScreen('scanner',null);syncSideNav('btn-scanner')">🔬 AI Crop &amp; Soil Scanner</button>
+        <button class="panel-nav-btn" id="btn-market" onclick="openScreen('market',null);syncSideNav('btn-market')">📊 Live Mandi Rates</button>
+        <button class="panel-nav-btn" id="btn-gramhaul" onclick="openScreen('gramhaul',null);syncSideNav('btn-gramhaul')">🚚 Mandi Truck Sharing</button>
+        <button class="panel-nav-btn" id="btn-agristack" onclick="openScreen('agristack',null);syncSideNav('btn-agristack')">🪪 Farmer ID &amp; Credit</button>
+        <button class="panel-nav-btn" id="btn-equipment" onclick="openScreen('equipment',null);syncSideNav('btn-equipment')">🚜 Rent Machinery</button>
+        <button class="panel-nav-btn" id="btn-loan" onclick="openScreen('loan',null);syncSideNav('btn-loan')">💰 Loans &amp; Subsidies</button>
+        <button class="panel-nav-btn" id="btn-chat" onclick="openScreen('chat',null);syncSideNav('btn-chat')">🤖 24/7 AI Farm Advisor</button>
+        <button class="panel-nav-btn" id="btn-khata" onclick="openScreen('khata',null);syncSideNav('btn-khata')">🧾 Farm Khata Ledger</button>
+        <button class="panel-nav-btn" id="btn-bioshield" onclick="openScreen('bioshield',null);syncSideNav('btn-bioshield')">🚨 Pest &amp; Disease Alerts</button>
+        <button class="panel-nav-btn" id="btn-biorx" onclick="openScreen('biorx',null);syncSideNav('btn-biorx')">🌿 Organic Bio-Medicines</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ═════════════════ SAFE DOM UTILITY HELPERS ═════════════════ */
 function safeSetText(id, text) {
@@ -3400,6 +3462,17 @@ function simulatePriceAlertTrigger(alertId) {
 
 function showPushNotificationToast(payload) {
   lastToastPayload = payload;
+  
+  // Real Android System Notification (appears in phone status bar & lock screen like a message)
+  try {
+    if (window.AndroidBridge && typeof window.AndroidBridge.postSystemNotification === 'function') {
+      const sysTitle = (payload && payload.title) || 'NuKropAI Notification';
+      const sysMsg = (payload && payload.msg) || '';
+      window.AndroidBridge.postSystemNotification(sysTitle, sysMsg);
+    }
+  } catch(errSys) {
+    console.warn('Native notification bridge error:', errSys);
+  }
   const toast = document.getElementById('global-push-toast');
   const titleEl = document.getElementById('toast-title');
   const msgEl = document.getElementById('toast-msg');

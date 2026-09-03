@@ -3403,6 +3403,17 @@ function simulatePriceAlertTrigger(alertId) {
 
 function showPushNotificationToast(payload) {
   lastToastPayload = payload;
+  
+  // Real Android System Notification (appears in phone status bar & lock screen like a message)
+  try {
+    if (window.AndroidBridge && typeof window.AndroidBridge.postSystemNotification === 'function') {
+      const sysTitle = (payload && payload.title) || 'NuKropAI Notification';
+      const sysMsg = (payload && payload.msg) || '';
+      window.AndroidBridge.postSystemNotification(sysTitle, sysMsg);
+    }
+  } catch(errSys) {
+    console.warn('Native notification bridge error:', errSys);
+  }
   const toast = document.getElementById('global-push-toast');
   const titleEl = document.getElementById('toast-title');
   const msgEl = document.getElementById('toast-msg');
