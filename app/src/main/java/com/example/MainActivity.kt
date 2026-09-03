@@ -3,12 +3,17 @@ package com.example
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.View
 import android.view.ViewGroup
@@ -49,6 +54,30 @@ class MainActivity : ComponentActivity() {
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var cameraPhotoUri: Uri? = null
 
+    inner class WebAppInterface {
+        @JavascriptInterface
+        fun requestDeviceLocation() {
+            runOnUiThread {
+                fetchAndSendLocationToWebView()
+            }
+        }
+
+        @JavascriptInterface
+        fun requestNativePermissions() {
+            runOnUiThread {
+                val permissions = mutableListOf(
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                permissionLauncher.launch(permissions.toTypedArray())
+            }
+        }
+    }
+
     private val fileChooserLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -77,9 +106,49 @@ class MainActivity : ComponentActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        // Notify webview if camera permission status changed
         if (permissions[Manifest.permission.CAMERA] == true) {
             webView.evaluateJavascript("if (typeof onNativeCameraPermissionGranted === 'function') onNativeCameraPermissionGranted();", null)
+        }
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+            fetchAndSendLocationToWebView()
+        }
+    }
+
+    fun fetchAndSendLocationToWebView() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
+
+            // 1. Immediately send best cached location
+            val lastGps = try { locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) } catch (e: Exception) { null }
+            val lastNet = try { locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) } catch (e: Exception) { null }
+            val bestLocation = lastGps ?: lastNet
+
+            if (bestLocation != null) {
+                val lat = bestLocation.latitude
+                val lon = bestLocation.longitude
+                runOnUiThread {
+                    webView.evaluateJavascript("if (typeof onNativeLocationReceived === 'function') onNativeLocationReceived($lat, $lon);", null)
+                }
+            }
+
+            // 2. Also request fresh hardware GPS fix
+            try {
+                val provider = if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) LocationManager.GPS_PROVIDER else LocationManager.NETWORK_PROVIDER
+                locationManager.requestSingleUpdate(provider, object : LocationListener {
+                    override fun onLocationChanged(loc: Location) {
+                        runOnUiThread {
+                            webView.evaluateJavascript("if (typeof onNativeLocationReceived === 'function') onNativeLocationReceived(${loc.latitude}, ${loc.longitude});", null)
+                        }
+                    }
+                    @Deprecated("Deprecated in Java")
+                    override fun onStatusChanged(p: String?, s: Int, b: Bundle?) {}
+                    override fun onProviderEnabled(p: String) {}
+                    override fun onProviderDisabled(p: String) {}
+                }, Looper.getMainLooper())
+            } catch (e: Exception) {
+                // Ignore fallback
+            }
         }
     }
 
@@ -138,6 +207,9 @@ class MainActivity : ComponentActivity() {
                 setSupportMultipleWindows(true)
                 javaScriptCanOpenWindowsAutomatically = true
             }
+
+            // Expose native bridge to Javascript
+            addJavascriptInterface(WebAppInterface(), "AndroidBridge")
 
             webChromeClient = object : WebChromeClient() {
                 // Auto-grant Camera & Microphone for live crop scanner stream
@@ -245,6 +317,11 @@ class MainActivity : ComponentActivity() {
                         return true
                     }
                 }
+
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    fetchAndSendLocationToWebView()
+                }
             }
 
             loadUrl("file:///android_asset/index.html")
@@ -262,10 +339,10 @@ class MainActivity : ComponentActivity() {
                       if (typeof stopLiveCameraStream === 'function') {
                         stopLiveCameraStream();
                       }
-                      const modals = document.querySelectorAll('[id$="-modal"], .modal-overlay, #farmer-logout-confirm-modal');
+                      const modals = document.querySelectorAll('[id$="-modal"], .custom-modal-overlay');
                       for (let m of modals) {
-                        if (m && m.style.display !== 'none') {
-                          m.remove();
+                        if (m && m.style.display === 'flex') {
+                          m.style.display = 'none';
                           return true;
                         }
                       }
@@ -295,6 +372,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         webView.onResume()
+        fetchAndSendLocationToWebView()
     }
 
     override fun onPause() {

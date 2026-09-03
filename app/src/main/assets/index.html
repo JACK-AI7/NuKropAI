@@ -250,10 +250,45 @@ html, body {
   box-shadow: 0 0 0 3px rgba(0,168,107,0.08) !important;
 }
 
-/* Premium ticker */
+/* Premium horizontal marquee ticker */
 .news-ticker-wrap {
-  background: linear-gradient(90deg, #0B1929 0%, #0F2434 100%) !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+  background: transparent !important;
+  height: 34px !important;
+  width: 100% !important;
+  position: relative !important;
 }
+
+.news-ticker-track {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  gap: 14px !important;
+  animation: newsTickerScroll 32s linear infinite !important;
+  will-change: transform !important;
+}
+
+.news-ticker-track:hover {
+  animation-play-state: paused !important;
+}
+
+@keyframes newsTickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-rate-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
 
 /* Live alert chip */
 .live-alert-chip {
@@ -5536,7 +5571,67 @@ function toggleScannerFlash(btn) {
   }
 }
 
+
+/* ═════════════════ NATIVE HARDWARE GPS & WEATHER ENGINE ═════════════════ */
+window.onNativeLocationReceived = async function(lat, lon) {
+  console.log('Hardware GPS Location Received from Android:', lat, lon);
+  try {
+    // 1. Reverse Geocode for real District, Town, and State
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    if (geoRes.ok) {
+      const geoData = await geoRes.json();
+      const addr = geoData.address || {};
+      const district = addr.state_district || addr.county || addr.city || addr.town || addr.village || 'Your Farm';
+      const state = addr.state || 'Telangana';
+      const fullLoc = district + ', ' + state;
+      liveWeather.locationName = { en: fullLoc, te: fullLoc, hi: fullLoc };
+      
+      const titleEl = document.getElementById('w-loc-title');
+      if (titleEl) titleEl.textContent = fullLoc;
+    }
+
+    // 2. Exact Open-Meteo weather for this coordinate
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation,weather_code&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=auto`;
+    const wRes = await fetch(weatherUrl);
+    if (wRes.ok) {
+      const wData = await wRes.json();
+      const cur = wData.current;
+      const daily = wData.daily;
+      if (cur) {
+        liveWeather.temp = Math.round(cur.temperature_2m) + '°C';
+        liveWeather.humidity = Math.round(cur.relative_humidity_2m);
+        liveWeather.wind = Math.round(cur.wind_speed_10m) + ' km/h';
+        liveWeather.pressure = Math.round(cur.surface_pressure) + ' hpa';
+        liveWeather.rainfall = (cur.precipitation || 0) + ' mm';
+      }
+      if (daily && daily.temperature_2m_max && daily.temperature_2m_max[0]) {
+        liveWeather.high = Math.round(daily.temperature_2m_max[0]) + '°C';
+        liveWeather.low = Math.round(daily.temperature_2m_min[0]) + '°C';
+      }
+    }
+
+    // Update Home screen weather UI in-place
+    if (typeof currentScreenKey !== 'undefined' && currentScreenKey === 'home') {
+      const titleEl = document.getElementById('w-loc-title');
+      if (titleEl) titleEl.textContent = liveWeather.locationName[currentLang] || liveWeather.locationName.en;
+      const tempEl = document.querySelector('.weather-main-temp');
+      if (tempEl) tempEl.textContent = liveWeather.temp;
+    }
+
+    showPushNotificationToast({
+      title: '📍 ' + TL('Exact GPS Location Acquired', 'ఖచ్చితమైన GPS లొకేషన్ నమోదైంది', 'सटीक जीपीएस स्थान प्राप्त'),
+      msg: (liveWeather.locationName[currentLang] || liveWeather.locationName.en) + ' · ' + liveWeather.temp,
+      type: 'weather'
+    });
+  } catch(e) {
+    console.warn('onNativeLocationReceived processing error:', e);
+  }
+};
+
 async function fetchRealLocationAndWeather() {
+  if (window.AndroidBridge && window.AndroidBridge.requestDeviceLocation) { window.AndroidBridge.requestDeviceLocation(); }
   const icon = document.getElementById('w-refresh-icon');
   if (icon) icon.classList.add('spin-anim');
 
@@ -6361,7 +6456,7 @@ function renderSplashScreen(container) {
       }
 
       setTimeout(() => {
-        advanceSlide('login');
+        advanceSlide('language');
       }, 500);
     }
   }, 38);
@@ -8586,8 +8681,9 @@ const APP_VIEWS = {
       </div>
 
       <!-- Marquee Infinite Scrolling Stream (Smooth 60fps Loop) -->
-      <div class="news-ticker-wrap" style="flex:1;min-width:0;">
+      <div class="news-ticker-wrap" style="flex:1;min-width:0;overflow:hidden;">
         <div class="news-ticker-track">
+          ${getLiveMarketTickerHtml()}
           ${getLiveMarketTickerHtml()}
         </div>
       </div>
