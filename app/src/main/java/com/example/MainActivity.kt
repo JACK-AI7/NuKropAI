@@ -135,6 +135,8 @@ class MainActivity : ComponentActivity() {
                 builtInZoomControls = false
                 displayZoomControls = false
                 setGeolocationEnabled(true)
+                setSupportMultipleWindows(true)
+                javaScriptCanOpenWindowsAutomatically = true
             }
 
             webChromeClient = object : WebChromeClient() {
@@ -151,6 +153,30 @@ class MainActivity : ComponentActivity() {
                     callback: GeolocationPermissions.Callback
                 ) {
                     callback.invoke(origin, true, false)
+                }
+
+                // Handle window.open to launch device browser for government schemes & external portals
+                override fun onCreateWindow(
+                    view: WebView?,
+                    isDialog: Boolean,
+                    isUserGesture: Boolean,
+                    resultMsg: android.os.Message?
+                ): Boolean {
+                    val transport = resultMsg?.obj as? WebView.WebViewTransport ?: return false
+                    val tempWebView = WebView(this@MainActivity)
+                    tempWebView.webViewClient = object : WebViewClient() {
+                        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                            val targetUrl = request?.url?.toString() ?: return false
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(targetUrl))
+                                startActivity(intent)
+                            } catch (e: Exception) {}
+                            return true
+                        }
+                    }
+                    transport.webView = tempWebView
+                    resultMsg.sendToTarget()
+                    return true
                 }
 
                 // Native Camera Snap & File Chooser for Scanner
@@ -206,16 +232,18 @@ class MainActivity : ComponentActivity() {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     val url = request?.url?.toString() ?: return false
-                    if (url.startsWith("tel:") || url.startsWith("mailto:") || url.startsWith("whatsapp:")) {
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                            startActivity(intent)
-                            return true
-                        } catch (e: Exception) {
-                            return true
-                        }
+                    // Keep internal app assets inside local WebView
+                    if (url.startsWith("file:///android_asset/") || url.startsWith("file:///android_res/")) {
+                        return false
                     }
-                    return false
+                    // For ANY external link (http, https, tel, mailto, whatsapp): launch device browser/app!
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        startActivity(intent)
+                        return true
+                    } catch (e: Exception) {
+                        return true
+                    }
                 }
             }
 
