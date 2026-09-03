@@ -289,6 +289,66 @@ h1, h2, h3 { letter-spacing: -0.3px; }
   color: inherit;
 }
 
+
+/* ═════════════════ ENTERPRISE MODAL OVERLAY & BOTTOM SHEET SYSTEM ═════════════════ */
+.custom-modal-overlay {
+  display: none !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+  z-index: 99999 !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.custom-modal-overlay.active,
+.custom-modal-overlay[style*="display: flex"],
+.custom-modal-overlay[style*="display:flex"] {
+  display: flex !important;
+}
+
+.custom-modal-overlay[style*="display: none"],
+.custom-modal-overlay[style*="display:none"],
+.custom-modal-overlay:not([style*="display: flex"]):not([style*="display:flex"]):not(.active) {
+  display: none !important;
+}
+
+.custom-modal-sheet {
+  background: #FFFFFF !important;
+  width: 100% !important;
+  max-width: 480px !important;
+  max-height: 85vh !important;
+  border-top-left-radius: 26px !important;
+  border-top-right-radius: 26px !important;
+  padding: 20px 18px 34px !important;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.28) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  position: relative !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+  animation: modalSheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes modalSheetSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 </style>
 
 <!-- Leaflet.js Real OpenStreetMap Integration -->
@@ -467,7 +527,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- "Select your crops" Modal Sheet (Full 120+ OpenFarm Library) -->
-    <div id="crop-modal" class="custom-modal-overlay" onclick="closeCropModal(event)">
+    <div id="crop-modal" class="custom-modal-overlay" style="display:none;" onclick="closeCropModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()">
         <div style="margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -493,7 +553,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- ═════════════════ DEDICATED FULL SPRAYING ADVISORY MODAL SHEET ═════════════════ -->
-    <div id="spraying-modal" class="custom-modal-overlay" onclick="closeSprayingModal(event)">
+    <div id="spraying-modal" class="custom-modal-overlay" style="display:none;" onclick="closeSprayingModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()">
         <!-- Modal Top Bar -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
@@ -527,7 +587,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- Machinery Interactive Booking Modal -->
-    <div id="machinery-booking-modal" class="custom-modal-overlay" onclick="closeMachineryModal(event)">
+    <div id="machinery-booking-modal" class="custom-modal-overlay" style="display:none;" onclick="closeMachineryModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -545,7 +605,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- Machinery "+ List My Own Equipment" Modal -->
-    <div id="machinery-listing-modal" class="custom-modal-overlay" onclick="closeMachineryListingModal(event)">
+    <div id="machinery-listing-modal" class="custom-modal-overlay" style="display:none;" onclick="closeMachineryListingModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:88vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -563,7 +623,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- Farm Khata New Transaction Modal -->
-    <div id="khata-entry-modal" class="custom-modal-overlay" onclick="closeKhataModal(event)">
+    <div id="khata-entry-modal" class="custom-modal-overlay" style="display:none;" onclick="closeKhataModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -581,7 +641,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- GramHaul Shared Mandi Truck Booking Modal -->
-    <div id="truck-booking-modal" class="custom-modal-overlay" onclick="closeTruckBookingModal(event)">
+    <div id="truck-booking-modal" class="custom-modal-overlay" style="display:none;" onclick="closeTruckBookingModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -599,7 +659,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- BioRx Organic Medicine Full Recipe & Voice Readout Modal -->
-    <div id="biorx-recipe-modal" class="custom-modal-overlay" onclick="closeBioRxModal(event)">
+    <div id="biorx-recipe-modal" class="custom-modal-overlay" style="display:none;" onclick="closeBioRxModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:88vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -617,7 +677,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- ═════════════════ REAL AGMARKNET PRICE TREND & HISTORICAL ANALYTICS MODAL ═════════════════ -->
-    <div id="price-trend-modal" class="custom-modal-overlay" onclick="closePriceTrendModal(event)">
+    <div id="price-trend-modal" class="custom-modal-overlay" style="display:none;" onclick="closePriceTrendModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -635,7 +695,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- ═════════════════ PRICE INCREASE & TARGET ALERT CONFIGURATION MODAL ═════════════════ -->
-    <div id="price-alert-modal" class="custom-modal-overlay" onclick="closePriceAlertModal(event)">
+    <div id="price-alert-modal" class="custom-modal-overlay" style="display:none;" onclick="closePriceAlertModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -656,7 +716,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     
     
     <!-- ═════════════════ EDIT FARMER PROFILE MODAL ═════════════════ -->
-    <div id="profile-edit-modal" class="custom-modal-overlay" onclick="closeEditProfileModal()">
+    <div id="profile-edit-modal" class="custom-modal-overlay" style="display:none;" onclick="closeEditProfileModal()">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -694,7 +754,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- ═════════════════ SOIL HEALTH CARD MODAL ═════════════════ -->
-    <div id="soil-health-modal" class="custom-modal-overlay" onclick="closeSoilHealthModal()">
+    <div id="soil-health-modal" class="custom-modal-overlay" style="display:none;" onclick="closeSoilHealthModal()">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -740,7 +800,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- ═════════════════ PRIVACY POLICY & DPDP ACT MODAL ═════════════════ -->
-    <div id="privacy-policy-modal" class="custom-modal-overlay" onclick="closePrivacyPolicyModal()">
+    <div id="privacy-policy-modal" class="custom-modal-overlay" style="display:none;" onclick="closePrivacyPolicyModal()">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -771,7 +831,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- ═════════════════ TERMS OF SERVICE MODAL ═════════════════ -->
-    <div id="terms-service-modal" class="custom-modal-overlay" onclick="closeTermsServiceModal()">
+    <div id="terms-service-modal" class="custom-modal-overlay" style="display:none;" onclick="closeTermsServiceModal()">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -799,7 +859,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
 
 
     <!-- ═════════════════ KISAN COMMUNITY NEW QUESTION / POST MODAL ═════════════════ -->
-    <div id="community-ask-modal" class="custom-modal-overlay" onclick="closeAskQuestionModal(event)">
+    <div id="community-ask-modal" class="custom-modal-overlay" style="display:none;" onclick="closeAskQuestionModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -863,7 +923,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- ═════════════════ SPRAYING SAFETY & WEATHER WINDOW MODAL ═════════════════ -->
-    <div id="spray-modal" class="custom-modal-overlay" onclick="closeSprayModal(event)">
+    <div id="spray-modal" class="custom-modal-overlay" style="display:none;" onclick="closeSprayModal(event)">
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:86vh;overflow-y:auto;padding-bottom:32px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
