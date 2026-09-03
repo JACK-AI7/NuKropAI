@@ -3403,6 +3403,19 @@ function simulatePriceAlertTrigger(alertId) {
 
 function showPushNotificationToast(payload) {
   lastToastPayload = payload;
+  const sysTitle = (payload && payload.title) || 'NuKropAI Notification';
+  const sysMsg = (payload && payload.msg) || '';
+
+  // 1. Post Real Native Android OS Notification in phone status bar / lock screen
+  if (window.AndroidBridge && typeof window.AndroidBridge.postSystemNotification === 'function') {
+    try {
+      window.AndroidBridge.postSystemNotification(sysTitle, sysMsg);
+    } catch(e) {
+      console.warn('postSystemNotification failed:', e);
+    }
+    // STRICT USER REQUIREMENT: In mobile app, NEVER display HTML in-app messages! Only real Android notifications!
+    return;
+  }
   
   // Real Android System Notification (appears in phone status bar & lock screen like a message)
   try {
@@ -6483,42 +6496,39 @@ let passwordVisible = false;
 
 function get4kLeafSvg(sizePx = 44) {
   return `
-    <svg width="${sizePx}" height="${sizePx}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;filter:drop-shadow(0 3px 6px rgba(16,185,129,0.25));">
+    <svg width="${sizePx}" height="${sizePx}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;filter:drop-shadow(0 3px 6px rgba(16,185,129,0.32));">
       <defs>
-        <linearGradient id="nukropLeafGrad4k" x1="15" y1="85" x2="85" y2="15" gradientUnits="userSpaceOnUse">
+        <linearGradient id="nukropLeafGradExact" x1="18" y1="82" x2="82" y2="18" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stop-color="#059669"/>
-          <stop offset="35%" stop-color="#10B981"/>
-          <stop offset="70%" stop-color="#22C55E"/>
+          <stop offset="28%" stop-color="#10B981"/>
+          <stop offset="68%" stop-color="#22C55E"/>
           <stop offset="100%" stop-color="#4ADE80"/>
         </linearGradient>
-        <linearGradient id="leafVeinGrad4k" x1="18" y1="82" x2="82" y2="18" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
-          <stop offset="50%" stop-color="#F0FDF4" stop-opacity="1"/>
-          <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.95"/>
-        </linearGradient>
-        <filter id="hdrVeinGlow" x="0" y="0" width="100" height="100" filterUnits="userSpaceOnUse">
-          <feDropShadow dx="0" dy="0" stdDeviation="0.8" flood-color="#FFFFFF" flood-opacity="0.8"/>
+        <filter id="leafGlowExact" x="0" y="0" width="100" height="100" filterUnits="userSpaceOnUse">
+          <feDropShadow dx="0" dy="0" stdDeviation="1.2" flood-color="#FFFFFF" flood-opacity="0.9"/>
         </filter>
       </defs>
 
-      <!-- 4K Diagonal Leaf Contour Matching Official Brand Logo -->
+      <!-- Exact Botanical Leaf Contour (matching media_1788415051841.png) -->
       <path d="M 18 82 
-               C 14 62, 28 32, 82 18 
-               C 86 38, 72 68, 18 82 Z" 
-            fill="url(#nukropLeafGrad4k)"/>
+               C 13 54, 38 22, 82 18 
+               C 87 46, 62 78, 18 82 Z" 
+            fill="url(#nukropLeafGradExact)"/>
 
-      <!-- Center White Vein Curve -->
-      <path d="M 21 79 Q 46 48 79 21" 
-            stroke="url(#leafVeinGrad4k)" 
-            stroke-width="3.5" 
+      <!-- Clean Crisp White Center Vein -->
+      <path d="M 22 78 Q 48 48 78 22" 
+            stroke="#FFFFFF" 
+            stroke-width="3.8" 
             stroke-linecap="round" 
-            filter="url(#hdrVeinGlow)"/>
+            filter="url(#leafGlowExact)"/>
 
-      <!-- Subtle Delicate Sub-Veins for High-Res Depth -->
-      <path d="M 38 60 Q 42 54 48 57" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
-      <path d="M 50 48 Q 54 42 60 45" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
-      <path d="M 48 57 Q 44 63 38 60" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
-      <path d="M 60 45 Q 56 51 50 48" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
+      <!-- Water Droplet 1 -->
+      <circle cx="58" cy="42" r="3.4" stroke="#D1FAE5" stroke-width="1.3" fill="rgba(255,255,255,0.45)"/>
+      <circle cx="57" cy="41" r="1" fill="#FFFFFF"/>
+
+      <!-- Water Droplet 2 -->
+      <circle cx="47" cy="54" r="2.6" stroke="#D1FAE5" stroke-width="1.2" fill="rgba(255,255,255,0.45)"/>
+      <circle cx="46.2" cy="53.2" r="0.8" fill="#FFFFFF"/>
     </svg>
   `;
 }
@@ -7344,59 +7354,12 @@ async function handleFormAuthSubmit() {
 
 
 function handleGoogleLogin() {
-  NuKropAnalytics.track('login_google_initiated');
-
-  // Show authentic Google Account confirmation modal
-  const overlay = document.getElementById('startup-experience-overlay');
-  if (!overlay) return;
-
-  const modalHtml = `
-    <div id="google-auth-modal" style="position:absolute;inset:0;background:rgba(15,23,42,0.6);z-index:100000;display:flex;align-items:flex-end;animation:nuKropFadeIn 0.2s ease;">
-      <div style="width:100%;background:#FFFFFF;border-radius:24px 24px 0 0;padding:24px 20px;box-sizing:border-box;box-shadow:0 -10px 40px rgba(0,0,0,0.2);">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <svg width="24" height="24" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            <span style="font-size:15px;font-weight:800;color:#0F172A;">Sign in with Google</span>
-          </div>
-          <button onclick="document.getElementById('google-auth-modal').remove()" style="background:none;border:none;font-size:18px;color:#64748B;cursor:pointer;">✕</button>
-        </div>
-
-        <div style="font-size:12.5px;color:#475569;margin-bottom:14px;">
-          Choose an account to continue to <b>NuKropAI</b>
-        </div>
-
-        <!-- Google Account 1 -->
-        <div onclick="completeGoogleAuth('bjaswanth.agri@gmail.com', 'B. Jaswanth Reddy')" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;border:1.5px solid #00A86B;background:#F0FDF4;cursor:pointer;margin-bottom:10px;">
-          <div style="width:38px;height:38px;border-radius:50%;background:#00A86B;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;">
-            J
-          </div>
-          <div style="flex:1;">
-            <div style="font-size:13.5px;font-weight:800;color:#0F172A;">B. Jaswanth Reddy</div>
-            <div style="font-size:11.5px;color:#64748B;">bjaswanth.agri@gmail.com</div>
-          </div>
-          <span style="font-size:12px;font-weight:800;color:#00A86B;">Select ✓</span>
-        </div>
-
-        <!-- Google Account 2 -->
-        <div onclick="completeGoogleAuth('farmer.kisan@gmail.com', 'Kisan Jaswanth')" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;border:1px solid #E2E8F0;background:#FFFFFF;cursor:pointer;">
-          <div style="width:38px;height:38px;border-radius:50%;background:#3B82F6;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;">
-            K
-          </div>
-          <div style="flex:1;">
-            <div style="font-size:13.5px;font-weight:800;color:#0F172A;">Kisan Jaswanth</div>
-            <div style="font-size:11.5px;color:#64748B;">farmer.kisan@gmail.com</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  overlay.insertAdjacentHTML('beforeend', modalHtml);
+  try {
+    localStorage.setItem('nukrop_auth_method', 'google');
+    localStorage.setItem('nukrop_user_name', 'Progressive Farmer');
+    localStorage.setItem('nukrop_user_email', 'farmer@kisan.in');
+  } catch(e) {}
+  advanceSlide('slide_disease');
 }
 
 function completeGoogleAuth(email, name) {
@@ -7809,7 +7772,7 @@ function selectPlantixLang(code) {
 }
 
 function acceptLanguageAndContinue() {
-  plantixFlowState.currentScreen = 'slide_disease';
+  plantixFlowState.currentScreen = 'login';
   renderPlantixFlow();
 }
 
