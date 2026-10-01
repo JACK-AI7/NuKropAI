@@ -21,6 +21,7 @@ dist/
 .agents/
 
 # Temporary and Scratch Files
+*.apk
 *.bak
 *.bak_*
 *.log
