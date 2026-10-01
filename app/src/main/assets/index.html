@@ -764,6 +764,136 @@ html, body {
     border-radius: 36px !important;
   }
 }
+
+/* === 100% CIRCULAR CROP SELECTOR BADGES === */
+.plantix-crop-badge {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #FFFFFF !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.plantix-crop-badge:active {
+  transform: scale(0.92) !important;
+}
+.plantix-crop-badge.active {
+  border: 2.5px solid #16A34A !important;
+  box-shadow: 0 4px 14px rgba(22,163,74,0.35), 0 0 0 3px rgba(22,163,74,0.2) !important;
+  background: #F0FDF4 !important;
+}
+.plantix-crop-badge img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+.crop-add-btn {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 50% !important;
+  border: 2px dashed #93C5FD !important;
+  background: #EFF6FF !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto 6px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 6px rgba(37,99,235,0.06) !important;
+}
+.crop-add-btn:active {
+  transform: scale(0.92) !important;
+  background: #DBEAFE !important;
+}
+
+/* === 100% CIRCULAR CROP SELECTOR BADGES === */
+.plantix-crop-badge {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #FFFFFF !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.plantix-crop-badge:active {
+  transform: scale(0.92) !important;
+}
+.plantix-crop-badge.active {
+  border: 2.5px solid #16A34A !important;
+  box-shadow: 0 4px 14px rgba(22,163,74,0.35), 0 0 0 3px rgba(22,163,74,0.2) !important;
+  background: #F0FDF4 !important;
+}
+.plantix-crop-badge img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+.crop-add-btn {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 50% !important;
+  border: 2px dashed #93C5FD !important;
+  background: #EFF6FF !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto 6px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 6px rgba(37,99,235,0.06) !important;
+}
+.crop-add-btn:active {
+  transform: scale(0.92) !important;
+  background: #DBEAFE !important;
+}
+
+/* === LUXURY 2-COLUMN BENTO TILES & SQUIRCLE ICON PLATES === */
+.suite-bento-tile {
+  background: #FFFFFF !important;
+  border: 1.5px solid #EEF2F7 !important;
+  border-radius: 20px !important;
+  padding: 14px 12px !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.03), 0 4px 16px -4px rgba(15,23,42,0.06) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+.suite-bento-tile:active {
+  transform: scale(0.97) !important;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 2px 8px -2px rgba(15,23,42,0.04) !important;
+}
+.suite-bento-tile .icon-plate {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  border-radius: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+}
 </style>
 </head>
 <body>
@@ -1328,6 +1458,7 @@ html, body {
 </div>
 
 <script>
+
 /* ═════════════════ SAFE DOM UTILITY HELPERS ═════════════════ */
 function safeSetText(id, text) {
   const el = document.getElementById(id);
@@ -1374,7 +1505,7 @@ const I18N = {
     truckTitle: 'Mandi Truck Sharing', truckSub: 'Save 68% on freight',
     idTitle: 'Farmer ID & Credit', idSub: 'Score 742 / 850 (Grade A)',
     rentTitle: 'Rent Machinery', rentSub: 'Tractors, drones & harvesters',
-    loanTitle: 'Loans & Subsidies', loanSub: 'KCC ₹1.5L @ 4% + Schemes',
+    loanTitle: 'Loans & Subsidies', loanSub: 'KCC ₹3.0L @ 4% + Schemes',
     khataTitle: 'Farm Khata Ledger', khataSub: 'Track income & profit',
     aiTitle: '24/7 AI Farm Advisor', aiSub: 'Voice in 11 Indian Languages',
     radarTitle: 'Pest & Disease Alerts', radarSub: 'Local outbreak warnings',
@@ -1411,7 +1542,7 @@ const I18N = {
     truckTitle: 'మండి ట్రక్ షేరింగ్', truckSub: '68% రవాణా ఖర్చు ఆదా',
     idTitle: 'రైతు గుర్తింపు & స్కోర్', idSub: 'క్రెడిట్ స్కోర్ 742 / 850 (గ్రేడ్ A)',
     rentTitle: 'ట్రాక్టర్ & డ్రోన్ అద్దె', rentSub: 'గంటల వారీ చౌక అద్దె',
-    loanTitle: 'రుణాలు & సబ్సిడీలు', loanSub: 'KCC ₹1.5L @ 4% వడ్డీ',
+    loanTitle: 'రుణాలు & సబ్సిడీలు', loanSub: 'KCC ₹3.0L @ 4% వడ్డీ',
     khataTitle: 'డిజిటల్ ఖాటా లెడ్జర్', khataSub: 'ఆదాయం & లాభాల లెక్క',
     aiTitle: '24/7 AI వ్యవసాయ సలహాదారు', aiSub: '11 భారతీయ భాషల్లో వాయిస్ సపోర్ట్',
     radarTitle: 'తెగుళ్ల హెచ్చరిక రాడార్', radarSub: 'ప్రాంతీయ వ్యాప్తి అలర్ట్',
@@ -1448,7 +1579,7 @@ const I18N = {
     truckTitle: 'मंडी ट्रक शेयरिंग', truckSub: '68% तक भाड़ा बचत',
     idTitle: 'किसान पहचान व स्कोर', idSub: 'क्रेडिट स्कोर 742 / 850 (ग्रेड A)',
     rentTitle: 'ट्रैक्टर व ड्रोन किराया', rentSub: 'प्रति घंटा किफायती दर',
-    loanTitle: 'ऋण व सब्सिडी', loanSub: 'KCC ₹1.5L @ 4% ब्याज',
+    loanTitle: 'ऋण व सब्सिडी', loanSub: 'KCC ₹3.0L @ 4% ब्याज',
     khataTitle: 'डिजिटल बही-खाता', khataSub: 'आय व लाभ का हिसाब',
     aiTitle: '24/7 AI कृषि विशेषज्ञ', aiSub: '11 भारतीय भाषाओं में आवाज सहायता',
     radarTitle: 'कीट प्रकोप अलर्ट', radarSub: 'क्षेत्रीय प्रसार चेतावनी',
@@ -1485,7 +1616,7 @@ const I18N = {
     truckTitle: 'மண்டி லாரி பகிர்வு', truckSub: '68% வரை வாடகை சேமிப்பு',
     idTitle: 'உழவர் ஐடி & கிரெடிட்', idSub: 'மதிப்பெண் 742 / 850 (Grade A)',
     rentTitle: 'டிராக்டர் & ட்ரோன் வாடகை', rentSub: 'குறைந்த மணிநேர கட்டணம்',
-    loanTitle: 'கடன்கள் & மானியங்கள்', loanSub: 'KCC ₹1.5L @ 4% வட்டி',
+    loanTitle: 'கடன்கள் & மானியங்கள்', loanSub: 'KCC ₹3.0L @ 4% வட்டி',
     khataTitle: 'டிஜிட்டல் பண்ணை கணக்கு', khataSub: 'வருமானம் & லாபக் கணக்கு',
     aiTitle: '24/7 AI விவசாய ஆலோசகர்', aiSub: '11 இந்திய மொழிகளில் குரல் உதவி',
     radarTitle: 'பூச்சித் தாக்குதல் எச்சரிக்கை', radarSub: 'பிராந்திய பரவல் எச்சரிக்கை',
@@ -1522,7 +1653,7 @@ const I18N = {
     truckTitle: 'ಮಂಡಿ ಟ್ರಕ್ ಹಂಚಿಕೆ', truckSub: 'ಶೇ.68 ರಷ್ಟು ಸಾಗಣೆ ವೆಚ್ಚ ಉಳಿತಾಯ',
     idTitle: 'ರೈತ ಐಡಿ & ಕ್ರೆಡಿಟ್ ಸ್ಕೋರ್', idSub: 'ಸ್ಕೋರ್ 742 / 850 (Grade A)',
     rentTitle: 'ಟ್ರಾಕ್ಟರ್ & ಡ್ರೋನ್ ಬಾಡಿಗೆ', rentSub: 'ಗಂಟೆವಾರು ಕೈಗೆಟುಕುವ ದರ',
-    loanTitle: 'ಸಾಲ ಮತ್ತು ಸಬ್ಸಿಡಿ', loanSub: 'KCC ₹1.5L @ 4% ಬಡ್ಡಿ',
+    loanTitle: 'ಸಾಲ ಮತ್ತು ಸಬ್ಸಿಡಿ', loanSub: 'KCC ₹3.0L @ 4% ಬಡ್ಡಿ',
     khataTitle: 'ಡಿಜಿಟಲ್ ಫಾರ್ಮ್ ಖಾತೆ', khataSub: 'ಆದಾಯ ಮತ್ತು ಲಾಭದ ಲೆಕ್ಕ',
     aiTitle: '24/7 AI ಕೃಷಿ ಸಲಹೆಗಾರ', aiSub: '11 ಭಾರತೀಯ ಭಾಷೆಗಳಲ್ಲಿ ಧ್ವನಿ ಸೌಲಭ್ಯ',
     radarTitle: 'ಕೀಟ ರೋಗ ಮುನ್ನೆಚ್ಚರಿಕೆ', radarSub: 'ಪ್ರಾದೇಶಿಕ ಹರಡುವಿಕೆ ಎಚ್ಚರಿಕೆ',
@@ -1559,7 +1690,7 @@ const I18N = {
     truckTitle: 'മാർക്കറ്റ് ട്രക്ക് പങ്കിടൽ', truckSub: '68% വരെ വാടക ലാഭം',
     idTitle: 'കർഷക ഐഡി & ക്രെഡിറ്റ്', idSub: 'സ്കോർ 742 / 850 (Grade A)',
     rentTitle: 'ട്രാക്ടറും ഡ്രോണും വാടകയ്ക്ക്', rentSub: 'കുറഞ്ഞ മണിക്കൂർ നിരക്ക്',
-    loanTitle: 'വായ്പകളും സബ്സിഡിയും', loanSub: 'KCC ₹1.5L @ 4% പലിശ',
+    loanTitle: 'വായ്പകളും സബ്സിഡിയും', loanSub: 'KCC ₹3.0L @ 4% പലിശ',
     khataTitle: 'ഡിജിറ്റൽ ഫാം കണക്കുപുസ്തകം', khataSub: 'വരവ്-ചെലവും ലാഭവും',
     aiTitle: '24/7 AI കാർഷിക സഹായി', aiSub: '11 ഇന്ത്യൻ ഭാഷകളിൽ ശബ്ദ പിന്തുണ',
     radarTitle: 'കീടബാധ ജാഗ്രതാ നിർദ്ദേശം', radarSub: 'പ്രാദേശിക വ്യാപന മുന്നറിയിപ്പ്',
@@ -1596,7 +1727,7 @@ const I18N = {
     truckTitle: 'मार्केट ट्रक शेअरिंग', truckSub: '६८% पर्यंत वाहतूक बचत',
     idTitle: 'शेतकरी आयडी व क्रेडिट', idSub: 'स्कोअर 742 / 850 (Grade A)',
     rentTitle: 'ट्रॅक्टर व ड्रोन भाड्याने', rentSub: 'प्रति तास परवडणारे दर',
-    loanTitle: 'कर्ज व सबसिडी', loanSub: 'KCC ₹1.5L @ 4% व्याज',
+    loanTitle: 'कर्ज व सबसिडी', loanSub: 'KCC ₹3.0L @ 4% व्याज',
     khataTitle: 'डिजिटल शेती खातेवही', khataSub: 'उत्पन्न व नफ्याचा हिशोब',
     aiTitle: '24/7 AI कृषी सल्लागार', aiSub: '११ भारतीय भाषांमध्ये व्हॉइस सपोर्ट',
     radarTitle: 'कीड-रोग प्रादुर्भाव अलर्ट', radarSub: 'प्रादेशिक प्रसार इशारा',
@@ -1633,7 +1764,7 @@ const I18N = {
     truckTitle: 'মান্ডি ট্রাক শেয়ারিং', truckSub: '৬৮% পর্যন্ত ভাড়া সাশ্রয়',
     idTitle: 'কৃষক আইডি ও ক্রেডিট', idSub: 'স্কোর 742 / 850 (Grade A)',
     rentTitle: 'ট্র্যাক্টর ও ড্রোন ভাড়া', rentSub: 'সাশ্রয়ী ঘণ্টাপ্রতি ভাড়া',
-    loanTitle: 'ঋণ ও সরকারি অনুদান', loanSub: 'KCC ₹1.5L @ 4% সুদ',
+    loanTitle: 'ঋণ ও সরকারি অনুদান', loanSub: 'KCC ₹3.0L @ 4% সুদ',
     khataTitle: 'ডিজিটাল খামার খাতা', khataSub: 'আয় ও লাভের হিসাব',
     aiTitle: '24/7 AI কৃষি বিশেষজ্ঞ', aiSub: '১১টি ভারতীয় ভাষায় ভয়েস সহায়তা',
     radarTitle: 'কীটপতঙ্গ ও রোগ সতর্কতা', radarSub: 'আঞ্চলিক প্রাদুর্ভাব সতর্কতা',
@@ -1670,7 +1801,7 @@ const I18N = {
     truckTitle: 'યાર્ડ ટ્રક શેરિંગ', truckSub: '૬૮% સુધી ભાડામાં બચત',
     idTitle: 'ખેડૂત આઈડી અને ક્રેડિટ', idSub: 'સ્કોર 742 / 850 (Grade A)',
     rentTitle: 'ટ્રેક્ટર અને ડ્રોન ભાડે', rentSub: 'કલાક દીઠ વ્યાજબી દર',
-    loanTitle: 'ધિરાણ અને સબસિડી', loanSub: 'KCC ₹1.5L @ 4% વ્યાજ',
+    loanTitle: 'ધિરાણ અને સબસિડી', loanSub: 'KCC ₹3.0L @ 4% વ્યાજ',
     khataTitle: 'ડિજિટલ ખેતી ખાતાવહી', khataSub: 'આવક અને નફાનો હિસાબ',
     aiTitle: '24/7 AI કૃષિ નિષ્ણાત', aiSub: '૧૧ ભારતીય ભાષાઓમાં અવાજ સહાય',
     radarTitle: 'જીવાત-રોગ ઉપદ્રવ ચેતવણી', radarSub: 'વિસ્તારીય ફેલાવા એલર્ટ',
@@ -1707,7 +1838,7 @@ const I18N = {
     truckTitle: 'ਮੰਡੀ ਟਰੱਕ ਸ਼ੇਅਰਿੰਗ', truckSub: '68% ਤੱਕ ਕਿਰਾਇਆ ਬੱਚਤ',
     idTitle: 'ਕਿਸਾਨ ਆਈਡੀ ਤੇ ਸਕੋਰ', idSub: 'ਸਕੋਰ 742 / 850 (Grade A)',
     rentTitle: 'ਟਰੈਕਟਰ ਤੇ ਡਰੋਨ ਕਿਰਾਏ ਤੇ', rentSub: 'ਸਸਤੀ ਪ੍ਰਤੀ ਘੰਟਾ ਦਰ',
-    loanTitle: 'ਕਰਜ਼ੇ ਤੇ ਸਬਸਿਡੀਆਂ', loanSub: 'KCC ₹1.5L @ 4% ਵਿਆਜ',
+    loanTitle: 'ਕਰਜ਼ੇ ਤੇ ਸਬਸਿਡੀਆਂ', loanSub: 'KCC ₹3.0L @ 4% ਵਿਆਜ',
     khataTitle: 'ਡਿਜੀਟਲ ਖੇਤੀ ਬਹੀ-ਖਾਤਾ', khataSub: 'ਆਮਦਨ ਤੇ ਮੁਨਾਫ਼ੇ ਦਾ ਹਿਸਾਬ',
     aiTitle: '24/7 AI ਖੇਤੀ ਸਲਾਹਕਾਰ', aiSub: '11 ਭਾਰਤੀ ਭਾਸ਼ਾਵਾਂ ਵਿੱਚ ਆਵਾਜ਼ ਸਹਾਇਤਾ',
     radarTitle: 'ਕੀੜੇ-ਮਕੌੜੇ ਚੇਤਾਵਨੀ', radarSub: 'ਖੇਤਰੀ ਫੈਲਾਅ ਅਲਰਟ',
@@ -1744,7 +1875,7 @@ const I18N = {
     truckTitle: 'ମଣ୍ଡି ଟ୍ରକ୍ ସେୟାରିଂ', truckSub: '୬୮% ପର୍ଯ୍ୟନ୍ତ ଭଡା ସଞ୍ଚୟ',
     idTitle: 'ଚାଷୀ ପରିଚୟ ଓ କ୍ରେଡିଟ୍', idSub: 'ସ୍କୋର 742 / 850 (Grade A)',
     rentTitle: 'ଟ୍ରାକ୍ଟର ଓ ଡ୍ରୋନ୍ ଭଡା', rentSub: 'ଶସ୍ତା ଘଣ୍ଟା ପ୍ରତି ଦର',
-    loanTitle: 'ଋଣ ଓ ସବସିଡି', loanSub: 'KCC ₹1.5L @ 4% ସୁଧ',
+    loanTitle: 'ଋଣ ଓ ସବସିଡି', loanSub: 'KCC ₹3.0L @ 4% ସୁଧ',
     khataTitle: 'ଡିଜିଟାଲ ଜମି ଖାତାବହି', khataSub: 'ଆୟ ଓ ଲାଭର ହିସାବ',
     aiTitle: '24/7 AI କୃଷି ପରାମର୍ଶଦାତା', aiSub: '୧୧ଟି ଭାରତୀୟ ଭାଷାରେ ଭଏସ୍ ସେବା',
     radarTitle: 'କୀଟ-ରୋଗ ସତର୍କତା', radarSub: 'ଆଞ୍ଚଳିକ ବ୍ୟାପ୍ତି ଆଲର୍ଟ',
@@ -2042,7 +2173,47 @@ function locObj(obj, field = '') {
 }
 
 
-const MANDI_TRUCKS_CATALOG = [];
+const MANDI_TRUCKS_CATALOG = [
+  {
+    id: 'truck-1',
+    driver: { en: 'Ramesh Yadav', te: 'రమేష్ యాదవ్', hi: 'रमेश यादव' },
+    vehicle: { en: 'Tata 407 (Heavy Duty)', te: 'టాటా 407 (హెవీ డ్యూటీ)', hi: 'टाटा 407 (हैवी ड्यूटी)' },
+    phone: '9849022338',
+    dist: { en: '1.2 km away', te: '1.2 కి.మీ దూరం', hi: '1.2 किमी दूरी' },
+    dest: { en: 'Warangal Enumamula APMC Yard', te: 'వరంగల్ ఏనుమాముల APMC యార్డ్', hi: 'वारंगल एन्वमामुल मंडी यार्ड' },
+    spaceLeft: '8 Slots Free (22/30 Bags)',
+    fillPercent: 73,
+    ratePerQtl: 45,
+    rating: '★ 4.9 (142 trips)',
+    leavesAt: { en: 'Departs: Today, 4:30 PM', te: 'బయలుదేరు సమయం: నేడు, 4:30 PM', hi: 'प्रस्थान: आज, शाम 4:30' }
+  },
+  {
+    id: 'truck-2',
+    driver: { en: 'Sreenu Naik', te: 'శ్రీను నాయక్', hi: 'श्रीनू नायक' },
+    vehicle: { en: 'Mahindra Bolero Maxi Truck (2.5 Ton)', te: 'మహీంద్రా బొలెరో మ్యాక్సీ ట్రక్ (2.5 టన్ను)', hi: 'महिंद्रा बोलेरो मैक्सी ट्रक (2.5 टन)' },
+    phone: '9849067890',
+    dist: { en: '2.4 km away', te: '2.4 కి.మీ దూరం', hi: '2.4 किमी दूरी' },
+    dest: { en: 'Warangal Cotton APMC & Khammam', te: 'వరంగల్ కాటన్ మార్కెట్ & ఖమ్మం', hi: 'वारंगल कपास मंडी व खम्मम' },
+    spaceLeft: '1.4 Ton (28 Bags left)',
+    fillPercent: 40,
+    ratePerQtl: 40,
+    rating: '★ 4.8 (88 trips)',
+    leavesAt: { en: 'Departing Tomorrow at 6:00 AM', te: 'రేపు ఉదయం 6:00 కు బయలుదేరుతుంది', hi: 'कल सुबह 6:00 बजे प्रस्थान' }
+  },
+  {
+    id: 'truck-3',
+    driver: { en: 'Venkat Reddy', te: 'వెంకట్ రెడ్డి', hi: 'वेंकट रेड्डी' },
+    vehicle: { en: 'Eicher Pro 2049 (5.0 Ton Heavy)', te: 'ఐషర్ ప్రో 2049 (5.0 టన్ను హెవీ)', hi: 'आयशर प्रो 2049 (5.0 टन)' },
+    phone: '9849054321',
+    dist: { en: '4.1 km away', te: '4.1 కి.మీ దూరం', hi: '4.1 किमी दूरी' },
+    dest: { en: 'Hyderabad Bowenpally & Jangaon', te: 'హైదరాబాద్ బోయిన్‌పల్లి & జనగామ', hi: 'हैदराबाद बोवेनपल्ली व जनगांव' },
+    spaceLeft: '3.0 Ton (60 Bags left)',
+    fillPercent: 35,
+    ratePerQtl: 35,
+    rating: '★ 4.9 (145 trips)',
+    leavesAt: { en: 'Departing Tonight at 9:00 PM', te: 'ఈ రాత్రి 9:00 కు బయలుదేరుతుంది', hi: 'आज रात 9:00 बजे प्रस्थान' }
+  }
+];
 
 let selectedTruckToBook = null;
 let bookingTruckBags = 10;
@@ -2405,7 +2576,280 @@ let mandiSearchState = '';
 let mandiSearchMandi = '';
 let mandiSelectedPopular = 'all';
 
-const AGMARKNET_MANDI_CATALOG = [];
+const AGMARKNET_MANDI_CATALOG = [
+  // 1. Tomato
+  {
+    id: 'mkt-tom-0',
+    cropKey: 'tomato',
+    cropSlug: 'tomato',
+    cropPath: 'tomato/tomato.svg',
+    cropName: { en: 'Tomato (Local Warangal Red)', te: 'టమోటా (వరంగల్ నాటు రకం)', hi: 'टमाटर (वारंगल लोकल)' },
+    variety: { en: 'Warangal Desi Special', te: 'వరంగల్ దేశీ నాటు రకం', hi: 'वारंगल देसी स्पेशल' },
+    mandi: { en: 'Warangal APMC Yard', te: 'వరంగల్ ఏనుమాముల మార్కెట్ యార్డ్', hi: 'वारंगल मंडी यार्ड' },
+    district: 'Warangal',
+    state: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
+    modalPrice: 1780,
+    minPrice: 1350,
+    maxPrice: 2100,
+    unit: '/Qtl',
+    arrivals: 3400,
+    change: '+6.4%',
+    up: true,
+    badge: '📍 Local Mandi'
+  },
+  {
+    id: 'mkt-tom-1',
+    cropKey: 'tomato',
+    cropSlug: 'tomato',
+    cropPath: 'tomato/tomato.svg',
+    cropName: { en: 'Tomato (Hybrid)', te: 'టమోటా (హైబ్రిడ్)', hi: 'टमाटर (हाइब्रिड)' },
+    variety: { en: 'Desi Sahu / F1 6242', te: 'సాహు / దేశీ హైబ్రిడ్', hi: 'साहू / हाइब्रिड' },
+    mandi: { en: 'Madanapalle APMC', te: 'మదనపల్లె మార్కెట్ యార్డ్', hi: 'मदनपल्ले मंडी' },
+    district: 'Annamayya / Chittoor',
+    state: { en: 'Andhra Pradesh', te: 'ఆంధ్రప్రదేశ్', hi: 'आंध्र प्रदेश' },
+    modalPrice: 1850,
+    minPrice: 1400,
+    maxPrice: 2200,
+    unit: '/Qtl',
+    arrivals: 4800,
+    change: '+8.5%',
+    up: true,
+    badge: '⚡ Top Arrival APMC'
+  },
+  {
+    id: 'mkt-tom-2',
+    cropKey: 'tomato',
+    cropSlug: 'tomato',
+    cropPath: 'tomato/tomato.svg',
+    cropName: { en: 'Tomato (Table Grade)', te: 'టమోటా (టేబుల్ గ్రేడ్)', hi: 'टमाटर (ग्रेड A)' },
+    variety: { en: 'Abhinav / F1 Red', te: 'అభినవ్ F1', hi: 'अभिनव F1' },
+    mandi: { en: 'Kolar APMC Market', te: 'కోలార్ వ్యవసాయ మార్కెట్', hi: 'कोलार एपीएमसी मंडी' },
+    district: 'Kolar',
+    state: { en: 'Karnataka', te: 'కర్ణాటక', hi: 'कर्नाटक' },
+    modalPrice: 1720,
+    minPrice: 1350,
+    maxPrice: 2100,
+    unit: '/Qtl',
+    arrivals: 6200,
+    change: '+5.2%',
+    up: true,
+    badge: 'Govt e-NAM'
+  },
+  {
+    id: 'mkt-tom-3',
+    cropKey: 'tomato',
+    cropSlug: 'tomato',
+    cropPath: 'tomato/tomato.svg',
+    cropName: { en: 'Tomato (Fresh Crop)', te: 'టమోటా (తాజా దిగుబడి)', hi: 'टमाटर (ताजा)' },
+    variety: { en: 'Hybrid Red Round', te: 'హైబ్రిడ్ గుండ్రటి రకం', hi: 'हाइब्रिड लाल' },
+    mandi: { en: 'Bowenpally APMC', te: 'బోయిన్‌పల్లి మార్కెట్, హైదరాబాద్', hi: 'बोवेनपल्ली मंडी, हैदराबाद' },
+    district: 'Hyderabad / Medchal',
+    state: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
+    modalPrice: 1900,
+    minPrice: 1500,
+    maxPrice: 2350,
+    unit: '/Qtl',
+    arrivals: 3100,
+    change: '+11.0%',
+    up: true,
+    badge: '🟢 Top Local Demand'
+  },
+  // 2. Wheat
+  {
+    id: 'mkt-wht-1',
+    cropKey: 'wheat',
+    cropSlug: 'wheat',
+    cropPath: 'wheat/wheat.svg',
+    cropName: { en: 'Wheat (Mill Quality)', te: 'గోధుమ (మిల్లింగ్ రకం)', hi: 'गेहूं (मिल क्वालिटी)' },
+    variety: { en: 'PBW-725 / HD-3086', te: 'HD-3086 రకం', hi: 'PBW-725 / HD-3086' },
+    mandi: { en: 'Khanna APMC Mandi', te: 'ఖన్నా మార్కెట్ యార్డ్', hi: 'खन्ना मंडी (एशिया की सबसे बड़ी)' },
+    district: 'Ludhiana',
+    state: { en: 'Punjab', te: 'పంజాబ్', hi: 'पंजाब' },
+    modalPrice: 2425,
+    minPrice: 2350,
+    maxPrice: 2550,
+    unit: '/Qtl',
+    arrivals: 12500,
+    change: '+2.1%',
+    up: true,
+    badge: 'MSP +₹150 Prem'
+  },
+  {
+    id: 'mkt-wht-2',
+    cropKey: 'wheat',
+    cropSlug: 'wheat',
+    cropPath: 'wheat/wheat.svg',
+    cropName: { en: 'Wheat (Sharbati Gold)', te: 'గోధుమ (శర్బతి ప్రీమియం)', hi: 'गेहूं (शरबती गोल्ड)' },
+    variety: { en: 'C-306 Sharbati Sujata', te: 'శర్బతి సుజాత', hi: 'सी-306 शरबती' },
+    mandi: { en: 'Indore APMC Yard', te: 'ఇండోర్ వ్యవసాయ మార్కెట్', hi: 'इंदौर कृषि उपज मंडी' },
+    district: 'Indore',
+    state: { en: 'Madhya Pradesh', te: 'మధ్యప్రదేశ్', hi: 'मध्य प्रदेश' },
+    modalPrice: 2580,
+    minPrice: 2400,
+    maxPrice: 2850,
+    unit: '/Qtl',
+    arrivals: 8900,
+    change: '+4.8%',
+    up: true,
+    badge: '👑 Premium Grade'
+  },
+  // 3. Cotton (Kapas)
+  {
+    id: 'mkt-cot-1',
+    cropKey: 'cotton',
+    cropSlug: 'cotton',
+    cropPath: 'cotton/cotton.svg',
+    cropName: { en: 'Cotton (Long Staple Kapas)', te: 'పత్తి (లాంగ్ స్టేపుల్ కపాస్)', hi: 'कपास (लंबा रेशा)' },
+    variety: { en: 'Bt Hybrid Cotton 29–31mm', te: 'Bt హైబ్రిడ్ పత్తి (30mm)', hi: 'बीटी हाइब्रिड कपास' },
+    mandi: { en: 'Warangal APMC Yard', te: 'వరంగల్ ఏనుమాముల మార్కెట్ యార్డ్', hi: 'वारंगल इनामामुला मंडी' },
+    district: 'Warangal',
+    state: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
+    modalPrice: 7450,
+    minPrice: 7100,
+    maxPrice: 7850,
+    unit: '/Qtl',
+    arrivals: 14200,
+    change: '+3.4%',
+    up: true,
+    badge: '⚡ High Export Demand'
+  },
+  {
+    id: 'mkt-cot-2',
+    cropKey: 'cotton',
+    cropSlug: 'cotton',
+    cropPath: 'cotton/cotton.svg',
+    cropName: { en: 'Cotton (Medium Staple)', te: 'పత్తి (గుజరాత్ శంకర్-6)', hi: 'कपास (शंकर-6)' },
+    variety: { en: 'Shankar-6 Premium', te: 'శంకర్-6 రకం', hi: 'शंकर-6' },
+    mandi: { en: 'Rajkot APMC Yard', te: 'రాజ్‌కోట్ మార్కెట్ యార్డ్', hi: 'राजकोट मंडी यार्ड' },
+    district: 'Rajkot',
+    state: { en: 'Gujarat', te: 'గుజరాత్', hi: 'गुजरात' },
+    modalPrice: 7620,
+    minPrice: 7250,
+    maxPrice: 8050,
+    unit: '/Qtl',
+    arrivals: 18500,
+    change: '+2.8%',
+    up: true,
+    badge: 'CCI Center'
+  },
+  // 4. Onion
+  {
+    id: 'mkt-oni-1',
+    cropKey: 'onion',
+    cropSlug: 'red-onion',
+    cropPath: 'red-onion/red-onion.svg',
+    cropName: { en: 'Red Onion (Garva/Nashik)', te: 'ఎర్ర ఉల్లిపాయ (నాసిక్ రకం)', hi: 'लाल प्याज (नासिक गारवा)' },
+    variety: { en: 'Nashik Medium Bold', te: 'నాసిక్ బోల్డ్ రకం', hi: 'नासिक बोल्ड' },
+    mandi: { en: 'Lasalgaon APMC', te: 'లాసల్‌గావ్ మార్కెట్ (ఆసియా అతిపెద్దది)', hi: 'लासलगांव मंडी (एशिया की सबसे बड़ी)' },
+    district: 'Nashik',
+    state: { en: 'Maharashtra', te: 'మహారాష్ట్ర', hi: 'महाराष्ट्र' },
+    modalPrice: 2250,
+    minPrice: 1800,
+    maxPrice: 2700,
+    unit: '/Qtl',
+    arrivals: 22000,
+    change: '-4.5%',
+    up: false,
+    badge: '🏛️ Benchmark APMC'
+  },
+  {
+    id: 'mkt-oni-2',
+    cropKey: 'onion',
+    cropSlug: 'red-onion',
+    cropPath: 'red-onion/red-onion.svg',
+    cropName: { en: 'Red Onion (Kurnool Local)', te: 'ఎర్ర ఉల్లిపాయ (కర్నూలు లోకల్)', hi: 'लाल प्याज (कर्नूल)' },
+    variety: { en: 'Bellary Red', te: 'బళ్లారి రెడ్', hi: 'बेल्लारी रेड' },
+    mandi: { en: 'Kurnool APMC Yard', te: 'కర్నూలు మార్కెట్ యార్డ్', hi: 'कर्नूल एपीएमसी' },
+    district: 'Kurnool',
+    state: { en: 'Andhra Pradesh', te: 'ఆంధ్రప్రదేశ్', hi: 'आंध्र प्रदेश' },
+    modalPrice: 2100,
+    minPrice: 1700,
+    maxPrice: 2450,
+    unit: '/Qtl',
+    arrivals: 5800,
+    change: '+6.0%',
+    up: true,
+    badge: 'Active Arrivals'
+  },
+  // 5. Potato
+  {
+    id: 'mkt-pot-1',
+    cropKey: 'potato',
+    cropSlug: 'russet-potato',
+    cropPath: 'russet-potato/russet-potato.svg',
+    cropName: { en: 'Potato (Kufri Chipsona)', te: 'బంగాళాదుంప (కుఫ్రి చిప్సోనా)', hi: 'आलू (कुफरी चिपसोना)' },
+    variety: { en: 'Kufri Bahar / Chipsona-1', te: 'కుఫ్రి బహార్', hi: 'कुफरी बहार' },
+    mandi: { en: 'Agra APMC Yard', te: 'ఆగ్రా బంగాళాదుంప మార్కెట్', hi: 'आगरा मंडी यार्ड' },
+    district: 'Agra',
+    state: { en: 'Uttar Pradesh', te: 'ఉత్తరప్రదేశ్', hi: 'उत्तर प्रदेश' },
+    modalPrice: 1450,
+    minPrice: 1250,
+    maxPrice: 1700,
+    unit: '/Qtl',
+    arrivals: 19000,
+    change: '+2.4%',
+    up: true,
+    badge: 'Direct Cold Store'
+  },
+  {
+    id: 'mkt-pot-2',
+    cropKey: 'potato',
+    cropSlug: 'russet-potato',
+    cropPath: 'russet-potato/russet-potato.svg',
+    cropName: { en: 'Potato (Jyoti / Pukhraj)', te: 'బంగాళాదుంప (పుఖ్‌రాజ్)', hi: 'आलू (पुखराज ज्योति)' },
+    variety: { en: 'Pukhraj Fresh Harvest', te: 'పుఖ్‌రాజ్ రకం', hi: 'पुखराज' },
+    mandi: { en: 'Jalandhar APMC', te: 'జలంధర్ మార్కెట్', hi: 'जालंधर मंडी' },
+    district: 'Jalandhar',
+    state: { en: 'Punjab', te: 'పంజాబ్', hi: 'पंजाब' },
+    modalPrice: 1380,
+    minPrice: 1150,
+    maxPrice: 1620,
+    unit: '/Qtl',
+    arrivals: 11500,
+    change: '-1.8%',
+    up: false,
+    badge: 'Heavy Supply'
+  },
+  // 6. Chilli (Dry Red)
+  {
+    id: 'mkt-chl-1',
+    cropKey: 'chilli',
+    cropSlug: 'birds-eye-chili',
+    cropPath: 'birds-eye-chili/birds-eye-chili.svg',
+    cropName: { en: 'Dry Red Chilli (Teja Super)', te: 'ఎండు మిర్చి (తేజ సూపర్)', hi: 'सूखी लाल मिर्च (तेजा सुपर)' },
+    variety: { en: 'Teja S17 / Deluxe Quality', te: 'తేజ S17 డీలక్స్', hi: 'तेजा S17' },
+    mandi: { en: 'Guntur Spices Yard', te: 'గుంటూరు మిర్చి యార్డ్ (ఆసియాలోనే అతిపెద్దది)', hi: 'गुंटूर मिर्च यार्ड (एशिया में नं.1)' },
+    district: 'Guntur',
+    state: { en: 'Andhra Pradesh', te: 'ఆంధ్రప్రదేశ్', hi: 'ఆంధ్రప్రదేశ్' },
+    modalPrice: 18500,
+    minPrice: 16200,
+    maxPrice: 21000,
+    unit: '/Qtl',
+    arrivals: 35000,
+    change: '+14.2%',
+    up: true,
+    badge: '🔥 Record Bull Run'
+  },
+  {
+    id: 'mkt-chl-2',
+    cropKey: 'chilli',
+    cropSlug: 'birds-eye-chili',
+    cropPath: 'birds-eye-chili/birds-eye-chili.svg',
+    cropName: { en: 'Dry Red Chilli (Wonder Hot)', te: 'ఎండు మిర్చి (వండర్ హాట్)', hi: 'लाल मिर्च (वंडर हॉट)' },
+    variety: { en: 'Wonder Hot S10', te: 'వండర్ హాట్ S10', hi: 'वंडर हॉट' },
+    mandi: { en: 'Khammam Spices APMC', te: 'ఖమ్మం వ్యవసాయ మార్కెట్', hi: 'खम्मम मंडी' },
+    district: 'Khammam',
+    state: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
+    modalPrice: 17800,
+    minPrice: 15500,
+    maxPrice: 19800,
+    unit: '/Qtl',
+    arrivals: 12400,
+    change: '+11.8%',
+    up: true,
+    badge: 'Export Grade'
+  }
+];
 
 function getFilteredMandiRates() {
   const cropQ = (mandiSearchCrop || '').toLowerCase().trim();
@@ -2698,8 +3142,6 @@ function getDynamicSprayWindows() {
   return windows;
 }
 
-function openSprayingModal(e) { return openSprayModal(e); }
-window.openSprayingModal = openSprayingModal;
 function openSprayModal() {
   const modal = document.getElementById('spray-modal');
   const title = document.getElementById('sp-modal-title');
@@ -3158,7 +3600,7 @@ let activePriceAlerts = [
     basePrice: 2100,
     targetPrice: 2250,
     unit: '/Qtl',
-    phone: '9849012345',
+    phone: '9849022338',
     channelSms: true,
     channelPush: true,
     active: true,
@@ -3174,7 +3616,7 @@ let activePriceAlerts = [
     basePrice: 7450,
     targetPrice: 7800,
     unit: '/Qtl',
-    phone: '9849012345',
+    phone: '9849022338',
     channelSms: true,
     channelPush: true,
     active: true,
@@ -3184,7 +3626,7 @@ let activePriceAlerts = [
 
 let currentAlertItem = null;
 let currentAlertTargetPrice = 2250;
-let currentAlertPhone = '9849012345';
+let currentAlertPhone = '9849022338';
 let currentAlertChannelSms = true;
 let currentAlertChannelPush = true;
 let pushToastTimeout = null;
@@ -3243,7 +3685,7 @@ function saveCurrentPriceAlert() {
   if (!item) return;
 
   const phoneInp = document.getElementById('pa-phone-inp');
-  if (phoneInp) currentAlertPhone = phoneInp.value.trim() || '9849012345';
+  if (phoneInp) currentAlertPhone = phoneInp.value.trim() || '9849022338';
 
   const isTe = currentLang === 'te';
   const isHi = currentLang === 'hi';
@@ -3613,7 +4055,13 @@ function renderMandiCardsHtml() {
 
 
 let activeCropIdx = 0;
-let myActiveCrops = [{'id':'cotton', 'slug':'cotton', 'path':'cotton/cotton.svg'}];
+let myActiveCrops = [
+  { id: 'cotton', path: 'cotton/cotton.svg' },
+  { id: 'birds-eye-chili', path: 'birds-eye-chili/birds-eye-chili.svg' },
+  { id: 'tomato', path: 'tomato/tomato.svg' },
+  { id: 'wheat', path: 'wheat/wheat.svg' },
+  { id: 'rice', path: 'rice/rice.svg' }
+];
 
 
 
@@ -3956,7 +4404,87 @@ let expandedCommunityPostId = null;
 
 let userAttachedMedia = { photos: [], videos: [], voiceNote: null };
 
-let COMMUNITY_POSTS_CATALOG = [];
+let COMMUNITY_POSTS_CATALOG = [
+  {
+    id: 'post-1',
+    author: { en: 'Raju Naidu', te: 'రాజు నాయుడు', hi: 'राजू नायडू' },
+    avatar: '👨‍🌾',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    verified: true,
+    verifiedBadge: 'Verified Progressive Farmer',
+    village: { en: 'Geesugonda (4.5 Acres)', te: 'గీసుకొండ (4.5 ఎకరాలు)', hi: 'गीसुगोंडा (4.5 एकड़)' },
+    cropId: 'cotton',
+    cropName: { en: 'Cotton', te: 'పత్తి', hi: 'कपास' },
+    timeAgo: { en: '2 hours ago', te: '2 గంటల క్రితం', hi: '2 घंटे पहले' },
+    title: {
+      en: 'Pink bollworm in 45-day Cotton crop. Is Profenofos 50% EC working well?',
+      te: '45 రోజుల పత్తిలో గులాబీ రంగు పురుగు కనిపిస్తోంది. ప్రొఫెనోఫాస్ 50% EC సమర్థవంతంగా పనిచేస్తుందా?',
+      hi: '45 दिन की कपास में गुलाबी सुंडी। क्या प्रोफेनोफॉस 50% EC प्रभावी है?'
+    },
+    text: {
+      en: 'Found 3 rosette flowers per 20 plants. Also noticed small pink larvae inside bolls. Weather is humid (88%). What dosage should I spray with power sprayer? Should I mix Neem Oil?',
+      te: 'ప్రతి 20 మొక్కలకు 3 ముడుచుకున్న పూలు ఉన్నాయి. కాయల్లో చిన్న గులాబీ రంగు పురుగులు కనిపించాయి. గాలిలో తేమ ఎక్కువగా ఉంది. పవర్ స్ప్రేయర్ తో ఎంత మోతాదు పిచికారీ చేయాలి? వేప నూనె కలపవచ్చా?',
+      hi: 'प्रति 20 पौधों में 3 रोसेट फूल मिले हैं। अंदर छोटी गुलाबी सुंडी भी दिखी। नमी 88% है। सही दवा और मात्रा बताएं।'
+    },
+    likes: 24,
+    isLiked: false,
+    photos: [
+      'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=500&auto=format&fit=crop&q=80'
+    ],
+    videos: [],
+    voiceNote: {
+      duration: '0:28',
+      audioUrl: 'field_note_audio.mp3'
+    },
+    mediaLabel: { en: '1 Field Photo · 1 Voice Note', te: '1 ఫోటో · 1 వాయిస్ నోట్', hi: '1 फोटो · 1 वॉयस नोट' },
+    isResolved: false,
+    comments: [
+      {
+        author: { en: 'Dr. Srinivas (Agronomist, KVK)', te: 'డా. శ్రీనివాస్ (వ్యవసాయ శాస్త్రవేత్త, KVK)', hi: 'डॉ. श्रीनिवास (कृषि वैज्ञानिक, KVK)' },
+        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        role: 'Verified ICAR Scientist',
+        text: {
+          en: 'Immediately install 5 Pheromone Traps/acre. For chemical spray, use Profenofos 50% EC @ 350ml/acre (2ml/L) or Emamectin Benzoate 5% SG @ 88g/acre. Spray between 4:00 PM – 6:30 PM.',
+          te: 'వెంటనే ఎకరానికి 5 లింగాకర్షక బుట్టలు అమర్చండి. రసాయన పిచికారీ కోసం ప్రొఫెనోఫాస్ 50% EC (2మి.లీ/లీటరు) లేదా ఎమామెక్టిన్ బెంజోయేట్ 5% SG (88గ్రా/ఎకరం) వాడండి. సాయంత్రం 4:00 – 6:30 మధ్య పిచికారీ చేయండి.',
+          hi: 'तुरंत 5 फेरोमोन ट्रैप लगाएं। प्रोफेनोफॉस 50% EC (2ml/L) या इमामेक्टिन बेंजोएट 5% SG (88g/एकड़) का छिड़काव शाम 4:00 से 6:30 के बीच करें।'
+        },
+        time: '1 hour ago'
+      }
+    ]
+  },
+  {
+    id: 'post-2',
+    author: { en: 'Anil Kumar', te: 'అనిల్ కుమార్', hi: 'अनिल कुमार' },
+    avatar: '👨‍🌾',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    verified: true,
+    verifiedBadge: 'Organic Farmer',
+    village: { en: 'Wardhannapet (3.2 Acres)', te: 'వర్ధన్నపేట (3.2 ఎకరాలు)', hi: 'वर्धन्नापेट (3.2 एकड़)' },
+    cropId: 'chilli',
+    cropName: { en: 'Chilli', te: 'మిరప', hi: 'मिर्च' },
+    timeAgo: { en: '5 hours ago', te: '5 గంటల క్రితం', hi: '5 घंटे पहले' },
+    title: {
+      en: 'Black Thrips control with Dashaparni Kashayam - 100% Organic results!',
+      te: 'దశపర్ణి కషాయంతో నల్ల తామర పురుగుల నియంత్రణ - 100% సేంద్రీయ ఫలితాలు!',
+      hi: 'दशपर्णी काढ़े से ब्लैक थ्रिप्स का सफल जैविक नियंत्रण!'
+    },
+    text: {
+      en: 'I sprayed 500ml Dashaparni Kashayam per 15L tank + 20 Blue Sticky Traps per acre. Within 48 hours, young foliage opened up with fresh green growth. No chemical shock to chilli plants!',
+      te: 'నేను 15 లీటర్ల ట్యాంకుకు 500మి.లీ దశపర్ణి కషాయం + ఎకరానికి 20 నీలం జిగురు అట్టలు పెట్టాను. 48 గంటల్లో కొత్త చిగుర్లు వచ్చాయి. మొక్కలకు ఎటువంటి రసాయన ఒత్తిడి కలగలేదు!',
+      hi: 'मैंने 15L की टंकी में 500ml दशपर्णी काढ़ा + 20 नीले चिपचिपे ट्रैप लगाए। 48 घंटे में नई पत्तियां स्वस्थ निकलीं।'
+    },
+    likes: 42,
+    isLiked: false,
+    photos: [
+      'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?w=500&auto=format&fit=crop&q=80'
+    ],
+    videos: [],
+    voiceNote: null,
+    mediaLabel: { en: '1 Field Photo', te: '1 ఫోటో', hi: '1 फोटो' },
+    isResolved: true,
+    comments: []
+  }
+];
 
 function attachMediaToNewPost(type) {
   if (type === 'photo') {
@@ -4141,7 +4669,6 @@ function submitNewCommunityPost() {
   };
 
   COMMUNITY_POSTS_CATALOG.unshift(newPost);
-  pushCommunityPostToSupabase(newPost);
   closeAskQuestionModal();
 
   alert(currentLang === 'te' ? '✅ మీ ప్రశ్న కిసాన్ వేదికలో విజయవంతంగా పోస్ట్ చేయబడింది!' : (currentLang === 'hi' ? '✅ आपका सवाल किसान चौपाल में सफलतापूर्वक पोस्ट हो गया!' : '✅ Your question was posted to Kisan Community successfully!'));
@@ -4283,11 +4810,13 @@ function renderCommunityFeedDom() {
 
 let farmerProfile = {
   name: { en: 'B. Jaswanth Reddy', te: 'బి. జస్వంత్ రెడ్డి', hi: 'बी. जसवंत रेड्डी', ta: 'பி. ஜஸ்வந்த் ரெட்டி', kn: 'ಬಿ. ಜಸ್ವಂತ್ ರೆಡ್ಡಿ', ml: 'ബി. ജസ്വന്ത് റെഡ്ഡി', mr: 'बी. जसवंत रेड्डी', bn: 'বি. জসবন্ত রেড্ডি', gu: 'બી. જસવંત રેડ્ડી', pa: 'ਬੀ. ਜਸਵੰਤ ਰੈੱਡੀ', or: 'ବି. ଜସୱନ୍ତ ରେଡ୍ଡି' },
-  farmerId: 'TG-WGL-87621',
-  phone: '+91 98480 22338',
-  village: { en: 'Hanamkonda, Warangal, Telangana', te: 'హన్మకొండ, వరంగల్, తెలంగాణ', hi: 'हनामकोंडा, वारंगल, तेलंगाना', ta: 'ஹனம்கொண்டா, வாரங்கல், தெலுங்கானா' },
-  landAcres: '4.5',
-  kccLimit: '₹1.50 Lakh',
+  farmerId: 'FR-2026-9874512',
+  khataNo: 'TS-WGL-8941',
+  phone: '+91 98490 22338',
+  village: { en: 'Dharmaram, Geesugonda, Warangal, Telangana', te: 'ధర్మారం, గీసుకొండ, వరంగల్, తెలంగాణ', hi: 'धर्माराम, गीसुगोंडा, वारंगल, तेलंगाना', ta: 'தர்மாரம், கீசுகொண்டா, வாரங்கல்' },
+  landAcres: '4.50',
+  totalExtent: '4.50 Acres (3 Survey Parcels: 142/A-2, 98/B-1, 104/1)',
+  kccLimit: '₹3.00 Lakh',
   soilHealthScore: '98.2%',
   voiceEnabled: true,
   weatherAlerts: true,
@@ -4757,7 +5286,12 @@ const GOVT_SCHEMES_CATALOG = [
 ];
 
 
-let farmKhataEntries = [];
+let farmKhataEntries = [
+
+  { id: 'tx-1', type: 'income', desc: { en: 'Cotton Sale (Warangal APMC)', te: 'పత్తి అమ్మకం (వరంగల్ యార్డ్)', hi: 'कपास बिक्री (वारंगल मंडी)' }, amount: 48500, date: '2026-08-30' },
+  { id: 'tx-2', type: 'expense', desc: { en: 'Garuda Drone Spray Service', te: 'డ్రోన్ స్ప్రేయింగ్ చార్జీలు', hi: 'ड्रोन छिड़काव खर्च' }, amount: 1050, date: '2026-08-28' },
+  { id: 'tx-3', type: 'expense', desc: { en: 'NPK 19:19:19 Fertilizer Bags', te: 'NPK ఎరువుల బస్తాల కొనుగోలు', hi: 'एनपीके उर्वरक खरीद' }, amount: 2800, date: '2026-08-26' }
+];
 
 let farmKhataTransactions = farmKhataEntries;
 
@@ -5152,7 +5686,7 @@ function openMachineryListingModal() {
           <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:block;margin-bottom:4px;">
             📱 ${TL('Owner Contact Number', 'ఫోన్ నంబర్', 'संपर्क फोन नंबर')}:
           </label>
-          <input type="text" id="new-mach-phone" value="+91 98480 22338" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:12px;font-size:12px;font-weight:700;color:#0F172A;background:#FFFFFF;outline:none;box-sizing:border-box;">
+          <input type="text" id="new-mach-phone" value="+91 98490 22338" style="width:100%;padding:10px 12px;border:1.5px solid #CBD5E1;border-radius:12px;font-size:12px;font-weight:700;color:#0F172A;background:#FFFFFF;outline:none;box-sizing:border-box;">
         </div>
 
         <div>
@@ -5191,7 +5725,7 @@ function submitMachineryListing() {
   const hourly = parseInt(hourlyInput?.value || '700', 10);
   const acre = parseInt(acreInput?.value || '1100', 10);
   const hub = hubInput ? hubInput.value.trim() : 'Local Hub';
-  const phone = phoneInput ? phoneInput.value.trim() : '+91 98480 22338';
+  const phone = phoneInput ? phoneInput.value.trim() : '+91 98490 22338';
   const specs = specsInput ? specsInput.value.trim() : 'Verified Implement';
 
   const defaultPhotos = {
@@ -5406,7 +5940,6 @@ function saveKhataEntry() {
   };
 
   farmKhataEntries.unshift(newEntry);
-  pushKhataToSupabase(newEntry);
   closeKhataModal(null);
 
   alert(TL(
@@ -5662,7 +6195,7 @@ const NuKropSanitizer = {
 // ── 08. PRODUCT ANALYTICS (POSTHOG / MIXPANEL ARCHITECTURE) ──
 const NuKropAnalytics = {
   eventsQueue: [],
-  userId: 'TG-WGL-87621',
+  userId: 'FR-2026-9874512',
   track(eventName, properties = {}) {
     const payload = {
       event: eventName,
@@ -5707,8 +6240,8 @@ function downloadMyFarmData() {
   const exportPayload = {
     profile: {
       name: 'B. Jaswanth Reddy',
-      id: 'TG-WGL-87621',
-      phone: '+91 98490 12345',
+      id: 'FR-2026-9874512',
+      phone: '+91 98490 22338',
       landAcres: 4.5,
       village: 'Hanamkonda, Warangal, Telangana'
     },
@@ -5778,7 +6311,7 @@ let onboardingState = {
   cropName: 'Cotton',
   goal: 'pest_control',
   goalTitle: 'Pest & Disease Shield',
-  phone: '9849012345',
+  phone: '9849022338',
   whatsappAlerts: true
 };
 
@@ -6019,7 +6552,7 @@ function renderOnboardingStep() {
           <div style="width:42px;height:42px;border-radius:12px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:22px;">🏛️</div>
           <div style="flex:1;">
             <div style="font-size:14px;font-weight:900;color:#0F172A;">Government Subsidies &amp; KCC</div>
-            <div style="font-size:11px;color:#64748B;font-weight:700;">PM-KISAN ₹6k, Rythu Bandhu &amp; ₹1.5L 4% KCC loan limit</div>
+            <div style="font-size:11px;color:#64748B;font-weight:700;">PM-KISAN ₹6k, Rythu Bandhu &amp; ₹3.0L 4% KCC loan limit</div>
           </div>
         </div>
       </div>
@@ -6107,7 +6640,7 @@ function renderOnboardingStep() {
             <div style="font-size:10.5px;color:#64748B;font-weight:600;">Linked with Aadhaar eKYC &amp; PM-KISAN</div>
           </div>
         </div>
-        <input type="text" id="ob-phone-input" value="+91 98490 12345" style="width:100%;padding:11px 14px;border:1.5px solid #16A34A;border-radius:12px;font-size:13.5px;font-weight:800;color:#0F172A;background:#FFFFFF;outline:none;box-sizing:border-box;box-shadow:inset 0 1px 3px rgba(0,0,0,0.03);">
+        <input type="text" id="ob-phone-input" value="+91 98490 22338" style="width:100%;padding:11px 14px;border:1.5px solid #16A34A;border-radius:12px;font-size:13.5px;font-weight:800;color:#0F172A;background:#FFFFFF;outline:none;box-sizing:border-box;box-shadow:inset 0 1px 3px rgba(0,0,0,0.03);">
       </div>
 
       <div style="background:#F0FDF4;border:1.2px solid #86EFAC;border-radius:16px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
@@ -6348,8 +6881,6 @@ function renderSplashScreen(container) {
 
 
 // ── SCREEN: AUTHENTICATION / LOGIN (4K HDR LEAF EMBLEM MATCHING media_1788254065136.png) ──
-let authFormMode = 'signup'; // 'signup' or 'signin'
-let passwordVisible = false;
 
 function get4kLeafSvg(sizePx = 44) {
   return `
@@ -6390,135 +6921,301 @@ function get4kLeafSvg(sizePx = 44) {
   `;
 }
 
-function renderLoginScreen(container) {
-  NuKropAnalytics.track('onboarding_login_screen_viewed', { mode: authFormMode });
 
+// ══════════════════════════════════════════════════════
+// AUTHENTICATION & LOGIN STATE CONTROLLERS
+// ══════════════════════════════════════════════════════
+let authUserRole = 'farmer'; // 'farmer' or 'driver'
+let authFormMode = 'signup'; // 'signup' or 'signin'
+let passwordVisible = false;
+
+function setAuthUserRole(role) {
+  authUserRole = role;
+  const overlay = document.getElementById('startup-experience-overlay') || document.getElementById('login-screen-overlay') || document.getElementById('screen-body');
+  if (overlay) renderLoginScreen(overlay);
+}
+
+function setAuthFormMode(mode) {
+  authFormMode = mode;
+  const overlay = document.getElementById('startup-experience-overlay') || document.getElementById('login-screen-overlay') || document.getElementById('screen-body');
+  if (overlay) renderLoginScreen(overlay);
+}
+
+function togglePasswordVisibility() {
+  passwordVisible = !passwordVisible;
+  const inp = document.getElementById('auth-password-input');
+  if (inp) {
+    inp.type = passwordVisible ? 'text' : 'password';
+  }
+}
+
+
+
+function loginAsDriver() {
+  const nameInp = document.getElementById('drv-login-name');
+  const phoneInp = document.getElementById('drv-login-phone');
+  const plateInp = document.getElementById('drv-login-plate');
+  const vehicleInp = document.getElementById('drv-login-vehicle');
+
+  const driverName = (nameInp && nameInp.value.trim()) || localStorage.getItem('nukrop_driver_name') || 'Registered Driver';
+  const driverPhone = (phoneInp && phoneInp.value.trim()) || localStorage.getItem('nukrop_driver_phone') || '+91 98490 22338';
+  const driverPlate = (plateInp && plateInp.value.trim()) || localStorage.getItem('nukrop_driver_plate') || 'TS-03-UB-4491';
+  const vehicleType = (vehicleInp && vehicleInp.value) || 'Tata Ace (1.5 Ton)';
+
+  localStorage.setItem('nukrop_user_role', 'driver');
+  localStorage.setItem('nukrop_driver_name', driverName);
+  localStorage.setItem('nukrop_driver_phone', driverPhone);
+  localStorage.setItem('nukrop_driver_plate', driverPlate);
+  localStorage.setItem('nukrop_driver_vehicle', vehicleType);
+
+  if (typeof GRAMHAUL_POOLED_TRUCKS !== 'undefined' && GRAMHAUL_POOLED_TRUCKS.length > 0) {
+    GRAMHAUL_POOLED_TRUCKS[0].driverName = driverName;
+    GRAMHAUL_POOLED_TRUCKS[0].driverPhone = driverPhone;
+    GRAMHAUL_POOLED_TRUCKS[0].plate = driverPlate;
+    GRAMHAUL_POOLED_TRUCKS[0].vehicle = vehicleType;
+  }
+
+  const ids = ['startup-experience-overlay', 'onboarding-experience-overlay', 'splash-viewport', 'login-screen-overlay'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast('🚚 Welcome to GramHaul, ' + driverName + '!', 'success');
+  }
+  openScreen('driver_dashboard', null);
+}
+
+function handleGuestLogin() {
+  const ids = ['startup-experience-overlay', 'onboarding-experience-overlay', 'splash-viewport', 'login-screen-overlay'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+  openScreen('home', document.getElementById('tab-home'));
+}
+
+function renderLoginScreen(container) {
+  NuKropAnalytics.track('onboarding_login_screen_viewed', { mode: authFormMode, role: authUserRole });
+
+  if (authUserRole === 'driver') {
+    // 🚚 DRIVER LOGIN
+    container.innerHTML = `
+      <div style="width:100%;height:100%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;background:linear-gradient(180deg, #ECFDF5 0%, #F8FAF8 30%, #FFFFFF 100%);color:#0F172A;overflow-y:auto;position:relative;padding:20px 18px;">
+        
+        <!-- Top Branding Section with 4K Green Leaf Emblem -->
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:auto;margin-bottom:12px;flex-shrink:0;z-index:2;">
+          <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%);border:2px solid #86EFAC;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,168,107,0.16);margin-bottom:6px;">
+            ${typeof get4kLeafSvg === 'function' ? get4kLeafSvg(40) : '<span style="font-size:26px;">🍃</span>'}
+          </div>
+          <div style="font-size:26px;font-weight:900;color:#0F172A;letter-spacing:-0.5px;line-height:1.1;">
+            NuKrop<span style="color:#00A86B;">AI</span>
+          </div>
+          <div style="font-size:12px;color:#64748B;font-weight:700;margin-top:2px;">
+            GramHaul Logistics · Driver Partner Portal
+          </div>
+        </div>
+
+        <!-- Main Form Card Container -->
+        <div style="background:#FFFFFF;border:1.5px solid #E2E8F0;border-radius:24px;padding:16px 16px 18px;box-shadow:0 8px 24px rgba(15,23,42,0.06);z-index:2;display:flex;flex-direction:column;gap:10px;">
+          
+          <!-- Segmented Mode Switcher: [ Farmer ] [ Truck Driver ] -->
+          <div style="background:#F1F5F9;border-radius:14px;padding:4px;display:flex;align-items:center;gap:4px;">
+            <button onclick="setAuthUserRole('farmer')" style="flex:1;background:transparent;color:#475569;border:none;border-radius:10px;padding:8px 0;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <span>🧑‍🌾</span><span>Farmer</span>
+            </button>
+            <button onclick="setAuthUserRole('driver')" style="flex:1;background:#0F172A;color:#FFFFFF;border:none;border-radius:10px;padding:8px 0;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,0.25);display:flex;align-items:center;justify-content:center;gap:6px;">
+              <span>🚚</span><span>Truck Driver</span>
+            </button>
+          </div>
+
+          <!-- Highlight Banner: GramHaul Driver Partner Portal -->
+          <div style="background:#FEF9C3;border:1px solid #FDE047;border-radius:14px;padding:8px 10px;display:flex;align-items:center;gap:8px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:#EA580C;display:flex;align-items:center;justify-content:center;font-size:16px;color:#FFFFFF;flex-shrink:0;">
+              🚚
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:900;color:#854D0E;">GramHaul Driver Partner Portal</div>
+              <div style="font-size:10px;color:#A16207;font-weight:600;">Receive live farm haul bookings & instant settlements</div>
+            </div>
+          </div>
+
+          <!-- Driver Name Input -->
+          <div>
+            <label style="display:block;font-size:10px;font-weight:800;color:#64748B;margin-bottom:2px;text-transform:uppercase;">Driver Full Name</label>
+            <input id="drv-login-name" type="text" value="${(localStorage.getItem('nukrop_driver_name') || '').replace(/"/g, '&quot;')}" placeholder="Enter driver full name" required style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:11px;padding:8px 12px;color:#0F172A;font-size:13px;font-weight:700;outline:none;" />
+          </div>
+
+          <!-- Phone Number Input -->
+          <div>
+            <label style="display:block;font-size:10px;font-weight:800;color:#64748B;margin-bottom:2px;text-transform:uppercase;">Mobile Number (DL Linked)</label>
+            <input id="drv-login-phone" type="text" value="${(localStorage.getItem('nukrop_driver_phone') || '').replace(/"/g, '&quot;')}" placeholder="Enter mobile number" required style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:11px;padding:8px 12px;color:#0F172A;font-size:13px;font-weight:700;outline:none;" />
+          </div>
+
+          <!-- Vehicle Registration Number Plate -->
+          <div>
+            <label style="display:block;font-size:10px;font-weight:800;color:#64748B;margin-bottom:2px;text-transform:uppercase;">Vehicle Plate No. (MoRTH IND)</label>
+            <input id="drv-login-plate" type="text" value="${(localStorage.getItem('nukrop_driver_plate') || '').replace(/"/g, '&quot;')}" placeholder="e.g. TS-03-UB-4491" required style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:11px;padding:8px 12px;color:#0F172A;font-size:13px;font-weight:800;letter-spacing:0.5px;outline:none;text-transform:uppercase;" />
+          </div>
+
+          <!-- Vehicle Model / Class Select -->
+          <div>
+            <label style="display:block;font-size:10px;font-weight:800;color:#64748B;margin-bottom:2px;text-transform:uppercase;">Vehicle Type</label>
+            <select id="drv-login-vehicle" style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:11px;padding:8px 12px;color:#0F172A;font-size:13px;font-weight:700;outline:none;">
+              <option value="Tata Ace (1.5 Ton)" selected>Tata Ace (1.5 Ton payload)</option>
+              <option value="Mahindra Bolero Maxi Truck (2.0 Ton)">Mahindra Bolero Maxi Truck (2.0 Ton)</option>
+              <option value="Ashok Leyland Dost+ (1.5 Ton)">Ashok Leyland Dost+ (1.5 Ton)</option>
+              <option value="Eicher Pro 2049 (3.5 Ton)">Eicher Pro 2049 (3.5 Ton)</option>
+            </select>
+          </div>
+
+          <!-- Enter Driver Cockpit Button -->
+          <button onclick="loginAsDriver()" style="background:#0F172A;color:#FFFFFF;border:none;border-radius:100px;padding:12px;font-size:13.5px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(15,23,42,0.25);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:2px;">
+            <span>🚚</span><span>Enter Driver Cockpit</span>
+          </button>
+
+          <!-- Divider -->
+          <div style="display:flex;align-items:center;margin:2px 0;gap:8px;">
+            <div style="flex:1;height:1px;background:#E2E8F0;"></div>
+            <span style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.5px;">or</span>
+            <div style="flex:1;height:1px;background:#E2E8F0;"></div>
+          </div>
+
+          <!-- Continue with Google Button for Driver -->
+          <button type="button" onclick="handleGoogleLogin()" style="width:100%;background:#FFFFFF;border:1.5px solid #E2E8F0;border-radius:100px;padding:10px 14px;color:#0F172A;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <!-- Switch to Farmer Link -->
+          <div style="text-align:center;">
+            <button onclick="setAuthUserRole('farmer')" style="background:none;border:none;color:#64748B;font-size:11px;font-weight:700;text-decoration:underline;cursor:pointer;">
+              Are you a farmer? Switch to Farmer Login
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Footer Links -->
+        <div style="text-align:center;margin-top:10px;margin-bottom:auto;">
+          <span onclick="loginAsDriver()" style="font-size:11.5px;color:#94A3B8;font-weight:700;cursor:pointer;text-decoration:underline;">
+            Skip & Explore as Guest →
+          </span>
+        </div>
+
+      </div>
+    `;
+    return;
+  }
+
+  // 🧑‍🌾 FARMER LOGIN
   const isSignUp = authFormMode === 'signup';
+  const rememberedName = (localStorage.getItem('nukrop_remembered_name') || localStorage.getItem('nukrop_user_name') || '').replace(/"/g, '&quot;');
+  const rememberedEmail = (localStorage.getItem('nukrop_remembered_email') || localStorage.getItem('nukrop_user_email') || '').replace(/"/g, '&quot;');
+  const rememberedPassword = (localStorage.getItem('nukrop_remembered_password') || '').replace(/"/g, '&quot;');
 
   container.innerHTML = `
-    <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;background:linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 35%, #FFFFFF 100%);color:#0F172A;overflow-y:auto;position:relative;padding:24px 20px 20px;">
+    <div style="width:100%;height:100%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;background:linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 35%, #FFFFFF 100%);color:#0F172A;overflow-y:auto;position:relative;padding:20px 18px;">
       
-      <!-- Subtle Decorative Background Glow -->
-      <div style="position:absolute;top:0;left:0;width:180px;height:180px;background:radial-gradient(circle, rgba(16,185,129,0.12) 0%, rgba(255,255,255,0) 70%);pointer-events:none;"></div>
-      <div style="position:absolute;top:100px;right:0;width:160px;height:160px;background:radial-gradient(circle, rgba(0,168,107,0.08) 0%, rgba(255,255,255,0) 70%);pointer-events:none;"></div>
-
       <!-- Top Branding Section -->
-      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:8px;margin-bottom:18px;flex-shrink:0;z-index:2;">
-        
-        <!-- 4K HDR Circular Leaf Emblem (Matching media_1788254065136.png & media_1788254099310.png) -->
-        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%);border:2.5px solid #86EFAC;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,168,107,0.18), 0 0 0 4px rgba(134,239,172,0.25);margin-bottom:12px;transition:transform 0.2s ease;">
-          ${get4kLeafSvg(48)}
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:auto;margin-bottom:12px;flex-shrink:0;z-index:2;">
+        <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg, #DCFCE7 0%, #F0FDF4 100%);border:2px solid #86EFAC;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,168,107,0.16);margin-bottom:6px;">
+          ${typeof get4kLeafSvg === 'function' ? get4kLeafSvg(40) : '<span style="font-size:26px;">🍃</span>'}
         </div>
-
-        <!-- NuKropAI Title in Bold Navy/Slate -->
-        <div style="font-size:30px;font-weight:900;color:#0F172A;letter-spacing:-0.5px;line-height:1.1;">
-          NuKropAI
+        <div style="font-size:26px;font-weight:900;color:#0F172A;letter-spacing:-0.5px;line-height:1.1;">
+          NuKrop<span style="color:#00A86B;">AI</span>
         </div>
-
-        <!-- Tagline -->
-        <div style="font-size:13px;color:#64748B;font-weight:600;margin-top:4px;letter-spacing:0.2px;">
+        <div style="font-size:12px;color:#64748B;font-weight:600;margin-top:2px;">
           Smart Agriculture · Powered by AI
         </div>
       </div>
 
-      <!-- Main Form Card Container in Our Clean Elevated Card Theme -->
-      <div style="background:#FFFFFF;border:1.5px solid #E2E8F0;border-radius:24px;padding:18px 16px 20px;box-shadow:0 8px 24px -4px rgba(15,23,42,0.06), 0 0 0 1px rgba(0,168,107,0.04);z-index:2;display:flex;flex-direction:column;gap:13px;">
+      <!-- Main Form Card -->
+      <div style="background:#FFFFFF;border:1.5px solid #E2E8F0;border-radius:24px;padding:16px 16px 18px;box-shadow:0 8px 24px rgba(15,23,42,0.06);z-index:2;display:flex;flex-direction:column;gap:10px;">
         
-        <!-- Segmented Tab Toggle: [ Sign Up ] [ Sign In ] in Our UI Style -->
-        <div style="background:#F1F5F9;border-radius:16px;padding:4px;display:flex;align-items:center;border:1px solid #E2E8F0;">
-          <button onclick="setAuthFormMode('signup')" style="flex:1;background:${isSignUp ? '#00A86B' : 'transparent'};color:${isSignUp ? '#FFFFFF' : '#64748B'};border:none;border-radius:12px;padding:10px 0;font-size:13.5px;font-weight:800;cursor:pointer;transition:all 0.15s ease;box-shadow:${isSignUp ? '0 2px 8px rgba(0,168,107,0.25)' : 'none'};">
+        <!-- Segmented Mode Switcher: [ Farmer ] [ Truck Driver ] -->
+        <div style="background:#F1F5F9;border-radius:14px;padding:4px;display:flex;align-items:center;gap:4px;">
+          <button onclick="setAuthUserRole('farmer')" style="flex:1;background:#00A86B;color:#FFFFFF;border:none;border-radius:10px;padding:8px 0;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(0,168,107,0.25);display:flex;align-items:center;justify-content:center;gap:6px;">
+            <span>🧑‍🌾</span><span>Farmer</span>
+          </button>
+          <button onclick="setAuthUserRole('driver')" style="flex:1;background:transparent;color:#475569;border:none;border-radius:10px;padding:8px 0;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+            <span>🚚</span><span>Truck Driver</span>
+          </button>
+        </div>
+
+        <!-- Auth Sub Mode Switcher: [ Sign Up ] [ Sign In ] -->
+        <div style="background:#F8FAFC;border-radius:12px;padding:3px;display:flex;align-items:center;border:1px solid #E2E8F0;">
+          <button onclick="setAuthFormMode('signup')" style="flex:1;background:${isSignUp ? '#0F172A' : 'transparent'};color:${isSignUp ? '#FFFFFF' : '#64748B'};border:none;border-radius:9px;padding:7px 0;font-size:12px;font-weight:800;cursor:pointer;">
             Sign Up
           </button>
-          <button onclick="setAuthFormMode('signin')" style="flex:1;background:${!isSignUp ? '#00A86B' : 'transparent'};color:${!isSignUp ? '#FFFFFF' : '#64748B'};border:none;border-radius:12px;padding:10px 0;font-size:13.5px;font-weight:800;cursor:pointer;transition:all 0.15s ease;box-shadow:${!isSignUp ? '0 2px 8px rgba(0,168,107,0.25)' : 'none'};">
+          <button onclick="setAuthFormMode('signin')" style="flex:1;background:${!isSignUp ? '#0F172A' : 'transparent'};color:${!isSignUp ? '#FFFFFF' : '#64748B'};border:none;border-radius:9px;padding:7px 0;font-size:12px;font-weight:800;cursor:pointer;">
             Sign In
           </button>
         </div>
 
-        <!-- Input 1: Full Name (Visible only on Sign Up) -->
-        ${isSignUp ? `
-        <div style="background:#F8FAF8;border:1.5px solid #CBD5E1;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color 0.15s ease;">
-          <!-- Blue Person Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
-            <circle cx="12" cy="8" r="4" fill="#0284C7"/>
-            <path d="M4 20C4 16 8 14 12 14C16 14 20 16 20 20" fill="#0284C7"/>
-          </svg>
-          <input type="text" id="auth-name-input" value="" placeholder="Enter your full name" placeholder="Full Name" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
-        </div>
-        ` : ''}
+        <!-- Inputs Form -->
+        <form onsubmit="handleFormAuthSubmit(event);return false;" style="display:flex;flex-direction:column;gap:8px;margin:0;">
+          ${isSignUp ? `
+            <div>
+              <label style="display:block;font-size:10px;font-weight:800;color:#64748B;margin-bottom:2px;text-transform:uppercase;">Farmer Name</label>
+              <input id="auth-name-input" type="text" value="${rememberedName}" placeholder="Enter your name" required style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:11px;padding:8px 12px;color:#0F172A;font-size:13px;font-weight:700;outline:none;" />
+            </div>
+          ` : ''}
 
-        <!-- Input 2: Email Address -->
-        <div style="background:#F8FAF8;border:1.5px solid #CBD5E1;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color 0.15s ease;">
-          <!-- Cyan/Emerald Envelope Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
-            <rect x="2" y="4" width="20" height="16" rx="3" fill="#00A86B" opacity="0.15"/>
-            <rect x="2" y="4" width="20" height="16" rx="3" stroke="#00A86B" stroke-width="2"/>
-            <path d="M2 7L12 13L22 7" stroke="#00A86B" stroke-width="2"/>
-          </svg>
-          <input type="email" id="auth-email-input" value="" placeholder="Enter email or mobile number" placeholder="Email Address" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
-        </div>
+          <div>
+            <label style="display:block;font-size:10px;font-weight:800;color:#64748B;margin-bottom:2px;text-transform:uppercase;">Email or Mobile Number</label>
+            <input id="auth-email-input" type="text" value="${rememberedEmail}" placeholder="e.g. 9849022338 or farmer@agri.in" required style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:11px;padding:8px 12px;color:#0F172A;font-size:13px;font-weight:700;outline:none;" />
+          </div>
 
-        <!-- Input 3: Password with Toggle Eye -->
-        <div style="background:#F8FAF8;border:1.5px solid #CBD5E1;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;position:relative;">
-          <!-- Golden Padlock Icon -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
-            <rect x="5" y="11" width="14" height="10" rx="2" fill="#F59E0B"/>
-            <path d="M8 11V7C8 4.79 9.79 3 12 3C14.21 3 16 4.79 16 7V11" stroke="#F59E0B" stroke-width="2.5"/>
-            <circle cx="12" cy="16" r="1.5" fill="#FFFFFF"/>
-          </svg>
-          <input type="${passwordVisible ? 'text' : 'password'}" id="auth-password-input" value="" placeholder="Enter password" placeholder="Password" style="width:100%;background:transparent;border:none;outline:none;font-size:14px;font-weight:700;color:#0F172A;">
-          <button type="button" onclick="togglePasswordVisibility()" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;color:#64748B;">
-            <!-- Eye Icon -->
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
+          <div>
+            <label style="display:block;font-size:10px;font-weight:800;color:#64748B;margin-bottom:2px;text-transform:uppercase;">Password / PIN</label>
+            <input id="auth-password-input" type="password" value="${rememberedPassword}" placeholder="Enter password" required style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:11px;padding:8px 12px;color:#0F172A;font-size:13px;font-weight:700;outline:none;" />
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" style="width:100%;background:linear-gradient(135deg,#00A86B,#059669);color:#FFFFFF;border:none;border-radius:100px;padding:12px;font-size:13.5px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(0,168,107,0.3);margin-top:2px;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span>${isSignUp ? 'Create Farmer Account' : 'Sign In to NuKrop'}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
-        </div>
+        </form>
 
-        <!-- Primary CTA Button in Our Brand Emerald Green (#00A86B) -->
-        <button onclick="handleFormAuthSubmit()" style="width:100%;background:#00A86B;color:#FFFFFF;border:none;border-radius:28px;padding:14px 20px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,168,107,0.35);transition:all 0.15s ease;">
-          <span>${isSignUp ? 'Create Account' : 'Sign In'}</span>
-        </button>
-
-        <!-- Divider with OR text in Our Clean Style -->
-        <div style="display:flex;align-items:center;gap:12px;margin:2px 0;">
+        <!-- Divider -->
+        <div style="display:flex;align-items:center;margin:2px 0;gap:8px;">
           <div style="flex:1;height:1px;background:#E2E8F0;"></div>
-          <span style="font-size:11px;font-weight:800;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;">
-            OR
-          </span>
+          <span style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.5px;">or</span>
           <div style="flex:1;height:1px;background:#E2E8F0;"></div>
         </div>
 
-        <!-- Continue with Google Button in Our Clean Style -->
-        <button onclick="handleGoogleLogin()" style="width:100%;background:#FFFFFF;border:1.5px solid #CBD5E1;border-radius:28px;padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.03);transition:all 0.15s ease;">
-          <!-- Google 'G' Multi-Color Icon -->
-          <svg width="19" height="19" viewBox="0 0 24 24">
+        <!-- Continue with Google Button -->
+        <button type="button" onclick="handleGoogleLogin()" style="width:100%;background:#FFFFFF;border:1.5px solid #E2E8F0;border-radius:100px;padding:10px 14px;color:#0F172A;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.04);">
+          <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
-          <span style="font-size:14px;font-weight:800;color:#1E293B;">
-            Continue with Google
-          </span>
+          <span>Continue with Google</span>
         </button>
+
+        <div style="text-align:center;">
+          <button onclick="setAuthUserRole('driver')" style="background:none;border:none;color:#64748B;font-size:11px;font-weight:700;text-decoration:underline;cursor:pointer;">
+            Are you a truck driver? Switch to Driver Portal
+          </button>
+        </div>
 
       </div>
 
-      <!-- Bottom Footer: "Already a farmer? Sign In" -->
-      <div style="margin-top:auto;padding-top:16px;text-align:center;z-index:2;">
-        <div style="font-size:13px;color:#64748B;font-weight:600;">
-          ${isSignUp ? 'Already a farmer?' : "Don't have an account?"}
-          <span onclick="setAuthFormMode('${isSignUp ? 'signin' : 'signup'}')" style="color:#00A86B;font-weight:800;cursor:pointer;margin-left:4px;text-decoration:underline;">
-            ${isSignUp ? 'Sign In' : 'Sign Up'}
-          </span>
-        </div>
-
-        <div style="margin-top:10px;">
-          <button onclick="handleGuestLogin()" style="background:none;border:none;color:#64748B;font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:underline;">
-            Skip & Explore as Guest →
-          </button>
-        </div>
+      <!-- Footer Guest Link -->
+      <div style="text-align:center;margin-top:10px;margin-bottom:auto;">
+        <span onclick="handleGuestLogin()" style="font-size:11.5px;color:#64748B;font-weight:700;cursor:pointer;text-decoration:underline;">
+          Skip & Explore as Guest →
+        </span>
       </div>
 
     </div>
@@ -6526,11 +7223,7 @@ function renderLoginScreen(container) {
 }
 
 
-function setAuthFormMode(mode) {
-  authFormMode = mode;
-  const container = document.getElementById('startup-experience-overlay');
-  if (container) renderLoginScreen(container);
-}
+
 
 function togglePasswordVisibility() {
   passwordVisible = !passwordVisible;
@@ -6547,235 +7240,8 @@ const SUPABASE_CONFIG = {
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4anFzZWllZ3dqZGZuY2NkY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NDU2NTMsImV4cCI6MjEwMTUyMTY1M30.J4swglpV5qu3hRZFll3aqhG1Y2G9mUllvXMjKq6Ikmo'
 };
 
-  // ========================================================================
-  // ENTERPRISE SUPABASE CLOUD SYNC & REAL-TIME CRUD ENGINE v4.0
-  // ========================================================================
-  
-
-  // 1. Fetch Kisan Community Posts & Comments from Supabase
-  async function fetchCommunityPostsFromSupabase() {
-    try {
-      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/community_posts?select=*,community_comments(*)&order=created_at.desc`, {
-        method: 'GET',
-        headers: {
-          'apikey': SUPABASE_CONFIG.anonKey,
-          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-          'Accept': 'application/json'
-        }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          console.log(`✅ Loaded ${data.length} community posts from Supabase!`);
-          COMMUNITY_POSTS_CATALOG = data.map(p => ({
-            id: p.id,
-            author: { en: p.author_name, te: p.author_name, hi: p.author_name },
-            avatarUrl: p.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-            avatar: '👨‍🌾',
-            verified: p.is_verified !== false,
-            verifiedBadge: 'Verified Progressive Farmer',
-            village: { en: p.author_village || 'Warangal', te: p.author_village || 'వరంగల్', hi: p.author_village || 'वारंगल' },
-            cropId: p.crop_id || 'cotton',
-            cropName: { en: getLocalizedCropName(p.crop_id||'cotton'), te: getLocalizedCropName(p.crop_id||'cotton'), hi: getLocalizedCropName(p.crop_id||'cotton') },
-            timeAgo: { en: 'Live on Cloud', te: 'క్లౌడ్ లైవ్', hi: 'क्लाउड लाइव' },
-            title: { en: p.title, te: p.title, hi: p.title },
-            text: { en: p.content, te: p.content, hi: p.content },
-            likes: p.likes_count || 0,
-            isLiked: false,
-            photos: p.media_type === 'image' && p.media_url ? [p.media_url] : [],
-            videos: p.media_type === 'video' && p.media_url ? [p.media_url] : [],
-            media_url: p.media_url,
-            media_type: p.media_type,
-            mediaLabel: { en: p.media_label || 'Field Media', te: p.media_label || 'మీడియా', hi: p.media_label || 'मीडिया' },
-            isResolved: p.is_resolved || false,
-            comments: (p.community_comments || []).map(c => ({
-              author: { en: c.author_name, te: c.author_name, hi: c.author_name },
-              avatarUrl: c.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-              role: c.author_role || 'Progressive Farmer',
-              text: { en: c.content, te: c.content, hi: c.content }
-            }))
-          }));
-          if (typeof renderCommunityFeedDom === 'function') {
-            renderCommunityFeedDom();
-          }
-        }
-      }
-    } catch(e) {
-      console.warn('Supabase Community sync fallback active:', e.message);
-    }
-  }
-
-  // 2. Push New Community Post to Supabase
-  async function pushCommunityPostToSupabase(post) {
-    try {
-      const authorName = (typeof farmerProfile !== 'undefined' && farmerProfile.name ? (typeof farmerProfile.name === 'object' ? (farmerProfile.name[currentLang] || farmerProfile.name.en) : farmerProfile.name) : 'Farmer');
-      const authorVillage = (typeof farmerProfile !== 'undefined' && farmerProfile.village ? (typeof farmerProfile.village === 'object' ? (farmerProfile.village[currentLang] || farmerProfile.village.en) : farmerProfile.village) : 'Warangal Rural');
-      const payload = {
-        author_name: authorName,
-        author_village: authorVillage,
-        avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-        crop_id: post.cropId || 'cotton',
-        title: typeof post.title === 'object' ? (post.title[currentLang] || post.title.en) : post.title,
-        content: typeof post.text === 'object' ? (post.text[currentLang] || post.text.en) : post.text,
-        media_url: post.media_url || null,
-        media_type: post.media_type || 'none',
-        media_label: post.media_type === 'video' ? '1 Field Video (HD)' : (post.media_type === 'image' ? '1 Field Photo' : 'Discussion'),
-        likes_count: 0,
-        comments_count: 0,
-        is_verified: true,
-        is_resolved: false
-      };
-
-      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/community_posts`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_CONFIG.anonKey,
-          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        console.log('✅ Community post saved to Supabase cloud!');
-        fetchCommunityPostsFromSupabase();
-      }
-    } catch(e) {
-      console.warn('Offline cache for community post:', e.message);
-    }
-  }
-
-  // 3. Push Comment to Supabase
-  async function pushCommunityCommentToSupabase(postId, commentText) {
-    try {
-      const authorName = (typeof farmerProfile !== 'undefined' && farmerProfile.name ? (typeof farmerProfile.name === 'object' ? (farmerProfile.name[currentLang] || farmerProfile.name.en) : farmerProfile.name) : 'Farmer');
-      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/community_comments`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_CONFIG.anonKey,
-          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          post_id: postId,
-          author_name: authorName,
-          author_role: 'Progressive Farmer',
-          avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-          content: commentText
-        })
-      });
-      if (res.ok) console.log('✅ Comment written to Supabase!');
-    } catch(e) {
-      console.warn('Comment sync fallback:', e.message);
-    }
-  }
-
-  // 4. Fetch Farm Khata Ledger Records from Supabase
-  async function fetchKhataFromSupabase() {
-    try {
-      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/khata_records?select=*&order=record_date.desc`, {
-        method: 'GET',
-        headers: {
-          'apikey': SUPABASE_CONFIG.anonKey,
-          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-          'Accept': 'application/json'
-        }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          console.log(`✅ Loaded ${data.length} Khata records from Supabase!`);
-          farmKhataEntries = data.map(r => ({
-            id: r.id,
-            type: r.type,
-            desc: { en: r.title, te: r.title, hi: r.title },
-            amount: parseFloat(r.amount),
-            date: r.record_date || new Date().toISOString().split('T')[0]
-          }));
-        }
-      }
-    } catch(e) {
-      console.warn('Supabase Khata offline fallback active:', e.message);
-    }
-  }
-
-  // 5. Push Farm Khata Record to Supabase
-  async function pushKhataToSupabase(entry) {
-    try {
-      const descText = typeof entry.desc === 'object' ? (entry.desc[currentLang] || entry.desc.en) : entry.desc;
-      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/khata_records`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_CONFIG.anonKey,
-          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          crop_id: 'cotton',
-          type: entry.type || 'expense',
-          category: entry.category || 'general',
-          title: descText,
-          amount: entry.amount,
-          record_date: entry.date || new Date().toISOString().split('T')[0]
-        })
-      });
-      if (res.ok) console.log('✅ Khata record saved to Supabase!');
-    } catch(e) {
-      console.warn('Khata sync fallback:', e.message);
-    }
-  }
-
-  // 6. Push GramHaul Truck Booking to Supabase
-  async function pushTruckBookingToSupabase(booking) {
-    try {
-      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/truck_bookings`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_CONFIG.anonKey,
-          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          driver_name: booking.driverName || 'Verified Driver',
-          driver_phone: booking.driverPhone || '+91 98480 22338',
-          vehicle: booking.vehicle || 'Tata Ace (1.5 Ton)',
-          from_loc: booking.from || 'Warangal Rural',
-          to_mandi: booking.destination || 'Warangal APMC Yard',
-          crop_name: booking.crop || 'Cotton',
-          quantity_qtl: (booking.bags || 15) * 0.5,
-          total_cost: booking.totalCost || 675,
-          status: 'confirmed'
-        })
-      });
-      if (res.ok) console.log('✅ Truck booking saved to Supabase!');
-    } catch(e) {
-      console.warn('Truck booking offline fallback:', e.message);
-    }
-  }
-
-  // 7. Master Synchronize All Supabase Services
-  async function syncAllSupabaseData() {
-    await Promise.allSettled([
-      fetchMandiRatesFromSupabase(),
-      fetchEquipmentFromSupabase(),
-      fetchCommunityPostsFromSupabase(),
-      fetchKhataFromSupabase()
-    ]);
-    isSupabaseSyncActive = true;
-    updateCloudSyncIndicator();
-  }
-
-  function updateCloudSyncIndicator() {
-    const badge = document.getElementById('cloud-sync-status-badge');
-    if (badge) {
-      badge.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:#22C55E;display:inline-block;animation:pulseDot 1.5s infinite;"></span> <span style="font-size:10px;font-weight:900;color:#15803D;">Supabase Live</span>';
-    }
-  }
-
-
-
 /* ═════════════════ FULL SUPABASE LIVE DATA GRID & CLOUD SYNC ENGINE ═════════════════ */
-
+let isSupabaseSyncActive = false;
 
 // 1. Fetch Real Agmarknet Mandi Rates from Supabase
 async function fetchMandiRatesFromSupabase() {
@@ -7061,7 +7527,7 @@ function openKccEnhanceModal() {
       </div>
 
       <div style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:14px;padding:14px;margin-bottom:18px;font-size:12px;color:#334155;line-height:1.5;">
-        <div><strong>Requested Limit:</strong> ₹2,50,000 (Current: ₹1,50,000)</div>
+        <div><strong>Requested Limit:</strong> ₹2,50,000 (Current: ₹3,00,000)</div>
         <div style="margin-top:4px;"><strong>AgriStack Land RoR:</strong> Verified (4.50 Acres Dharani)</div>
         <div style="margin-top:4px;"><strong>Status:</strong> Under Branch Manager Review (ETA: 24 Hours)</div>
       </div>
@@ -7186,7 +7652,11 @@ const GROQ_CONFIG = {
     'gsk_' + 'm592arL0vjqQvTXAiczQWGdyb3FYC0aQyoyG0WRfYpSrUZSqcwQA',
     'gsk_' + 'H8EJw4h732MGd34ZqGH4WGdyb3FYWZKzdfoa8CIt4vbryHatarpq'
   ],
-  models: ['openai/gpt-oss-20b']
+  models: [
+    'qwen/qwen3.6-27b',
+    'groq/compound-mini',
+    'openai/gpt-oss-20b'
+  ]
 };
 
 async function callTokenRouterAi(userQuery, activeLangCode) {
@@ -7434,12 +7904,227 @@ async function handleFormAuthSubmit() {
 
 
 function handleGoogleLogin() {
+  NuKropAnalytics.track('login_google_initiated');
+  if (window.AndroidBridge && typeof window.AndroidBridge.pickDeviceGoogleAccount === 'function') {
+    try {
+      window.AndroidBridge.pickDeviceGoogleAccount();
+      return;
+    } catch(e) {
+      console.warn('AndroidBridge pickDeviceGoogleAccount fallback:', e);
+    }
+  }
+  openInAppGoogleAuthModal();
+}
+
+window.onNativeGoogleAccountSelected = async function(email, name) {
+  if (!email) return;
+  const farmerName = name || (email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); })) || 'Registered User';
+
+  localStorage.setItem('nukrop_auth_method', 'google');
+  localStorage.setItem('nukrop_user_email', email);
+  localStorage.setItem('nukrop_user_name', farmerName);
+  localStorage.setItem('nukrop_farmer_name', farmerName);
+  localStorage.setItem('nukrop_onboarding_completed', 'true');
+  localStorage.setItem('nukrop_onboarding_plantix_completed', 'true');
+
+  if (typeof farmerProfile !== 'undefined') {
+    farmerProfile.name[currentLang] = farmerName;
+    farmerProfile.name.en = farmerName;
+    farmerProfile.email = email;
+  }
+
+  if (typeof AGRISTACK_FARMER_PROFILE !== 'undefined') {
+    AGRISTACK_FARMER_PROFILE.name = farmerName;
+  }
+
   try {
-    localStorage.setItem('nukrop_auth_method', 'google');
-    localStorage.setItem('nukrop_user_name', 'Progressive Farmer');
-    localStorage.setItem('nukrop_user_email', 'farmer@kisan.in');
+    await NuKropSupabase.saveUserProfile({
+      name: farmerName,
+      email: email,
+      phone: localStorage.getItem('nukrop_user_phone') || '',
+      state: AGRISTACK_FARMER_PROFILE.state || 'Telangana',
+      district: AGRISTACK_FARMER_PROFILE.district || 'Warangal',
+      crop: (typeof myActiveCrops !== 'undefined' && myActiveCrops[0]) ? myActiveCrops[0].id : 'Cotton',
+      acres: AGRISTACK_FARMER_PROFILE.totalLandAcres || 4.5
+    });
   } catch(e) {}
-  advanceSlide('slide_disease');
+
+  const gModal = document.getElementById('google-auth-modal');
+  if (gModal) gModal.remove();
+
+  const ids = ['startup-experience-overlay', 'onboarding-experience-overlay', 'splash-viewport', 'login-screen-overlay'];
+  ids.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.opacity = '0';
+      setTimeout(function() { el.remove(); }, 250);
+    }
+  });
+
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast('✅ Welcome, ' + farmerName + '! Signed in with Google (' + email + ').', 'success');
+  } else if (typeof showPremiumSnackBar === 'function') {
+    showPremiumSnackBar('✓ Welcome, ' + farmerName + '! Google Account linked.', 'success');
+  }
+
+  if (authUserRole === 'driver') {
+    openScreen('driver_dashboard', null);
+  } else {
+    openScreen('home', document.getElementById('tab-home'));
+  }
+};
+window.onNativeGoogleAccountNotFound = function() {
+  openInAppGoogleAuthModal();
+};
+
+
+function promptForCustomGoogleAccount() {
+  const customEmail = prompt("Enter your personal Google email address:", "");
+  if (!customEmail || !customEmail.includes('@')) return;
+  const customName = prompt("Enter your full name:", customEmail.split('@')[0]);
+  window.onNativeGoogleAccountSelected(customEmail.trim(), (customName || 'Registered User').trim());
+}
+
+function openInAppGoogleAuthModal() {
+  const existing = document.getElementById('google-auth-modal');
+  if (existing) existing.remove();
+
+  const savedEmail = localStorage.getItem('nukrop_user_email') || localStorage.getItem('nukrop_remembered_email') || '';
+  const savedName = localStorage.getItem('nukrop_user_name') || localStorage.getItem('nukrop_remembered_name') || '';
+
+  // Authentic Google Account List (with realistic identities)
+  const defaultAccounts = [
+    {
+      name: savedName || 'B. Jaswanth Reddy',
+      email: savedEmail || 'jaswanth.reddy.farmer@gmail.com',
+      avatarBg: 'linear-gradient(135deg, #00A86B, #059669)',
+      initial: (savedName || 'B')[0].toUpperCase(),
+      tag: 'Primary Account · Default'
+    },
+    {
+      name: 'Jaswanth Reddy (AgriTech)',
+      email: 'jaswanthreddy77@gmail.com',
+      avatarBg: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+      initial: 'J',
+      tag: 'Verified Farmer ID'
+    },
+    {
+      name: 'Kisan Seva Kendra (Warangal APMC)',
+      email: 'kisan.nukrop@gmail.com',
+      avatarBg: 'linear-gradient(135deg, #D97706, #B45309)',
+      initial: 'K',
+      tag: 'FPO / Cooperative Account'
+    },
+    {
+      name: 'NuKrop Farm Logistics Partner',
+      email: 'farmer.nukrop@gmail.com',
+      avatarBg: 'linear-gradient(135deg, #7C3AED, #6D28D9)',
+      initial: 'N',
+      tag: 'AgriStack Connected'
+    }
+  ];
+
+  const modalHtml = `
+    <div id="google-auth-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:999999;display:flex;flex-direction:column;justify-content:flex-end;backdrop-filter:blur(6px);animation:nkFadeIn 0.2s ease;">
+      <div style="background:#FFFFFF;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);max-height:85vh;overflow-y:auto;">
+        
+        <!-- Drag Handle -->
+        <div style="width:40px;height:4px;background:#CBD5E1;border-radius:2px;margin:0 auto 16px;"></div>
+
+        <!-- Google Branding Header -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:900;color:#0F172A;line-height:1.2;">Choose an account</div>
+            <div style="font-size:11.5px;color:#64748B;font-weight:600;">to continue to <span style="color:#00A86B;font-weight:800;">NuKropAI</span></div>
+          </div>
+          <button onclick="document.getElementById('google-auth-modal').remove()" style="background:#F1F5F9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#64748B;">✕</button>
+        </div>
+
+        <!-- Google Accounts List -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${defaultAccounts.map((acc, i) => `
+            <div onclick="selectGoogleAccount('${acc.email}', '${acc.name}')" style="display:flex;align-items:center;gap:14px;padding:12px 14px;border:1.5px solid ${i===0?'#86EFAC':'#E2E8F0'};border-radius:18px;background:${i===0?'#F0FDF4':'#FFFFFF'};cursor:pointer;transition:all 0.15s ease;box-shadow:0 2px 8px rgba(15,23,42,0.03);">
+              <div style="width:42px;height:42px;border-radius:50%;background:${acc.avatarBg};color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,0.12);flex-shrink:0;">${acc.initial}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                  <span style="font-size:13.5px;font-weight:800;color:#0F172A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${acc.name}</span>
+                  ${i===0 ? '<span style="font-size:10px;font-weight:800;color:#15803D;background:#DCFCE7;padding:2px 6px;border-radius:6px;flex-shrink:0;">Signed In</span>' : ''}
+                </div>
+                <div style="font-size:11.5px;color:#475569;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${acc.email}</div>
+              </div>
+            </div>
+          `).join('')}
+
+          <!-- Add Another Google Account Row -->
+          <div onclick="promptForCustomGoogleAccount()" style="display:flex;align-items:center;gap:14px;padding:12px 14px;border:1.5px dashed #CBD5E1;border-radius:18px;background:#F8FAFC;cursor:pointer;transition:all 0.15s ease;">
+            <div style="width:42px;height:42px;border-radius:50%;background:#F1F5F9;border:1.5px solid #CBD5E1;color:#64748B;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex-shrink:0;">+</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:800;color:#0F172A;">Use another Google account</div>
+              <div style="font-size:11px;color:#64748B;font-weight:500;">Add different Gmail or Google Workspace ID</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Security & AgriStack Policy Footer -->
+        <div style="margin-top:16px;text-align:center;font-size:11px;color:#94A3B8;line-height:1.4;">
+          To continue, Google will share your name, email address, and profile picture with NuKropAI. See NuKropAI's <span style="text-decoration:underline;color:#64748B;cursor:pointer;">Privacy Policy</span> and <span style="text-decoration:underline;color:#64748B;cursor:pointer;">Terms of Service</span>.
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function selectGoogleAccount(email, name) {
+  const gModal = document.getElementById('google-auth-modal');
+  if (gModal) gModal.remove();
+  window.onNativeGoogleAccountSelected(email, name);
+}
+
+function promptForCustomGoogleAccount() {
+  const customEmail = prompt("Enter your personal Google email address (e.g. name@gmail.com):", "");
+  if (!customEmail || !customEmail.includes('@')) return;
+  const customName = prompt("Enter your full name:", customEmail.split('@')[0]);
+  selectGoogleAccount(customEmail.trim(), (customName || 'Registered User').trim());
+}
+
+function switchUserRole(role) {
+  authUserRole = role;
+  localStorage.setItem('nukrop_user_role', role);
+  if (role === 'driver') {
+    openScreen('driver_dashboard', null);
+    if (typeof showLuxuryToast === 'function') showLuxuryToast('🚚 Switched to GramHaul Driver Cockpit', 'info');
+  } else {
+    openScreen('home', document.getElementById('tab-home'));
+    if (typeof showLuxuryToast === 'function') showLuxuryToast('🧑‍🌾 Switched to Farmer Operations Hub', 'success');
+  }
+}
+
+function toggleDriverOnlineStatus(btn) {
+  if (!btn) return;
+  const isOnline = btn.textContent.includes('ON');
+  if (isOnline) {
+    btn.textContent = 'Duty OFF';
+    btn.style.background = '#64748B';
+    if (typeof showLuxuryToast === 'function') showLuxuryToast('🔴 You are now OFFLINE. New haul broadcasts paused.', 'warning');
+  } else {
+    btn.textContent = 'Duty ON';
+    btn.style.background = '#15803D';
+    if (typeof showLuxuryToast === 'function') showLuxuryToast('🟢 You are now ONLINE! Receiving live farm haul bookings.', 'success');
+  }
+}
+
+function acceptHaulBooking(haulId, amount) {
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast('✅ Haul #' + haulId + ' Accepted! (₹ ' + amount + ' UPI guaranteed on dropoff)', 'success');
+  }
 }
 
 function completeGoogleAuth(email, name) {
@@ -8204,9 +8889,6 @@ function finishPlantixOnboarding() {
 }
 
 function initStartupExperience(forceReplay = false) {
-    var appShell = document.getElementById('app-shell');
-    if(appShell) appShell.style.display = 'none';
-
   if (!forceReplay) {
     try {
       const completed = localStorage.getItem('nukrop_onboarding_plantix_completed');
@@ -8397,8 +9079,8 @@ function sendAiChatMessage(customPrompt) {
       );
     } else if (qLower.includes('profile') || qLower.includes('khata') || qLower.includes('land') || qLower.includes('ఖాతా') || qLower.includes('jaswanth') || qLower.includes('account')) {
       responseText = TL(
-        '👤 **Your NuKropAI Farmer Profile:**\n\n• **Name**: B. Jaswanth Reddy\n• **Farmer ID**: TG-WGL-87621\n• **Location**: Hanamkonda, Warangal, Telangana\n• **Registered Land**: 4.5 Acres\n• **KCC Credit Limit**: ₹1,50,000 (4% subsidized interest)\n• **Soil Health Score**: 98.2% (Excellent)\n• **PM-KISAN Status**: 18th installment — eKYC Verified ✅\n• **Languages Supported**: 11 Indian languages\n\n💡 Tap Profile tab to update your land details or switch language.',
-        '👤 **మీ ప్రొఫైల్:**\n\n• పేరు: బి. జస్వంత్ రెడ్డి\n• ఐడి: TG-WGL-87621\n• భూమి: 4.5 ఎకరాలు\n• KCC పరిమితి: ₹1,50,000\n• PM-కిసాన్: eKYC ధృవీకరించబడింది ✅',
+        '👤 **Your NuKropAI Farmer Profile:**\n\n• **Name**: B. Jaswanth Reddy\n• **Farmer ID**: FR-2026-9874512\n• **Location**: Hanamkonda, Warangal, Telangana\n• **Registered Land**: 4.5 Acres\n• **KCC Credit Limit**: ₹3,00,000 (4% subsidized interest)\n• **Soil Health Score**: 98.2% (Excellent)\n• **PM-KISAN Status**: 18th installment — eKYC Verified ✅\n• **Languages Supported**: 11 Indian languages\n\n💡 Tap Profile tab to update your land details or switch language.',
+        '👤 **మీ ప్రొఫైల్:**\n\n• పేరు: బి. జస్వంత్ రెడ్డి\n• ఐడి: FR-2026-9874512\n• భూమి: 4.5 ఎకరాలు\n• KCC పరిమితి: ₹3,00,000\n• PM-కిసాన్: eKYC ధృవీకరించబడింది ✅',
         '👤 **आपकी प्रोफाइल:**\n\n• नाम: बी. जसवंत रेड्डी | जमीन: 4.5 एकड़ | KCC: ₹1.5L'
       );
     } else if (qLower.includes('app') || qLower.includes('nukrop') || qLower.includes('feature') || qLower.includes('help') || qLower.includes('what can') || qLower.includes('నుక్రాప్')) {
@@ -8580,7 +9262,41 @@ function startVoiceInput() {
 let currentChatTab = 'live'; // 'live' | 'history'
 let currentSubsidyFilter = 'all'; // 'all' | 'central' | 'state'
 
-const SAVED_AI_CONSULTATIONS = [];
+const SAVED_AI_CONSULTATIONS = [
+  {
+    id: 'consult-1',
+    date: '31 Aug 2026 · 04:15 PM',
+    topic: { en: 'Cotton Pink Bollworm Spray Dose', te: 'పత్తిలో గులాబీ రంగు పురుగు నివారణ మందు', hi: 'कपास गुलाबी सुंडी स्प्रे खुराक' },
+    crop: 'Cotton / 4.5 Acres',
+    summary: {
+      en: 'ICAR Recommendation: Profenofos 50% EC @ 350ml/acre or Neem Oil 10,000 ppm. Spray window: 4:00 PM – 6:30 PM.',
+      te: 'ICAR సిఫార్సు: ప్రొఫెనోఫాస్ 50% EC (350మి.లీ/ఎకరం) లేదా వేప నూనె 10,000 ppm. పిచికారీ సమయం: సాయంత్రం 4:00 – 6:30.',
+      hi: 'ICAR सिफारिश: प्रोफेनोफॉस 50% EC @ 350ml/एकड़ या नीम तेल। समय: 4:00 - 6:30 बजे।'
+    }
+  },
+  {
+    id: 'consult-2',
+    date: '30 Aug 2026 · 11:30 AM',
+    topic: { en: 'Warangal Mandi Price Trend Forecast', te: 'వరంగల్ మార్కెట్ ధరల పెరుగుదల అంచనా', hi: 'वारंगल मंडी भाव तेजी अनुमान' },
+    crop: 'Red Chilli / Teja Quality',
+    summary: {
+      en: 'Teja Chilli Trading @ ₹19,800/Qtl. Bullish momentum with +4% expected increase due to export arrivals.',
+      te: 'తేజ మిర్చి ధర ₹19,800/క్వింటాల్. ఎగుమతుల డిమాండ్ కారణంగా +4% మరింత పెరిగే అవకాశం.',
+      hi: 'तेजा मिर्च भाव ₹19,800/क्विंटल। निर्यात मांग के कारण भाव में +4% तेजी का अनुमान।'
+    }
+  },
+  {
+    id: 'consult-3',
+    date: '28 Aug 2026 · 09:45 AM',
+    topic: { en: 'ICAR Basal Fertilizer Plan for 4.50 Acres', te: '4.50 ఎకరాలకు ఎరువుల సమతుల్య ప్రణాళిక', hi: '4.50 एकड़ हेतु संतुलित उर्वरक योजना' },
+    crop: 'Soil Health Score: 98.2%',
+    summary: {
+      en: 'DAP: 100 kg basal + Urea 135 kg split in 3 doses + MOP Potash 75 kg. Saves ₹1,850 in input expenses.',
+      te: 'DAP: 100 కిలోల దుక్కిలో + యూరియా 135 కిలోలు (3 దఫాలు) + పొటాష్ 75 కిలోలు. ₹1,850 ఆదా.',
+      hi: 'डीएपी 100 किग्रा + यूरिया 135 किग्रा (3 बार) + पोटाश 75 किग्रा। ₹1,850 की बचत।'
+    }
+  }
+];
 
 function setChatTab(tab) {
   currentChatTab = tab;
@@ -9678,7 +10394,7 @@ const APP_VIEWS = {
     const isHi = currentLang === 'hi';
     const kccTitle = TL('Kisan Credit Card (KCC) Limit', 'కిసాన్ క్రెడిట్ కార్డు (KCC) పంట రుణ పరిమితి', 'किसान क्रेडिट कार्ड (KCC) फसली ऋण सीमा');
     const kccSub = TL('Pre-approved based on verified land title. Timely repayment unlocks 3% prompt subvention (4% effective interest).', 'అగ్రిస్టాక్ భూమి వివరాల ప్రకారం ముందస్తు ఆమోదం. సకాలంలో చెల్లిస్తే 3% వడ్డీ రాయితీ లభిస్తుంది (ప్రభావవంతమైన వడ్డీ 4%).', 'एग्रीस्टैक भूमि रिकॉर्ड अनुसार पूर्व-स्वीकृत। समय पर अदायगी पर 3% ब्याज छूट (4% प्रभावी ब्याज दर)।');
-    const sanctionedAmount = '₹1,50,000';
+    const sanctionedAmount = '₹3,00,000';
 
     const filteredSchemes = currentSubsidyFilter === 'all'
       ? GOVT_SCHEMES_CATALOG
@@ -10508,6 +11224,184 @@ const APP_VIEWS = {
   },
 
   /* ── 16. PROFILE ── */
+  
+  /* 🚗 17. GRAMHAUL DRIVER COCKPIT & HAUL OPERATIONS DASHBOARD */
+  driver_dashboard: () => {
+    const t = I18N[currentLang] || I18N.te;
+    const driverName = localStorage.getItem('nukrop_driver_name') || localStorage.getItem('nukrop_user_name') || 'Jaswanth Reddy';
+    const driverPhone = localStorage.getItem('nukrop_driver_phone') || '+91 98490 22338';
+    const vehiclePlate = localStorage.getItem('nukrop_driver_plate') || 'TS-03-UB-4491';
+    const vehicleType = localStorage.getItem('nukrop_driver_vehicle') || 'Tata Ace Gold (1.5 Ton)';
+    
+    return `
+      <!-- Top Driver Header Bar -->
+      <div style="padding:14px 18px 12px;background:linear-gradient(180deg, #0F172A 0%, #1E293B 100%);color:#FFFFFF;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg, #F59E0B, #D97706);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 10px rgba(245,158,11,0.35);">
+              🚚
+            </div>
+            <div>
+              <div style="font-size:15px;font-weight:900;letter-spacing:-0.2px;">GramHaul Cockpit</div>
+              <div style="font-size:11px;color:#94A3B8;font-weight:600;">${driverName} · ${vehiclePlate}</div>
+            </div>
+          </div>
+          
+          <button onclick="switchUserRole('farmer')" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:100px;padding:6px 12px;color:#FFFFFF;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;backdrop-filter:blur(6px);">
+            <span>🧑‍🌾</span><span>Farmer View</span>
+          </button>
+        </div>
+
+        <!-- Driver Status & Quick Toggle -->
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22C55E;box-shadow:0 0 10px #22C55E;"></span>
+            <div>
+              <div style="font-size:12px;font-weight:800;color:#F8FAFC;">ONLINE · Ready for Loads</div>
+              <div style="font-size:10px;color:#94A3B8;">GPS Active · Warangal Central Cluster</div>
+            </div>
+          </div>
+          <button onclick="toggleDriverOnlineStatus(this)" style="background:#15803D;color:#FFFFFF;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;">
+            Duty ON
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Earnings & Distance Metric Strip -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px 18px;">
+        <div class="m3-card" style="padding:12px;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;text-align:center;box-shadow:0 2px 8px rgba(15,23,42,0.04);">
+          <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;">Today's Payout</div>
+          <div style="font-size:16px;font-weight:900;color:#15803D;margin:2px 0;">₹4,850</div>
+          <div style="font-size:9.5px;color:#059669;font-weight:700;">4 Trips Done</div>
+        </div>
+        <div class="m3-card" style="padding:12px;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;text-align:center;box-shadow:0 2px 8px rgba(15,23,42,0.04);">
+          <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;">Distance</div>
+          <div style="font-size:16px;font-weight:900;color:#0F172A;margin:2px 0;">48.2 km</div>
+          <div style="font-size:9.5px;color:#64748B;font-weight:600;">3 Mandis</div>
+        </div>
+        <div class="m3-card" style="padding:12px;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;text-align:center;box-shadow:0 2px 8px rgba(15,23,42,0.04);">
+          <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;">Driver Rating</div>
+          <div style="font-size:16px;font-weight:900;color:#D97706;margin:2px 0;">4.9 ★</div>
+          <div style="font-size:9.5px;color:#64748B;font-weight:600;">128 Reviews</div>
+        </div>
+      </div>
+
+      <!-- Live Active In-Transit Trip Card -->
+      <div style="padding:0 18px 14px;">
+        <div class="m3-card" style="padding:16px;background:linear-gradient(135deg, #FFFFFF 0%, #F0FDF4 100%);border:1.5px solid #86EFAC;border-radius:20px;box-shadow:0 4px 16px -2px rgba(22,163,74,0.12);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="background:#DCFCE7;color:#15803D;font-size:10.5px;font-weight:900;padding:3px 8px;border-radius:6px;border:1px solid #86EFAC;">LIVE TRIP #GH-4192</span>
+              <span style="font-size:11px;font-weight:700;color:#15803D;">● In Transit</span>
+            </div>
+            <div style="font-size:15px;font-weight:900;color:#15803D;">₹1,850</div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
+            <div style="display:flex;flex-direction:column;align-items:center;padding-top:4px;">
+              <div style="width:10px;height:10px;border-radius:50%;background:#00A86B;"></div>
+              <div style="width:2px;height:24px;background:#CBD5E1;margin:2px 0;"></div>
+              <div style="width:10px;height:10px;border-radius:50%;background:#EF4444;"></div>
+            </div>
+            <div style="flex:1;">
+              <div>
+                <div style="font-size:12.5px;font-weight:800;color:#0F172A;">Ramesh Rao's Cotton Farm</div>
+                <div style="font-size:10.5px;color:#64748B;">Narsampet Village · 40 Quintals DCH-32</div>
+              </div>
+              <div style="margin-top:10px;">
+                <div style="font-size:12.5px;font-weight:800;color:#0F172A;">Warangal APMC Enamamula Yard</div>
+                <div style="font-size:10.5px;color:#64748B;">Gate 3 Spices & Cotton Shed · 11.4 km remaining</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trip Action Buttons -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <button onclick="openDriverCallModal('Ramesh Rao', '+91 98491 10022', 'Tata Ace', '4.9')" style="background:#FFFFFF;border:1.5px solid #CBD5E1;border-radius:12px;padding:9px;color:#0F172A;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <span>📞</span><span>Call Farmer</span>
+            </button>
+            <button onclick="showLuxuryToast('🗺️ GPS Turn-by-Turn Navigation Launched!', 'info')" style="background:#15803D;color:#FFFFFF;border:none;border-radius:12px;padding:9px;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 8px rgba(21,128,61,0.3);">
+              <span>🧭</span><span>Start GPS</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Available Farm Haul Bookings (Broadcast Pool) -->
+      <div style="padding:0 18px 12px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:14px;font-weight:900;color:#0F172A;">Available Farm Haul Orders (3 Nearby)</div>
+        <span style="font-size:11px;font-weight:700;color:#0284C7;background:#E0F2FE;padding:2px 8px;border-radius:10px;">Live Feed</span>
+      </div>
+
+      <div style="padding:0 18px 90px;display:flex;flex-direction:column;gap:12px;">
+        <!-- Haul Card 1 -->
+        <div class="m3-card" style="padding:14px;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:18px;box-shadow:0 2px 10px rgba(15,23,42,0.05);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:18px;">🌶️</span>
+              <div>
+                <div style="font-size:13px;font-weight:800;color:#0F172A;">Teja Chilli (25 Bags · 2.5 Ton)</div>
+                <div style="font-size:10.5px;color:#64748B;">Farmer: K. Anjaiah · Hasanparthy (5.8 km away)</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:15px;font-weight:900;color:#15803D;">₹4,200</div>
+              <div style="font-size:9.5px;color:#64748B;">Direct UPI</div>
+            </div>
+          </div>
+          <div style="background:#F8FAFC;border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#334155;">
+            📍 <strong>Drop:</strong> Khammam Spices APMC (62 km) · Loading helper provided
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button onclick="openDriverCallModal('K. Anjaiah', '+91 94401 22910', 'Tata Ace', '4.8')" style="background:#FFFFFF;border:1px solid #CBD5E1;border-radius:10px;padding:8px;font-size:11.5px;font-weight:800;color:#334155;cursor:pointer;">📞 Call Farmer</button>
+            <button onclick="acceptHaulBooking('GH-8824', '4200')" style="background:#0F172A;color:#FFFFFF;border:none;border-radius:10px;padding:8px;font-size:11.5px;font-weight:800;cursor:pointer;">✅ Accept Haul</button>
+          </div>
+        </div>
+
+        <!-- Haul Card 2 -->
+        <div class="m3-card" style="padding:14px;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:18px;box-shadow:0 2px 10px rgba(15,23,42,0.05);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:18px;">🍅</span>
+              <div>
+                <div style="font-size:13px;font-weight:800;color:#0F172A;">Hybrid Tomato (120 Crates · 3.0 Ton)</div>
+                <div style="font-size:10.5px;color:#64748B;">Farmer: S. Venkat · Wardhannapet (8.1 km)</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:15px;font-weight:900;color:#15803D;">₹7,500</div>
+              <div style="font-size:9.5px;color:#64748B;">Direct UPI</div>
+            </div>
+          </div>
+          <div style="background:#F8FAFC;border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#334155;">
+            📍 <strong>Drop:</strong> Bowenpally Wholesale Mandi, Hyderabad (128 km)
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button onclick="openDriverCallModal('S. Venkat', '+91 98492 88441', 'Tata Ace', '4.9')" style="background:#FFFFFF;border:1px solid #CBD5E1;border-radius:10px;padding:8px;font-size:11.5px;font-weight:800;color:#334155;cursor:pointer;">📞 Call Farmer</button>
+            <button onclick="acceptHaulBooking('GH-8829', '7500')" style="background:#0F172A;color:#FFFFFF;border:none;border-radius:10px;padding:8px;font-size:11.5px;font-weight:800;cursor:pointer;">✅ Accept Haul</button>
+          </div>
+        </div>
+
+        <!-- Vehicle Health & Toll Status -->
+        <div class="m3-card" style="padding:14px;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:18px;">
+          <div style="font-size:12.5px;font-weight:800;color:#0F172A;margin-bottom:8px;">🚚 Vehicle Diagnostics & FASTag</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F1F5F9;font-size:11.5px;">
+            <span style="color:#64748B;">Diesel Fuel Level</span>
+            <span style="font-weight:800;color:#15803D;">78% (Range: 320 km)</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F1F5F9;font-size:11.5px;">
+            <span style="color:#64748B;">FASTag Balance</span>
+            <span style="font-weight:800;color:#0F172A;">₹1,450.00</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:11.5px;">
+            <span style="color:#64748B;">Engine / Maintenance</span>
+            <span style="font-weight:800;color:#0284C7;">OK · Service in 1,400 km</span>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
   profile: () => {
     const t = I18N[currentLang] || I18N.te;
     const isTe = currentLang === 'te';
@@ -10578,7 +11472,7 @@ const APP_VIEWS = {
               <div style="width:36px;height:36px;border-radius:10px;background:#EFF6FF;color:#2563EB;display:flex;align-items:center;justify-content:center;font-size:17px;">🪪</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('AgriStack Digital Passport & RoR', 'అగ్రిస్టాక్ డిజిటల్ పాస్‌పోర్ట్ & పట్టాదారు పాస్‌బుక్', 'एग्रीस्टैक डिजिटल पासपोर्ट व खतौनी')}</div>
-                <div style="font-size:10.5px;color:#64748B;font-weight:600;">Khata: 1104 · Survey No: 342/A (Govt Verified)</div>
+                <div style="font-size:10.5px;color:#64748B;font-weight:600;">Khata: TS-WGL-8941 · Survey: 142/A-2, 98/B-1, 104/1 (4.50 Ac Verified)</div>
               </div>
             </div>
             <span style="font-size:14px;color:#94A3B8;">›</span>
@@ -10600,7 +11494,7 @@ const APP_VIEWS = {
               <div style="width:36px;height:36px;border-radius:10px;background:#FEF3C7;color:#D97706;display:flex;align-items:center;justify-content:center;font-size:17px;">💰</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:800;color:#0F172A;">${TL('Kisan Credit Card (KCC) & Subsidies', 'KCC పంట ఋణం & PM-కిసాన్ సబ్సిడీలు', 'केसीसी ऋण व सरकारी सब्सिडी (DBT)')}</div>
-                <div style="font-size:10.5px;color:#D97706;font-weight:700;">₹1.50 Lakh Active Limit @ 4% Subsidized ROI</div>
+                <div style="font-size:10.5px;color:#D97706;font-weight:700;">₹3.00 Lakh Active Limit @ 4% Subsidized ROI</div>
               </div>
             </div>
             <span style="font-size:14px;color:#94A3B8;">›</span>
@@ -10809,35 +11703,35 @@ const OFFICIAL_GOVT_LAND_PORTALS = {
 
 let AGRISTACK_FARMER_PROFILE = {
   farmerId: 'FR-2026-9874512',
-  stateFarmerId: 'AP-TG-234-87621',
+  stateFarmerId: 'TS-WGL-8941',
   name: 'B. Jaswanth Reddy',
-  aadhaarMasked: 'XXXXXXXX1234',
-  phone: '+91 98490 12345',
+  aadhaarMasked: 'XXXXXXXX8941',
+  phone: '+91 98490 22338',
   state: 'Telangana',
-  district: 'Warangal Rural',
+  district: 'Warangal',
   mandal: 'Geesugonda',
   village: 'Dharmaram',
   ekycStatus: 'VERIFIED',
   consentTimestamp: '2026-08-31T14:27:00Z',
-  creditScore: 768,
+  creditScore: 785,
   creditGrade: 'Grade A+ (Prime Ag-Credit)',
   kccPreApprovedLimit: 300000,
   interestRateStr: '4% (with 3% prompt subvention)',
   pmKisanDbtStatus: 'ACTIVE_DISBURSED',
-  totalLandAcres: 4.5,
+  totalLandAcres: 4.50,
   parcels: [
     {
-      parcelId: 'PL-TS-WGL-00452',
-      surveyNumber: '142/A',
+      parcelId: 'PL-TS-WGL-142A2',
+      surveyNumber: '142/A-2',
       subSurvey: '2',
-      khasraId: 'KH-84291',
-      khataNumber: 'KT-4819',
+      khasraId: 'KH-142-A2',
+      khataNumber: 'TS-WGL-8941',
       pattadarName: 'B. Jaswanth Reddy',
-      extentAcres: 2.5,
+      extentAcres: 2.50,
       ownershipType: 'INDIVIDUAL_100',
-      landClassification: 'Patta Dry / Garden (Bagayat)',
-      soilType: 'Black Cotton Loam (pH 7.2)',
-      waterSource: 'Solar Borewell + Micro-Drip',
+      landClassification: 'Patta Dry',
+      soilType: 'Black Cotton Soil (pH 6.8)',
+      waterSource: 'Solar Drip',
       coordinates: [17.9689, 79.5941],
       polygonBounds: [
         [17.9702, 79.5928],
@@ -10849,31 +11743,30 @@ let AGRISTACK_FARMER_PROFILE = {
       portalUrl: 'https://dharani.telangana.gov.in/',
       isRealUserLinked: true,
       dcs: {
-        surveyId: 'DCS-2026-K-8921',
+        surveyId: 'ECROP-2026-KHARIF-98214',
         season: 'Kharif 2026',
         surveyDate: '15 Aug 2026',
-        verifiedBy: 'M. Srinivas Rao (Agronomy Officer #412)',
+        verifiedBy: 'M. Srinivas Rao (Agronomy Officer #412) & VRO',
         status: 'VERIFIED_BY_OFFICER',
         crops: [
-          { name: 'Chilli (Teja Guntur Red)', variety: 'Teja Superior', areaAcres: 1.8, stage: 'Flowering & Fruiting', irrigation: 'Drip Irrigation', health: 'Good (Treated for Leaf Curl)' },
-          { name: 'Cotton (Bt-Hybrid II)', variety: 'RCH-659', areaAcres: 0.7, stage: 'Boll Development', irrigation: 'Rainfed + Borewell', health: 'Healthy' }
+          { name: 'Cotton (45 Days)', variety: 'Bt Cotton Hybrid', areaAcres: 2.50, stage: 'Vegetative / Squaring', irrigation: 'Solar Drip', health: 'Optimal' }
         ],
         fallowAcres: 0.0,
-        geoPhotoUrl: 'https://agristack.gov.in/dcs/photos/PL-TS-WGL-00452.jpg'
+        geoPhotoUrl: 'https://agristack.gov.in/dcs/photos/PL-TS-WGL-142A2.jpg'
       }
     },
     {
-      parcelId: 'PL-TS-WGL-00891',
-      surveyNumber: '98/B',
+      parcelId: 'PL-TS-WGL-98B1',
+      surveyNumber: '98/B-1',
       subSurvey: '1',
-      khasraId: 'KH-55102',
-      khataNumber: 'KT-3104',
-      pattadarName: 'B. Jaswanth Reddy & Co-Owners',
-      extentAcres: 2.0,
-      ownershipType: 'JOINT_FAMILY (50% Share)',
-      landClassification: 'Wetland (Tari / Canal Irrigated)',
-      soilType: 'Red Sandy Loam (pH 6.8)',
-      waterSource: 'Village Canal + Open Well',
+      khasraId: 'KH-98-B1',
+      khataNumber: 'TS-WGL-8941',
+      pattadarName: 'B. Jaswanth Reddy',
+      extentAcres: 1.25,
+      ownershipType: 'INDIVIDUAL_100',
+      landClassification: 'Patta Garden',
+      soilType: 'Red Loamy Soil',
+      waterSource: 'Borewell',
       coordinates: [17.9655, 79.5920],
       polygonBounds: [
         [17.9664, 79.5910],
@@ -10883,19 +11776,53 @@ let AGRISTACK_FARMER_PROFILE = {
       ],
       stateCode: 'TS',
       portalUrl: 'https://dharani.telangana.gov.in/',
-      isRealUserLinked: false,
+      isRealUserLinked: true,
       dcs: {
-        surveyId: 'DCS-2026-K-9402',
+        surveyId: 'ECROP-2026-KHARIF-98215',
         season: 'Kharif 2026',
         surveyDate: '18 Aug 2026',
-        verifiedBy: 'K. Rajendra (Revenue Inspector)',
+        verifiedBy: 'M. Srinivas Rao (Agronomy Officer #412)',
         status: 'VERIFIED_BY_OFFICER',
         crops: [
-          { name: 'Paddy (Rice / Sona Masoori)', variety: 'BPT-5204', areaAcres: 1.5, stage: 'Tillering Stage', irrigation: 'Canal Flow', health: 'Optimal' },
-          { name: 'Maize (Kharif Corn)', variety: 'Pioneer 3396', areaAcres: 0.5, stage: 'Vegetative', irrigation: 'Well Water', health: 'Optimal' }
+          { name: 'Guntur Teja Chilli', variety: 'Teja Supreme', areaAcres: 1.25, stage: 'Flowering & Fruiting', irrigation: 'Borewell Sprinkler', health: 'Healthy' }
         ],
         fallowAcres: 0.0,
-        geoPhotoUrl: 'https://agristack.gov.in/dcs/photos/PL-TS-WGL-00891.jpg'
+        geoPhotoUrl: 'https://agristack.gov.in/dcs/photos/PL-TS-WGL-98B1.jpg'
+      }
+    },
+    {
+      parcelId: 'PL-TS-WGL-1041',
+      surveyNumber: '104/1',
+      subSurvey: '1',
+      khasraId: 'KH-104-1',
+      khataNumber: 'TS-WGL-8941',
+      pattadarName: 'B. Jaswanth Reddy',
+      extentAcres: 0.75,
+      ownershipType: 'INDIVIDUAL_100',
+      landClassification: 'Wetland (Tari)',
+      soilType: 'Alluvial Loam',
+      waterSource: 'Canal Water',
+      coordinates: [17.9620, 79.5905],
+      polygonBounds: [
+        [17.9628, 79.5895],
+        [17.9635, 79.5915],
+        [17.9615, 79.5922],
+        [17.9608, 79.5900]
+      ],
+      stateCode: 'TS',
+      portalUrl: 'https://dharani.telangana.gov.in/',
+      isRealUserLinked: true,
+      dcs: {
+        surveyId: 'ECROP-2026-KHARIF-98216',
+        season: 'Kharif 2026',
+        surveyDate: '20 Aug 2026',
+        verifiedBy: 'M. Srinivas Rao (Agronomy Officer #412)',
+        status: 'VERIFIED_BY_OFFICER',
+        crops: [
+          { name: 'Paddy (BPT 5204)', variety: 'Samba Mahsuri (BPT 5204)', areaAcres: 0.75, stage: 'Tillering', irrigation: 'Canal Irrigated', health: 'Excellent' }
+        ],
+        fallowAcres: 0.0,
+        geoPhotoUrl: 'https://agristack.gov.in/dcs/photos/PL-TS-WGL-1041.jpg'
       }
     }
   ]
@@ -11108,7 +12035,7 @@ function openSearchLandSurveyModal() {
             </div>
             <div style="flex:1;">
               <label style="font-size:11px;font-weight:800;color:#0F172A;display:block;margin-bottom:3px;">${TL('Passbook / Khata No:', 'ఖాతా / పాస్‌బుక్ నం:', 'Passbook / Khata No:')}</label>
-              <input id="ror-khata-input" class="clean-field" value="KT-92841" placeholder="Khata No" style="margin-bottom:0;">
+              <input id="ror-khata-input" class="clean-field" value="" placeholder="Khata No" style="margin-bottom:0;">
             </div>
           </div>
 
@@ -11118,8 +12045,8 @@ function openSearchLandSurveyModal() {
               ${TL('Your Real Survey / Khasra Number:', 'మీ నిజమైన సర్వే / ఖస్రా నంబర్:', 'Your Real Survey / Khasra Number:')}
             </label>
             <div style="display:flex;gap:6px;">
-              <input id="ror-survey-input" class="clean-field" value="234/A" placeholder="e.g. 234/A" style="margin-bottom:0;flex:1.2;font-weight:900;font-size:13px;color:#1B5E20;">
-              <input id="ror-extent-input" type="number" step="0.1" class="clean-field" value="3.0" placeholder="Extent (Acres)" style="margin-bottom:0;flex:0.8;">
+              <input id="ror-survey-input" class="clean-field" value="" placeholder="e.g. 234/A" style="margin-bottom:0;flex:1.2;font-weight:900;font-size:13px;color:#1B5E20;">
+              <input id="ror-extent-input" type="number" step="0.1" class="clean-field" value="" placeholder="Extent (Acres)" style="margin-bottom:0;flex:0.8;">
             </div>
           </div>
 
@@ -11352,7 +12279,7 @@ function getAgristackDynamicBodyHtml() {
 
 
       <div style="padding:6px 10px;background:rgba(15,23,42,0.95);display:flex;justify-content:space-between;align-items:center;font-size:8.5px;color:#94A3B8;border-top:1px solid rgba(255,255,255,0.06);">
-        <span>📍 Khasra #${p.khasraId} · Khata #${p.khataNumber||'KT-4819'}</span>
+        <span>📍 Khasra #${p.khasraId} · Khata #${p.khataNumber||'TS-WGL-8941'}</span>
         <span style="color:#86EFAC;font-weight:800;">${p.ownershipType}</span>
       </div>
     </div>
@@ -11552,7 +12479,7 @@ function openAgriStackLoanApplyModal() {
           <label style="font-size:11px;font-weight:800;color:#0F172A;display:block;margin-bottom:4px;">
             ${TL('Enter Aadhaar OTP for Instant e-Sign:', 'ఆధార్ OTP నమోదు చేయండి (e-Sign కోసం):', 'Enter Aadhaar OTP for Instant e-Sign:')}
           </label>
-          <input id="kcc-otp-input" class="clean-field" value="584920" placeholder="Enter 6-digit OTP" style="letter-spacing:4px;font-weight:900;font-size:14px;text-align:center;margin-bottom:0;">
+          <input id="kcc-otp-input" class="clean-field" value="" placeholder="Enter 6-digit OTP" style="letter-spacing:4px;font-weight:900;font-size:14px;text-align:center;margin-bottom:0;">
         </div>
 
         <button onclick="confirmAgriStackLoanSanction()" style="width:100%;background:linear-gradient(135deg,#15803D 0%,#1B5E20 100%);color:#FFFFFF;border:none;border-radius:14px;padding:13px 0;font-size:13.5px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 16px rgba(27,94,32,0.35);">
@@ -11613,10 +12540,10 @@ function refreshFarmerEkycConsent() {
 let GRAMHAUL_POOLED_TRUCKS = [
   {
     id: 'TRK-8419',
-    plate: 'TS-03-UB-8419',
+    plate: 'TS-03-UB-4491',
     vehicle: 'Tata 407 (Heavy Duty)',
     driverName: 'Ramesh Yadav',
-    driverPhone: '+91 98492 11048',
+    driverPhone: '+91 98490 22338',
     rating: '⭐ 4.9 (142 Trips)',
     origin: 'Narsampet Rural',
     destination: 'Warangal Enumamula APMC Yard',
@@ -11772,8 +12699,8 @@ function openAddTruckDriverModal() {
           <div>
             <label style="font-size:11px;font-weight:800;color:#0F172A;display:block;margin-bottom:3px;">${TL('Driver Name & Phone:', 'డ్రైవర్ పేరు & మొబైల్ నంబర్:', 'Driver Name & Phone:')}</label>
             <div style="display:flex;gap:6px;">
-              <input id="drv-name-input" class="clean-field" value="Suresh Goud" placeholder="Driver Name" style="margin-bottom:0;flex:1;">
-              <input id="drv-phone-input" class="clean-field" value="+91 98491 22334" placeholder="Phone" style="margin-bottom:0;flex:1;">
+              <input id="drv-name-input" class="clean-field" value="" placeholder="Driver Name" style="margin-bottom:0;flex:1;">
+              <input id="drv-phone-input" class="clean-field" value="" placeholder="Phone" style="margin-bottom:0;flex:1;">
             </div>
           </div>
 
@@ -11788,7 +12715,7 @@ function openAddTruckDriverModal() {
                 <option value="Ashok Leyland Dost">Ashok Leyland Dost</option>
                 <option value="Tractor Trolley">Tractor Trolley (High Cap)</option>
               </select>
-              <input id="drv-plate-input" class="clean-field" value="TS-03-XY-5512" placeholder="Plate No." style="margin-bottom:0;flex:0.8;">
+              <input id="drv-plate-input" class="clean-field" value="" placeholder="Plate No." style="margin-bottom:0;flex:0.8;">
             </div>
           </div>
 
@@ -12127,7 +13054,7 @@ async function callGroqAI(userPrompt, systemInstruction) {
   const defaultSys = TL('You are NuKropAI, an expert Indian ICAR agronomist. Provide accurate, practical crop disease management, fertilizer dosages, and organic alternatives in clear, structured farmer-friendly points.', 'మీరు NuKropAI, భారతదేశపు అత్యుత్తమ ICAR వ్యవసాయ శాస్త్రవేత్త. తెలుగులో రైతులకు ఖచ్చితమైన పంట తెగుళ్లు, ఎరువుల మోతాదు మరియు సేంద్రీయ పరిష్కారాలను స్పష్టమైన బుల్లెట్ పాయింట్లలో వివరించండి.', 'आप NuKropAI हैं, भारत के शीर्ष ICAR कृषि वैज्ञानिक। किसानों को सरल हिंदी में फसल रोग, खाद की सही मात्रा और जैविक उपाय स्पष्ट बुलेट पॉइंट्स में समझाएं।');
 
   const payload = {
-    model: 'openai/gpt-oss-20b',
+    model: 'groq/compound-mini',
     messages: [
       { role: 'system', content: systemInstruction || defaultSys },
       { role: 'user', content: userPrompt }
@@ -13286,19 +14213,22 @@ function syncSideNav(btnId) {
 
 
 function updateWeatherCardDom() {
+  const container = document.getElementById('weather-status-pill-container');
+  if (!container) return;
+
   const t = I18N[currentLang] || I18N.te;
-  const pillBox = document.getElementById('w-spray-compact-pill-box');
-  if (!pillBox) return;
+  const isTe = currentLang === 'te';
+  const isHi = currentLang === 'hi';
 
-  const isSafe = (liveWeather.spraySafety || 'SAFE') === 'SAFE';
-  const badgeText = isSafe ? TL('SAFE', 'క్షేమం', 'सुरक्षित') : TL('DELAY', 'వాయిదా', 'टालें');
-  const badgeBg = isSafe ? '#DCFCE7' : '#FEE2E2';
-  const badgeColor = isSafe ? '#15803D' : '#DC2626';
-  const statusText = isSafe ? t.sprayPillSafe : t.sprayPillCaution;
+  const isFavorable = (liveWeather.wind <= 15 && liveWeather.precip === 0);
+  const badgeText = isFavorable ? t.spraySafe : t.sprayCaution;
+  const badgeBg = isFavorable ? '#DCFCE7' : '#FEF3C7';
+  const badgeColor = isFavorable ? '#15803D' : '#D97706';
+  const statusText = isFavorable ? t.sprayFavorable : t.sprayHighWind;
 
-  pillBox.innerHTML = `
-    <div onclick="openSprayModal()" style="background:#F0FDF4;border:1.2px solid #BBF7D0;border-radius:14px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
-      <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+  container.innerHTML = `
+    <div style="background:#FFFFFF;border:1px solid #E2ECE2;border-radius:14px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
         <div style="width:32px;height:32px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
           🧑‍🌾
         </div>
@@ -13322,9 +14252,6 @@ function updateWeatherCardDom() {
   `;
 }
 
-
-
-
 function updateStatusBarTheme(screenKey) {
   const bar = document.querySelector('.system-status-bar');
   if (!bar) return;
@@ -13344,13 +14271,6 @@ function updateStatusBarTheme(screenKey) {
 }
 
 function openScreen(screenKey, tabElement) {
-  if (screenKey === 'community') fetchCommunityPostsFromSupabase();
-  if (screenKey === 'khata') fetchKhataFromSupabase();
-  if (screenKey === 'market') fetchMandiRatesFromSupabase();
-  if (screenKey === 'equipment') fetchEquipmentFromSupabase();
-    var appShell = document.getElementById('app-shell');
-    if(appShell) appShell.style.display = 'flex';
-
   currentScreenKey = screenKey || 'home';
   currentTabElement = tabElement || null;
 
@@ -14118,6 +15038,7 @@ function initAllRealAlerts() {
   initRealPriceAlerts();
   initCommunityBadge();
 }
+
 
 </script>
 </body>
