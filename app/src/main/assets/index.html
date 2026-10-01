@@ -14273,7 +14273,6 @@ function updateStatusBarTheme(screenKey) {
 
 function updateBottomDockForRole() {
   const dockRow = document.querySelector('.dock-tab-row');
-  const centerFab = document.querySelector('.notch-fab-circle') || document.getElementById('fab-scanner-btn');
   if (!dockRow) return;
 
   const role = localStorage.getItem('nukrop_user_role') || authUserRole || 'farmer';
@@ -14285,7 +14284,7 @@ function updateBottomDockForRole() {
         <div class="dock-tab-btn ${currentScreenKey==='driver_dashboard'?'active':''}" id="tab-driver-cockpit" onclick="openScreen('driver_dashboard',this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">
             <rect x="1" y="3" width="15" height="13"></rect>
-            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
             <circle cx="5.5" cy="18.5" r="2.5"></circle>
             <circle cx="18.5" cy="18.5" r="2.5"></circle>
           </svg>
@@ -14303,8 +14302,15 @@ function updateBottomDockForRole() {
         </div>
       </div>
 
-      <!-- Center Spacer for Floating Center FAB -->
-      <div style="width:72px;flex-shrink:0;"></div>
+      <!-- Center: Elevated Floating GPS Compass FAB -->
+      <div class="dock-center-fab-wrap" onclick="showLuxuryToast('🗺️ GPS Turn-by-Turn Live Navigation Started', 'info')">
+        <div class="dock-center-fab" style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;box-shadow:0 8px 20px rgba(15,23,42,0.4), inset 0 2px 3px rgba(255,255,255,0.2) !important;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:auto;">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+          </svg>
+        </div>
+        <span class="dock-center-label" id="tab-lbl-gps" style="color:#0F172A;font-weight:900;">${currentLang==='te'?'లైవ్ GPS':(currentLang==='hi'?'लाइव GPS':'Live GPS')}</span>
+      </div>
 
       <!-- Right Side: Earnings & Driver Profile -->
       <div style="flex:2;display:flex;justify-content:space-around;padding-right:4px;">
@@ -14324,15 +14330,6 @@ function updateBottomDockForRole() {
         </div>
       </div>
     `;
-    if (centerFab) {
-      centerFab.innerHTML = `
-        <div onclick="showLuxuryToast('🗺️ GPS Turn-by-Turn Navigation Active', 'info')" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #0F172A 0%, #1E293B 100%);border-radius:50%;box-shadow:0 6px 16px rgba(15,23,42,0.35);cursor:pointer;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
-          </svg>
-        </div>
-      `;
-    }
   } else {
     // FARMER DOCK
     dockRow.innerHTML = `
@@ -14348,14 +14345,22 @@ function updateBottomDockForRole() {
         </div>
       </div>
 
-      <!-- Center Spacer for FAB -->
-      <div style="width:72px;flex-shrink:0;"></div>
+      <!-- Center: Elevated 3D Green Leaf FAB -->
+      <div class="dock-center-fab-wrap" onclick="openScreen('scanner',null);syncSideNav('btn-scanner')">
+        <div class="dock-center-fab">
+          <svg viewBox="0 0 24 24">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12 8"/>
+          </svg>
+        </div>
+        <span class="dock-center-label" id="tab-lbl-scan">${currentLang==='te'?'స్కాన్':(currentLang==='hi'?'स्कैन':'Scan')}</span>
+      </div>
 
       <!-- Right Side: Market & Profile -->
       <div style="flex:2;display:flex;justify-content:space-around;padding-right:4px;">
         <div class="dock-tab-btn ${currentScreenKey==='market'?'active':''}" id="tab-market" onclick="openScreen('market',this)">
           <svg viewBox="0 0 24 24" style="width:22px;height:22px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span id="tab-lbl-market" style="font-size:10.5px;font-weight:700;">${currentLang==='te'?'మార్కెట్':(currentLang==='hi'?'मंडी बाजार':'Market')}</span>
+          <span id="tab-lbl-market" style="font-size:10.5px;font-weight:700;">${currentLang==='te'?'మార్కెట్':(currentLang==='hi'?'మండి మార్కెట్':'Market')}</span>
         </div>
         <div class="dock-tab-btn ${currentScreenKey==='profile'?'active':''}" id="tab-profile" onclick="openScreen('profile',this)">
           <svg viewBox="0 0 24 24" style="width:22px;height:22px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -14363,13 +14368,6 @@ function updateBottomDockForRole() {
         </div>
       </div>
     `;
-    if (centerFab) {
-      centerFab.innerHTML = `
-        <div onclick="openScreen('scanner', null)" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, #00A86B 0%, #059669 100%);border-radius:50%;box-shadow:0 6px 16px rgba(0,168,107,0.35);cursor:pointer;">
-          ${typeof get4kLeafSvg === 'function' ? get4kLeafSvg(32) : '<span style="font-size:20px;color:#FFF;">🍃</span>'}
-        </div>
-      `;
-    }
   }
 }
 
