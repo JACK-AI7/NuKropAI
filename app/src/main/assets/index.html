@@ -7841,7 +7841,7 @@ async function handleFormAuthSubmit() {
         alert("System error: architecture script missing.");
         return;
     }
-    let result = await nk_loginUser(email, password);
+    result = await nk_loginUser(email, password);
     
     let userId = 'usr_' + Date.now();
     let token = 'sb_token_' + Date.now();

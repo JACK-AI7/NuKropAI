@@ -5,16 +5,17 @@
  *        presence tracking, chat history, community history.
  */
 
-const SUPABASE_URL = localStorage.getItem('nukrop_supabase_url') || 'https://yxjqseiegwjdfnccdchk.supabase.co';
+const SUPABASE_URL = localStorage.getItem('nukrop_supabase_url') || 'https://yxjqseiegwjdfnccdchk.sbClient.co';
 const SUPABASE_ANON_KEY = localStorage.getItem('nukrop_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4anFzZWllZ3dqZGZuY2NkY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NDU2NTMsImV4cCI6MjEwMTUyMTY1M30.J4swglpV5qu3hRZFll3aqhG1Y2G9mUllvXMjKq6Ikmo';
 
-let supabase = null;
+var sbClient = null;
 if (typeof window.supabase !== 'undefined') {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: true, autoRefreshToken: true }
   });
+  window.sbClient = sbClient;
   console.log('🟢 NuKropAI: Supabase V5 Production Architecture Connected.');
-  supabase.auth.onAuthStateChange((event, session) => {
+  sbClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN')  console.log('✅ Session Restored / Signed In');
     if (event === 'SIGNED_OUT') console.log('❌ Signed Out');
     if (event === 'TOKEN_REFRESHED') console.log('🔄 Token Auto-Refreshed');
@@ -29,16 +30,16 @@ if (typeof window.supabase !== 'undefined') {
 //      to satisfy the foreign-key constraint.
 // ─────────────────────────────────────────────────────────────────
 async function nk_signUp(email, password, fullName) {
-  if (!supabase) return { data: null, error: 'Offline' };
+  if (!sbClient) return { data: null, error: 'Offline' };
   try {
     // Step 1: Create Supabase Auth user
-    const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+    const { data: authData, error: authError } = await sbClient.auth.signUp({ email, password });
     if (authError) throw authError;
 
     const farmerId = 'NK-' + Math.floor(10000 + Math.random() * 89999);
 
     // Step 2: Insert into `profiles` first (FK parent)
-    await supabase.from('profiles').insert([{
+    await sbClient.from('profiles').insert([{
       email,
       full_name: fullName,
       farmer_id: farmerId,
@@ -46,7 +47,7 @@ async function nk_signUp(email, password, fullName) {
     }]);
 
     // Step 3: Insert into `user_profiles` (FK child → references profiles.farmer_id)
-    await supabase.from('user_profiles').insert([{
+    await sbClient.from('user_profiles').insert([{
       email,
       full_name: fullName,
       farmer_id: farmerId
@@ -63,9 +64,9 @@ async function nk_signUp(email, password, fullName) {
 }
 
 async function nk_loginUser(email, password) {
-  if (!supabase) return { data: null, error: 'Offline' };
+  if (!sbClient) return { data: null, error: 'Offline' };
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
     // Fetch and cache the full farmer profile on login
@@ -83,14 +84,14 @@ async function nk_loginUser(email, password) {
 }
 
 async function nk_logout() {
-  if (!supabase) return;
-  await supabase.auth.signOut();
+  if (!sbClient) return;
+  await sbClient.auth.signOut();
   localStorage.removeItem('nukrop_active_user');
   localStorage.removeItem('nukrop_farmer_id');
 }
 
 async function nk_fetchUserProfile(email) {
-  if (!supabase) return null;
+  if (!sbClient) return null;
   const { data, error } = await supabase
     .from('user_profiles').select('*').eq('email', email).single();
   if (error) console.warn('Profile fetch:', error.message);
@@ -101,7 +102,7 @@ async function nk_fetchUserProfile(email) {
 // 2. COMMUNITY POSTS (Plantix Style)
 // ─────────────────────────────────────────────────────────────────
 async function nk_fetchCommunityHistory(cropId = 'all', limit = 50) {
-  if (!supabase) return [];
+  if (!sbClient) return [];
   let query = supabase
     .from('community_posts').select('*, community_comments(count), community_likes(count)')
     .order('created_at', { ascending: false }).limit(limit);
@@ -112,8 +113,8 @@ async function nk_fetchCommunityHistory(cropId = 'all', limit = 50) {
 }
 
 function nk_subscribeToCommunityPosts(onNewPostCallback) {
-  if (!supabase) return;
-  supabase.channel('realtime:community_posts')
+  if (!sbClient) return;
+  sbClient.channel('realtime:community_posts')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'community_posts' },
       payload => {
         console.log('🌱 New Community Post:', payload.new.title);
@@ -123,9 +124,9 @@ function nk_subscribeToCommunityPosts(onNewPostCallback) {
 }
 
 async function nk_createCommunityPost(authorName, title, content, cropId, mediaUrl = null) {
-  if (!supabase) return { data: null, error: 'Offline' };
+  if (!sbClient) return { data: null, error: 'Offline' };
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  const { data, error } = await supabase.from('community_posts').insert([{
+  const { data, error } = await sbClient.from('community_posts').insert([{
     author_name: authorName,
     farmer_id:   farmerId,
     title,
@@ -139,23 +140,23 @@ async function nk_createCommunityPost(authorName, title, content, cropId, mediaU
 }
 
 async function nk_togglePostLike(postId, userId) {
-  if (!supabase) return;
+  if (!sbClient) return;
   // Check if already liked
   const { data: existing } = await supabase
     .from('community_likes').select('id').eq('post_id', postId).eq('user_id', userId).single();
   if (existing) {
-    await supabase.from('community_likes').delete().eq('id', existing.id);
-    await supabase.from('community_posts').update({ likes_count: supabase.rpc('decrement', { x: 1 }) }).eq('id', postId);
+    await sbClient.from('community_likes').delete().eq('id', existing.id);
+    await sbClient.from('community_posts').update({ likes_count: sbClient.rpc('decrement', { x: 1 }) }).eq('id', postId);
   } else {
-    await supabase.from('community_likes').insert([{ post_id: postId, user_id: userId }]);
-    await supabase.from('community_posts').update({ likes_count: supabase.rpc('increment', { x: 1 }) }).eq('id', postId);
+    await sbClient.from('community_likes').insert([{ post_id: postId, user_id: userId }]);
+    await sbClient.from('community_posts').update({ likes_count: sbClient.rpc('increment', { x: 1 }) }).eq('id', postId);
   }
 }
 
 async function nk_addComment(postId, authorName, content) {
-  if (!supabase) return;
+  if (!sbClient) return;
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  await supabase.from('community_comments').insert([{
+  await sbClient.from('community_comments').insert([{
     post_id:     postId,
     author_name: authorName,
     farmer_id:   farmerId,
@@ -168,8 +169,8 @@ async function nk_addComment(postId, authorName, content) {
 // FIX: Now writes accepted bookings to `haul_bookings` table.
 // ─────────────────────────────────────────────────────────────────
 function nk_subscribeToHaulRequests(driverId, onRequestCallback) {
-  if (!supabase) return;
-  supabase.channel(`haul:${driverId}`)
+  if (!sbClient) return;
+  sbClient.channel(`haul:${driverId}`)
     .on('broadcast', { event: 'new_haul' }, payload => {
       console.log('🚚 Incoming Haul Request:', payload.payload);
       onRequestCallback(payload.payload);
@@ -177,20 +178,20 @@ function nk_subscribeToHaulRequests(driverId, onRequestCallback) {
 }
 
 async function nk_sendHaulRequest(driverId, haulData) {
-  if (!supabase) {
+  if (!sbClient) {
     localStorage.setItem('gh_haul_request', JSON.stringify(haulData));
     return;
   }
-  const channel = supabase.channel(`haul:${driverId}`);
+  const channel = sbClient.channel(`haul:${driverId}`);
   await channel.send({ type: 'broadcast', event: 'new_haul', payload: haulData });
   console.log('📤 Haul request broadcast to driver:', driverId);
 }
 
 // FIX: Persist accepted haul to `haul_bookings` table so it is never lost
 async function nk_acceptHaul(haulData) {
-  if (!supabase) return;
+  if (!sbClient) return;
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  const { data, error } = await supabase.from('haul_bookings').insert([{
+  const { data, error } = await sbClient.from('haul_bookings').insert([{
     farmer_id:         farmerId,
     pickup_village:    haulData.pickup   || 'Farm Location',
     destination_mandi: haulData.mandi    || 'APMC Yard',
@@ -204,7 +205,7 @@ async function nk_acceptHaul(haulData) {
 }
 
 async function nk_fetchHaulHistory() {
-  if (!supabase) return [];
+  if (!sbClient) return [];
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
   const { data, error } = await supabase
     .from('haul_bookings').select('*').eq('farmer_id', farmerId)
@@ -218,10 +219,10 @@ async function nk_fetchHaulHistory() {
 let _gpsInterval = null;
 
 function nk_startDriverLocationBroadcast(driverId, lat, lng) {
-  if (!supabase) return;
+  if (!sbClient) return;
   if (_gpsInterval) clearInterval(_gpsInterval); // Prevent duplicate intervals
 
-  const channel = supabase.channel(`gps:${driverId}`, {
+  const channel = sbClient.channel(`gps:${driverId}`, {
     config: { presence: { key: driverId } }
   });
 
@@ -246,8 +247,8 @@ function nk_stopDriverBroadcast() {
 }
 
 function nk_trackDriverLocation(driverId, onGPS, onStatus) {
-  if (!supabase) return;
-  const channel = supabase.channel(`gps:${driverId}`);
+  if (!sbClient) return;
+  const channel = sbClient.channel(`gps:${driverId}`);
   channel
     .on('broadcast', { event: 'gps' }, ({ payload }) => onGPS(payload))
     .on('presence', { event: 'join' },  () => onStatus && onStatus('ONLINE'))
@@ -260,7 +261,7 @@ function nk_trackDriverLocation(driverId, onGPS, onStatus) {
 // FIX: receiver_name NOT NULL — now always provided in insert.
 // ─────────────────────────────────────────────────────────────────
 async function nk_fetchChatHistory(senderEmail, receiverEmail) {
-  if (!supabase) return [];
+  if (!sbClient) return [];
   const { data, error } = await supabase
     .from('peer_messages').select('*')
     .or(`and(sender_email.eq.${senderEmail},receiver_email.eq.${receiverEmail}),and(sender_email.eq.${receiverEmail},receiver_email.eq.${senderEmail})`)
@@ -270,8 +271,8 @@ async function nk_fetchChatHistory(senderEmail, receiverEmail) {
 }
 
 function nk_subscribeToMessages(myEmail, onMessage) {
-  if (!supabase) return;
-  supabase.channel(`chat:${myEmail}`)
+  if (!sbClient) return;
+  sbClient.channel(`chat:${myEmail}`)
     .on('postgres_changes', {
       event: 'INSERT', schema: 'public', table: 'peer_messages',
       filter: `receiver_email=eq.${myEmail}`
@@ -281,8 +282,8 @@ function nk_subscribeToMessages(myEmail, onMessage) {
 
 // FIX: receiver_name was missing — added as required parameter
 async function nk_sendMessage(senderEmail, receiverEmail, receiverName, text) {
-  if (!supabase) return;
-  const { error } = await supabase.from('peer_messages').insert([{
+  if (!sbClient) return;
+  const { error } = await sbClient.from('peer_messages').insert([{
     sender_email:   senderEmail,
     receiver_email: receiverEmail,
     receiver_name:  receiverName || 'Farmer', // FIX: was missing — caused NOT NULL crash
@@ -295,9 +296,9 @@ async function nk_sendMessage(senderEmail, receiverEmail, receiverName, text) {
 // 6. DISEASE SCANS — Sync to `disease_scans` table
 // ─────────────────────────────────────────────────────────────────
 async function nk_saveDiseaScan(scanRecord) {
-  if (!supabase) return;
+  if (!sbClient) return;
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  const { error } = await supabase.from('disease_scans').insert([{
+  const { error } = await sbClient.from('disease_scans').insert([{
     farmer_id:         farmerId,
     crop_name:         scanRecord.cropName        || 'Unknown',
     disease_name:      scanRecord.diseaseName     || 'Healthy',
@@ -319,7 +320,7 @@ async function nk_saveDiseaScan(scanRecord) {
 // 7. MANDI LIVE RATES — Realtime + Fetch
 // ─────────────────────────────────────────────────────────────────
 async function nk_fetchMandiRates(state = 'Telangana', limit = 20) {
-  if (!supabase) return [];
+  if (!sbClient) return [];
   const { data, error } = await supabase
     .from('mandi_live_rates').select('*').eq('state', state)
     .order('updated_at', { ascending: false }).limit(limit);
@@ -328,8 +329,8 @@ async function nk_fetchMandiRates(state = 'Telangana', limit = 20) {
 }
 
 function nk_subscribeToMandiRates(onUpdate) {
-  if (!supabase) return;
-  supabase.channel('realtime:mandi_live_rates')
+  if (!sbClient) return;
+  sbClient.channel('realtime:mandi_live_rates')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'mandi_live_rates' },
       payload => onUpdate(payload.new))
     .subscribe();
