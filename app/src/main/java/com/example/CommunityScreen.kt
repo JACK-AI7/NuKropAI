@@ -1,4 +1,4 @@
-﻿package com.example
+package com.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.ui.theme.*
 
 data class CommunityPost(
@@ -33,7 +35,9 @@ data class CommunityPost(
     val translatedText: String? = null,
     val verifiedSolution: String? = null,
     val upvotesCount: Int,
-    val answersCount: Int
+    val answersCount: Int,
+    val mediaUrl: String? = null,
+    val mediaType: String? = null
 )
 
 @Composable
@@ -58,7 +62,9 @@ fun CommunityScreen(
                 translatedText = "Black spots appearing under chilli leaves. Which pesticide spray should I use?",
                 verifiedSolution = "Agri-Expert Solution: This is Cercospora Leaf Spot. Spray Azoxystrobin + Difenoconazole @ 1ml/L during morning hours.",
                 upvotesCount = 24,
-                answersCount = 7
+                answersCount = 7,
+                mediaUrl = "https://images.unsplash.com/photo-1592417817098-8f3d6eb22509?w=600&auto=format&fit=crop",
+                mediaType = "image"
             ),
             CommunityPost(
                 postId = "POST-2",
@@ -71,7 +77,9 @@ fun CommunityScreen(
                 translatedText = "Cotton leaves turning yellow and curling. Is this Whitefly attack?",
                 verifiedSolution = "Agri-Expert Solution: Yes, Cotton Leaf Curl Virus spread by Whitefly. Install Yellow Sticky Traps @ 10/acre and spray Neemastra (5%).",
                 upvotesCount = 42,
-                answersCount = 12
+                answersCount = 12,
+                mediaUrl = "https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=600&auto=format&fit=crop",
+                mediaType = "image"
             ),
             CommunityPost(
                 postId = "POST-3",
@@ -84,7 +92,9 @@ fun CommunityScreen(
                 translatedText = "Black spots on bottom of tomato fruits. Is this calcium deficiency?",
                 verifiedSolution = "Agri-Expert Solution: Blossom End Rot caused by calcium deficiency and irregular watering. Apply Calcium Nitrate @ 5g/L as foliar spray.",
                 upvotesCount = 19,
-                answersCount = 5
+                answersCount = 5,
+                mediaUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                mediaType = "video"
             )
         )
     }
@@ -229,6 +239,60 @@ fun CommunityScreen(
                                         translatedPostIds = if (isTranslated) translatedPostIds - post.postId else translatedPostIds + post.postId
                                     }
                                 )
+                            }
+
+                            // Attached Media Preview (Image or Video)
+                            post.mediaUrl?.let { url ->
+                                Spacer(Modifier.height(10.dp))
+                                val isVideo = post.mediaType.equals("video", ignoreCase = true) || url.endsWith(".mp4", ignoreCase = true)
+                                if (isVideo) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(180.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(Color(0xFF0F172A)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(48.dp)
+                                                    .clip(CircleShape)
+                                                    .background(PlantixPrimary.copy(alpha = 0.9f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    Icons.Filled.PlayArrow,
+                                                    contentDescription = "Play Video",
+                                                    tint = Color.White,
+                                                    modifier = Modifier.size(30.dp)
+                                                )
+                                            }
+                                            Spacer(Modifier.height(8.dp))
+                                            Text(
+                                                "Field Video Recording",
+                                                color = Color.White,
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    AsyncImage(
+                                        model = url,
+                                        contentDescription = "Attached field photo",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(180.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(Color(0xFFEFF3EF)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
                             }
 
                             // Verified Solution Card

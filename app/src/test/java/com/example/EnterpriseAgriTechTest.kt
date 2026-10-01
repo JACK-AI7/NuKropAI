@@ -1,4 +1,4 @@
-﻿package com.example
+package com.example
 
 import com.example.agristack.AgriStackPassportEngine
 import com.example.biorx.BioRxEngine
@@ -156,4 +156,34 @@ class EnterpriseAgriTechTest {
         assertTrue(rx5Acre.costSavedVsChemicalPesticidesRupees > rx1Acre.costSavedVsChemicalPesticidesRupees)
         assertTrue(rx5Acre.preparationSteps.isNotEmpty())
     }
+
+    @Test
+    fun testMultiStateMandiArbitrageResolution() {
+        val mhOptions = MandiPilotEngine.calculateMandiArbitrage(state = "Maharashtra", localMandiPrice = 2200.0)
+        assertTrue("Maharashtra must return at least 5 mandis", mhOptions.size >= 5)
+        assertTrue("Should include Pune or Vashi or Lasalgaon", mhOptions.any { it.mandiName.contains("Pune") || it.mandiName.contains("Vashi") || it.mandiName.contains("Lasalgaon") })
+
+        val pbOptions = MandiPilotEngine.calculateMandiArbitrage(state = "Punjab", localMandiPrice = 2500.0)
+        assertTrue("Punjab must return at least 5 mandis", pbOptions.size >= 5)
+        assertTrue("Should include Khanna or Ludhiana", pbOptions.any { it.mandiName.contains("Khanna") || it.mandiName.contains("Ludhiana") })
+    }
+
+    @Test
+    fun testDynamicPriceForecastCalculation() {
+        val forecastPaddy = MandiPilotEngine.forecastPriceMovement("Paddy / Rice", 2500.0)
+        assertTrue("7-day forecast must be greater than current price for bullish momentum", forecastPaddy.forecast7dPrice >= 2500.0)
+        assertTrue("15-day forecast must project continued movement", forecastPaddy.forecast15dPrice >= forecastPaddy.forecast7dPrice)
+        assertTrue("Confidence must be bounded 75-96%", forecastPaddy.confidencePct in 75..96)
+        assertTrue("Rationale must be descriptive", forecastPaddy.keyDrivingFactor.isNotBlank())
+    }
+
+    @Test
+    fun testDynamicNdviStressCalculation() {
+        val lowStress = BioShieldRadarEngine.calculateDynamicNdvi(55.0, proximateScans = 1)
+        val highStress = BioShieldRadarEngine.calculateDynamicNdvi(92.0, proximateScans = 18)
+
+        assertTrue("Low humidity & few scans should maintain high NDVI (got $lowStress)", lowStress >= 0.70)
+        assertTrue("High humidity & dense scans should drop NDVI into stress zone (got $highStress)", highStress <= 0.50)
+    }
 }
+

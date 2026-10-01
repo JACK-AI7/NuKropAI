@@ -20,6 +20,16 @@ android {
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+    val geminiApiKey = (project.findProperty("GEMINI_API_KEY") as? String)
+        ?: System.getenv("GEMINI_API_KEY")
+        ?: ""
+    buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+
+    val googleWebClientId = (project.findProperty("GOOGLE_WEB_CLIENT_ID") as? String)
+        ?: System.getenv("GOOGLE_WEB_CLIENT_ID")
+        ?: ""
+    buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
   }
 
   signingConfigs {

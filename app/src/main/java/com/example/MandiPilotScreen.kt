@@ -1,4 +1,4 @@
-﻿package com.example
+package com.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,20 +29,42 @@ import com.example.ui.theme.*
 
 @Composable
 fun MandiPilotScreen(onNavigateBack: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val farmPrefs = remember { context.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE) }
+    val savedCrop = remember { farmPrefs.getString("crop", "Paddy / Rice")?.ifBlank { "Paddy / Rice" } ?: "Paddy / Rice" }
+    val savedState = remember { farmPrefs.getString("state", "Telangana")?.ifBlank { "Telangana" } ?: "Telangana" }
+    val savedDistrict = remember { farmPrefs.getString("district", "") ?: "" }
+
     val scrollState = rememberScrollState()
     var batchSize by remember { mutableStateOf(50.0) } // Quintals
     var isPerishable by remember { mutableStateOf(false) }
+    var liveArbitrage by remember { mutableStateOf<List<MandiArbitrageOption>?>(null) }
 
-    val arbitrageOptions = remember(batchSize, isPerishable) {
-        MandiPilotEngine.calculateMandiArbitrage(batchSize, isPerishable)
+    LaunchedEffect(batchSize, isPerishable, savedCrop, savedState) {
+        liveArbitrage = MandiPilotEngine.getLiveOrFallbackArbitrage(
+            commodity = savedCrop,
+            state = savedState,
+            district = savedDistrict,
+            batchSizeQuintals = batchSize,
+            isPerishable = isPerishable
+        )
     }
 
-    val forecast = remember {
-        MandiPilotEngine.forecastPriceMovement("Paddy / Rice (Fine Variety)", 2850.0)
+    val arbitrageOptions = liveArbitrage ?: remember(batchSize, isPerishable, savedCrop, savedState) {
+        MandiPilotEngine.calculateMandiArbitrage(
+            batchSizeQuintals = batchSize,
+            isPerishable = isPerishable,
+            state = savedState,
+            originDistrict = savedDistrict
+        )
     }
 
-    val verifiedBids = remember {
-        MandiPilotEngine.getVerifiedBuyerBids("Paddy / Rice", 2850.0)
+    val forecast = remember(savedCrop) {
+        MandiPilotEngine.forecastPriceMovement(savedCrop, 2850.0)
+    }
+
+    val verifiedBids = remember(savedCrop) {
+        MandiPilotEngine.getVerifiedBuyerBids(savedCrop, 2850.0)
     }
 
     Column(
@@ -65,7 +87,7 @@ fun MandiPilotScreen(onNavigateBack: () -> Unit) {
             Spacer(Modifier.width(4.dp))
             Column {
                 Text("MandiPilot Arbitrage", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = NuKropText)
-                Text("Real-Time APMC Discovery & Net Profit Engine", fontSize = 11.sp, color = NuKropAccent)
+                Text("APMC Discovery for $savedCrop ($savedState)", fontSize = 11.sp, color = NuKropAccent)
             }
         }
 

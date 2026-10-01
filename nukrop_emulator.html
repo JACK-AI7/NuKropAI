@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Noto+Sans+Gujarati:wght@400;500;600;700;800&family=Noto+Sans+Gurmukhi:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;500;600;700;800&family=Noto+Sans+Malayalam:wght@400;500;600;700;800&family=Noto+Sans+Oriya:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <title>NuKropAI — Agriculture AI Operating System</title>
 <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
 <style>
@@ -508,6 +508,263 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     100% { transform: translateY(-80px) scale(1.2); opacity: 0; }
   }
 </style>
+
+<style id="apk-pure-mobile-layer">
+  /* 1. Hide desktop side panel completely on mobile devices */
+  .side-panel-container {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* 2. Hide fake simulated HTML status bar (Android displays its own native status bar) */
+  .system-status-bar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  /* 3. Phone Chassis fills entire mobile viewport */
+  .phone-chassis {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    position: fixed !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #F8FAF8 !important;
+    padding-top: max(env(safe-area-inset-top, 0px), 4px) !important;
+  }
+
+  /* 4. Root HTML & Body styling */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+    background: #F8FAF8 !important;
+    font-family: 'Plus Jakarta Sans', 'Noto Sans Telugu', 'Noto Sans Devanagari', sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* 5. Overlay full bleed */
+  #startup-experience-overlay {
+    border-radius: 0 !important;
+  }
+</style>
+
+<style id="luxury-airbnb-design-system">
+/* ══════════════════════════════════════════════════════════════════
+   AIRBNB & PAYPAL LUXURY MOBILE DESIGN SYSTEM (NUKROP AI OS v5.0)
+══════════════════════════════════════════════════════════════════ */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  background: #F8FAF8 !important;
+  color: #0F172A !important;
+  font-family: 'Plus Jakarta Sans', 'Noto Sans Telugu', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  -webkit-tap-highlight-color: transparent !important;
+  overflow: hidden !important;
+}
+
+/* Base Mobile App Container (Full Bleed Edge-to-Edge) */
+.phone-chassis {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  background: #F8FAF8 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.system-status-bar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  visibility: hidden !important;
+}
+
+.screen-container {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: #F8FAF8 !important;
+  position: relative !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Subtle 60fps View Transitions */
+.screen-fade {
+  animation: nkViewFade 0.16s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+@keyframes nkViewFade {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═════════════════ AIRBNB LUXURY CARD & TILE ELEVATION ═════════════════ */
+.m3-card, .insta-post-card, .biorx-recipe-card, .gramhaul-truck-card, .suite-bento-tile {
+  background: #FFFFFF !important;
+  border: 1px solid #EEF2F7 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.03), 0 4px 16px -4px rgba(15,23,42,0.05) !important;
+  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 140ms ease !important;
+  position: relative;
+  overflow: hidden;
+}
+.m3-card:active, .insta-post-card:active, .biorx-recipe-card:active, .gramhaul-truck-card:active, .suite-bento-tile:active {
+  transform: scale(0.98) !important;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.03), 0 2px 8px -2px rgba(15,23,42,0.04) !important;
+}
+
+/* ═════════════════ PAYPAL LUXURY INPUT FIELDS ═════════════════ */
+.clean-field, input[type="text"], input[type="number"], input[type="email"], select, textarea {
+  background: #F8FAFC !important;
+  border: 1.5px solid #E2E8F0 !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #0F172A !important;
+  outline: none !important;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease !important;
+}
+.clean-field:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+  background: #FFFFFF !important;
+  border-color: #10B981 !important;
+  box-shadow: 0 0 0 3.5px rgba(16, 185, 129, 0.12) !important;
+}
+
+/* ═════════════════ PRIMARY ACTION BUTTONS ═════════════════ */
+.action-btn-green, button[class*="action-btn-green"] {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 14px !important;
+  padding: 12px 16px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.28) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: transform 140ms ease, box-shadow 140ms ease !important;
+}
+.action-btn-green:active {
+  transform: scale(0.97) !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.18) !important;
+}
+
+/* ═════════════════ AIRBNB SLIDING BOTTOM SHEET MODALS ═════════════════ */
+.custom-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  animation: nkOverlayFadeIn 0.2s ease-out !important;
+}
+.custom-modal-sheet {
+  background: #FFFFFF !important;
+  border-top-left-radius: 28px !important;
+  border-top-right-radius: 28px !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  padding: 20px 18px max(env(safe-area-inset-bottom, 16px), 24px) !important;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2) !important;
+  animation: nkSheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+}
+.custom-modal-sheet::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  border-radius: 4px;
+  background: #CBD5E1;
+}
+@keyframes nkOverlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nkSheetSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* ═════════════════ SKELETON SHIMMER LOADING ═════════════════ */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%) !important;
+  background-size: 200% 100% !important;
+  animation: nkShimmer 1.5s infinite !important;
+}
+@keyframes nkShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ═════════════════ RESPONSIVE DESKTOP CANVAS ═════════════════ */
+@media (min-width: 641px) {
+  body {
+    background: #0B1120 !important;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.14) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.14) 0px, transparent 50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+  }
+  .phone-chassis {
+    position: relative !important;
+    width: 420px !important;
+    height: 890px !important;
+    max-height: 94vh !important;
+    border-radius: 36px !important;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255,255,255,0.08) !important;
+  }
+  #startup-experience-overlay {
+    border-radius: 36px !important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -531,7 +788,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
     </div>
 
     <!-- Global Floating In-App Push Notification Banner -->
-    <div id="global-push-toast" style="display:none;position:absolute;top:40px;left:12px;right:12px;background:#0F172A;color:#FFFFFF;border-radius:16px;padding:12px 14px;box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:9999;border:1.2px solid rgba(255,255,255,0.18);animation:toastDropIn 0.35s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
+    <div id="global-push-toast" style="display:none;position:fixed;top:max(env(safe-area-inset-top,0px),12px);left:16px;right:16px;background:#0F172A;color:#FFFFFF;border-radius:18px;padding:12px 16px;box-shadow:0 16px 36px rgba(0,0,0,0.4);z-index:99999;border:1px solid rgba(255,255,255,0.18);animation:toastDropIn 0.3s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <div style="width:36px;height:36px;border-radius:10px;background:#15803D;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;" id="toast-icon">
           📈
@@ -1013,7 +1270,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
           <div class="dock-center-fab">
             <svg viewBox="0 0 24 24">
               <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
-              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12"/>
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 12 8"/>
             </svg>
           </div>
           <span class="dock-center-label" id="tab-lbl-scan">Scanner</span>
@@ -1785,47 +2042,7 @@ function locObj(obj, field = '') {
 }
 
 
-const MANDI_TRUCKS_CATALOG = [
-  {
-    id: 'truck-1',
-    driver: { en: 'Ramesh Yadav', te: 'రమేష్ యాదవ్', hi: 'रमेश यादव' },
-    vehicle: { en: 'Tata 407 (Heavy Duty)', te: 'టాటా 407 (హెవీ డ్యూటీ)', hi: 'टाटा 407 (हैवी ड्यूटी)' },
-    phone: '9849012345',
-    dist: { en: '1.2 km away', te: '1.2 కి.మీ దూరం', hi: '1.2 किमी दूरी' },
-    dest: { en: 'Warangal Enumamula APMC Yard', te: 'వరంగల్ ఏనుమాముల APMC యార్డ్', hi: 'वारंगल एन्वमामुल मंडी यार्ड' },
-    spaceLeft: '8 Slots Free (22/30 Bags)',
-    fillPercent: 73,
-    ratePerQtl: 45,
-    rating: '★ 4.9 (142 trips)',
-    leavesAt: { en: 'Departs: Today, 4:30 PM', te: 'బయలుదేరు సమయం: నేడు, 4:30 PM', hi: 'प्रस्थान: आज, शाम 4:30' }
-  },
-  {
-    id: 'truck-2',
-    driver: { en: 'Sreenu Naik', te: 'శ్రీను నాయక్', hi: 'श्रीनू नायक' },
-    vehicle: { en: 'Mahindra Bolero Maxi Truck (2.5 Ton)', te: 'మహీంద్రా బొలెరో మ్యాక్సీ ట్రక్ (2.5 టన్ను)', hi: 'महिंद्रा बोलेरो मैक्सी ट्रक (2.5 टन)' },
-    phone: '9849067890',
-    dist: { en: '2.4 km away', te: '2.4 కి.మీ దూరం', hi: '2.4 किमी दूरी' },
-    dest: { en: 'Warangal Cotton APMC & Khammam', te: 'వరంగల్ కాటన్ మార్కెట్ & ఖమ్మం', hi: 'वारंगल कपास मंडी व खम्मम' },
-    spaceLeft: '1.4 Ton (28 Bags left)',
-    fillPercent: 40,
-    ratePerQtl: 40,
-    rating: '★ 4.8 (88 trips)',
-    leavesAt: { en: 'Departing Tomorrow at 6:00 AM', te: 'రేపు ఉదయం 6:00 కు బయలుదేరుతుంది', hi: 'कल सुबह 6:00 बजे प्रस्थान' }
-  },
-  {
-    id: 'truck-3',
-    driver: { en: 'Venkat Reddy', te: 'వెంకట్ రెడ్డి', hi: 'वेंकट रेड्डी' },
-    vehicle: { en: 'Eicher Pro 2049 (5.0 Ton Heavy)', te: 'ఐషర్ ప్రో 2049 (5.0 టన్ను హెవీ)', hi: 'आयशर प्रो 2049 (5.0 टन)' },
-    phone: '9849054321',
-    dist: { en: '4.1 km away', te: '4.1 కి.మీ దూరం', hi: '4.1 किमी दूरी' },
-    dest: { en: 'Hyderabad Bowenpally & Jangaon', te: 'హైదరాబాద్ బోయిన్‌పల్లి & జనగామ', hi: 'हैदराबाद बोवेनपल्ली व जनगांव' },
-    spaceLeft: '3.0 Ton (60 Bags left)',
-    fillPercent: 35,
-    ratePerQtl: 35,
-    rating: '★ 4.9 (145 trips)',
-    leavesAt: { en: 'Departing Tonight at 9:00 PM', te: 'ఈ రాత్రి 9:00 కు బయలుదేరుతుంది', hi: 'आज रात 9:00 बजे प्रस्थान' }
-  }
-];
+const MANDI_TRUCKS_CATALOG = [];
 
 let selectedTruckToBook = null;
 let bookingTruckBags = 10;
@@ -2188,280 +2405,7 @@ let mandiSearchState = '';
 let mandiSearchMandi = '';
 let mandiSelectedPopular = 'all';
 
-const AGMARKNET_MANDI_CATALOG = [
-  // 1. Tomato
-  {
-    id: 'mkt-tom-0',
-    cropKey: 'tomato',
-    cropSlug: 'tomato',
-    cropPath: 'tomato/tomato.svg',
-    cropName: { en: 'Tomato (Local Warangal Red)', te: 'టమోటా (వరంగల్ నాటు రకం)', hi: 'टमाटर (वारंगल लोकल)' },
-    variety: { en: 'Warangal Desi Special', te: 'వరంగల్ దేశీ నాటు రకం', hi: 'वारंगल देसी स्पेशल' },
-    mandi: { en: 'Warangal APMC Yard', te: 'వరంగల్ ఏనుమాముల మార్కెట్ యార్డ్', hi: 'वारंगल मंडी यार्ड' },
-    district: 'Warangal',
-    state: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
-    modalPrice: 1780,
-    minPrice: 1350,
-    maxPrice: 2100,
-    unit: '/Qtl',
-    arrivals: 3400,
-    change: '+6.4%',
-    up: true,
-    badge: '📍 Local Mandi'
-  },
-  {
-    id: 'mkt-tom-1',
-    cropKey: 'tomato',
-    cropSlug: 'tomato',
-    cropPath: 'tomato/tomato.svg',
-    cropName: { en: 'Tomato (Hybrid)', te: 'టమోటా (హైబ్రిడ్)', hi: 'टमाटर (हाइब्रिड)' },
-    variety: { en: 'Desi Sahu / F1 6242', te: 'సాహు / దేశీ హైబ్రిడ్', hi: 'साहू / हाइब्रिड' },
-    mandi: { en: 'Madanapalle APMC', te: 'మదనపల్లె మార్కెట్ యార్డ్', hi: 'मदनपल्ले मंडी' },
-    district: 'Annamayya / Chittoor',
-    state: { en: 'Andhra Pradesh', te: 'ఆంధ్రప్రదేశ్', hi: 'आंध्र प्रदेश' },
-    modalPrice: 1850,
-    minPrice: 1400,
-    maxPrice: 2200,
-    unit: '/Qtl',
-    arrivals: 4800,
-    change: '+8.5%',
-    up: true,
-    badge: '⚡ Top Arrival APMC'
-  },
-  {
-    id: 'mkt-tom-2',
-    cropKey: 'tomato',
-    cropSlug: 'tomato',
-    cropPath: 'tomato/tomato.svg',
-    cropName: { en: 'Tomato (Table Grade)', te: 'టమోటా (టేబుల్ గ్రేడ్)', hi: 'टमाटर (ग्रेड A)' },
-    variety: { en: 'Abhinav / F1 Red', te: 'అభినవ్ F1', hi: 'अभिनव F1' },
-    mandi: { en: 'Kolar APMC Market', te: 'కోలార్ వ్యవసాయ మార్కెట్', hi: 'कोलार एपीएमसी मंडी' },
-    district: 'Kolar',
-    state: { en: 'Karnataka', te: 'కర్ణాటక', hi: 'कर्नाटक' },
-    modalPrice: 1720,
-    minPrice: 1350,
-    maxPrice: 2100,
-    unit: '/Qtl',
-    arrivals: 6200,
-    change: '+5.2%',
-    up: true,
-    badge: 'Govt e-NAM'
-  },
-  {
-    id: 'mkt-tom-3',
-    cropKey: 'tomato',
-    cropSlug: 'tomato',
-    cropPath: 'tomato/tomato.svg',
-    cropName: { en: 'Tomato (Fresh Crop)', te: 'టమోటా (తాజా దిగుబడి)', hi: 'टमाटर (ताजा)' },
-    variety: { en: 'Hybrid Red Round', te: 'హైబ్రిడ్ గుండ్రటి రకం', hi: 'हाइब्रिड लाल' },
-    mandi: { en: 'Bowenpally APMC', te: 'బోయిన్‌పల్లి మార్కెట్, హైదరాబాద్', hi: 'बोवेनपल्ली मंडी, हैदराबाद' },
-    district: 'Hyderabad / Medchal',
-    state: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
-    modalPrice: 1900,
-    minPrice: 1500,
-    maxPrice: 2350,
-    unit: '/Qtl',
-    arrivals: 3100,
-    change: '+11.0%',
-    up: true,
-    badge: '🟢 Top Local Demand'
-  },
-  // 2. Wheat
-  {
-    id: 'mkt-wht-1',
-    cropKey: 'wheat',
-    cropSlug: 'wheat',
-    cropPath: 'wheat/wheat.svg',
-    cropName: { en: 'Wheat (Mill Quality)', te: 'గోధుమ (మిల్లింగ్ రకం)', hi: 'गेहूं (मिल क्वालिटी)' },
-    variety: { en: 'PBW-725 / HD-3086', te: 'HD-3086 రకం', hi: 'PBW-725 / HD-3086' },
-    mandi: { en: 'Khanna APMC Mandi', te: 'ఖన్నా మార్కెట్ యార్డ్', hi: 'खन्ना मंडी (एशिया की सबसे बड़ी)' },
-    district: 'Ludhiana',
-    state: { en: 'Punjab', te: 'పంజాబ్', hi: 'पंजाब' },
-    modalPrice: 2425,
-    minPrice: 2350,
-    maxPrice: 2550,
-    unit: '/Qtl',
-    arrivals: 12500,
-    change: '+2.1%',
-    up: true,
-    badge: 'MSP +₹150 Prem'
-  },
-  {
-    id: 'mkt-wht-2',
-    cropKey: 'wheat',
-    cropSlug: 'wheat',
-    cropPath: 'wheat/wheat.svg',
-    cropName: { en: 'Wheat (Sharbati Gold)', te: 'గోధుమ (శర్బతి ప్రీమియం)', hi: 'गेहूं (शरबती गोल्ड)' },
-    variety: { en: 'C-306 Sharbati Sujata', te: 'శర్బతి సుజాత', hi: 'सी-306 शरबती' },
-    mandi: { en: 'Indore APMC Yard', te: 'ఇండోర్ వ్యవసాయ మార్కెట్', hi: 'इंदौर कृषि उपज मंडी' },
-    district: 'Indore',
-    state: { en: 'Madhya Pradesh', te: 'మధ్యప్రదేశ్', hi: 'मध्य प्रदेश' },
-    modalPrice: 2580,
-    minPrice: 2400,
-    maxPrice: 2850,
-    unit: '/Qtl',
-    arrivals: 8900,
-    change: '+4.8%',
-    up: true,
-    badge: '👑 Premium Grade'
-  },
-  // 3. Cotton (Kapas)
-  {
-    id: 'mkt-cot-1',
-    cropKey: 'cotton',
-    cropSlug: 'cotton',
-    cropPath: 'cotton/cotton.svg',
-    cropName: { en: 'Cotton (Long Staple Kapas)', te: 'పత్తి (లాంగ్ స్టేపుల్ కపాస్)', hi: 'कपास (लंबा रेशा)' },
-    variety: { en: 'Bt Hybrid Cotton 29–31mm', te: 'Bt హైబ్రిడ్ పత్తి (30mm)', hi: 'बीटी हाइब्रिड कपास' },
-    mandi: { en: 'Warangal APMC Yard', te: 'వరంగల్ ఏనుమాముల మార్కెట్ యార్డ్', hi: 'वारंगल इनामामुला मंडी' },
-    district: 'Warangal',
-    state: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
-    modalPrice: 7450,
-    minPrice: 7100,
-    maxPrice: 7850,
-    unit: '/Qtl',
-    arrivals: 14200,
-    change: '+3.4%',
-    up: true,
-    badge: '⚡ High Export Demand'
-  },
-  {
-    id: 'mkt-cot-2',
-    cropKey: 'cotton',
-    cropSlug: 'cotton',
-    cropPath: 'cotton/cotton.svg',
-    cropName: { en: 'Cotton (Medium Staple)', te: 'పత్తి (గుజరాత్ శంకర్-6)', hi: 'कपास (शंकर-6)' },
-    variety: { en: 'Shankar-6 Premium', te: 'శంకర్-6 రకం', hi: 'शंकर-6' },
-    mandi: { en: 'Rajkot APMC Yard', te: 'రాజ్‌కోట్ మార్కెట్ యార్డ్', hi: 'राजकोट मंडी यार्ड' },
-    district: 'Rajkot',
-    state: { en: 'Gujarat', te: 'గుజరాత్', hi: 'गुजरात' },
-    modalPrice: 7620,
-    minPrice: 7250,
-    maxPrice: 8050,
-    unit: '/Qtl',
-    arrivals: 18500,
-    change: '+2.8%',
-    up: true,
-    badge: 'CCI Center'
-  },
-  // 4. Onion
-  {
-    id: 'mkt-oni-1',
-    cropKey: 'onion',
-    cropSlug: 'red-onion',
-    cropPath: 'red-onion/red-onion.svg',
-    cropName: { en: 'Red Onion (Garva/Nashik)', te: 'ఎర్ర ఉల్లిపాయ (నాసిక్ రకం)', hi: 'लाल प्याज (नासिक गारवा)' },
-    variety: { en: 'Nashik Medium Bold', te: 'నాసిక్ బోల్డ్ రకం', hi: 'नासिक बोल्ड' },
-    mandi: { en: 'Lasalgaon APMC', te: 'లాసల్‌గావ్ మార్కెట్ (ఆసియా అతిపెద్దది)', hi: 'लासलगांव मंडी (एशिया की सबसे बड़ी)' },
-    district: 'Nashik',
-    state: { en: 'Maharashtra', te: 'మహారాష్ట్ర', hi: 'महाराष्ट्र' },
-    modalPrice: 2250,
-    minPrice: 1800,
-    maxPrice: 2700,
-    unit: '/Qtl',
-    arrivals: 22000,
-    change: '-4.5%',
-    up: false,
-    badge: '🏛️ Benchmark APMC'
-  },
-  {
-    id: 'mkt-oni-2',
-    cropKey: 'onion',
-    cropSlug: 'red-onion',
-    cropPath: 'red-onion/red-onion.svg',
-    cropName: { en: 'Red Onion (Kurnool Local)', te: 'ఎర్ర ఉల్లిపాయ (కర్నూలు లోకల్)', hi: 'लाल प्याज (कर्नूल)' },
-    variety: { en: 'Bellary Red', te: 'బళ్లారి రెడ్', hi: 'बेल्लारी रेड' },
-    mandi: { en: 'Kurnool APMC Yard', te: 'కర్నూలు మార్కెట్ యార్డ్', hi: 'कर्नूल एपीएमसी' },
-    district: 'Kurnool',
-    state: { en: 'Andhra Pradesh', te: 'ఆంధ్రప్రదేశ్', hi: 'आंध्र प्रदेश' },
-    modalPrice: 2100,
-    minPrice: 1700,
-    maxPrice: 2450,
-    unit: '/Qtl',
-    arrivals: 5800,
-    change: '+6.0%',
-    up: true,
-    badge: 'Active Arrivals'
-  },
-  // 5. Potato
-  {
-    id: 'mkt-pot-1',
-    cropKey: 'potato',
-    cropSlug: 'russet-potato',
-    cropPath: 'russet-potato/russet-potato.svg',
-    cropName: { en: 'Potato (Kufri Chipsona)', te: 'బంగాళాదుంప (కుఫ్రి చిప్సోనా)', hi: 'आलू (कुफरी चिपसोना)' },
-    variety: { en: 'Kufri Bahar / Chipsona-1', te: 'కుఫ్రి బహార్', hi: 'कुफरी बहार' },
-    mandi: { en: 'Agra APMC Yard', te: 'ఆగ్రా బంగాళాదుంప మార్కెట్', hi: 'आगरा मंडी यार्ड' },
-    district: 'Agra',
-    state: { en: 'Uttar Pradesh', te: 'ఉత్తరప్రదేశ్', hi: 'उत्तर प्रदेश' },
-    modalPrice: 1450,
-    minPrice: 1250,
-    maxPrice: 1700,
-    unit: '/Qtl',
-    arrivals: 19000,
-    change: '+2.4%',
-    up: true,
-    badge: 'Direct Cold Store'
-  },
-  {
-    id: 'mkt-pot-2',
-    cropKey: 'potato',
-    cropSlug: 'russet-potato',
-    cropPath: 'russet-potato/russet-potato.svg',
-    cropName: { en: 'Potato (Jyoti / Pukhraj)', te: 'బంగాళాదుంప (పుఖ్‌రాజ్)', hi: 'आलू (पुखराज ज्योति)' },
-    variety: { en: 'Pukhraj Fresh Harvest', te: 'పుఖ్‌రాజ్ రకం', hi: 'पुखराज' },
-    mandi: { en: 'Jalandhar APMC', te: 'జలంధర్ మార్కెట్', hi: 'जालंधर मंडी' },
-    district: 'Jalandhar',
-    state: { en: 'Punjab', te: 'పంజాబ్', hi: 'पंजाब' },
-    modalPrice: 1380,
-    minPrice: 1150,
-    maxPrice: 1620,
-    unit: '/Qtl',
-    arrivals: 11500,
-    change: '-1.8%',
-    up: false,
-    badge: 'Heavy Supply'
-  },
-  // 6. Chilli (Dry Red)
-  {
-    id: 'mkt-chl-1',
-    cropKey: 'chilli',
-    cropSlug: 'birds-eye-chili',
-    cropPath: 'birds-eye-chili/birds-eye-chili.svg',
-    cropName: { en: 'Dry Red Chilli (Teja Super)', te: 'ఎండు మిర్చి (తేజ సూపర్)', hi: 'सूखी लाल मिर्च (तेजा सुपर)' },
-    variety: { en: 'Teja S17 / Deluxe Quality', te: 'తేజ S17 డీలక్స్', hi: 'तेजा S17' },
-    mandi: { en: 'Guntur Spices Yard', te: 'గుంటూరు మిర్చి యార్డ్ (ఆసియాలోనే అతిపెద్దది)', hi: 'गुंटूर मिर्च यार्ड (एशिया में नं.1)' },
-    district: 'Guntur',
-    state: { en: 'Andhra Pradesh', te: 'ఆంధ్రప్రదేశ్', hi: 'ఆంధ్రప్రదేశ్' },
-    modalPrice: 18500,
-    minPrice: 16200,
-    maxPrice: 21000,
-    unit: '/Qtl',
-    arrivals: 35000,
-    change: '+14.2%',
-    up: true,
-    badge: '🔥 Record Bull Run'
-  },
-  {
-    id: 'mkt-chl-2',
-    cropKey: 'chilli',
-    cropSlug: 'birds-eye-chili',
-    cropPath: 'birds-eye-chili/birds-eye-chili.svg',
-    cropName: { en: 'Dry Red Chilli (Wonder Hot)', te: 'ఎండు మిర్చి (వండర్ హాట్)', hi: 'लाल मिर्च (वंडर हॉट)' },
-    variety: { en: 'Wonder Hot S10', te: 'వండర్ హాట్ S10', hi: 'वंडर हॉट' },
-    mandi: { en: 'Khammam Spices APMC', te: 'ఖమ్మం వ్యవసాయ మార్కెట్', hi: 'खम्मम मंडी' },
-    district: 'Khammam',
-    state: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
-    modalPrice: 17800,
-    minPrice: 15500,
-    maxPrice: 19800,
-    unit: '/Qtl',
-    arrivals: 12400,
-    change: '+11.8%',
-    up: true,
-    badge: 'Export Grade'
-  }
-];
+const AGMARKNET_MANDI_CATALOG = [];
 
 function getFilteredMandiRates() {
   const cropQ = (mandiSearchCrop || '').toLowerCase().trim();
@@ -2754,6 +2698,8 @@ function getDynamicSprayWindows() {
   return windows;
 }
 
+function openSprayingModal(e) { return openSprayModal(e); }
+window.openSprayingModal = openSprayingModal;
 function openSprayModal() {
   const modal = document.getElementById('spray-modal');
   const title = document.getElementById('sp-modal-title');
@@ -3667,13 +3613,7 @@ function renderMandiCardsHtml() {
 
 
 let activeCropIdx = 0;
-let myActiveCrops = [
-  { id: 'cotton', path: 'cotton/cotton.svg' },
-  { id: 'birds-eye-chili', path: 'birds-eye-chili/birds-eye-chili.svg' },
-  { id: 'tomato', path: 'tomato/tomato.svg' },
-  { id: 'wheat', path: 'wheat/wheat.svg' },
-  { id: 'rice', path: 'rice/rice.svg' }
-];
+let myActiveCrops = [{'id':'cotton', 'slug':'cotton', 'path':'cotton/cotton.svg'}];
 
 
 
@@ -4016,87 +3956,7 @@ let expandedCommunityPostId = null;
 
 let userAttachedMedia = { photos: [], videos: [], voiceNote: null };
 
-let COMMUNITY_POSTS_CATALOG = [
-  {
-    id: 'post-1',
-    author: { en: 'Raju Naidu', te: 'రాజు నాయుడు', hi: 'राजू नायडू' },
-    avatar: '👨‍🌾',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    verified: true,
-    verifiedBadge: 'Verified Progressive Farmer',
-    village: { en: 'Geesugonda (4.5 Acres)', te: 'గీసుకొండ (4.5 ఎకరాలు)', hi: 'गीसुगोंडा (4.5 एकड़)' },
-    cropId: 'cotton',
-    cropName: { en: 'Cotton', te: 'పత్తి', hi: 'कपास' },
-    timeAgo: { en: '2 hours ago', te: '2 గంటల క్రితం', hi: '2 घंटे पहले' },
-    title: {
-      en: 'Pink bollworm in 45-day Cotton crop. Is Profenofos 50% EC working well?',
-      te: '45 రోజుల పత్తిలో గులాబీ రంగు పురుగు కనిపిస్తోంది. ప్రొఫెనోఫాస్ 50% EC సమర్థవంతంగా పనిచేస్తుందా?',
-      hi: '45 दिन की कपास में गुलाबी सुंडी। क्या प्रोफेनोफॉस 50% EC प्रभावी है?'
-    },
-    text: {
-      en: 'Found 3 rosette flowers per 20 plants. Also noticed small pink larvae inside bolls. Weather is humid (88%). What dosage should I spray with power sprayer? Should I mix Neem Oil?',
-      te: 'ప్రతి 20 మొక్కలకు 3 ముడుచుకున్న పూలు ఉన్నాయి. కాయల్లో చిన్న గులాబీ రంగు పురుగులు కనిపించాయి. గాలిలో తేమ ఎక్కువగా ఉంది. పవర్ స్ప్రేయర్ తో ఎంత మోతాదు పిచికారీ చేయాలి? వేప నూనె కలపవచ్చా?',
-      hi: 'प्रति 20 पौधों में 3 रोसेट फूल मिले हैं। अंदर छोटी गुलाबी सुंडी भी दिखी। नमी 88% है। सही दवा और मात्रा बताएं।'
-    },
-    likes: 24,
-    isLiked: false,
-    photos: [
-      'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=500&auto=format&fit=crop&q=80'
-    ],
-    videos: [],
-    voiceNote: {
-      duration: '0:28',
-      audioUrl: 'mock_voice_1.mp3'
-    },
-    mediaLabel: { en: '1 Field Photo · 1 Voice Note', te: '1 ఫోటో · 1 వాయిస్ నోట్', hi: '1 फोटो · 1 वॉयस नोट' },
-    isResolved: false,
-    comments: [
-      {
-        author: { en: 'Dr. Srinivas (Agronomist, KVK)', te: 'డా. శ్రీనివాస్ (వ్యవసాయ శాస్త్రవేత్త, KVK)', hi: 'डॉ. श्रीनिवास (कृषि वैज्ञानिक, KVK)' },
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        role: 'Verified ICAR Scientist',
-        text: {
-          en: 'Immediately install 5 Pheromone Traps/acre. For chemical spray, use Profenofos 50% EC @ 350ml/acre (2ml/L) or Emamectin Benzoate 5% SG @ 88g/acre. Spray between 4:00 PM – 6:30 PM.',
-          te: 'వెంటనే ఎకరానికి 5 లింగాకర్షక బుట్టలు అమర్చండి. రసాయన పిచికారీ కోసం ప్రొఫెనోఫాస్ 50% EC (2మి.లీ/లీటరు) లేదా ఎమామెక్టిన్ బెంజోయేట్ 5% SG (88గ్రా/ఎకరం) వాడండి. సాయంత్రం 4:00 – 6:30 మధ్య పిచికారీ చేయండి.',
-          hi: 'तुरंत 5 फेरोमोन ट्रैप लगाएं। प्रोफेनोफॉस 50% EC (2ml/L) या इमामेक्टिन बेंजोएट 5% SG (88g/एकड़) का छिड़काव शाम 4:00 से 6:30 के बीच करें।'
-        },
-        time: '1 hour ago'
-      }
-    ]
-  },
-  {
-    id: 'post-2',
-    author: { en: 'Anil Kumar', te: 'అనిల్ కుమార్', hi: 'अनिल कुमार' },
-    avatar: '👨‍🌾',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    verified: true,
-    verifiedBadge: 'Organic Farmer',
-    village: { en: 'Wardhannapet (3.2 Acres)', te: 'వర్ధన్నపేట (3.2 ఎకరాలు)', hi: 'वर्धन्नापेट (3.2 एकड़)' },
-    cropId: 'chilli',
-    cropName: { en: 'Chilli', te: 'మిరప', hi: 'मिर्च' },
-    timeAgo: { en: '5 hours ago', te: '5 గంటల క్రితం', hi: '5 घंटे पहले' },
-    title: {
-      en: 'Black Thrips control with Dashaparni Kashayam - 100% Organic results!',
-      te: 'దశపర్ణి కషాయంతో నల్ల తామర పురుగుల నియంత్రణ - 100% సేంద్రీయ ఫలితాలు!',
-      hi: 'दशपर्णी काढ़े से ब्लैक थ्रिप्स का सफल जैविक नियंत्रण!'
-    },
-    text: {
-      en: 'I sprayed 500ml Dashaparni Kashayam per 15L tank + 20 Blue Sticky Traps per acre. Within 48 hours, young foliage opened up with fresh green growth. No chemical shock to chilli plants!',
-      te: 'నేను 15 లీటర్ల ట్యాంకుకు 500మి.లీ దశపర్ణి కషాయం + ఎకరానికి 20 నీలం జిగురు అట్టలు పెట్టాను. 48 గంటల్లో కొత్త చిగుర్లు వచ్చాయి. మొక్కలకు ఎటువంటి రసాయన ఒత్తిడి కలగలేదు!',
-      hi: 'मैंने 15L की टंकी में 500ml दशपर्णी काढ़ा + 20 नीले चिपचिपे ट्रैप लगाए। 48 घंटे में नई पत्तियां स्वस्थ निकलीं।'
-    },
-    likes: 42,
-    isLiked: false,
-    photos: [
-      'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?w=500&auto=format&fit=crop&q=80'
-    ],
-    videos: [],
-    voiceNote: null,
-    mediaLabel: { en: '1 Field Photo', te: '1 ఫోటో', hi: '1 फोटो' },
-    isResolved: true,
-    comments: []
-  }
-];
+let COMMUNITY_POSTS_CATALOG = [];
 
 function attachMediaToNewPost(type) {
   if (type === 'photo') {
@@ -4281,6 +4141,7 @@ function submitNewCommunityPost() {
   };
 
   COMMUNITY_POSTS_CATALOG.unshift(newPost);
+  pushCommunityPostToSupabase(newPost);
   closeAskQuestionModal();
 
   alert(currentLang === 'te' ? '✅ మీ ప్రశ్న కిసాన్ వేదికలో విజయవంతంగా పోస్ట్ చేయబడింది!' : (currentLang === 'hi' ? '✅ आपका सवाल किसान चौपाल में सफलतापूर्वक पोस्ट हो गया!' : '✅ Your question was posted to Kisan Community successfully!'));
@@ -4896,12 +4757,7 @@ const GOVT_SCHEMES_CATALOG = [
 ];
 
 
-let farmKhataEntries = [
-
-  { id: 'tx-1', type: 'income', desc: { en: 'Cotton Sale (Warangal APMC)', te: 'పత్తి అమ్మకం (వరంగల్ యార్డ్)', hi: 'कपास बिक्री (वारंगल मंडी)' }, amount: 48500, date: '2026-08-30' },
-  { id: 'tx-2', type: 'expense', desc: { en: 'Garuda Drone Spray Service', te: 'డ్రోన్ స్ప్రేయింగ్ చార్జీలు', hi: 'ड्रोन छिड़काव खर्च' }, amount: 1050, date: '2026-08-28' },
-  { id: 'tx-3', type: 'expense', desc: { en: 'NPK 19:19:19 Fertilizer Bags', te: 'NPK ఎరువుల బస్తాల కొనుగోలు', hi: 'एनपीके उर्वरक खरीद' }, amount: 2800, date: '2026-08-26' }
-];
+let farmKhataEntries = [];
 
 let farmKhataTransactions = farmKhataEntries;
 
@@ -5550,6 +5406,7 @@ function saveKhataEntry() {
   };
 
   farmKhataEntries.unshift(newEntry);
+  pushKhataToSupabase(newEntry);
   closeKhataModal(null);
 
   alert(TL(
@@ -6690,8 +6547,235 @@ const SUPABASE_CONFIG = {
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4anFzZWllZ3dqZGZuY2NkY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NDU2NTMsImV4cCI6MjEwMTUyMTY1M30.J4swglpV5qu3hRZFll3aqhG1Y2G9mUllvXMjKq6Ikmo'
 };
 
+  // ========================================================================
+  // ENTERPRISE SUPABASE CLOUD SYNC & REAL-TIME CRUD ENGINE v4.0
+  // ========================================================================
+  
+
+  // 1. Fetch Kisan Community Posts & Comments from Supabase
+  async function fetchCommunityPostsFromSupabase() {
+    try {
+      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/community_posts?select=*,community_comments(*)&order=created_at.desc`, {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_CONFIG.anonKey,
+          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          console.log(`✅ Loaded ${data.length} community posts from Supabase!`);
+          COMMUNITY_POSTS_CATALOG = data.map(p => ({
+            id: p.id,
+            author: { en: p.author_name, te: p.author_name, hi: p.author_name },
+            avatarUrl: p.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+            avatar: '👨‍🌾',
+            verified: p.is_verified !== false,
+            verifiedBadge: 'Verified Progressive Farmer',
+            village: { en: p.author_village || 'Warangal', te: p.author_village || 'వరంగల్', hi: p.author_village || 'वारंगल' },
+            cropId: p.crop_id || 'cotton',
+            cropName: { en: getLocalizedCropName(p.crop_id||'cotton'), te: getLocalizedCropName(p.crop_id||'cotton'), hi: getLocalizedCropName(p.crop_id||'cotton') },
+            timeAgo: { en: 'Live on Cloud', te: 'క్లౌడ్ లైవ్', hi: 'क्लाउड लाइव' },
+            title: { en: p.title, te: p.title, hi: p.title },
+            text: { en: p.content, te: p.content, hi: p.content },
+            likes: p.likes_count || 0,
+            isLiked: false,
+            photos: p.media_type === 'image' && p.media_url ? [p.media_url] : [],
+            videos: p.media_type === 'video' && p.media_url ? [p.media_url] : [],
+            media_url: p.media_url,
+            media_type: p.media_type,
+            mediaLabel: { en: p.media_label || 'Field Media', te: p.media_label || 'మీడియా', hi: p.media_label || 'मीडिया' },
+            isResolved: p.is_resolved || false,
+            comments: (p.community_comments || []).map(c => ({
+              author: { en: c.author_name, te: c.author_name, hi: c.author_name },
+              avatarUrl: c.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+              role: c.author_role || 'Progressive Farmer',
+              text: { en: c.content, te: c.content, hi: c.content }
+            }))
+          }));
+          if (typeof renderCommunityFeedDom === 'function') {
+            renderCommunityFeedDom();
+          }
+        }
+      }
+    } catch(e) {
+      console.warn('Supabase Community sync fallback active:', e.message);
+    }
+  }
+
+  // 2. Push New Community Post to Supabase
+  async function pushCommunityPostToSupabase(post) {
+    try {
+      const authorName = (typeof farmerProfile !== 'undefined' && farmerProfile.name ? (typeof farmerProfile.name === 'object' ? (farmerProfile.name[currentLang] || farmerProfile.name.en) : farmerProfile.name) : 'Farmer');
+      const authorVillage = (typeof farmerProfile !== 'undefined' && farmerProfile.village ? (typeof farmerProfile.village === 'object' ? (farmerProfile.village[currentLang] || farmerProfile.village.en) : farmerProfile.village) : 'Warangal Rural');
+      const payload = {
+        author_name: authorName,
+        author_village: authorVillage,
+        avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+        crop_id: post.cropId || 'cotton',
+        title: typeof post.title === 'object' ? (post.title[currentLang] || post.title.en) : post.title,
+        content: typeof post.text === 'object' ? (post.text[currentLang] || post.text.en) : post.text,
+        media_url: post.media_url || null,
+        media_type: post.media_type || 'none',
+        media_label: post.media_type === 'video' ? '1 Field Video (HD)' : (post.media_type === 'image' ? '1 Field Photo' : 'Discussion'),
+        likes_count: 0,
+        comments_count: 0,
+        is_verified: true,
+        is_resolved: false
+      };
+
+      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/community_posts`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_CONFIG.anonKey,
+          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        console.log('✅ Community post saved to Supabase cloud!');
+        fetchCommunityPostsFromSupabase();
+      }
+    } catch(e) {
+      console.warn('Offline cache for community post:', e.message);
+    }
+  }
+
+  // 3. Push Comment to Supabase
+  async function pushCommunityCommentToSupabase(postId, commentText) {
+    try {
+      const authorName = (typeof farmerProfile !== 'undefined' && farmerProfile.name ? (typeof farmerProfile.name === 'object' ? (farmerProfile.name[currentLang] || farmerProfile.name.en) : farmerProfile.name) : 'Farmer');
+      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/community_comments`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_CONFIG.anonKey,
+          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          post_id: postId,
+          author_name: authorName,
+          author_role: 'Progressive Farmer',
+          avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+          content: commentText
+        })
+      });
+      if (res.ok) console.log('✅ Comment written to Supabase!');
+    } catch(e) {
+      console.warn('Comment sync fallback:', e.message);
+    }
+  }
+
+  // 4. Fetch Farm Khata Ledger Records from Supabase
+  async function fetchKhataFromSupabase() {
+    try {
+      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/khata_records?select=*&order=record_date.desc`, {
+        method: 'GET',
+        headers: {
+          'apikey': SUPABASE_CONFIG.anonKey,
+          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          console.log(`✅ Loaded ${data.length} Khata records from Supabase!`);
+          farmKhataEntries = data.map(r => ({
+            id: r.id,
+            type: r.type,
+            desc: { en: r.title, te: r.title, hi: r.title },
+            amount: parseFloat(r.amount),
+            date: r.record_date || new Date().toISOString().split('T')[0]
+          }));
+        }
+      }
+    } catch(e) {
+      console.warn('Supabase Khata offline fallback active:', e.message);
+    }
+  }
+
+  // 5. Push Farm Khata Record to Supabase
+  async function pushKhataToSupabase(entry) {
+    try {
+      const descText = typeof entry.desc === 'object' ? (entry.desc[currentLang] || entry.desc.en) : entry.desc;
+      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/khata_records`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_CONFIG.anonKey,
+          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          crop_id: 'cotton',
+          type: entry.type || 'expense',
+          category: entry.category || 'general',
+          title: descText,
+          amount: entry.amount,
+          record_date: entry.date || new Date().toISOString().split('T')[0]
+        })
+      });
+      if (res.ok) console.log('✅ Khata record saved to Supabase!');
+    } catch(e) {
+      console.warn('Khata sync fallback:', e.message);
+    }
+  }
+
+  // 6. Push GramHaul Truck Booking to Supabase
+  async function pushTruckBookingToSupabase(booking) {
+    try {
+      const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/truck_bookings`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_CONFIG.anonKey,
+          'Authorization': `Bearer ${SUPABASE_CONFIG.anonKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          driver_name: booking.driverName || 'Verified Driver',
+          driver_phone: booking.driverPhone || '+91 98480 22338',
+          vehicle: booking.vehicle || 'Tata Ace (1.5 Ton)',
+          from_loc: booking.from || 'Warangal Rural',
+          to_mandi: booking.destination || 'Warangal APMC Yard',
+          crop_name: booking.crop || 'Cotton',
+          quantity_qtl: (booking.bags || 15) * 0.5,
+          total_cost: booking.totalCost || 675,
+          status: 'confirmed'
+        })
+      });
+      if (res.ok) console.log('✅ Truck booking saved to Supabase!');
+    } catch(e) {
+      console.warn('Truck booking offline fallback:', e.message);
+    }
+  }
+
+  // 7. Master Synchronize All Supabase Services
+  async function syncAllSupabaseData() {
+    await Promise.allSettled([
+      fetchMandiRatesFromSupabase(),
+      fetchEquipmentFromSupabase(),
+      fetchCommunityPostsFromSupabase(),
+      fetchKhataFromSupabase()
+    ]);
+    isSupabaseSyncActive = true;
+    updateCloudSyncIndicator();
+  }
+
+  function updateCloudSyncIndicator() {
+    const badge = document.getElementById('cloud-sync-status-badge');
+    if (badge) {
+      badge.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:#22C55E;display:inline-block;animation:pulseDot 1.5s infinite;"></span> <span style="font-size:10px;font-weight:900;color:#15803D;">Supabase Live</span>';
+    }
+  }
+
+
+
 /* ═════════════════ FULL SUPABASE LIVE DATA GRID & CLOUD SYNC ENGINE ═════════════════ */
-let isSupabaseSyncActive = false;
+
 
 // 1. Fetch Real Agmarknet Mandi Rates from Supabase
 async function fetchMandiRatesFromSupabase() {
@@ -7102,11 +7186,7 @@ const GROQ_CONFIG = {
     'gsk_' + 'm592arL0vjqQvTXAiczQWGdyb3FYC0aQyoyG0WRfYpSrUZSqcwQA',
     'gsk_' + 'H8EJw4h732MGd34ZqGH4WGdyb3FYWZKzdfoa8CIt4vbryHatarpq'
   ],
-  models: [
-    'qwen/qwen3.6-27b',
-    'groq/compound-mini',
-    'openai/gpt-oss-20b'
-  ]
+  models: ['openai/gpt-oss-20b']
 };
 
 async function callTokenRouterAi(userQuery, activeLangCode) {
@@ -8124,6 +8204,9 @@ function finishPlantixOnboarding() {
 }
 
 function initStartupExperience(forceReplay = false) {
+    var appShell = document.getElementById('app-shell');
+    if(appShell) appShell.style.display = 'none';
+
   if (!forceReplay) {
     try {
       const completed = localStorage.getItem('nukrop_onboarding_plantix_completed');
@@ -8497,41 +8580,7 @@ function startVoiceInput() {
 let currentChatTab = 'live'; // 'live' | 'history'
 let currentSubsidyFilter = 'all'; // 'all' | 'central' | 'state'
 
-const SAVED_AI_CONSULTATIONS = [
-  {
-    id: 'consult-1',
-    date: '31 Aug 2026 · 04:15 PM',
-    topic: { en: 'Cotton Pink Bollworm Spray Dose', te: 'పత్తిలో గులాబీ రంగు పురుగు నివారణ మందు', hi: 'कपास गुलाबी सुंडी स्प्रे खुराक' },
-    crop: 'Cotton / 4.5 Acres',
-    summary: {
-      en: 'ICAR Recommendation: Profenofos 50% EC @ 350ml/acre or Neem Oil 10,000 ppm. Spray window: 4:00 PM – 6:30 PM.',
-      te: 'ICAR సిఫార్సు: ప్రొఫెనోఫాస్ 50% EC (350మి.లీ/ఎకరం) లేదా వేప నూనె 10,000 ppm. పిచికారీ సమయం: సాయంత్రం 4:00 – 6:30.',
-      hi: 'ICAR सिफारिश: प्रोफेनोफॉस 50% EC @ 350ml/एकड़ या नीम तेल। समय: 4:00 - 6:30 बजे।'
-    }
-  },
-  {
-    id: 'consult-2',
-    date: '30 Aug 2026 · 11:30 AM',
-    topic: { en: 'Warangal Mandi Price Trend Forecast', te: 'వరంగల్ మార్కెట్ ధరల పెరుగుదల అంచనా', hi: 'वारंगल मंडी भाव तेजी अनुमान' },
-    crop: 'Red Chilli / Teja Quality',
-    summary: {
-      en: 'Teja Chilli Trading @ ₹19,800/Qtl. Bullish momentum with +4% expected increase due to export arrivals.',
-      te: 'తేజ మిర్చి ధర ₹19,800/క్వింటాల్. ఎగుమతుల డిమాండ్ కారణంగా +4% మరింత పెరిగే అవకాశం.',
-      hi: 'तेजा मिर्च भाव ₹19,800/क्विंटल। निर्यात मांग के कारण भाव में +4% तेजी का अनुमान।'
-    }
-  },
-  {
-    id: 'consult-3',
-    date: '28 Aug 2026 · 09:45 AM',
-    topic: { en: 'ICAR Basal Fertilizer Plan for 4.50 Acres', te: '4.50 ఎకరాలకు ఎరువుల సమతుల్య ప్రణాళిక', hi: '4.50 एकड़ हेतु संतुलित उर्वरक योजना' },
-    crop: 'Soil Health Score: 98.2%',
-    summary: {
-      en: 'DAP: 100 kg basal + Urea 135 kg split in 3 doses + MOP Potash 75 kg. Saves ₹1,850 in input expenses.',
-      te: 'DAP: 100 కిలోల దుక్కిలో + యూరియా 135 కిలోలు (3 దఫాలు) + పొటాష్ 75 కిలోలు. ₹1,850 ఆదా.',
-      hi: 'डीएपी 100 किग्रा + यूरिया 135 किग्रा (3 बार) + पोटाश 75 किग्रा। ₹1,850 की बचत।'
-    }
-  }
-];
+const SAVED_AI_CONSULTATIONS = [];
 
 function setChatTab(tab) {
   currentChatTab = tab;
@@ -12078,7 +12127,7 @@ async function callGroqAI(userPrompt, systemInstruction) {
   const defaultSys = TL('You are NuKropAI, an expert Indian ICAR agronomist. Provide accurate, practical crop disease management, fertilizer dosages, and organic alternatives in clear, structured farmer-friendly points.', 'మీరు NuKropAI, భారతదేశపు అత్యుత్తమ ICAR వ్యవసాయ శాస్త్రవేత్త. తెలుగులో రైతులకు ఖచ్చితమైన పంట తెగుళ్లు, ఎరువుల మోతాదు మరియు సేంద్రీయ పరిష్కారాలను స్పష్టమైన బుల్లెట్ పాయింట్లలో వివరించండి.', 'आप NuKropAI हैं, भारत के शीर्ष ICAR कृषि वैज्ञानिक। किसानों को सरल हिंदी में फसल रोग, खाद की सही मात्रा और जैविक उपाय स्पष्ट बुलेट पॉइंट्स में समझाएं।');
 
   const payload = {
-    model: 'groq/compound-mini',
+    model: 'openai/gpt-oss-20b',
     messages: [
       { role: 'system', content: systemInstruction || defaultSys },
       { role: 'user', content: userPrompt }
@@ -13295,6 +13344,13 @@ function updateStatusBarTheme(screenKey) {
 }
 
 function openScreen(screenKey, tabElement) {
+  if (screenKey === 'community') fetchCommunityPostsFromSupabase();
+  if (screenKey === 'khata') fetchKhataFromSupabase();
+  if (screenKey === 'market') fetchMandiRatesFromSupabase();
+  if (screenKey === 'equipment') fetchEquipmentFromSupabase();
+    var appShell = document.getElementById('app-shell');
+    if(appShell) appShell.style.display = 'flex';
+
   currentScreenKey = screenKey || 'home';
   currentTabElement = tabElement || null;
 

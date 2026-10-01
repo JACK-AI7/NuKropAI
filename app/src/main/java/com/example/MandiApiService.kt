@@ -53,15 +53,8 @@ object MandiApiService {
         .retryOnConnectionFailure(false)
         .build()
 
-    // Government Agmarknet API keys — rotated automatically on rate limit
-    private val GOV_API_KEYS = listOf(
-        "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b",
-        "579b464db66ec23bdd0000011c7fae98f0294e7769efce5b804245cc",
-        "579b464db66ec23bdd000001f6e0ad50e20d4fbb6c5a17de5e50abcc",
-        "579b464db66ec23bdd000001eee9b8f5e7a4f0fa83474d1c3e5e54c9",
-        "579b464db66ec23bdd000001d8d5b4d3c4df5b0e0b3a9b6f1e2c3d4e"
-    )
-    private val keyIndex = AtomicInteger(0)
+    // Authorized Government Agmarknet API Primary Key (Key 1)
+    private const val PRIMARY_AUTHORIZED_KEY = "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b"
     private const val GOV_BASE_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
 
     private const val POLL_INTERVAL_MS = 3 * 60 * 1000L // 3 minutes
@@ -162,17 +155,16 @@ object MandiApiService {
         commodity: String
     ): Result<List<MandiRecord>> = withContext(Dispatchers.IO) {
         var lastError = "Unknown error"
-        val startKey = keyIndex.get() % GOV_API_KEYS.size
+        val maxRetries = 3
+        var backoffMs = 1000L
 
-        for (attempt in 0 until GOV_API_KEYS.size) {
-            val idx = (startKey + attempt) % GOV_API_KEYS.size
-            val currentKey = GOV_API_KEYS[idx]
+        for (attempt in 0 until maxRetries) {
             try {
                 val stateEnc = URLEncoder.encode(state.trim(), "UTF-8")
                 val commEnc = URLEncoder.encode(commodity.trim(), "UTF-8")
                 val url = buildString {
                     append(GOV_BASE_URL)
-                    append("?api-key=$currentKey")
+                    append("?api-key=$PRIMARY_AUTHORIZED_KEY")
                     append("&format=json&limit=50&offset=0")
                     append("&filters[state]=$stateEnc")
                     append("&filters[commodity]=$commEnc")
@@ -189,60 +181,63 @@ object MandiApiService {
                 val responseBody = client.newCall(request).execute().use { response ->
                     when (response.code) {
                         429 -> {
-                            val next = (idx + 1) % GOV_API_KEYS.size
-                            keyIndex.set(next)
-                            lastError = "Rate limited, rotating API key to index $next..."
-                            return@use null
+                            lastError = "Rate limited (HTTP 429), backing off for ${backoffMs}ms (attempt ${attempt + 1}/$maxRetries)..."
+                            null
                         }
                         401, 403 -> {
-                            // Reset back to primary authorized Key 1 (index 0) to prevent permanent 403 lockup
-                            keyIndex.set(0)
-                            lastError = "Auth error on key index $idx (reset to primary key)"
-                            return@use null
+                            lastError = "Auth error HTTP ${response.code}"
+                            null
                         }
                         in 500..599 -> {
                             lastError = "Server error ${response.code}"
-                            return@use null
+                            null
                         }
                         else -> if (response.isSuccessful) {
-                            keyIndex.set(idx)
                             response.body?.string()
                         } else {
                             lastError = "HTTP ${response.code}"
                             null
                         }
                     }
-                } ?: continue
-
-                val root = json.parseToJsonElement(responseBody).jsonObject
-                val recordsArray = root["records"]?.jsonArray
-                    ?: return@withContext Result.success(emptyList())
-
-                val records = recordsArray.mapNotNull { el ->
-                    runCatching {
-                        val obj = el.jsonObject
-                        val modal = obj["modal_price"]?.jsonPrimitive?.doubleOrNull ?: return@mapNotNull null
-                        MandiRecord(
-                            state = obj["state"]?.jsonPrimitive?.content ?: "",
-                            district = obj["district"]?.jsonPrimitive?.content ?: "",
-                            market = obj["market"]?.jsonPrimitive?.content ?: "",
-                            commodity = obj["commodity"]?.jsonPrimitive?.content ?: "",
-                            variety = obj["variety"]?.jsonPrimitive?.content ?: "",
-                            minPrice = obj["min_price"]?.jsonPrimitive?.doubleOrNull ?: modal,
-                            maxPrice = obj["max_price"]?.jsonPrimitive?.doubleOrNull ?: modal,
-                            modalPrice = modal,
-                            arrivalDate = obj["arrival_date"]?.jsonPrimitive?.content ?: ""
-                        )
-                    }.getOrNull()
                 }
-                return@withContext Result.success(records)
 
+                if (responseBody != null) {
+                    val root = json.parseToJsonElement(responseBody).jsonObject
+                    val recordsArray = root["records"]?.jsonArray
+                        ?: return@withContext Result.success(emptyList())
+
+                    val records = recordsArray.mapNotNull { el ->
+                        runCatching {
+                            val obj = el.jsonObject
+                            val modal = obj["modal_price"]?.jsonPrimitive?.doubleOrNull ?: return@mapNotNull null
+                            MandiRecord(
+                                state = obj["state"]?.jsonPrimitive?.content ?: "",
+                                district = obj["district"]?.jsonPrimitive?.content ?: "",
+                                market = obj["market"]?.jsonPrimitive?.content ?: "",
+                                commodity = obj["commodity"]?.jsonPrimitive?.content ?: "",
+                                variety = obj["variety"]?.jsonPrimitive?.content ?: "",
+                                minPrice = obj["min_price"]?.jsonPrimitive?.doubleOrNull ?: modal,
+                                maxPrice = obj["max_price"]?.jsonPrimitive?.doubleOrNull ?: modal,
+                                modalPrice = modal,
+                                arrivalDate = obj["arrival_date"]?.jsonPrimitive?.content ?: ""
+                            )
+                        }.getOrNull()
+                    }
+                    return@withContext Result.success(records)
+                }
+
+                if (attempt < maxRetries - 1) {
+                    delay(backoffMs)
+                    backoffMs *= 2
+                }
             } catch (e: Exception) {
                 lastError = e.localizedMessage ?: "Network exception"
+                if (attempt < maxRetries - 1) {
+                    delay(backoffMs)
+                    backoffMs *= 2
+                }
             }
         }
-        // If all attempts failed, ensure key index is reset to Primary Key 1 for subsequent calls
-        keyIndex.set(0)
         Result.failure(Exception("Gov API unavailable: $lastError"))
     }
 }

@@ -35,6 +35,7 @@ import com.example.ui.CropItem
 import com.example.ui.CropSelectionDialog
 import com.example.ui.VoiceOsOverlay
 import com.example.ui.theme.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
@@ -61,9 +62,12 @@ fun HomeScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val authViewModel: AuthViewModel = viewModel()
+    val currentUser by authViewModel.currentUser.collectAsState()
 
     var showVoiceOs by remember { mutableStateOf(false) }
     var showCropDialog by remember { mutableStateOf(false) }
+    var showSprayDetailsDialog by remember { mutableStateOf(false) }
     var myCrops by remember { mutableStateOf(listOf("Cotton", "Rice / Paddy", "Chilli", "Tobacco")) }
     var activeCrop by remember { mutableStateOf("Cotton") }
 
@@ -152,13 +156,21 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    "NuKropAI",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Black,
-                    color = PlantixText,
-                    letterSpacing = (-0.5).sp
-                )
+                Column {
+                    Text(
+                        "NuKropAI",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Black,
+                        color = PlantixText,
+                        letterSpacing = (-0.5).sp
+                    )
+                    Text(
+                        "Namaste, ${currentUser?.name?.ifBlank { "Farmer" } ?: "Farmer"}",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PlantixPrimaryDark
+                    )
+                }
 
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     IconButton(
@@ -270,9 +282,16 @@ fun HomeScreen(
                     }
                 }
 
-                // Spraying Conditions Pill
+                // Resolved spray advisory from weather
+                val currentAdvisory = weather?.sprayAdvisory ?: remember {
+                    WeatherService.getDefaultWeather().sprayAdvisory!!
+                }
+
+                // Dynamic Spraying Conditions Pill
                 Surface(
-                    modifier = Modifier.weight(1.3f),
+                    modifier = Modifier
+                        .weight(1.3f)
+                        .clickable { showSprayDetailsDialog = true },
                     shape = RoundedCornerShape(24.dp),
                     color = Color.White,
                     border = BorderStroke(1.dp, Color(0xFFD8E6D8)),
@@ -284,17 +303,36 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
-                            Text("Spraying conditions:", fontSize = 11.sp, color = PlantixTextMuted)
-                            Text("Favourable", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = PlantixDarkGreen)
+                            Text(
+                                "Spraying (${currentAdvisory.windowLabel}):",
+                                fontSize = 10.sp,
+                                color = PlantixTextMuted
+                            )
+                            Text(
+                                currentAdvisory.condition.label,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(currentAdvisory.condition.hexColor)
+                            )
                         }
                         Box(
                             modifier = Modifier
-                                .size(22.dp)
+                                .size(24.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF2E7D32)),
+                                .background(Color(currentAdvisory.condition.hexColor)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                            Icon(
+                                imageVector = when (currentAdvisory.condition) {
+                                    SprayCondition.FAVOURABLE -> Icons.Default.Check
+                                    SprayCondition.MODERATE -> Icons.Default.Info
+                                    SprayCondition.UNFAVOURABLE -> Icons.Default.Warning
+                                    SprayCondition.AVOID_SPRAYING -> Icons.Default.Close
+                                },
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(15.dp)
+                            )
                         }
                     }
                 }
@@ -475,6 +513,71 @@ fun HomeScreen(
                     }
                 },
                 onDismiss = { showCropDialog = false }
+            )
+        }
+
+        // Detailed Spray Advisory Dialog
+        if (showSprayDetailsDialog) {
+            val advisory = weather?.sprayAdvisory ?: WeatherService.getDefaultWeather().sprayAdvisory!!
+            AlertDialog(
+                onDismissRequest = { showSprayDetailsDialog = false },
+                confirmButton = {
+                    TextButton(onClick = { showSprayDetailsDialog = false }) {
+                        Text("Close", fontWeight = FontWeight.Bold)
+                    }
+                },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(Color(advisory.condition.hexColor))
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "Spray Advisory (${advisory.windowLabel})",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = advisory.adviceText,
+                            fontSize = 13.sp,
+                            color = PlantixText,
+                            lineHeight = 18.sp
+                        )
+                        HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Delta-T (ΔT):", fontSize = 12.sp, color = PlantixTextMuted)
+                            Text("${advisory.deltaT}°C (Ideal: 2-8°C)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Wind Speed:", fontSize = 12.sp, color = PlantixTextMuted)
+                            Text("${weather?.windSpeed ?: 11.5} km/h", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Humidity:", fontSize = 12.sp, color = PlantixTextMuted)
+                            Text("${weather?.humidity?.toInt() ?: 62}%", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Rain Probability:", fontSize = 12.sp, color = PlantixTextMuted)
+                            Text("${weather?.precipitationProbability?.toInt() ?: 0}%", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                        if (advisory.nextOptimalWindow != null) {
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                "Next optimal window: ${advisory.nextOptimalWindow}",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = PlantixPrimaryDark
+                            )
+                        }
+                    }
+                }
             )
         }
     }

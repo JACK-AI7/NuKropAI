@@ -1,4 +1,4 @@
-﻿package com.example
+package com.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,7 +26,17 @@ import com.example.ui.theme.*
 @Composable
 fun AgriStackPassportScreen(onNavigateBack: () -> Unit) {
     val scrollState = rememberScrollState()
-    val passport = remember { AgriStackPassportEngine.getSovereignPassport() }
+    var livePassport by remember { mutableStateOf<com.example.agristack.AgriStackPassport?>(null) }
+
+    LaunchedEffect(Unit) {
+        livePassport = AgriStackPassportEngine.getLiveOrFallbackPassport(
+            farmerId = "IN-AP-GNT-4122",
+            defaultName = "B. Jaswanth Reddy",
+            defaultState = "Andhra Pradesh"
+        )
+    }
+
+    val passport = livePassport ?: remember { AgriStackPassportEngine.getSovereignPassport() }
 
     Column(
         modifier = Modifier

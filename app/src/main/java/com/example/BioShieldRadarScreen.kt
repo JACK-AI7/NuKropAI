@@ -1,4 +1,4 @@
-﻿package com.example
+package com.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -32,8 +31,23 @@ import com.example.ui.theme.*
 fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
     val scrollState = rememberScrollState()
 
-    // Sample dynamic outbreak cluster
-    val sampleCluster = remember {
+    var activeCluster by remember { mutableStateOf<OutbreakCluster?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        val cluster = BioShieldRadarEngine.getLiveOrEvaluatedCluster(
+            state = "Andhra Pradesh",
+            district = "Guntur",
+            latitude = 16.3067,
+            longitude = 80.4365,
+            diseaseName = "Paddy Blast Fungal Blight",
+            cropName = "Paddy / Rice"
+        )
+        activeCluster = cluster
+        isLoading = false
+    }
+
+    val displayCluster = activeCluster ?: remember {
         BioShieldRadarEngine.evaluateOutbreakCluster(
             scanCoordinates = listOf(
                 Pair(16.3067, 80.4365),
@@ -48,6 +62,8 @@ fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
             leafWetnessHours = 9.5
         )
     }
+
+    val ndviScore = (displayCluster?.ndviStressIndex ?: 0.54).toFloat()
 
     Column(
         modifier = Modifier
@@ -81,7 +97,7 @@ fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Radar Status Banner
-            sampleCluster?.let { cluster ->
+            displayCluster?.let { cluster ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -108,7 +124,7 @@ fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
                         Text("Epicenter: ${cluster.epicenter.districtName}, ${cluster.epicenter.stateName}", fontSize = 12.sp, color = NuKropTextMuted)
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "${cluster.totalScansDetected} verified farm scans detected within 48h. Microclimate conditions (88% humidity) favor spore dispersion.",
+                            "${cluster.totalScansDetected} verified farm scans detected within 48h. Microclimate conditions (${cluster.avgMicroclimateHumidity.toInt()}% humidity) favor spore dispersion.",
                             fontSize = 12.sp,
                             color = NuKropTextDim,
                             lineHeight = 18.sp
@@ -136,7 +152,9 @@ fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
                     ) {
                         Column {
                             Text("Current NDVI Score", fontSize = 11.sp, color = NuKropTextMuted)
-                            Text("0.48 (Stress Detected)", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = NuKropWarning)
+                            val stressLabel = if (ndviScore < 0.45f) "Severe Stress" else if (ndviScore < 0.65f) "Stress Detected" else "Healthy Canopy"
+                            val stressColor = if (ndviScore < 0.45f) NuKropWarning else if (ndviScore < 0.65f) NuKropWarning else NuKropBadgeGreen
+                            Text("$ndviScore ($stressLabel)", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = stressColor)
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text("Baseline Healthy NDVI", fontSize = 11.sp, color = NuKropTextMuted)
@@ -145,9 +163,9 @@ fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
                     }
                     Spacer(Modifier.height(8.dp))
                     LinearProgressIndicator(
-                        progress = { 0.48f },
+                        progress = { ndviScore },
                         modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-                        color = NuKropWarning,
+                        color = if (ndviScore < 0.60f) NuKropWarning else NuKropBadgeGreen,
                         trackColor = Color(0x30FFFFFF),
                     )
                 }
@@ -160,7 +178,7 @@ fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
                     .clip(RoundedCornerShape(16.dp))
                     .background(NuKropCard)
                     .border(1.dp, NuKropBadgeGreen.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-                    .padding(16.dp)
+                .padding(16.dp)
             ) {
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -170,7 +188,7 @@ fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
                     }
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        sampleCluster?.bioDefenseActionPlan ?: "Deploy bio-barriers along ridge perimeter to prevent vector infiltration.",
+                        displayCluster?.bioDefenseActionPlan ?: "Deploy bio-barriers along ridge perimeter to prevent vector infiltration.",
                         fontSize = 13.sp,
                         color = NuKropText,
                         lineHeight = 20.sp
@@ -180,7 +198,7 @@ fun BioShieldRadarScreen(onNavigateBack: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Estimated Containment: 8-12 Days", fontSize = 11.sp, color = NuKropTextMuted)
+                        Text("Estimated Containment: ${displayCluster?.estimatedContainmentDays ?: 10} Days", fontSize = 11.sp, color = NuKropTextMuted)
                         Text("Community Shield: Active", fontSize = 11.sp, color = NuKropBadgeGreen, fontWeight = FontWeight.Bold)
                     }
                 }

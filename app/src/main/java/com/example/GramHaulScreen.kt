@@ -1,4 +1,4 @@
-﻿package com.example
+package com.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,8 +29,19 @@ fun GramHaulScreen(onNavigateBack: () -> Unit) {
     val scrollState = rememberScrollState()
     var myProduceWeight by remember { mutableStateOf(8.0) } // Quintals
     var requiresColdChain by remember { mutableStateOf(false) }
+    var liveTrips by remember { mutableStateOf<List<com.example.gramhaul.GramHaulTripPlan>?>(null) }
 
-    val availableTrips = remember(myProduceWeight, requiresColdChain) {
+    LaunchedEffect(myProduceWeight, requiresColdChain) {
+        liveTrips = GramHaulEngine.getLiveOrPooledTrips(
+            state = "Andhra Pradesh",
+            district = "Guntur",
+            farmerProduceWeight = myProduceWeight,
+            requiresColdChain = requiresColdChain,
+            destinationMandi = "Guntur APMC Mandi"
+        )
+    }
+
+    val availableTrips = liveTrips ?: remember(myProduceWeight, requiresColdChain) {
         GramHaulEngine.findAvailablePooledTrips(myProduceWeight, requiresColdChain)
     }
 

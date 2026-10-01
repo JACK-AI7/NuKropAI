@@ -25,10 +25,32 @@ object LanguageManager {
 
     fun getLanguageName(code: String): String {
         return when (code) {
-            "hi" -> "Hindi"
             "te" -> "Telugu"
+            "hi" -> "Hindi"
             "ta" -> "Tamil"
+            "kn" -> "Kannada"
+            "ml" -> "Malayalam"
             "mr" -> "Marathi"
+            "bn" -> "Bengali"
+            "gu" -> "Gujarati"
+            "pa" -> "Punjabi"
+            "or" -> "Odia"
+            else -> "English"
+        }
+    }
+
+    fun getNativeLanguageName(code: String): String {
+        return when (code) {
+            "te" -> "తెలుగు"
+            "hi" -> "हिन्दी"
+            "ta" -> "தமிழ்"
+            "kn" -> "ಕನ್ನಡ"
+            "ml" -> "മലയാളം"
+            "mr" -> "मराठी"
+            "bn" -> "বাংলা"
+            "gu" -> "ગુજરાતી"
+            "pa" -> "ਪੰਜਾਬੀ"
+            "or" -> "ଓଡ଼ିଆ"
             else -> "English"
         }
     }

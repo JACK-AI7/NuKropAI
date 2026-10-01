@@ -36,10 +36,14 @@ fun MarketScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val lang = LanguageManager.currentLanguage.collectAsState().value
     
-    var query by remember { mutableStateOf("Wheat") }
-    var activeSearchQuery by remember { mutableStateOf("Wheat") }
-    var userState by remember { mutableStateOf("") }
-    var activeSearchState by remember { mutableStateOf("") }
+    val farmPrefs = remember { context.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE) }
+    val initialCrop = remember { farmPrefs.getString("crop", "Wheat")?.ifBlank { "Wheat" } ?: "Wheat" }
+    val initialSavedState = remember { farmPrefs.getString("state", "Telangana")?.ifBlank { "Telangana" } ?: "Telangana" }
+
+    var query by remember { mutableStateOf(initialCrop) }
+    var activeSearchQuery by remember { mutableStateOf(initialCrop) }
+    var userState by remember { mutableStateOf(initialSavedState) }
+    var activeSearchState by remember { mutableStateOf(initialSavedState) }
     var userMandi by remember { mutableStateOf("") }
     
     var detectingLoc by remember { mutableStateOf(true) }
@@ -56,7 +60,9 @@ fun MarketScreen(modifier: Modifier = Modifier) {
                     if (loc != null) {
                         userState = loc.first
                         activeSearchState = loc.first
-                        activeSearchQuery = "Wheat"
+                        val targetCrop = farmPrefs.getString("crop", "Wheat")?.ifBlank { "Wheat" } ?: "Wheat"
+                        activeSearchQuery = targetCrop
+                        query = targetCrop
                         userMandi = loc.second
                     }
                 } catch (_: Exception) {
@@ -69,29 +75,31 @@ fun MarketScreen(modifier: Modifier = Modifier) {
 
     // Auto-detect location on open and trigger auto-search
     LaunchedEffect(Unit) {
+        val targetCrop = farmPrefs.getString("crop", "Wheat")?.ifBlank { "Wheat" } ?: "Wheat"
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             val loc = LocationHelper.getCurrentLocationStateAndMandi(context)
             if (loc != null) {
                 userState = loc.first
                 activeSearchState = loc.first
-                activeSearchQuery = "Wheat"
+                activeSearchQuery = targetCrop
+                query = targetCrop
                 userMandi = loc.second
             } else {
                 // Fallback to saved profile state
-                val prefs = context.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
-                val savedState = prefs.getString("state", "Maharashtra") ?: "Maharashtra"
+                val savedState = farmPrefs.getString("state", "Telangana")?.ifBlank { "Telangana" } ?: "Telangana"
                 userState = savedState
                 activeSearchState = savedState
-                activeSearchQuery = "Wheat"
+                activeSearchQuery = targetCrop
+                query = targetCrop
             }
         } else {
             permLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
             // Use fallback state while waiting for permission
-            val prefs = context.getSharedPreferences("nukrop_farm_profile", android.content.Context.MODE_PRIVATE)
-            val savedState = prefs.getString("state", "Maharashtra") ?: "Maharashtra"
+            val savedState = farmPrefs.getString("state", "Telangana")?.ifBlank { "Telangana" } ?: "Telangana"
             userState = savedState
             activeSearchState = savedState
-            activeSearchQuery = "Wheat"
+            activeSearchQuery = targetCrop
+            query = targetCrop
         }
         detectingLoc = false
     }

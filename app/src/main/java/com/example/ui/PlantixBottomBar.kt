@@ -1,6 +1,7 @@
-﻿package com.example.ui
+package com.example.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -34,15 +35,15 @@ fun PlantixBottomBar(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
-        // Base docked white card with curved cutout silhouette
+        // Base docked light dock with curved cutout silhouette
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(68.dp)
-                .shadow(12.dp, RoundedCornerShape(32.dp), spotColor = Color(0x33000000)),
+                .height(66.dp)
+                .shadow(10.dp, RoundedCornerShape(32.dp), spotColor = Color(0x33000000)),
             shape = RoundedCornerShape(32.dp),
-            color = Color.White,
-            tonalElevation = 6.dp
+            color = Color(0xFFEBEBEB),
+            tonalElevation = 4.dp
         ) {
             Row(
                 modifier = Modifier
@@ -51,7 +52,7 @@ fun PlantixBottomBar(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Tab 1: Your crops (Home)
+                // Tab 1: Home
                 val isHome = currentTab is Tab.Home
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,16 +63,16 @@ fun PlantixBottomBar(
                 ) {
                     Icon(
                         Icons.Filled.Home,
-                        contentDescription = "Your crops",
-                        tint = if (isHome) PlantixPrimary else PlantixTextMuted,
+                        contentDescription = "Home",
+                        tint = if (isHome) Color(0xFF1B5E20) else Color(0xFF666666),
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        "Your crops",
+                        "Home",
                         fontSize = 11.sp,
                         fontWeight = if (isHome) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isHome) PlantixPrimary else PlantixTextMuted
+                        color = if (isHome) Color(0xFF1B5E20) else Color(0xFF666666)
                     )
                 }
 
@@ -87,7 +88,7 @@ fun PlantixBottomBar(
                     Icon(
                         Icons.Filled.PeopleAlt,
                         contentDescription = "Community",
-                        tint = if (isCommunity) PlantixPrimary else PlantixTextMuted,
+                        tint = if (isCommunity) Color(0xFF1B5E20) else Color(0xFF666666),
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(Modifier.height(2.dp))
@@ -95,7 +96,7 @@ fun PlantixBottomBar(
                         "Community",
                         fontSize = 11.sp,
                         fontWeight = if (isCommunity) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isCommunity) PlantixPrimary else PlantixTextMuted
+                        color = if (isCommunity) Color(0xFF1B5E20) else Color(0xFF666666)
                     )
                 }
 
@@ -114,7 +115,7 @@ fun PlantixBottomBar(
                     Icon(
                         Icons.Filled.ShoppingCart,
                         contentDescription = "Market",
-                        tint = if (isMarket) PlantixPrimary else PlantixTextMuted,
+                        tint = if (isMarket) Color(0xFF1B5E20) else Color(0xFF666666),
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(Modifier.height(2.dp))
@@ -122,11 +123,11 @@ fun PlantixBottomBar(
                         "Market",
                         fontSize = 11.sp,
                         fontWeight = if (isMarket) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isMarket) PlantixPrimary else PlantixTextMuted
+                        color = if (isMarket) Color(0xFF1B5E20) else Color(0xFF666666)
                     )
                 }
 
-                // Tab 5: Profile / You
+                // Tab 5: Profile
                 val isProfile = currentTab is Tab.Profile
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -137,8 +138,8 @@ fun PlantixBottomBar(
                 ) {
                     Icon(
                         Icons.Filled.Person,
-                        contentDescription = "You",
-                        tint = if (isProfile) PlantixPrimary else PlantixTextMuted,
+                        contentDescription = "Profile",
+                        tint = if (isProfile) Color(0xFF1B5E20) else Color(0xFF666666),
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(Modifier.height(2.dp))
@@ -146,46 +147,48 @@ fun PlantixBottomBar(
                         "Profile",
                         fontSize = 11.sp,
                         fontWeight = if (isProfile) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isProfile) PlantixPrimary else PlantixTextMuted
+                        color = if (isProfile) Color(0xFF1B5E20) else Color(0xFF666666)
                     )
                 }
             }
         }
 
-        // Center Elevated Green FAB for Scanner
+        // Center Elevated Green FAB for Scanner matching reference image
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.offset(y = (-18).dp)
+            modifier = Modifier.offset(y = (-20).dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(62.dp)
-                    .shadow(10.dp, CircleShape, spotColor = PlantixPrimary)
+                    .size(60.dp)
+                    .shadow(8.dp, CircleShape, spotColor = Color(0xFF1B5E20))
                     .clip(CircleShape)
                     .background(
                         Brush.radialGradient(
                             listOf(
-                                PlantixPrimary,
-                                PlantixPrimaryDark
+                                Color(0xFF4CAF50),
+                                Color(0xFF2E7D32),
+                                Color(0xFF1B5E20)
                             )
                         )
                     )
+                    .border(3.dp, Color(0xFFEBEBEB), CircleShape)
                     .clickable { onScannerClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Filled.CenterFocusStrong,
+                    Icons.Filled.Eco,
                     contentDescription = "Scanner",
                     tint = Color.White,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(30.dp)
                 )
             }
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(2.dp))
             Text(
                 "Scanner",
-                fontSize = 11.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = PlantixPrimaryDark
+                color = Color(0xFF555555)
             )
         }
     }

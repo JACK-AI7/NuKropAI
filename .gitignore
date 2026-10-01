@@ -18,3 +18,23 @@ local.properties
 debug.keystore
 node_modules/
 dist/
+.agents/
+
+# Temporary and Scratch Files
+*.bak
+*.bak_*
+*.log
+temp_*
+temp_scripts/
+extracted_script_*
+scratch_*
+check_*
+test[0-9]*.js
+test_*.js
+test_*.py
+test_*.mjs
+*.txt
+*.png
+!web/public/*.png
+!app/src/main/res/**/*.png
+!screenshots/**/*.png

@@ -1,12 +1,14 @@
 # Progress Log - Worker M1
 
-**Last visited**: 2026-08-29T04:24:30Z
-**Current Step**: Step 6 - Writing handoff report and notifying parent
+**Last visited**: 2026-09-09T14:27:00+05:30
+**Current Step**: Completed all Milestone 1 tasks and verification.
 
 ## Steps:
-1. [COMPLETED] Step 1: Implement `backend/migrations/001_disease_scans_and_outbreak_alerts.sql`, update `backend/schema.sql` and `backend/supabase_setup.sql`.
-2. [COMPLETED] Step 2: Implement Kotlin models in `app/src/main/java/com/example/model/DiseaseScanModels.kt`.
-3. [COMPLETED] Step 3: Implement `app/src/main/java/com/example/DiseaseAggregationService.kt`.
-4. [COMPLETED] Step 4: Update `app/src/main/java/com/example/SupabaseClient.kt`.
-5. [COMPLETED] Step 5: Verify build with `./gradlew assembleDebug` (Exit code 0, BUILD SUCCESSFUL).
-6. [COMPLETED] Step 6: Write handoff report `handoff.md` and notify parent.
+1. [COMPLETED] Step 1: Implement `backend/migrations/003_gramhaul_truck_listings.sql` with full table definition, RLS, indexes, and seed records (also synced to `backend/schema.sql` and `backend/supabase_setup.sql`).
+2. [COMPLETED] Step 2: Remove fake SVG radar `#gramhaul-radar-svg` in `nukrop_emulator.html` and `app/src/main/assets/index.html`.
+3. [COMPLETED] Step 3: Implement Leaflet map mounting on `#gramhaul-osm-map`, custom farm marker with pulsing ring, truck markers with emoji and price pill badges, route polyline to APMC, and booking popups.
+4. [COMPLETED] Step 4: Implement `fetchGramhaulTrucks()` and `submitDriverTruckListing()` with live PostgREST integration to `${SUPABASE_CONFIG.url}/rest/v1/truck_listings` and authentic regional fallback.
+5. [COMPLETED] Step 5: Wire `openScreen('gramhaul')` to trigger map init, fetch, and size invalidation, plus GPS `flyTo` in `refreshGramhaulLocation()` and `recenterGramhaulMap()`.
+6. [COMPLETED] Step 6: Verify dual-file parity between `nukrop_emulator.html` and `app/src/main/assets/index.html`.
+7. [COMPLETED] Step 7: Run `node test_production_readiness.js` (63/63 passing) and `node tests/verify_milestone1_gramhaul.js` (14/14 passing).
+8. [COMPLETED] Step 8: Write `handoff.md` and send completion message to parent agent.

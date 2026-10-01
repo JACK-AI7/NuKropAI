@@ -424,3 +424,202 @@ CREATE POLICY "Allow public read and write on disease_scans" ON public.disease_s
 CREATE POLICY "Allow public read and write on state_adjacencies" ON public.state_adjacencies FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public read and write on outbreak_alerts" ON public.outbreak_alerts FOR ALL USING (true) WITH CHECK (true);
 
+-- ============================================================================
+-- 8. GramHaul Shared Logistics Truck Listings
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.truck_listings (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    user_id TEXT,
+    driver_name TEXT NOT NULL,
+    driver_phone TEXT NOT NULL,
+    vehicle_type TEXT NOT NULL DEFAULT 'Tata 407 (Heavy Duty)',
+    vehicle_plate TEXT NOT NULL,
+    capacity_tons NUMERIC(5,2) DEFAULT 3.0,
+    total_bags_capacity INTEGER NOT NULL DEFAULT 30,
+    filled_bags INTEGER NOT NULL DEFAULT 0,
+    rate_per_bag NUMERIC(8,2) NOT NULL DEFAULT 45.00,
+    rate_per_km NUMERIC(8,2) DEFAULT 20.00,
+    solo_rate NUMERIC(10,2) DEFAULT 1800.00,
+    origin_village TEXT NOT NULL,
+    destination_mandi TEXT NOT NULL,
+    departure_time TEXT NOT NULL,
+    pickup_eta TEXT DEFAULT '30 mins',
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    is_cold_chain BOOLEAN DEFAULT FALSE,
+    status TEXT DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'FULL', 'DEPARTED', 'CANCELLED')),
+    rating NUMERIC(2,1) DEFAULT 4.9,
+    trips_count INTEGER DEFAULT 25,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_truck_listings_status ON public.truck_listings(status);
+CREATE INDEX IF NOT EXISTS idx_truck_listings_coords ON public.truck_listings(latitude, longitude);
+CREATE INDEX IF NOT EXISTS idx_truck_listings_created_at ON public.truck_listings(created_at DESC);
+
+ALTER TABLE public.truck_listings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read on truck_listings" ON public.truck_listings FOR SELECT USING (true);
+CREATE POLICY "Allow public insert on truck_listings" ON public.truck_listings FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update on truck_listings" ON public.truck_listings FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public delete on truck_listings" ON public.truck_listings FOR DELETE USING (true);
+
+INSERT INTO public.truck_listings (
+    id, driver_name, driver_phone, vehicle_type, vehicle_plate, 
+    capacity_tons, total_bags_capacity, filled_bags, rate_per_bag, 
+    rate_per_km, solo_rate, origin_village, destination_mandi, departure_time, 
+    pickup_eta, latitude, longitude, is_cold_chain, status, rating, trips_count
+) VALUES
+(
+    'TRK-8419', 'Ramesh Yadav', '+91 98492 11048', 'Tata 407 (Heavy Duty)', 'TS-03-UB-8419',
+    3.5, 30, 22, 45.00,
+    22.00, 1800.00, 'Narsampet Rural', 'Warangal Enumamula APMC Yard', 'Today, 4:30 PM',
+    '25 mins', 17.9750, 79.5990, FALSE, 'ACTIVE', 4.9, 142
+),
+(
+    'TRK-4920', 'K. Venkatesham', '+91 94401 77391', 'Eicher Pro 2049 (Express)', 'AP-36-TA-4920',
+    5.0, 45, 31, 65.00,
+    28.00, 2800.00, 'Station Road, Warangal', 'Bowenpally APMC, Hyderabad', 'Today, 6:00 PM',
+    '45 mins', 17.9880, 79.6150, FALSE, 'ACTIVE', 4.8, 98
+),
+(
+    'TRK-1102', 'Md. Ismail Khan', '+91 99890 32184', 'Mahindra Bolero Maxi Truck', 'TS-04-EA-1102',
+    2.0, 20, 14, 45.00,
+    18.00, 1400.00, 'Mulugu Hub', 'Warangal Enumamula APMC Yard', 'Today, 5:15 PM',
+    '35 mins', 17.9620, 79.6050, FALSE, 'ACTIVE', 4.9, 210
+),
+(
+    'TRK-3391', 'Gurpreet Singh', '+91 98765 43210', 'Tata Ace (Chhota Hathi)', 'PB-10-CZ-3391',
+    1.5, 15, 5, 40.00,
+    16.00, 1200.00, 'Kazipet Mandi Gate', 'Warangal APMC Yard', 'Today, 5:45 PM',
+    '20 mins', 17.9820, 79.5820, FALSE, 'ACTIVE', 5.0, 36
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================================
+-- 9. Interactive Kisan Community Features (Posts, Likes, Follows)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.community_posts (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    user_id TEXT,
+    author_name TEXT NOT NULL,
+    author_village TEXT,
+    avatar_url TEXT,
+    crop_id TEXT,
+    title TEXT NOT NULL,
+    content TEXT,
+    body TEXT,
+    media_url TEXT,
+    media_type TEXT,
+    media_label TEXT,
+    likes_count INTEGER DEFAULT 0,
+    comments_count INTEGER DEFAULT 0,
+    is_verified BOOLEAN DEFAULT FALSE,
+    is_resolved BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.community_posts 
+ADD COLUMN IF NOT EXISTS user_id TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_community_posts_user_id ON public.community_posts(user_id);
+CREATE INDEX IF NOT EXISTS idx_community_posts_crop_id ON public.community_posts(crop_id);
+CREATE INDEX IF NOT EXISTS idx_community_posts_created_at ON public.community_posts(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.post_likes (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    post_id TEXT NOT NULL REFERENCES public.community_posts(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_post_likes UNIQUE (post_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_post_likes_post_id ON public.post_likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_post_likes_user_id ON public.post_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_post_likes_created_at ON public.post_likes(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.user_follows (
+    id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    follower_id TEXT NOT NULL,
+    following_id TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_user_follows UNIQUE (follower_id, following_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON public.user_follows(follower_id);
+CREATE INDEX IF NOT EXISTS idx_user_follows_following ON public.user_follows(following_id);
+CREATE INDEX IF NOT EXISTS idx_user_follows_created_at ON public.user_follows(created_at DESC);
+
+CREATE OR REPLACE FUNCTION public.fn_sync_post_likes_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'INSERT') THEN
+        UPDATE public.community_posts
+        SET likes_count = COALESCE(likes_count, 0) + 1,
+            updated_at = NOW()
+        WHERE id = NEW.post_id;
+        RETURN NEW;
+    ELSIF (TG_OP = 'DELETE') THEN
+        UPDATE public.community_posts
+        SET likes_count = GREATEST(0, COALESCE(likes_count, 0) - 1),
+            updated_at = NOW()
+        WHERE id = OLD.post_id;
+        RETURN OLD;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_post_likes_count ON public.post_likes;
+CREATE TRIGGER trg_post_likes_count
+AFTER INSERT OR DELETE ON public.post_likes
+FOR EACH ROW EXECUTE FUNCTION public.fn_sync_post_likes_count();
+
+ALTER TABLE public.community_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_follows ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public read on community_posts') THEN
+        CREATE POLICY "Allow public read on community_posts" ON public.community_posts FOR SELECT USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public insert on community_posts') THEN
+        CREATE POLICY "Allow public insert on community_posts" ON public.community_posts FOR INSERT WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public update on community_posts') THEN
+        CREATE POLICY "Allow public update on community_posts" ON public.community_posts FOR UPDATE USING (true) WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public delete on community_posts') THEN
+        CREATE POLICY "Allow public delete on community_posts" ON public.community_posts FOR DELETE USING (true);
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public read on post_likes') THEN
+        CREATE POLICY "Allow public read on post_likes" ON public.post_likes FOR SELECT USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public insert on post_likes') THEN
+        CREATE POLICY "Allow public insert on post_likes" ON public.post_likes FOR INSERT WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public update on post_likes') THEN
+        CREATE POLICY "Allow public update on post_likes" ON public.post_likes FOR UPDATE USING (true) WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public delete on post_likes') THEN
+        CREATE POLICY "Allow public delete on post_likes" ON public.post_likes FOR DELETE USING (true);
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public read on user_follows') THEN
+        CREATE POLICY "Allow public read on user_follows" ON public.user_follows FOR SELECT USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public insert on user_follows') THEN
+        CREATE POLICY "Allow public insert on user_follows" ON public.user_follows FOR INSERT WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public update on user_follows') THEN
+        CREATE POLICY "Allow public update on user_follows" ON public.user_follows FOR UPDATE USING (true) WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public delete on user_follows') THEN
+        CREATE POLICY "Allow public delete on user_follows" ON public.user_follows FOR DELETE USING (true);
+    END IF;
+END $$;
+
+

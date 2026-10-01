@@ -4,9 +4,14 @@ import android.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
+import kotlinx.serialization.json.addJsonObject
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -22,29 +27,28 @@ object GeminiVisionService {
 
     private val jsonParser = Json { ignoreUnknownKeys = true }
 
-    // Groq API Keys (constructed via string concatenation to satisfy push protection)
-    private val API_KEYS = listOf(
-        "gsk_" + "oqUDIhjwS1sl6ZtVypQlWGdyb3FYpKGwOOFFL2OXCTpsZtCnUuKG",
-        "gsk_" + "m592arL0vjqQvTXAiczQWGdyb3FYC0aQyoyG0WRfYpSrUZSqcwQA",
-        "gsk_" + "H8EJw4h732MGd34ZqGH4WGdyb3FYWZKzdfoa8CIt4vbryHatarpq"
-    )
-    
-    private const val BASE = "https://api.groq.com/openai/v1/chat/completions"
-    
-    private val MODELS = listOf(
-        "groq/compound-mini",
-        "qwen/qwen3.6-27b",
-        "openai/gpt-oss-20b"
-    )
+    private const val GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+    private const val DEFAULT_MODEL = "gemini-1.5-flash"
 
-    private val VISION_MODELS = listOf(
-        "groq/compound-mini",
-        "qwen/qwen3.6-27b",
-        "openai/gpt-oss-20b"
-    )
+    /**
+     * Resolves Gemini API key with strict precedence:
+     * 1. Provided parameter if non-blank
+     * 2. BuildConfig.GEMINI_API_KEY if configured
+     * 3. System environment variable GEMINI_API_KEY
+     */
+    fun resolveApiKey(providedKey: String = ""): String {
+        if (providedKey.isNotBlank()) return providedKey
+        try {
+            val buildKey = BuildConfig.GEMINI_API_KEY
+            if (buildKey.isNotBlank()) return buildKey
+        } catch (_: Throwable) {}
+        val envKey = System.getenv("GEMINI_API_KEY")
+        if (!envKey.isNullOrBlank()) return envKey
+        return ""
+    }
 
-    private fun parseText(body: String): String {
-        if (body.isBlank()) return "API Error: Empty response from Groq server"
+    private fun parseGeminiResponse(body: String): String {
+        if (body.isBlank()) return "API Error: Empty response from Gemini server"
         return try {
             val element = jsonParser.parseToJsonElement(body).jsonObject
             if (element.containsKey("error")) {
@@ -52,152 +56,151 @@ object GeminiVisionService {
                 val msg = errObj?.get("message")?.jsonPrimitive?.content ?: "Unknown API Error"
                 return "API Error: $msg"
             }
-            val content = element["choices"]
-                ?.jsonArray?.getOrNull(0)?.jsonObject
-                ?.get("message")?.jsonObject
-                ?.get("content")?.jsonPrimitive?.content ?: return "API Error: No response content found"
+            val candidates = element["candidates"]?.jsonArray
+            if (candidates.isNullOrEmpty()) {
+                return "API Error: No candidates returned"
+            }
+            val firstCandidate = candidates[0].jsonObject
+            val parts = firstCandidate["content"]?.jsonObject?.get("parts")?.jsonArray
+            if (parts.isNullOrEmpty()) {
+                return "API Error: No content parts returned"
+            }
+            val text = parts[0].jsonObject["text"]?.jsonPrimitive?.content ?: return "API Error: No text in candidate"
 
-            // Strip reasoning/thought tags like <think>...</think> before returning content
-            val cleaned = content.replace(Regex("(?s)<think>.*?</think>"), "")
-                .replace(Regex("(?s)<thought>.*?</thought>"), "")
+            // Clean markdown tags if returned
+            val cleaned = text.trim()
+                .removePrefix("```json")
+                .removePrefix("```")
+                .removeSuffix("```")
                 .trim()
-            if (cleaned.isBlank()) content.trim() else cleaned
-        } catch (e: Exception) { "API Error: Parse failed (${e.message}). Raw: $body" }
+            if (cleaned.isBlank()) text.trim() else cleaned
+        } catch (e: Exception) {
+            "API Error: Parse failed (${e.message}). Raw: $body"
+        }
     }
 
     suspend fun analyzeImage(apiKey: String, imageBytes: ByteArray, prompt: String): Result<String> =
         withContext(Dispatchers.IO) {
-            var lastError = "Unknown Error"
+            val key = resolveApiKey(apiKey)
+            if (key.isBlank()) {
+                return@withContext Result.failure(IllegalStateException("Gemini API key is not configured"))
+            }
+
             val b64 = Base64.encodeToString(imageBytes, Base64.NO_WRAP)
             val lang = LanguageManager.currentLanguage.value
             val langName = LanguageManager.getLanguageName(lang)
-            val translationInstruction = if (lang != "en") " YOU MUST RESPOND ENTIRELY AND STRICTLY IN THE $langName LANGUAGE. However, if a JSON format is requested, keep the JSON structure and keys strictly in English, and only translate the values." else ""
-            
-            val finalPrompt = prompt + translationInstruction + "\nCRITICAL: Respond ONLY with valid raw JSON object. DO NOT include any reasoning, thinking text, or intro text."
-            val escapedPrompt = finalPrompt.replace("\\", "\\\\").replace("\"", "\\\"", false).replace("\n", "\\n", false)
-            
-            for (model in VISION_MODELS) {
-                for (key in API_KEYS) {
-                    try {
-                        val body = """
-                        {
-                          "model": "$model",
-                          "messages": [
-                            {
-                              "role": "user",
-                              "content": [
-                                { "type": "text", "text": "$escapedPrompt" },
-                                { "type": "image_url", "image_url": { "url": "data:image/jpeg;base64,$b64" } }
-                              ]
-                            }
-                          ]
-                        }
-                        """.trimIndent()
+            val translationInstruction = if (lang != "en") {
+                " YOU MUST RESPOND ENTIRELY AND STRICTLY IN THE $langName LANGUAGE. However, if a JSON format is requested, keep the JSON structure and keys strictly in English, and only translate the values."
+            } else ""
 
-                        val req = Request.Builder()
-                            .url(BASE)
-                            .addHeader("Authorization", "Bearer $key")
-                            .post(body.toRequestBody("application/json".toMediaType()))
-                            .build()
-                            
-                        val parsed = client.newCall(req).execute().use { resp ->
-                            val text = resp.body?.string() ?: ""
-                            parseText(text)
-                        }
-                        
-                        if (!parsed.startsWith("API Error")) {
-                            return@withContext Result.success(parsed)
-                        } else {
-                            lastError = parsed
-                        }
-                    } catch (e: Exception) { lastError = "Exception: ${e.message}" }
+            val finalPrompt = prompt + translationInstruction + "\nCRITICAL: Respond ONLY with valid raw JSON object. DO NOT include reasoning or markdown wrappers."
+
+            val requestPayload = buildJsonObject {
+                put("contents", buildJsonArray {
+                    addJsonObject {
+                        put("role", "user")
+                        put("parts", buildJsonArray {
+                            addJsonObject {
+                                put("text", finalPrompt)
+                            }
+                            addJsonObject {
+                                putJsonObject("inlineData") {
+                                    put("mimeType", "image/jpeg")
+                                    put("data", b64)
+                                }
+                            }
+                        })
+                    }
+                })
+                putJsonObject("generationConfig") {
+                    put("temperature", 0.2)
+                    put("responseMimeType", "application/json")
                 }
+            }.toString()
+
+            val url = "$GEMINI_BASE_URL/$DEFAULT_MODEL:generateContent?key=$key"
+            val req = Request.Builder()
+                .url(url)
+                .post(requestPayload.toRequestBody("application/json; charset=utf-8".toMediaType()))
+                .build()
+
+            try {
+                val parsed = client.newCall(req).execute().use { resp ->
+                    val body = resp.body?.string() ?: ""
+                    parseGeminiResponse(body)
+                }
+
+                if (!parsed.startsWith("API Error")) {
+                    Result.success(parsed)
+                } else {
+                    Result.failure(Exception(parsed))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-            Result.failure(Exception(lastError))
         }
 
     suspend fun textQuery(apiKey: String, prompt: String): Result<String> =
         withContext(Dispatchers.IO) {
-            var lastError = "Unknown Error"
+            val key = resolveApiKey(apiKey)
+            if (key.isBlank()) {
+                return@withContext Result.failure(IllegalStateException("Gemini API key is not configured"))
+            }
+
             val lang = LanguageManager.currentLanguage.value
             val langName = LanguageManager.getLanguageName(lang)
-            val translationInstruction = if (lang != "en") "\n\nCRITICAL INSTRUCTION: You MUST translate the output into $langName. However, if the prompt requires a strictly structured JSON response, YOU MUST KEEP ALL JSON KEYS IN EXACT ENGLISH as requested, and ONLY translate the VALUES into $langName. Do NOT respond in English. Use standard $langName script." else ""
-            
-            val finalPrompt = prompt + translationInstruction
-            val escaped = finalPrompt.replace("\\", "\\\\").replace("\"", "\\\"", false).replace("\n", "\\n", false)
-            
-            for (model in MODELS) {
-                for (key in API_KEYS) {
-                    try {
-                        val body = """
-                        {
-                          "model": "$model",
-                          "messages": [{"role": "user", "content": "$escaped"}]
-                        }
-                        """.trimIndent()
+            val translationInstruction = if (lang != "en") {
+                "\n\nCRITICAL INSTRUCTION: You MUST translate the output into $langName. However, if the prompt requires a strictly structured JSON response, YOU MUST KEEP ALL JSON KEYS IN EXACT ENGLISH as requested, and ONLY translate the VALUES into $langName. Do NOT respond in English. Use standard $langName script."
+            } else ""
 
-                        val req = Request.Builder()
-                            .url(BASE)
-                            .addHeader("Authorization", "Bearer $key")
-                            .post(body.toRequestBody("application/json".toMediaType()))
-                            .build()
-                            
-                        val parsed = client.newCall(req).execute().use { resp ->
-                            val text = resp.body?.string() ?: ""
-                            parseText(text)
-                        }
-                        
-                        if (!parsed.startsWith("API Error")) {
-                            return@withContext Result.success(parsed)
-                        } else {
-                            lastError = parsed
-                        }
-                    } catch (e: Exception) { lastError = "Exception: ${e.message}" }
+            val finalPrompt = prompt + translationInstruction
+
+            val requestPayload = buildJsonObject {
+                put("contents", buildJsonArray {
+                    addJsonObject {
+                        put("role", "user")
+                        put("parts", buildJsonArray {
+                            addJsonObject {
+                                put("text", finalPrompt)
+                            }
+                        })
+                    }
+                })
+                putJsonObject("generationConfig") {
+                    put("temperature", 0.2)
                 }
+            }.toString()
+
+            val url = "$GEMINI_BASE_URL/$DEFAULT_MODEL:generateContent?key=$key"
+            val req = Request.Builder()
+                .url(url)
+                .post(requestPayload.toRequestBody("application/json; charset=utf-8".toMediaType()))
+                .build()
+
+            try {
+                val parsed = client.newCall(req).execute().use { resp ->
+                    val body = resp.body?.string() ?: ""
+                    parseGeminiResponse(body)
+                }
+
+                if (!parsed.startsWith("API Error")) {
+                    Result.success(parsed)
+                } else {
+                    Result.failure(Exception(parsed))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-            Result.failure(Exception(lastError))
         }
 
     suspend fun chatQuery(prompt: String): Result<String> = textQuery("", prompt)
 
     suspend fun checkAlerts(apiKey: String, state: String, mandi: String): Result<String> =
         withContext(Dispatchers.IO) {
-            var lastError = "Unknown Error"
             val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
             val today = sdf.format(java.util.Date())
             val prompt = "TODAY IS $today. You are NuKropAI Market Observer. The user is in State: '$state', Mandi: '$mandi'. Are there any sudden massive price drops/spikes for major crops HERE TODAY? Or any severe weather alerts expected HERE TODAY? Respond with a short 1-2 sentence emergency alert message if YES. If there are NO major alerts, respond STRICTLY with 'NO_ALERT'."
-            val escaped = prompt.replace("\\", "\\\\").replace("\"", "\\\"", false).replace("\n", "\\n", false)
-            
-            for (model in MODELS) {
-                for (key in API_KEYS) {
-                    try {
-                        val body = """
-                        {
-                          "model": "$model",
-                          "messages": [{"role": "user", "content": "$escaped"}]
-                        }
-                        """.trimIndent()
-
-                        val req = Request.Builder()
-                            .url(BASE)
-                            .addHeader("Authorization", "Bearer $key")
-                            .post(body.toRequestBody("application/json".toMediaType()))
-                            .build()
-                            
-                        val parsed = client.newCall(req).execute().use { resp ->
-                            val text = resp.body?.string() ?: ""
-                            parseText(text)
-                        }
-                        
-                        if (!parsed.startsWith("API Error")) {
-                            return@withContext Result.success(parsed)
-                        } else {
-                            lastError = parsed
-                        }
-                    } catch (e: Exception) { lastError = "Exception: ${e.message}" }
-                }
-            }
-            Result.failure(Exception(lastError))
+            textQuery(apiKey, prompt)
         }
 
     fun cropScanPrompt() = """You are a master Senior Agronomist and Plant Pathologist. Analyze this crop image. Identify the precise disease/pest, provide MAXIMUM pest control measures, and list 100% REAL, brand-name chemical pesticide/fungicide products available in India (e.g. Syngenta, Bayer, UPL) with exact dosages. BE EXTREMELY BRIEF AND FAST. 1 SENTENCE MAX PER FIELD.

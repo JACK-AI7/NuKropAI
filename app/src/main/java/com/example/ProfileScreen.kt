@@ -20,9 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
-import io.github.jan.supabase.auth.user.UserInfo
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
@@ -35,7 +33,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
     val scrollState = rememberScrollState()
     val authViewModel: AuthViewModel = viewModel()
     val currentUser by authViewModel.currentUser.collectAsState()
-    val user = currentUser as? UserInfo
+    val user = currentUser
 
     Column(
         modifier = modifier
@@ -70,7 +68,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                         .border(2.dp, NuKropAccent, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    val photoUrl = user?.userMetadata?.get("avatar_url")?.toString()?.replace("\"", "") ?: user?.userMetadata?.get("picture")?.toString()?.replace("\"", "")
+                    val photoUrl = user?.avatarUrl
                     if (photoUrl != null) {
                         AsyncImage(
                             model = photoUrl,
@@ -85,7 +83,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                 Spacer(modifier = Modifier.height(12.dp))
                 // Real Name
                 Text(
-                    text = user?.userMetadata?.get("name")?.toString()?.replace("\"", "") ?: "Guest Farmer",
+                    text = user?.name?.ifBlank { "Guest Farmer" } ?: "Guest Farmer",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = NuKropText
@@ -93,7 +91,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                 Spacer(modifier = Modifier.height(4.dp))
                 // Real Email
                 Text(
-                    user?.email ?: "No Email Found",
+                    user?.email?.ifBlank { "No Email Found" } ?: "No Email Found",
                     fontSize = 12.sp,
                     color = NuKropTextMuted
                 )
@@ -181,11 +179,13 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                         prefs.edit().putString("state", editState).putString("crop", editCrop).putString("farm_size", editFarmSize).apply()
                         profileScope.launch {
                             try {
-                                val userEmail = try {
-                                    val authPrefs = profileContext.getSharedPreferences("nukrop_auth", android.content.Context.MODE_PRIVATE)
-                                    authPrefs.getString("user_name", "user@nukrop.ai") ?: "user@nukrop.ai"
-                                } catch (e: Exception) { "user@nukrop.ai" }
-                                SupabaseApi.syncProfile(userEmail, user?.userMetadata?.get("name")?.toString()?.replace("\"", "") ?: "Farmer", editState, "", editCrop, 0.0, 0.0)
+                                val userEmail = user?.email?.ifBlank { null }
+                                    ?: try {
+                                        val authPrefs = profileContext.getSharedPreferences("nukrop_auth", android.content.Context.MODE_PRIVATE)
+                                        authPrefs.getString("user_email", null) ?: authPrefs.getString("user_name", "user@nukrop.ai") ?: "user@nukrop.ai"
+                                    } catch (e: Exception) { "user@nukrop.ai" }
+                                val userName = user?.name?.ifBlank { "Farmer" } ?: "Farmer"
+                                SupabaseApi.syncProfile(userEmail, userName, editState, "", editCrop, 0.0, 0.0)
                                 profileSaveStatus = "✅ Profile saved!"
                             } catch (e: Exception) {
                                 profileSaveStatus = "⚠ Error saving profile: ${e.message}"
@@ -277,11 +277,17 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                     modifier = Modifier.background(NuKropCard)
                 ) {
                     val langs = listOf(
-                        "en" to "English",
-                        "hi" to "Hindi (हिन्दी)",
-                        "te" to "Telugu (తెలుగు)",
-                        "ta" to "Tamil (தமிழ்)",
-                        "mr" to "Marathi (मराठी)"
+                        "te" to "తెలుగు",
+                        "hi" to "हिन्दी",
+                        "ta" to "தமிழ்",
+                        "kn" to "ಕನ್ನಡ",
+                        "ml" to "മലയാളം",
+                        "mr" to "मराठी",
+                        "bn" to "বাংলা",
+                        "gu" to "ગુજરાતી",
+                        "pa" to "ਪੰਜਾਬੀ",
+                        "or" to "ଓଡ଼ିଆ",
+                        "en" to "English"
                     )
                     langs.forEach { (code, name) ->
                         DropdownMenuItem(
@@ -295,8 +301,6 @@ fun ProfileScreen(modifier: Modifier = Modifier, onSignOut: (() -> Unit)? = null
                 }
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
-
             SettingsItem(
                 icon = Icons.Default.Shield, 
                 title = "Privacy & Data", 
@@ -457,4 +461,3 @@ fun SettingsItem(
         Icon(Icons.Default.ChevronRight, contentDescription = null, tint = NuKropTextDim, modifier = Modifier.size(18.dp))
     }
 }
-

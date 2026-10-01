@@ -5,23 +5,23 @@
     android:viewportHeight="100">
     <!-- Leaf Body Matching media_1788415051841.png -->
     <path
-        android:fillColor="#10B981"
+        android:fillColor="#FFFFFF"
         android:pathData="M18,82 C13,54 38,22 82,18 C87,46 62,78 18,82 Z" />
     <!-- Center Spine Vein -->
     <path
-        android:strokeColor="#FFFFFF"
+        android:strokeColor="#00000000"
         android:strokeWidth="3.8"
         android:strokeLineCap="round"
         android:pathData="M22,78 Q48,48 78,22" />
     <!-- Dew Droplets -->
     <path
-        android:strokeColor="#D1FAE5"
+        android:strokeColor="#00000000"
         android:strokeWidth="1.2"
-        android:fillColor="#80FFFFFF"
+        android:fillColor="#00000000"
         android:pathData="M58,42 m-3.4,0 a3.4,3.4 0 1,0 6.8,0 a3.4,3.4 0 1,0 -6.8,0" />
     <path
-        android:strokeColor="#D1FAE5"
+        android:strokeColor="#00000000"
         android:strokeWidth="1.2"
-        android:fillColor="#80FFFFFF"
+        android:fillColor="#00000000"
         android:pathData="M47,54 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0" />
 </vector>

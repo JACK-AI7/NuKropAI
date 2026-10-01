@@ -58,6 +58,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var cameraPhotoUri: Uri? = null
+    private var customView: View? = null
+    private var customViewCallback: WebChromeClient.CustomViewCallback? = null
+    private lateinit var rootContainer: android.widget.FrameLayout
     private val CHANNEL_ID = "nukrop_farmer_alerts"
 
     inner class WebAppInterface {
@@ -65,6 +68,34 @@ class MainActivity : ComponentActivity() {
         fun requestDeviceLocation() {
             runOnUiThread {
                 fetchAndSendLocationToWebView()
+            }
+        }
+
+        @JavascriptInterface
+        fun requestLocationPermission() {
+            runOnUiThread {
+                permissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+            }
+        }
+
+        @JavascriptInterface
+        fun requestNotificationPermission() {
+            runOnUiThread {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    permissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun requestCameraPermission() {
+            runOnUiThread {
+                permissionLauncher.launch(arrayOf(Manifest.permission.CAMERA))
             }
         }
 
@@ -87,6 +118,62 @@ class MainActivity : ComponentActivity() {
         fun postSystemNotification(title: String, message: String) {
             runOnUiThread {
                 showSystemNotification(title, message)
+            }
+        }
+
+        @JavascriptInterface
+        fun launchGoogleSignIn(authUrl: String) {
+            runOnUiThread {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.e("NuKropAuth", "Failed to launch Google auth: ${e.message}")
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun pickDeviceGoogleAccount() {
+            runOnUiThread {
+                try {
+                    val intent = android.accounts.AccountManager.newChooseAccountIntent(
+                        null,
+                        null,
+                        arrayOf("com.google"),
+                        false,
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+                    startActivityForResult(intent, 1009)
+                } catch (e: Exception) {
+                    android.util.Log.e("NuKropAuth", "Account picker error: ${e.message}")
+                    try {
+                        val accounts = android.accounts.AccountManager.get(this@MainActivity).getAccountsByType("com.google")
+                        if (accounts.isNotEmpty()) {
+                            val email = accounts[0].name
+                            val name = email.substringBefore("@").replace(".", " ").split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                            webView.evaluateJavascript("if(window.onNativeGoogleAccountSelected) window.onNativeGoogleAccountSelected('$email', '$name')", null)
+                        } else {
+                            webView.evaluateJavascript("if(window.onNativeGoogleAccountNotFound) window.onNativeGoogleAccountNotFound()", null)
+                        }
+                    } catch (ex: Exception) {
+                        webView.evaluateJavascript("if(window.onNativeGoogleAccountNotFound) window.onNativeGoogleAccountNotFound()", null)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1009 && resultCode == Activity.RESULT_OK && data != null) {
+            val accountName = data.getStringExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME)
+            if (!accountName.isNullOrEmpty()) {
+                val name = accountName.substringBefore("@").replace(".", " ").split(" ").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+                webView.evaluateJavascript("if(window.onNativeGoogleAccountSelected) window.onNativeGoogleAccountSelected('$accountName', '$name')", null)
             }
         }
     }
@@ -233,17 +320,6 @@ class MainActivity : ComponentActivity() {
             isAppearanceLightNavigationBars = true
         }
 
-        // Request runtime permissions for Camera, Location, Storage, Notifications
-        val permissions = mutableListOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-        permissionLauncher.launch(permissions.toTypedArray())
-
         // Create full-screen hardware-accelerated WebView
         webView = WebView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
@@ -266,7 +342,7 @@ class MainActivity : ComponentActivity() {
                 allowUniversalAccessFromFileURLs = true
                 mediaPlaybackRequiresUserGesture = false
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                cacheMode = WebSettings.LOAD_DEFAULT
+                cacheMode = WebSettings.LOAD_NO_CACHE
                 useWideViewPort = true
                 loadWithOverviewMode = true
                 setSupportZoom(false)
@@ -277,10 +353,30 @@ class MainActivity : ComponentActivity() {
                 javaScriptCanOpenWindowsAutomatically = true
             }
 
+            WebView.setWebContentsDebuggingEnabled(true)
+            clearCache(true)
+
             // Expose native bridge to Javascript
             addJavascriptInterface(WebAppInterface(), "AndroidBridge")
 
             webChromeClient = object : WebChromeClient() {
+                override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                    android.util.Log.d("NuKropWebView", "[JS] ${consoleMessage?.message()} (line ${consoleMessage?.lineNumber()})")
+                    return super.onConsoleMessage(consoleMessage)
+                }
+                override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                    result?.confirm()
+                    return true
+                }
+                override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                    result?.confirm()
+                    return true
+                }
+                override fun onJsPrompt(view: WebView?, url: String?, message: String?, defaultValue: String?, result: JsPromptResult?): Boolean {
+                    result?.confirm()
+                    return true
+                }
+
                 // Auto-grant Camera & Microphone for live crop scanner stream
                 override fun onPermissionRequest(request: PermissionRequest) {
                     runOnUiThread {
@@ -320,7 +416,34 @@ class MainActivity : ComponentActivity() {
                     return true
                 }
 
-                // Native Camera Snap & File Chooser for Scanner
+                // HTML5 Video Fullscreen Support
+                override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+                    if (customView != null) {
+                        onHideCustomView()
+                        return
+                    }
+                    customView = view
+                    customViewCallback = callback
+                    webView.visibility = View.GONE
+                    rootContainer.addView(
+                        view,
+                        ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                    )
+                }
+
+                override fun onHideCustomView() {
+                    if (customView == null) return
+                    rootContainer.removeView(customView)
+                    customView = null
+                    webView.visibility = View.VISIBLE
+                    customViewCallback?.onCustomViewHidden()
+                    customViewCallback = null
+                }
+
+                // Native Camera Snap & File Chooser for Scanner and Community Media
                 override fun onShowFileChooser(
                     webView: WebView?,
                     filePathCallback: ValueCallback<Array<Uri>>?,
@@ -345,16 +468,27 @@ class MainActivity : ComponentActivity() {
                         cameraPhotoUri = null
                     }
 
-                    // Prepare Gallery Intent
+                    // Prepare Gallery Intent with Image & Video mime support
+                    val acceptTypes = fileChooserParams?.acceptTypes
+                    val isVideoRequested = acceptTypes?.any { it.contains("video", ignoreCase = true) } == true
+                    val isImageRequested = acceptTypes?.any { it.contains("image", ignoreCase = true) } == true
+
                     val pickIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
                         addCategory(Intent.CATEGORY_OPENABLE)
-                        type = "image/*"
+                        if (isVideoRequested && !isImageRequested) {
+                            type = "video/*"
+                        } else if (isImageRequested && !isVideoRequested) {
+                            type = "image/*"
+                        } else {
+                            type = "*/*"
+                            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
+                        }
                     }
 
                     // Build System Chooser with Camera + Gallery options
                     val chooserIntent = Intent(Intent.ACTION_CHOOSER).apply {
                         putExtra(Intent.EXTRA_INTENT, pickIntent)
-                        putExtra(Intent.EXTRA_TITLE, "Capture Crop Leaf or Select Image")
+                        putExtra(Intent.EXTRA_TITLE, "Select Field Media or Capture")
                         if (photoFile != null) {
                             putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(takePictureIntent))
                         }
@@ -372,12 +506,15 @@ class MainActivity : ComponentActivity() {
 
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                    val url = request?.url?.toString() ?: return false
-                    // Keep internal app assets inside local WebView
-                    if (url.startsWith("file:///android_asset/") || url.startsWith("file:///android_res/")) {
+                    if (request == null || !request.isForMainFrame) {
                         return false
                     }
-                    // For ANY external link (http, https, tel, mailto, whatsapp): launch device browser/app!
+                    val url = request.url?.toString() ?: return false
+                    // Keep internal app assets and data schemas inside local WebView
+                    if (url.startsWith("file://") || url.startsWith("data:") || url.startsWith("blob:") || url.startsWith("about:") || url.startsWith("javascript:")) {
+                        return false
+                    }
+                    // For external web links: launch device browser/app!
                     try {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                         startActivity(intent)
@@ -387,20 +524,40 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+                    super.onReceivedError(view, request, error)
+                    android.util.Log.e("NuKropWebView", "WebView load error: ${error?.description} on ${request?.url}")
+                }
+
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    fetchAndSendLocationToWebView()
                 }
             }
 
             loadUrl("file:///android_asset/index.html")
         }
 
-        setContentView(webView)
+        rootContainer = android.widget.FrameLayout(this).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+        rootContainer.addView(webView)
+        setContentView(rootContainer)
 
         // Handle Android physical/gesture back button
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                if (customView != null) {
+                    rootContainer.removeView(customView)
+                    customView = null
+                    webView.visibility = View.VISIBLE
+                    customViewCallback?.onCustomViewHidden()
+                    customViewCallback = null
+                    return
+                }
+
                 // If live camera is running or modal open, close it cleanly
                 webView.evaluateJavascript(
                     """
@@ -436,6 +593,23 @@ class MainActivity : ComponentActivity() {
                 }
             }
         })
+
+        // Check for deep link on cold launch
+        handleAuthDeepLink(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleAuthDeepLink(intent)
+    }
+
+    private fun handleAuthDeepLink(intent: Intent?) {
+        val uri = intent?.data ?: return
+        if (uri.scheme == "nukrop" && uri.host == "auth-callback") {
+            val fullUrl = uri.toString()
+            webView.evaluateJavascript("if (typeof handleAuthCallback === 'function') handleAuthCallback('$fullUrl');", null)
+        }
     }
 
     override fun onResume() {

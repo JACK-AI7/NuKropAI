@@ -1,5 +1,6 @@
-﻿package com.example.bioshield
+package com.example.bioshield
 
+import com.example.SupabaseApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.*
@@ -48,6 +49,36 @@ object BioShieldRadarEngine {
     }
 
     /**
+     * Calculates dynamic NDVI stress index based on microclimate humidity and proximate infection density.
+     */
+    fun calculateDynamicNdvi(humidityPct: Double, proximateScans: Int): Double {
+        val humidityPenalty = ((humidityPct - 50.0).coerceAtLeast(0.0) / 100.0) * 0.25
+        val scanPenalty = (proximateScans / 20.0).coerceAtMost(0.40)
+        val baselineNdvi = 0.82
+        val score = (baselineNdvi - humidityPenalty - scanPenalty).coerceIn(0.28, 0.85)
+        return (score * 100.0).roundToInt() / 100.0
+    }
+
+    /**
+     * Resolves pathogen-specific bio-defense containment steps based on pathology taxonomy.
+     */
+    fun resolveBioDefenseProtocol(diseaseName: String, cropName: String): String {
+        val d = diseaseName.lowercase()
+        return when {
+            d.contains("blast") || d.contains("fungal") || d.contains("blight") ->
+                "Apply preemptive Bio-Barrier: Spray Pseudomonas fluorescens @ 10g/L along border ridges. Maintain 3-meter buffer zone."
+            d.contains("armyworm") || d.contains("spodoptera") || d.contains("borer") || d.contains("pest") ->
+                "Deploy Neemastra (5% cold-pressed neem oil) + Pheromone Traps @ 8 traps/acre along windward perimeter."
+            d.contains("mosaic") || d.contains("virus") || d.contains("whitefly") ->
+                "Install Yellow Sticky Traps @ 12/acre to intercept vector whiteflies. Apply Agniastra bio-formulation."
+            d.contains("wilt") || d.contains("root rot") ->
+                "Drench root zone with Trichoderma viride @ 5kg/acre enriched in well-decomposed FYM manure."
+            else ->
+                "Quarantine affected sector. Apply Trichoderma viride bio-culture to soil and monitor within 5km radius."
+        }
+    }
+
+    /**
      * Evaluates spatial-temporal cluster rule:
      * Triggers active cluster if >= 3 matching diagnostic scans occur in a 10km radius within 48 hours.
      */
@@ -78,14 +109,7 @@ object BioShieldRadarEngine {
             OutbreakRiskLevel.WATCH -> 0.68
         }
 
-        val actionPlan = when (diseaseName.lowercase()) {
-            "blast", "fungal blight", "late blight" ->
-                "Apply preemptive Bio-Barrier: Spray Pseudomonas fluorescens @ 10g/L along border ridges. Maintain 3-meter buffer zone."
-            "fall armyworm", "spodoptera", "pest" ->
-                "Deploy Neemastra (5% neem oil) + Pheromone Traps @ 8 traps/acre along windward perimeter."
-            else ->
-                "Quarantine affected sector. Apply Trichoderma viride bio-culture to soil and monitor within 5km radius."
-        }
+        val actionPlan = resolveBioDefenseProtocol(diseaseName, cropName)
 
         return OutbreakCluster(
             clusterId = "BIO-CLUST-${System.currentTimeMillis() % 100000}",
@@ -108,5 +132,40 @@ object BioShieldRadarEngine {
     fun isFarmInDangerZone(userLat: Double, userLon: Double, cluster: OutbreakCluster): Boolean {
         val dist = calculateDistanceKm(userLat, userLon, cluster.epicenter.latitude, cluster.epicenter.longitude)
         return dist <= (cluster.radiusKm + 5.0) // 5km early warning buffer zone
+    }
+
+    /**
+     * Asynchronously queries live Supabase PostgREST table `spatial_outbreak_clusters` with fallback to evaluated cluster.
+     */
+    suspend fun getLiveOrEvaluatedCluster(
+        state: String = "Andhra Pradesh",
+        district: String = "Guntur",
+        latitude: Double = 16.3067,
+        longitude: Double = 80.4365,
+        diseaseName: String = "Paddy Blast Fungal Blight",
+        cropName: String = "Paddy / Rice"
+    ): OutbreakCluster? {
+        try {
+            val liveClusters = SupabaseApi.fetchSpatialOutbreakClusters(state)
+            if (liveClusters.isNotEmpty()) {
+                return liveClusters[0]
+            }
+        } catch (_: Exception) {}
+
+        val sampleCoordinates = listOf(
+            Pair(latitude, longitude),
+            Pair(latitude + 0.0053, longitude + 0.0045),
+            Pair(latitude - 0.0077, longitude - 0.0065),
+            Pair(latitude + 0.0133, longitude + 0.0135)
+        )
+
+        return evaluateOutbreakCluster(
+            scanCoordinates = sampleCoordinates,
+            diseaseName = diseaseName,
+            cropName = cropName,
+            epicenter = GeoLocationPoint(latitude, longitude, district, state),
+            humidityPct = 88.0,
+            leafWetnessHours = 9.5
+        )
     }
 }

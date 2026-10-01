@@ -1,38 +1,57 @@
-# DISPATCH
+# Dispatch: Worker M2 (Milestone 2 - Dynamic Pest and Disease Alerts)
+Working Directory: c:\Users\bjasw\Downloads\agriculture-ai-os\.agents\teamwork_preview_worker_m2
+Original Request: c:\Users\bjasw\Downloads\agriculture-ai-os\.agents\ORIGINAL_REQUEST.md
+Survey Report: c:\Users\bjasw\Downloads\agriculture-ai-os\.agents\teamwork_preview_explorer_survey_2_gen2\handoff.md
+Project Index: c:\Users\bjasw\Downloads\agriculture-ai-os\PROJECT.md
 
-## 2026-08-29T04:23:21Z
-You are Worker M2: Market Impact Calculator & Domain Models Implementer.
-
-Authoritative Request: c:\Users\bjasw\Downloads\agriculture-ai-os\.agents\ORIGINAL_REQUEST.md
-Scope Document: c:\Users\bjasw\Downloads\agriculture-ai-os\PROJECT.md
-Working Directory: c:\Users\bjasw\Downloads\agriculture-ai-os
-Your Agent Directory: c:\Users\bjasw\Downloads\agriculture-ai-os\.agents\teamwork_preview_worker_m2
-
-MANDATORY INTEGRITY WARNING:
+## MANDATORY INTEGRITY WARNING
 DO NOT CHEAT. All implementations must be genuine. DO NOT hardcode test results, create dummy/facade implementations, or circumvent the intended task. A teamwork_preview_auditor will independently verify your work. Integrity violations WILL be detected and your work WILL be rejected.
 
-Exclusively Owned Files:
-- `app/src/main/java/com/example/market/MarketImpactModels.kt`
-- `app/src/main/java/com/example/market/MarketImpactCalculator.kt`
-- `app/src/main/java/com/example/market/MarketImpactRepository.kt`
+## Objective: Implement Milestone 2 (R2 - Dynamic Pest and Disease Alerts)
+1. **Purge All Hardcoded "Warangal" Fallbacks**:
+   - In `nukrop_emulator.html` and `app/src/main/assets/index.html`, purge every hardcoded fallback to "Warangal", "Telangana", or static districts across:
+     - `PEST_SURVEILLANCE_ALERTS` (lines ~2296–2339): replace hardcoded Warangal trap strings with dynamic state/district placeholders.
+     - `REAL_MARKET_TICKER_ITEMS` (line ~4041): change `mandi: 'Warangal Cluster'` to dynamically bind to the user's active/detected cluster.
+     - `fetchRealLocationAndWeather()` (line ~6634): remove `|| 'Warangal'` and `|| 'Telangana'`.
+     - `onNativeLocationReceived()`: remove `|| 'Telangana'`.
+     - Onboarding Step 4 and Notification Center: remove static Warangal strings.
+2. **Implement Resilient Location Resolution Hierarchy**:
+   - Implement `getEffectiveUserState()` with 4-tier resolution:
+     1. Live geocoded state from GPS / OpenStreetMap Nominatim (`liveWeather.detectedState`).
+     2. Saved farm profile state from `farmerProfile.state` or `localStorage.getItem('nukrop_user_state')`.
+     3. Active search state from Mandi selector.
+     4. Neutral prompt / National overview (e.g. `'National'` or prompt user). NEVER inject "Warangal" unprompted.
+3. **Dynamic Pest Alert Engine**:
+   - Implement `fetchDynamicPestAlerts(targetState, targetDistrict)`:
+     - Attempts PostgREST query to `${SUPABASE_CONFIG.url}/rest/v1/outbreak_alerts?target_state=eq.${encodeURIComponent(state)}&is_active=eq.true&order=scan_count.desc`.
+     - Fallback: Evaluates in-memory regional pest matrix (`getRegionalPestMatrix(state, district)`) tailored for that state's primary crops (e.g. Maharashtra -> Cotton Pink Bollworm & Soybean Stem Fly; Punjab -> Wheat Yellow Rust & Paddy Stem Borer; Gujarat -> Cotton Whitefly & Groundnut Tikka; Telangana -> Chilli Thrips & Cotton Bollworm).
+     - Dynamically updates `PEST_SURVEILLANCE_ALERTS`.
+     - Updates the news ticker item (`type: 'alert'`) to display the real state/district sector.
+     - Updates Home view alert badge and BioShield view in real-time.
+4. **Maintain Exact Parity**:
+   - Apply every change symmetrically to both `nukrop_emulator.html` and `app/src/main/assets/index.html`.
+5. **Automated Verification**:
+   - Create and run `tests/verify_milestone2_pest_alerts.js` testing:
+     - 0 hardcoded "Warangal" in alert data, ticker, or geocoding fallbacks.
+     - Dynamic state switching (e.g. simulating Maharashtra, Punjab, Telangana) updates alert cards and ticker.
+     - `node test_production_readiness.js` passes with zero regressions.
+6. **Handoff Report**:
+   - Write report to `c:\Users\bjasw\Downloads\agriculture-ai-os\.agents\teamwork_preview_worker_m2\handoff.md`.
+   - Send message to parent with path and test outputs.
 
-Your Instructions:
-1. Implement `app/src/main/java/com/example/market/MarketImpactModels.kt`:
-   - Enums: `OutbreakSeverity`, `OutbreakStage`, `ImpactDirection`, `MarketRiskLevel`, `ImpactMechanism`
-   - Data models: `AffectedMarketDetail`, `MarketPriceImpact`
-   - Ensure compatibility with `com.example.model.OutbreakAlert` and `com.example.MandiRecord`.
-2. Implement `app/src/main/java/com/example/market/MarketImpactCalculator.kt`:
-   - Pure, deterministic calculation engine modeling regional disease outbreaks on mandi prices.
-   - Crop perishability map (Tomato: 1.40, Capsicum/Chilli: 1.35, Onion: 1.25, Potato: 1.15, Cotton: 0.95, Wheat/Rice/Paddy: 0.80, Mustard/Soybean: 0.90, Maize: 0.85, default: 1.0).
-   - Severity shocks: CRITICAL = 0.32, HIGH = 0.22, MODERATE = 0.12, LOW = 0.05.
-   - Density saturation: D = (scanCount / 100.0).coerceIn(0.1, 1.0).
-   - Geographic multiplier: Epicenter = 1.00, Neighbor = 0.70, Distant = 0.40.
-   - Stage dynamics:
-     - `SUPPLY_CONTRACTION`: + (beta * perishability * D * geographicMultiplier * 100)%
-     - `EARLY_PANIC`: Epicenter - (beta * perishability * D * 0.85 * 100)%, Neighbor + (beta * perishability * D * geographicMultiplier * 0.50 * 100)%
-     - `RECOVERY`: - (beta * 0.30 * perishability * D * 100)%
-   - Calculated predicted price with floor (min 40% of base), delta percentage, absolute delta, risk levels (Critical >= 25%, High >= 15%, Moderate >= 7%, Low < 7%), confidence score (50-98%), peak days, farmer recommendation, and affected markets details.
-3. Implement `app/src/main/java/com/example/market/MarketImpactRepository.kt`:
-   - Provide `IMarketImpactRepository` and `MarketImpactRepository` singleton with methods to query active alerts via `DiseaseAggregationService` and calculate market price impacts against live mandi records.
-4. Verify by running `./gradlew assembleDebug` using `run_command`.
-5. Write handoff report to `c:\Users\bjasw\Downloads\agriculture-ai-os\.agents\teamwork_preview_worker_m2\handoff.md` and send message when complete.
+## 2026-09-09T08:57:30Z
+User Request:
+Implement Milestone 2: Dynamic Pest and Disease Alerts without Hardcoded Fallbacks.
+1. Purge all hardcoded "Warangal" fallbacks and static district strings from `nukrop_emulator.html` and `app/src/main/assets/index.html`.
+2. Implement `getEffectiveUserState()` hierarchy (GPS -> Profile -> Mandi Search -> National neutral; never static Warangal).
+3. Implement `fetchDynamicPestAlerts(state, district)` dynamically querying Supabase and regional matrix, updating `PEST_SURVEILLANCE_ALERTS`, BioShield view, and ticker item.
+4. Wire location updates (`fetchRealLocationAndWeather` and `onNativeLocationReceived`) to trigger dynamic pest alert refresh.
+5. Maintain 100% parity across `nukrop_emulator.html` and `app/src/main/assets/index.html`.
+6. Write and run `tests/verify_milestone2_pest_alerts.js` and verify `node test_production_readiness.js` passes with 0 regressions.
+7. Write your handoff report to `c:\Users\bjasw\Downloads\agriculture-ai-os\.agents\teamwork_preview_worker_m2\handoff.md` and notify parent.
+
+## 2026-09-09T09:10:14Z
+Parent Agent Message:
+Heartbeat check on Milestone 2 progress. Please report your current step: have you finished implementing `getEffectiveUserState()`, `fetchDynamicPestAlerts()`, purging Warangal references across nukrop_emulator.html and app/src/main/assets/index.html, and running the verification tests?
+Action: Please update progress.md and advise on estimated time to handoff.
+

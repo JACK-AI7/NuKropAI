@@ -11,6 +11,18 @@ import kotlinx.coroutines.launch
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+
+data class NuKropUser(
+    val id: String,
+    val email: String,
+    val name: String,
+    val avatarUrl: String? = null
+)
 
 sealed class AuthState {
     object Idle : AuthState()
@@ -25,32 +37,61 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
-    private val _currentUser = MutableStateFlow<Any?>(null)
-    val currentUser = _currentUser.asStateFlow()
+    private val _currentUser = MutableStateFlow<NuKropUser?>(null)
+    val currentUser: StateFlow<NuKropUser?> = _currentUser.asStateFlow()
 
     init {
-        // Load saved session to prevent auto-logout
-        val savedUser = prefs.getString("user_name", null)
-        if (savedUser != null && savedUser != "Guest" && savedUser != "Google Farmer") {
-            _currentUser.value = savedUser
+        // Immediately load saved session to prevent cold-start auto-logout
+        val savedUserId = prefs.getString("user_id", "") ?: ""
+        val savedEmail = prefs.getString("user_email", "") ?: ""
+        val savedName = prefs.getString("user_name", null)
+        val savedAvatar = prefs.getString("user_avatar", null)
+        if (savedName != null && savedName.isNotBlank() && savedName != "Guest" && savedName != "Google Farmer") {
+            _currentUser.value = NuKropUser(
+                id = savedUserId.ifBlank { "user_${System.currentTimeMillis()}" },
+                email = savedEmail,
+                name = savedName,
+                avatarUrl = savedAvatar
+            )
             _authState.value = AuthState.Success
-        } else if (savedUser == "Guest" || savedUser == "Google Farmer") {
+        } else if (savedName == "Guest" || savedName == "Google Farmer") {
             prefs.edit().clear().apply()
         }
-        // Collect supabase session updates
+
+        // Collect supabase session updates without wiping preferences on cold start
         viewModelScope.launch {
             try {
                 supabase.auth.sessionStatus.collect { status ->
                     when (status) {
                         is io.github.jan.supabase.auth.status.SessionStatus.Authenticated -> {
-                            _currentUser.value = status.session.user
-                            prefs.edit().putString("user_name", status.session.user?.email).apply()
+                            val user = status.session.user
+                            val meta = user?.userMetadata
+                            val name = meta?.get("full_name")?.jsonPrimitive?.contentOrNull
+                                ?: meta?.get("name")?.jsonPrimitive?.contentOrNull
+                                ?: prefs.getString("user_name", null)
+                                ?: user?.email?.substringBefore("@")
+                                ?: "Farmer"
+                            val email = user?.email ?: prefs.getString("user_email", "") ?: ""
+                            val avatar = meta?.get("avatar_url")?.jsonPrimitive?.contentOrNull
+                                ?: meta?.get("picture")?.jsonPrimitive?.contentOrNull
+                                ?: prefs.getString("user_avatar", null)
+                            val u = NuKropUser(
+                                id = user?.id ?: prefs.getString("user_id", "") ?: "",
+                                email = email,
+                                name = name,
+                                avatarUrl = avatar
+                            )
+                            _currentUser.value = u
+                            prefs.edit()
+                                .putString("user_id", u.id)
+                                .putString("user_email", u.email)
+                                .putString("user_name", u.name)
+                                .putString("user_avatar", u.avatarUrl)
+                                .apply()
+                            _authState.value = AuthState.Success
                         }
                         else -> {
-                            if (_currentUser.value != "Guest" && _currentUser.value != "Google Farmer") {
-                                _currentUser.value = null
-                                prefs.edit().clear().apply()
-                            }
+                            // Do NOT clear prefs on cold start during Initializing or NotAuthenticated to prevent race conditions
                         }
                     }
                 }
@@ -71,7 +112,29 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 supabase.auth.signUpWith(Email) {
                     this.email = email
                     this.password = pass
+                    data = buildJsonObject {
+                        put("full_name", JsonPrimitive(name))
+                        put("name", JsonPrimitive(name))
+                    }
                 }
+                val currentSessionUser = supabase.auth.currentUserOrNull()
+                val u = NuKropUser(
+                    id = currentSessionUser?.id ?: "user_${System.currentTimeMillis()}",
+                    email = email,
+                    name = name
+                )
+                _currentUser.value = u
+                prefs.edit()
+                    .putString("user_id", u.id)
+                    .putString("user_email", u.email)
+                    .putString("user_name", u.name)
+                    .apply()
+
+                // Sync user profile to Supabase user_profiles
+                try {
+                    SupabaseApi.syncProfile(email, name, "", "", "", 0.0, 0.0)
+                } catch (_: Exception) {}
+
                 _authState.value = AuthState.Success
             } catch (e: Throwable) {
                 _authState.value = AuthState.Error(e.message ?: "Sign up failed")
@@ -91,6 +154,28 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                     this.email = email
                     this.password = pass
                 }
+                val user = supabase.auth.currentUserOrNull()
+                val meta = user?.userMetadata
+                val name = meta?.get("full_name")?.jsonPrimitive?.contentOrNull
+                    ?: meta?.get("name")?.jsonPrimitive?.contentOrNull
+                    ?: prefs.getString("user_name", null)
+                    ?: email.substringBefore("@")
+                val avatar = meta?.get("avatar_url")?.jsonPrimitive?.contentOrNull
+                    ?: meta?.get("picture")?.jsonPrimitive?.contentOrNull
+                    ?: prefs.getString("user_avatar", null)
+                val u = NuKropUser(
+                    id = user?.id ?: "user_${System.currentTimeMillis()}",
+                    email = email,
+                    name = name,
+                    avatarUrl = avatar
+                )
+                _currentUser.value = u
+                prefs.edit()
+                    .putString("user_id", u.id)
+                    .putString("user_email", u.email)
+                    .putString("user_name", u.name)
+                    .putString("user_avatar", u.avatarUrl)
+                    .apply()
                 _authState.value = AuthState.Success
             } catch (e: Throwable) {
                 _authState.value = AuthState.Error(e.message ?: "Login failed")
@@ -102,10 +187,19 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         _authState.value = AuthState.Loading
         viewModelScope.launch {
             try {
+                val serverClientId = try {
+                    BuildConfig.GOOGLE_WEB_CLIENT_ID.ifBlank { "" }
+                } catch (_: Throwable) { "" }
+
+                if (serverClientId.isBlank() || !serverClientId.contains(".apps.googleusercontent.com")) {
+                    _authState.value = AuthState.Error("Google Sign-In requires configured GOOGLE_WEB_CLIENT_ID. Please use Email/Password.")
+                    return@launch
+                }
+
                 val credentialManager = androidx.credentials.CredentialManager.create(context)
                 val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId("NuKrop.AI")
+                    .setServerClientId(serverClientId)
                     .setAutoSelectEnabled(false)
                     .build()
                 val request = androidx.credentials.GetCredentialRequest.Builder()
@@ -124,17 +218,28 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         }
                     } catch (_: Exception) {}
 
-                    _currentUser.value = googleIdTokenCredential.displayName ?: googleIdTokenCredential.id
-                    prefs.edit().putString("user_name", _currentUser.value as String).apply()
+                    val userName = googleIdTokenCredential.displayName ?: googleIdTokenCredential.id.substringBefore("@")
+                    val userEmail = googleIdTokenCredential.id
+                    val avatar = googleIdTokenCredential.profilePictureUri?.toString()
+                    val u = NuKropUser(
+                        id = googleIdTokenCredential.id,
+                        email = userEmail,
+                        name = userName,
+                        avatarUrl = avatar
+                    )
+                    _currentUser.value = u
+                    prefs.edit()
+                        .putString("user_id", u.id)
+                        .putString("user_email", u.email)
+                        .putString("user_name", u.name)
+                        .putString("user_avatar", u.avatarUrl)
+                        .apply()
                     _authState.value = AuthState.Success
                 } else {
-                    _currentUser.value = "Google Farmer"
-                    prefs.edit().putString("user_name", "Google Farmer").apply()
-                    _authState.value = AuthState.Success
+                    _authState.value = AuthState.Error("Google Sign-In failed to obtain valid credential.")
                 }
             } catch (e: Throwable) {
-                // Strictly enforce Google login - no fallback bypass
-                _authState.value = AuthState.Error("Google Sign-In failed. Please use Email/Password.")
+                _authState.value = AuthState.Error("Google Sign-In failed: ${e.message ?: "Please use Email/Password."}")
             }
         }
     }

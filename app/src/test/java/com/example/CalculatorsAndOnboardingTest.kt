@@ -1,4 +1,4 @@
-﻿package com.example
+package com.example
 
 import com.example.ui.AllAvailableCrops
 import com.example.ui.onboarding.SupportedLanguages
@@ -16,12 +16,14 @@ class CalculatorsAndOnboardingTest {
         assertTrue("Hindi must be supported", codes.contains("hi"))
         assertTrue("Tamil must be supported", codes.contains("ta"))
         assertTrue("Kannada must be supported", codes.contains("kn"))
+        assertTrue("Malayalam must be supported", codes.contains("ml"))
         assertTrue("Marathi must be supported", codes.contains("mr"))
         assertTrue("Punjabi must be supported", codes.contains("pa"))
         assertTrue("Gujarati must be supported", codes.contains("gu"))
         assertTrue("Bengali must be supported", codes.contains("bn"))
+        assertTrue("Odia must be supported", codes.contains("or"))
         assertTrue("English must be supported", codes.contains("en"))
-        assertEquals("At least 9 Indic & regional languages supported", 9, SupportedLanguages.size)
+        assertEquals("All 11 Indic & regional languages supported", 11, SupportedLanguages.size)
     }
 
     @Test

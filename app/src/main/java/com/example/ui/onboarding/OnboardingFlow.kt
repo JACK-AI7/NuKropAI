@@ -1,4 +1,4 @@
-﻿package com.example.ui.onboarding
+package com.example.ui.onboarding
 
 import android.Manifest
 import android.content.Context
@@ -55,10 +55,12 @@ val SupportedLanguages = listOf(
     LanguageOption("hi", "हिन्दी", "आपकी भाषा में खेती"),
     LanguageOption("ta", "தமிழ்", "உங்கள் மொழியில் வேளாண்மை"),
     LanguageOption("kn", "ಕನ್ನಡ", "ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಕೃಷಿ"),
+    LanguageOption("ml", "മലയാളം", "നിങ്ങളുടെ ഭാഷയിൽ കൃഷി"),
     LanguageOption("mr", "मराठी", "स्वतःच्या भाषेत शेती"),
-    LanguageOption("pa", "ਪੰਜਾਬੀ", "ਤੁਹਾਡੀ ਭਾਸ਼ਾ ਵਿੱਚ ਖੇਤੀਬਾੜੀ"),
-    LanguageOption("gu", "ગુજરાતી", "ખેતી તમારી ભાષામાં"),
     LanguageOption("bn", "বাংলা", "চাষাবাদের কথা আপনার ভাষায়"),
+    LanguageOption("gu", "ગુજરાતી", "ખેતી તમારી ભાષામાં"),
+    LanguageOption("pa", "ਪੰਜਾਬੀ", "ਤੁਹਾਡੀ ਭਾਸ਼ਾ ਵਿੱਚ ਖੇਤੀਬਾੜੀ"),
+    LanguageOption("or", "ଓଡ଼ିଆ", "ଆପଣଙ୍କ ଭାଷାରେ କୃଷି"),
     LanguageOption("en", "English", "Smart farming in your language")
 )
 

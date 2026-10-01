@@ -1,26 +1,20 @@
-# Execution Plan — NuKropAI Android App Audit & Fixes
+# Plan: NuKropAI Fullstack Audit & Hardening Sweep
 
-## Phase 0: Survey & Discovery
-1. Spawn 3 specialized Explorers in parallel:
-   - Explorer 1 (UI Alignment Specialist): Investigate all Jetpack Compose screens (Home, Market, Profile, Scanner, Loan, etc.), bottom navigation bar insets, list bottom padding, text overflow, layout clipping.
-   - Explorer 2 (Kotlin Bug Hunter): Investigate codebase for crashes, unhandled nullability, coroutine leaks, infinite loading states, error handling in ViewModels/Repositories.
-   - Explorer 3 (API & Connection Specialist): Inspect Groq AI, Supabase DB, Agmarknet API configurations, auth tokens, interceptors, network request endpoints, rate-limiting & error recovery logic.
+## Objectives
+1. Perform exhaustive code and spec survey to inventory all features across emulator, Kotlin core, and Supabase backend.
+2. Establish Dual-Track execution:
+   - Implementation Track: R1 (Live Data Pipeline), R2 (16 OS Views & Features), R3 (i18n & Single-Language Dropdowns).
+   - E2E Testing Track: Automated testing covering all 176 views (16 screens x 11 languages), spray 3h window calculation, single-language dropdowns, Android build check.
+3. Rigorous gating: Explorer -> Worker -> Reviewer -> Challenger -> Forensic Auditor cycle for each milestone.
+4. Pass 100% automated E2E tests, complete DPDP Act 2023 audit, and report back to Sentinel.
 
-## Phase 1: Synthesis & PROJECT.md
-1. Aggregate survey reports into Feature Inventory and Defect Catalog.
-2. Define interface contracts, file ownership, and milestone breakdown in `PROJECT.md`.
-3. Establish verification criteria and test commands.
-
-## Phase 2: Milestone Execution (Worker -> Reviewer -> Challenger -> Auditor)
-1. Milestone R1: UI Alignment, Polish & Bottom Padding.
-2. Milestone R2: Bug Squashing, Crash Fixes & Robust State Handling.
-3. Milestone R3: API Token Validation, Connection Verification & Network Error Handling.
-
-## Phase 3: Acceptance & Build Verification
-1. Test compilation via `./gradlew assembleDebug` or equivalent gradle build tasks executed by workers.
-2. Independent review by Reviewers & Challengers.
-3. Integrity Forensics by Auditor.
-
-## Phase 4: Final Synthesis & Parent Notification
-1. Complete handoff report.
-2. Notify parent sentinel.
+## Phases
+1. **Phase 0: Survey (3 parallel explorers/spec miners)**
+   - Explorer 1 (Spec Miner): Extract requirements from ORIGINAL_REQUEST.md, identify all 16 views, 11 languages, and specific calculation rules (spray 3h window, crop selector, DPDP compliance).
+   - Explorer 2 (Architecture & Data Pipelines): Map codebase layout, ukrop_emulator.html, Kotlin files, Supabase integration, Agmarknet, weather sensors, OpenFarm, AgriStack, and identify dummy mocks or placeholders.
+   - Explorer 3 (i18n & Test Harness): Map language dropdowns, i18n keys across all 11 Indian languages, test runners, and build systems.
+2. **Phase 1: Project Decomposition & Test Infra Setup**
+   - Synthesize findings into `PROJECT.md` and `TEST_INFRA.md`.
+3. **Phase 2: Milestone Iteration Loops (Worker -> Reviewers -> Challengers -> Auditor)**
+4. **Phase 3: Final E2E Test Suite Pass & Adversarial Coverage Hardening**
+5. **Phase 4: Final Victory Audit & Sentinel Reporting**

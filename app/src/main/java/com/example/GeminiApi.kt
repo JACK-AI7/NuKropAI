@@ -2,7 +2,6 @@ package com.example
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
@@ -10,6 +9,7 @@ import retrofit2.Retrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Streaming
 import java.util.concurrent.TimeUnit
@@ -28,18 +28,33 @@ data class Content(
 )
 
 @Serializable
+data class InlineData(
+    val mimeType: String,
+    val data: String
+)
+
+@Serializable
 data class Part(
-    val text: String? = null
+    val text: String? = null,
+    val inlineData: InlineData? = null
 )
 
 @Serializable
 data class GenerationConfig(
     val temperature: Float? = null,
     val topP: Float? = null,
-    val topK: Int? = null
+    val topK: Int? = null,
+    val responseMimeType: String? = null
 )
 
 interface GeminiApiService {
+    @POST("v1beta/models/{model}:generateContent")
+    suspend fun generateContent(
+        @Path("model") model: String = "gemini-1.5-flash",
+        @Query("key") apiKey: String,
+        @Body request: GenerateContentRequest
+    ): ResponseBody
+
     @POST("v1beta/models/gemini-2.0-flash:streamGenerateContent")
     @Streaming
     suspend fun generateContentStream(
