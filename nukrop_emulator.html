@@ -6327,6 +6327,8 @@ function checkAndTriggerOnboarding() {
 }
 
 function openOnboardingFlow(isManual = false) {
+  advanceSlide('slide_disease');
+  return;
   onboardingState.step = 1;
   NuKropAnalytics.track('onboarding_started', { manualTrigger: isManual });
 
@@ -6760,7 +6762,7 @@ function renderSplashScreen(container) {
   splashProgress = 0;
 
   container.innerHTML = `
-    <div id="splash-viewport" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-sizing:border-box;padding:48px 24px 36px;background:radial-gradient(circle at 50% 30%, #F0FDF4 0%, #FFFFFF 55%, #F8FAF8 100%);position:relative;overflow:hidden;transition:all 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+    <div id="splash-viewport" onclick="advanceSlide('slide_disease')" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-sizing:border-box;padding:48px 24px 36px;background:radial-gradient(circle at 50% 30%, #F0FDF4 0%, #FFFFFF 55%, #F8FAF8 100%);position:relative;overflow:hidden;transition:all 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
       
       <!-- Tier-1 Ambient Radiant Aura Lights -->
       <div style="position:absolute;top:32%;left:50%;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle, rgba(74,222,128,0.22) 0%, rgba(16,185,129,0.12) 40%, rgba(255,255,255,0) 70%);transform:translate(-50%, -50%);animation:splashAuraPulse 4s ease-in-out infinite;pointer-events:none;filter:blur(24px);"></div>
@@ -8546,6 +8548,11 @@ function acceptLanguageAndContinue() {
   renderPlantixFlow();
 }
 
+
+function skipToPermissions() {
+  advanceSlide('perm_location');
+}
+
 function advanceSlide(screen) {
   if (typeof plantixFlowState !== 'undefined') {
     plantixFlowState.currentScreen = screen;
@@ -8850,9 +8857,7 @@ function finishPlantixOnboarding() {
     });
   } catch(e) {}
 
-  try {
-    localStorage.setItem('nukrop_onboarding_plantix_completed', 'true');
-  } catch(e) {}
+  /* marked completed on successful login */
 
   if (plantixFlowState.selectedCrops && plantixFlowState.selectedCrops.length > 0) {
     myActiveCrops = plantixFlowState.selectedCrops.map(cropKey => {
@@ -8897,7 +8902,8 @@ function initStartupExperience(forceReplay = false) {
   if (!forceReplay) {
     try {
       const completed = localStorage.getItem('nukrop_onboarding_plantix_completed');
-      if (completed === 'true') {
+      const auth = localStorage.getItem('nukrop_user_email') || localStorage.getItem('nukrop_auth_method');
+      if (completed === 'true' && auth) {
         const existingOverlay = document.getElementById('startup-experience-overlay');
         if (existingOverlay) existingOverlay.remove();
         return;
