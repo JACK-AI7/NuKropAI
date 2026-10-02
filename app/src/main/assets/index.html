@@ -14068,13 +14068,12 @@ const BOTANICAL_PATHOLOGY_DB = {
 /* ═════════════════ HARDWARE CAMERA & LIVE STREAM CONTROLLER ═════════════════ */
 let liveCameraStream = null;
 
-async 
 window.onNativeCameraPermissionGranted = function() {
-  console.log('[NativeBridge] Camera permission granted by user');
+  console.log("[NativeBridge] Camera permission granted by user");
   startLiveCameraStream();
 };
 
-function startLiveCameraStream() {
+async function startLiveCameraStream() {
   const video = document.getElementById('vf-live-video');
   const hudStatus = document.getElementById('scanner-hud-status');
   const targetText = document.getElementById('scan-target-text');
