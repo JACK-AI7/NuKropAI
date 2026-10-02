@@ -35,9 +35,9 @@ export default function Hero() {
         </p>
 
         <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="/NuKropAI_v2.0.apk" download="NuKropAI_v2.0.apk" className="nukrop-btn" style={{ padding: '14px 28px', fontSize: '15px', borderRadius: '12px' }}>
+          <a href="/NuKropAI.apk" download="NuKropAI.apk" className="nukrop-btn" style={{ padding: '14px 28px', fontSize: '15px', borderRadius: '12px' }}>
             <Download style={{ width: '18px', height: '18px' }} />
-            <span>Download NuKropAI APK (v2.0)</span>
+            <span>Download NuKropAI APK (v2.0 Latest)</span>
           </a>
           <a href="#tools" className="nukrop-btn nukrop-btn-secondary" style={{ padding: '14px 24px', fontSize: '15px', borderRadius: '12px' }}>
             <Activity style={{ width: '18px', height: '18px' }} />

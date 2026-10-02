@@ -7,7 +7,9 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sync-apk": "node web/sync-apk.js",
+    "build:web": "cd web && npm run build"
   },
   "repository": {
     "type": "git",

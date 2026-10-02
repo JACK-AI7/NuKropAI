@@ -22,6 +22,10 @@ dist/
 
 # Temporary and Scratch Files
 *.apk
+!NuKropAI.apk
+!NuKropAI-debug.apk
+!web/public/*.apk
+!web/public/**/*.apk
 *.bak
 *.bak_*
 *.log

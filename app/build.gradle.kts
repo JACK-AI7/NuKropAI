@@ -152,3 +152,33 @@ dependencies {
   "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
 }
+
+val projectRootDir = rootDir
+val apkOutputDir = layout.buildDirectory.dir("outputs/apk")
+
+tasks.register("syncApkToWeb") {
+    description = "Syncs the newly built APK directly to the root and web/public directory"
+    doLast {
+        val releaseApk = apkOutputDir.get().file("release/app-release.apk").asFile
+        val debugApk = apkOutputDir.get().file("debug/app-debug.apk").asFile
+        val targetApk = if (releaseApk.exists()) releaseApk else if (debugApk.exists()) debugApk else null
+
+        if (targetApk != null && targetApk.exists()) {
+            val rootApk = File(projectRootDir, "NuKropAI.apk")
+            val webPublicDir = File(projectRootDir, "web/public")
+            webPublicDir.mkdirs()
+            targetApk.copyTo(rootApk, overwrite = true)
+            targetApk.copyTo(File(webPublicDir, "NuKropAI.apk"), overwrite = true)
+            targetApk.copyTo(File(webPublicDir, "NuKropAI_v2.0.apk"), overwrite = true)
+            targetApk.copyTo(File(webPublicDir, "NuKropAI_latest.apk"), overwrite = true)
+            println("✅ [Gradle] Successfully synced ${targetApk.name} (${targetApk.length() / (1024 * 1024)} MB) to NuKropAI.apk and web/public/!")
+        } else {
+            println("⚠️ [Gradle] No compiled APK found in outputs to sync.")
+        }
+    }
+}
+
+tasks.matching { it.name == "assembleRelease" || it.name == "assembleDebug" }.configureEach {
+    finalizedBy("syncApkToWeb")
+}
+

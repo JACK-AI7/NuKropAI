@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "sync-apk": "node sync-apk.js",
+    "build": "node sync-apk.js && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

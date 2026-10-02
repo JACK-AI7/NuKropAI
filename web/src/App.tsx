@@ -41,7 +41,7 @@ export default function App() {
   const faqs = [
     {
       q: 'How do I install the NuKropAI APK on my Android smartphone?',
-      a: 'Tap the "Download NuKropAI v2.0" button to download the official APK file (~48 MB). When downloaded, tap the file in your notification panel or Downloads folder, and enable "Install from Unknown Sources" if prompted. NuKropAI is 100% virus-free, telemetry-secured, and ad-free.'
+      a: 'Tap the "Download NuKropAI App" button to download the official release APK file (~52 MB). When downloaded, tap the file in your notification panel or Downloads folder, and enable "Install from Unknown Sources" if prompted. NuKropAI is 100% virus-free, telemetry-secured, and ad-free.'
     },
     {
       q: 'Does the AI Disease Scanner work offline in remote fields without 4G/5G?',
@@ -102,8 +102,8 @@ export default function App() {
             <a href="#faq" className="nav-link">FAQ</a>
             
             <a 
-              href="/NuKropAI_v2.0.apk" 
-              download="NuKropAI_v2.0.apk"
+              href="/NuKropAI.apk" 
+              download="NuKropAI.apk"
               className="nukrop-btn" 
               style={{ 
                 padding: '8px 18px', 
@@ -135,14 +135,14 @@ export default function App() {
         <a href="#languages" className="nav-link" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '15px', padding: '6px 0' }}>Languages</a>
         <a href="#faq" className="nav-link" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '15px', padding: '6px 0' }}>FAQ</a>
         <a 
-          href="/NuKropAI_v2.0.apk" 
-          download="NuKropAI_v2.0.apk"
+          href="/NuKropAI.apk" 
+          download="NuKropAI.apk"
           className="nukrop-btn" 
           onClick={() => setMobileMenuOpen(false)}
           style={{ width: '100%', padding: '12px 20px', fontSize: '14px', marginTop: '6px', borderRadius: '12px' }}
         >
           <Download style={{ width: '16px', height: '16px' }} />
-          <span>Download NuKropAI APK (v2.0)</span>
+          <span>Download NuKropAI APK (v2.0 Latest)</span>
         </a>
       </div>
 
@@ -203,8 +203,8 @@ export default function App() {
           {/* Single Authoritative Download CTA */}
           <div className="hero-buttons" style={{ display: 'flex', gap: '14px', justifyContent: 'center', marginBottom: '28px', flexWrap: 'wrap' }}>
             <a
-              href="/NuKropAI_v2.0.apk"
-              download="NuKropAI_v2.0.apk"
+              href="/NuKropAI.apk"
+              download="NuKropAI.apk"
               className="nukrop-btn"
               style={{
                 padding: '16px 36px',
@@ -222,7 +222,7 @@ export default function App() {
                 fontSize: '12px',
                 fontWeight: '700',
                 marginLeft: '6px'
-              }}>v2.0 · 48 MB</span>
+              }}>v2.0 (Latest) · 52 MB</span>
             </a>
 
             <a
@@ -644,7 +644,7 @@ export default function App() {
                 <li><a href="#architecture" style={{ color: 'var(--nukrop-text-dim)', textDecoration: 'none', fontSize: '13.5px' }}>AgriTech Suite</a></li>
                 <li><a href="#languages" style={{ color: 'var(--nukrop-text-dim)', textDecoration: 'none', fontSize: '13.5px' }}>Vernacular Languages</a></li>
                 <li><a href="#faq" style={{ color: 'var(--nukrop-text-dim)', textDecoration: 'none', fontSize: '13.5px' }}>FAQ & Manual</a></li>
-                <li><a href="/NuKropAI_v2.0.apk" download style={{ color: 'var(--nukrop-accent)', textDecoration: 'none', fontSize: '13.5px', fontWeight: '700' }}>Download APK (v2.0)</a></li>
+                <li><a href="/NuKropAI.apk" download="NuKropAI.apk" style={{ color: 'var(--nukrop-accent)', textDecoration: 'none', fontSize: '13.5px', fontWeight: '700' }}>Download APK (v2.0 Latest)</a></li>
               </ul>
             </div>
 
