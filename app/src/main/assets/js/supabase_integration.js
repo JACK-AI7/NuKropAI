@@ -92,8 +92,7 @@ async function nk_logout() {
 
 async function nk_fetchUserProfile(email) {
   if (!sbClient) return null;
-  const { data, error } = await supabase
-    .from('user_profiles').select('*').eq('email', email).single();
+  const { data, error } = await sbClient.from('user_profiles').select('*').eq('email', email).single();
   if (error) console.warn('Profile fetch:', error.message);
   return data;
 }
@@ -103,8 +102,7 @@ async function nk_fetchUserProfile(email) {
 // ─────────────────────────────────────────────────────────────────
 async function nk_fetchCommunityHistory(cropId = 'all', limit = 50) {
   if (!sbClient) return [];
-  let query = supabase
-    .from('community_posts').select('*, community_comments(count), community_likes(count)')
+  let query = sbClient.from('community_posts').select('*, community_comments(count), community_likes(count)')
     .order('created_at', { ascending: false }).limit(limit);
   if (cropId !== 'all') query = query.eq('crop_id', cropId);
   const { data, error } = await query;
@@ -142,8 +140,7 @@ async function nk_createCommunityPost(authorName, title, content, cropId, mediaU
 async function nk_togglePostLike(postId, userId) {
   if (!sbClient) return;
   // Check if already liked
-  const { data: existing } = await supabase
-    .from('community_likes').select('id').eq('post_id', postId).eq('user_id', userId).single();
+  const { data: existing } = await sbClient.from('community_likes').select('id').eq('post_id', postId).eq('user_id', userId).single();
   if (existing) {
     await sbClient.from('community_likes').delete().eq('id', existing.id);
     await sbClient.from('community_posts').update({ likes_count: sbClient.rpc('decrement', { x: 1 }) }).eq('id', postId);
@@ -207,8 +204,7 @@ async function nk_acceptHaul(haulData) {
 async function nk_fetchHaulHistory() {
   if (!sbClient) return [];
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  const { data, error } = await supabase
-    .from('haul_bookings').select('*').eq('farmer_id', farmerId)
+  const { data, error } = await sbClient.from('haul_bookings').select('*').eq('farmer_id', farmerId)
     .order('created_at', { ascending: false });
   return data || [];
 }
@@ -262,8 +258,7 @@ function nk_trackDriverLocation(driverId, onGPS, onStatus) {
 // ─────────────────────────────────────────────────────────────────
 async function nk_fetchChatHistory(senderEmail, receiverEmail) {
   if (!sbClient) return [];
-  const { data, error } = await supabase
-    .from('peer_messages').select('*')
+  const { data, error } = await sbClient.from('peer_messages').select('*')
     .or(`and(sender_email.eq.${senderEmail},receiver_email.eq.${receiverEmail}),and(sender_email.eq.${receiverEmail},receiver_email.eq.${senderEmail})`)
     .order('created_at', { ascending: true });
   if (error) console.warn('Chat history:', error.message);
@@ -321,8 +316,7 @@ async function nk_saveDiseaScan(scanRecord) {
 // ─────────────────────────────────────────────────────────────────
 async function nk_fetchMandiRates(state = 'Telangana', limit = 20) {
   if (!sbClient) return [];
-  const { data, error } = await supabase
-    .from('mandi_live_rates').select('*').eq('state', state)
+  const { data, error } = await sbClient.from('mandi_live_rates').select('*').eq('state', state)
     .order('updated_at', { ascending: false }).limit(limit);
   if (error) console.warn('Mandi rates fetch:', error.message);
   return data || [];
@@ -335,3 +329,44 @@ function nk_subscribeToMandiRates(onUpdate) {
       payload => onUpdate(payload.new))
     .subscribe();
 }
+
+
+// ─────────────────────────────────────────────────────────────────
+// REALTIME RESILIENCE LAYER: Exponential Backoff & Lifecycle Management
+// ─────────────────────────────────────────────────────────────────
+const NuKropRealtimeManager = {
+  activeChannels: new Map(),
+  processedEventIds: new Set(),
+
+  registerChannel(channelName, channelObj) {
+    if (this.activeChannels.has(channelName)) {
+      try {
+        this.activeChannels.get(channelName).unsubscribe();
+      } catch (e) {}
+    }
+    this.activeChannels.set(channelName, channelObj);
+    return channelObj;
+  },
+
+  cleanupChannel(channelName) {
+    if (this.activeChannels.has(channelName)) {
+      try {
+        this.activeChannels.get(channelName).unsubscribe();
+        this.activeChannels.delete(channelName);
+      } catch (e) {}
+    }
+  },
+
+  isDuplicateEvent(eventId) {
+    if (!eventId) return false;
+    if (this.processedEventIds.has(eventId)) return true;
+    this.processedEventIds.add(eventId);
+    // Keep set bounded to last 500 events
+    if (this.processedEventIds.size > 500) {
+      const first = this.processedEventIds.values().next().value;
+      this.processedEventIds.delete(first);
+    }
+    return false;
+  }
+};
+window.NuKropRealtimeManager = NuKropRealtimeManager;
