@@ -115,6 +115,30 @@ class MainActivity : ComponentActivity() {
         }
 
         @JavascriptInterface
+        fun openDialer(phoneNumber: String) {
+            runOnUiThread {
+                try {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.e("NuKropBridge", "Dialer error: ${e.message}")
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun openExternalUrl(url: String) {
+            runOnUiThread {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.e("NuKropBridge", "External URL error: ${e.message}")
+                }
+            }
+        }
+
+        @JavascriptInterface
         fun postSystemNotification(title: String, message: String) {
             runOnUiThread {
                 showSystemNotification(title, message)
@@ -312,12 +336,13 @@ class MainActivity : ComponentActivity() {
         // Create System Notification Channel
         createNotificationChannel()
 
-        // Native Android Status Bar & Navigation Bar styling to match app theme
-        window.statusBarColor = 0xFFF8FAF8.toInt()
-        window.navigationBarColor = 0xFFFFFFFF.toInt()
-        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = true
-            isAppearanceLightNavigationBars = true
+        // Enable true Edge-to-Edge display (immersive transparent status & navigation bars)
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
 
         // Create full-screen hardware-accelerated WebView
@@ -330,7 +355,7 @@ class MainActivity : ComponentActivity() {
             scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
             isVerticalScrollBarEnabled = false
             isHorizontalScrollBarEnabled = false
-            setBackgroundColor(0xFFF8FAF8.toInt())
+            setBackgroundColor(android.graphics.Color.TRANSPARENT)
 
             settings.apply {
                 javaScriptEnabled = true

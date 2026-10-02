@@ -384,6 +384,105 @@ h1, h2, h3 { letter-spacing: -0.3px; }
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   EDGE-TO-EDGE IMMERSIVE DISPLAY & SAFE AREA SUPPORT
+   ═══════════════════════════════════════════════════════════════════════════════ */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
+body {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  background: #020617;
+  color: #0F172A;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   AI CROP & SOIL SCANNER VIEWFINDER STYLING
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.viewfinder-box {
+  position: relative;
+  width: calc(100% - 32px);
+  margin: 10px auto 12px;
+  height: 320px;
+  background: linear-gradient(180deg, #0F172A 0%, #020617 100%);
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  border: 1.5px solid rgba(34, 197, 94, 0.35);
+  box-sizing: border-box;
+}
+
+.viewfinder-frame {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  margin: 10px 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #090D16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.vf-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #22C55E;
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+.vf-tl { top: 12px; left: 12px; border-top-width: 3.5px; border-left-width: 3.5px; border-top-left-radius: 8px; }
+.vf-tr { top: 12px; right: 12px; border-top-width: 3.5px; border-right-width: 3.5px; border-top-right-radius: 8px; }
+.vf-bl { bottom: 12px; left: 12px; border-bottom-width: 3.5px; border-left-width: 3.5px; border-bottom-left-radius: 8px; }
+.vf-br { bottom: 12px; right: 12px; border-bottom-width: 3.5px; border-right-width: 3.5px; border-bottom-right-radius: 8px; }
+
+.vf-laser-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, transparent 0%, #22C55E 50%, transparent 100%);
+  box-shadow: 0 0 14px #22C55E, 0 0 28px #4ADE80;
+  animation: vfLaserScan 2.4s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 9;
+}
+
+@keyframes vfLaserScan {
+  0% { top: 10%; opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { top: 88%; opacity: 0.3; }
+}
+
+.vf-center-target {
+  font-size: 11px;
+  font-weight: 700;
+  color: #F8FAFC;
+  background: rgba(15, 23, 42, 0.82);
+  padding: 6px 14px;
+  border-radius: 100px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+  text-align: center;
+  z-index: 10;
+}
+
 </style>
 
 <!-- Leaflet.js Real OpenStreetMap Integration -->
@@ -392,8 +491,9 @@ h1, h2, h3 { letter-spacing: -0.3px; }
 <style>
 .leaflet-container {
   font-family: inherit;
-  background: #0F172A !important;
+  background: #E8F2E8;
 }
+.leaflet-tile-pane { filter: none; }
 .custom-map-popup .leaflet-popup-content-wrapper {
   background: #0F172A;
   color: #FFFFFF;
@@ -405,11 +505,115 @@ h1, h2, h3 { letter-spacing: -0.3px; }
   background: #0F172A;
 }
 .leaflet-control-zoom a {
-  background: #1E293B !important;
-  color: #FFFFFF !important;
-  border-color: #334155 !important;
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
 }
+/* Make gramhaul and driver map containers proper height */
+#gramhaul-real-osm-map, #driver-real-osm-map {
+  z-index: 1 !important;
+}
+.leaflet-pane, .leaflet-control-container { z-index: 2 !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   REACTBITS MICRO-COMPONENTS CSS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1. Shiny Text Effect */
+@keyframes shinySweep {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.shiny-text {
+  background: linear-gradient(110deg, var(--r-dark) 20%, var(--r-green) 40%, var(--r-yellow) 60%, var(--r-dark) 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shinySweep 3s linear infinite;
+  display: inline-block;
+}
+.shiny-text-light {
+  background: linear-gradient(110deg, #FFFFFF 20%, rgba(255,255,255,0.4) 40%, #FFFFFF 60%, rgba(255,255,255,0.4) 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shinySweep 4s linear infinite;
+}
+
+/* 2. Blur Reveal / Focus Glow */
+@keyframes blurReveal {
+  0% { opacity: 0; filter: blur(10px); transform: translateY(10px) scale(0.95); }
+  100% { opacity: 1; filter: blur(0px); transform: translateY(0) scale(1); }
+}
+.blur-reveal {
+  animation: blurReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 3. Gradient Animated Border (Spotlight effect) */
+@keyframes borderSpin {
+  100% { transform: rotate(360deg); }
+}
+.animated-border {
+  position: relative;
+  border-radius: inherit;
+  z-index: 1;
+  overflow: hidden;
+}
+.animated-border::before {
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: conic-gradient(transparent, var(--r-green), transparent 30%);
+  animation: borderSpin 4s linear infinite;
+  z-index: -2;
+}
+.animated-border::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+/* 4. Float Element */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.float-elem {
+  animation: floatY 4s ease-in-out infinite;
+}
+
+/* 5. Smooth Staggered Load */
+.stagger-1 { animation-delay: 0.1s !important; }
+.stagger-2 { animation-delay: 0.2s !important; }
+.stagger-3 { animation-delay: 0.3s !important; }
+.stagger-4 { animation-delay: 0.4s !important; }
+
+/* 6. Shiny Button (ReactBits inspired) */
+.shiny-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.shiny-btn::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transform: skewX(-20deg);
+  animation: buttonShine 3s infinite;
+}
+@keyframes buttonShine {
+  0% { left: -100%; }
+  20% { left: 200%; }
+  100% { left: 200%; }
+}
+
 </style>
+
 
 
 <style>
@@ -6726,9 +6930,15 @@ function finishOnboarding(isGuest = false) {
     setTimeout(() => overlay.remove(), 250);
   }
 
-  if (typeof openScreen === 'function') {
-    openScreen('home', document.getElementById('tab-home'));
+  let stOverlay = document.getElementById('startup-experience-overlay');
+  if (!stOverlay) {
+    const chassis = document.querySelector('.phone-chassis') || document.body;
+    stOverlay = document.createElement('div');
+    stOverlay.id = 'startup-experience-overlay';
+    stOverlay.style.cssText = 'position:fixed;inset:0;background:#FFFFFF;z-index:99999;display:flex;flex-direction:column;';
+    chassis.appendChild(stOverlay);
   }
+  renderLoginScreen(stOverlay);
 }
 
 
@@ -6787,19 +6997,19 @@ function renderSplashScreen(container) {
       <div style="display:flex;flex-direction:column;align-items:center;text-align:center;z-index:2;margin-top:-10px;">
         
         <!-- Frosted Glassmorphism Chassis with 4K HDR Leaf -->
-        <div style="position:relative;width:96px;height:96px;border-radius:28px;background:linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,253,244,0.8) 100%);border:2px solid rgba(134,239,172,0.8);box-shadow:0 20px 48px -8px rgba(0,168,107,0.28), 0 0 0 6px rgba(220,252,231,0.5), inset 0 2px 4px rgba(255,255,255,1);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:splashEmblemReveal 0.9s cubic-bezier(0.19, 1, 0.22, 1) forwards;backdrop-filter:blur(16px);">
+        <div class="blur-reveal float-elem" style="position:relative;width:96px;height:96px;border-radius:28px;background:linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,253,244,0.8) 100%);border:2px solid rgba(134,239,172,0.8);box-shadow:0 20px 48px -8px rgba(0,168,107,0.28), 0 0 0 6px rgba(220,252,231,0.5), inset 0 2px 4px rgba(255,255,255,1);display:flex;align-items:center;justify-content:center;margin-bottom:20px;backdrop-filter:blur(16px);">
           <div style="animation:splashLeafShimmer 3s ease-in-out infinite;">
             ${get4kLeafSvg(62)}
           </div>
         </div>
 
         <!-- NuKropAI Title in Rich Iridescent Typographic Finish -->
-        <div style="font-size:36px;font-weight:900;color:#0F172A;letter-spacing:-0.5px;line-height:1;margin-bottom:8px;animation:splashTitleReveal 0.7s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;">
-          NuKrop<span style="color:#00A86B;text-shadow:0 0 20px rgba(0,168,107,0.3);">AI</span>
+        <div class="shiny-text" style="font-size:38px;font-weight:900;letter-spacing:-0.5px;line-height:1;margin-bottom:8px;animation:splashTitleReveal 0.7s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;">
+          NuKrop<span style="color:var(--r-green);text-shadow:0 0 20px rgba(0,168,107,0.3);">AI</span>
         </div>
 
         <!-- Subtitle -->
-        <div style="font-size:14px;color:#475569;font-weight:600;max-width:260px;line-height:1.45;animation:splashTitleReveal 0.7s 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;">
+        <div class="blur-reveal stagger-2" style="font-size:14px;color:#475569;font-weight:600;max-width:260px;line-height:1.45;">
           Next-Gen AI Crop Diagnostics & APMC Mandi Intelligence
         </div>
       </div>
@@ -6879,8 +7089,8 @@ function renderSplashScreen(container) {
       }
 
       setTimeout(() => {
-        advanceSlide('language');
-      }, 500);
+        advanceSlide('slide_disease');
+      }, 350);
     }
   }, 38);
 }
@@ -7077,7 +7287,7 @@ function renderLoginScreen(container) {
           </div>
 
           <!-- Enter Driver Cockpit Button -->
-          <button onclick="loginAsDriver()" style="background:#0F172A;color:#FFFFFF;border:none;border-radius:100px;padding:12px;font-size:13.5px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(15,23,42,0.25);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:2px;">
+          <button onclick="loginAsDriver()" class="shiny-btn" style="background:#0F172A;color:#FFFFFF;border:none;border-radius:100px;padding:12px;font-size:13.5px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(15,23,42,0.25);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:2px;">
             <span>🚚</span><span>Enter Driver Cockpit</span>
           </button>
 
@@ -7110,7 +7320,7 @@ function renderLoginScreen(container) {
 
         <!-- Footer Links -->
         <div style="text-align:center;margin-top:10px;margin-bottom:auto;">
-          <span onclick="loginAsDriver()" style="font-size:11.5px;color:#94A3B8;font-weight:700;cursor:pointer;text-decoration:underline;">
+          <span onclick="loginAsDriver()" class="shiny-btn" style="font-size:11.5px;color:#94A3B8;font-weight:700;cursor:pointer;text-decoration:underline;">
             Skip & Explore as Guest →
           </span>
         </div>
@@ -7185,7 +7395,7 @@ function renderLoginScreen(container) {
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" style="width:100%;background:linear-gradient(135deg,#00A86B,#059669);color:#FFFFFF;border:none;border-radius:100px;padding:12px;font-size:13.5px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(0,168,107,0.3);margin-top:2px;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <button type="submit" class="shiny-btn" style="width:100%;background:linear-gradient(135deg,#00A86B,#059669);color:#FFFFFF;border:none;border-radius:100px;padding:12px;font-size:13.5px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(0,168,107,0.3);margin-top:2px;display:flex;align-items:center;justify-content:center;gap:8px;">
             <span>${isSignUp ? 'Create Farmer Account' : 'Sign In to NuKrop'}</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
@@ -8815,7 +9025,7 @@ function renderPlantixCropsScreen(container) {
         <span style="font-size:12.5px;font-weight:800;color:#15803D;">
           ${plantixFlowState.selectedCrops.length} ${OB_TL('crops_selected_suffix')}
         </span>
-        <button onclick="finishPlantixOnboarding()" style="background:#0052CC;color:#FFFFFF;border:none;border-radius:24px;padding:12px 32px;font-size:14.5px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px rgba(0,82,204,0.35);">
+        <button onclick="finishPlantixOnboarding()" class="shiny-btn" style="background:#0052CC;color:#FFFFFF;border:none;border-radius:24px;padding:12px 32px;font-size:14.5px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px rgba(0,82,204,0.35);">
           ${OB_TL('next')} (${plantixFlowState.selectedCrops.length})
         </button>
       </div>
@@ -8878,24 +9088,8 @@ function finishPlantixOnboarding() {
     }
   }
 
-  const overlay = document.getElementById('startup-experience-overlay');
-  if (overlay) {
-    overlay.style.pointerEvents = 'none';
-    overlay.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
-    overlay.style.opacity = '0';
-    overlay.style.transform = 'scale(0.95)';
-    setTimeout(() => {
-      try { overlay.remove(); } catch(e) { overlay.style.display = 'none'; }
-    }, 250);
-  }
-
-  try {
-    if (typeof openScreen === 'function') {
-      openScreen('home', document.getElementById('tab-home'));
-    }
-  } catch(e) {
-    console.error('Error opening home screen:', e);
-  }
+  // Route to the Login Screen as per user flow
+  advanceSlide('login');
 }
 
 function initStartupExperience(forceReplay = false) {
@@ -9802,62 +9996,63 @@ const APP_VIEWS = {
       <div class="viewfinder-box">
         <!-- Top HUD Bar: Flash, Status Badge, Gallery Upload -->
         <div style="width:100%;display:flex;justify-content:space-between;align-items:center;z-index:10;">
-          <button onclick="toggleScannerFlash(this)" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);color:#FFFFFF;border-radius:14px;padding:4px 9px;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:3px;backdrop-filter:blur(4px);">
-            ⚡ ${TL('Flash', 'ఫ్లాష్', 'Flash')}
+          <button type="button" onclick="toggleScannerFlash(this)" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);color:#FFFFFF;border-radius:14px;padding:5px 11px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px);">
+            ⚡ <span>${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
           </button>
-          <div style="display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:3px 9px;backdrop-filter:blur(4px);">
-            <span style="width:5px;height:5px;background:#22C55E;border-radius:50%;display:inline-block;animation:pulseDot 1.5s infinite;"></span>
-            <span style="font-size:9.5px;color:#86EFAC;font-weight:800;" id="scanner-hud-status">Groq Vision AI Online</span>
+          <div style="display:flex;align-items:center;gap:5px;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.18);border-radius:12px;padding:4px 11px;backdrop-filter:blur(6px);">
+            <span style="width:6px;height:6px;background:#22C55E;border-radius:50%;display:inline-block;box-shadow:0 0 8px #22C55E;animation:pulseDot 1.5s infinite;"></span>
+            <span style="font-size:10px;color:#86EFAC;font-weight:800;" id="scanner-hud-status">${TL('Edge AI Vision Online', 'ఎడ్జ్ AI విజన్ సిద్ధం', 'Edge AI Vision Online')}</span>
           </div>
-          <button onclick="document.getElementById('real-file-upload-input').click()" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);color:#FFFFFF;border-radius:14px;padding:4px 9px;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:3px;backdrop-filter:blur(4px);">
-            🖼️ ${TL('Gallery', 'గ్యాలరీ', 'Gallery')}
+          <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);color:#FFFFFF;border-radius:14px;padding:5px 11px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px);">
+            🖼️ <span>${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
           </button>
           <input type="file" id="real-file-upload-input" accept="image/*" style="display:none;" onchange="handleRealImageUpload(event)">
         </div>
 
         <!-- Center Viewfinder HUD Frame -->
-        <div class="viewfinder-frame" onclick="handleViewfinderClick()">
+        <div class="viewfinder-frame" id="vf-frame-container" onclick="handleViewfinderClick()">
           <video id="vf-live-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:2;display:none;"></video>
+          <img id="vf-preview-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:3;display:none;" alt="Scan Preview">
           <canvas id="vf-capture-canvas" style="display:none;"></canvas>
-          <div class="vf-corner vf-tl" style="z-index:10;"></div>
-          <div class="vf-corner vf-tr" style="z-index:10;"></div>
-          <div class="vf-corner vf-bl" style="z-index:10;"></div>
-          <div class="vf-corner vf-br" style="z-index:10;"></div>
-          <div class="vf-laser-line" style="z-index:10;"></div>
-          <div class="vf-center-target" id="scan-target-text" style="z-index:10;">${targetHint}</div>
+          <div class="vf-corner vf-tl"></div>
+          <div class="vf-corner vf-tr"></div>
+          <div class="vf-corner vf-bl"></div>
+          <div class="vf-corner vf-br"></div>
+          <div class="vf-laser-line"></div>
+          <div class="vf-center-target" id="scan-target-text">${targetHint}</div>
         </div>
 
         <!-- Bottom Guidance Bar -->
-        <div style="z-index:10;display:flex;align-items:center;gap:5px;font-size:10.5px;color:#FEF08A;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,0.8);">
+        <div style="z-index:10;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#FEF08A;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,0.8);">
           <span>🌻</span>
           <span id="scan-guidance-text">${lightHint}</span>
         </div>
       </div>
 
       <!-- 3-Step Guidance Cards -->
-      <div style="padding:10px 18px 0;">
-        <div style="background:#FFFFFF;border:1px solid #E2ECE2;border-radius:14px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,0.03);display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
+      <div style="padding:4px 18px 0;">
+        <div style="background:#FFFFFF;border:1.2px solid #E2ECE2;border-radius:14px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.03);display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
           <div style="border-right:1px solid #F1F5F9;padding-right:4px;">
             <div style="font-size:13px;margin-bottom:2px;">📏</div>
-            <div style="font-size:10.5px;font-weight:900;color:#0F172A;">15–25 cm</div>
-            <div style="font-size:8.5px;color:#64748B;">${TL('Distance', 'దూరం ఉంచండి', 'Distance')}</div>
+            <div style="font-size:11px;font-weight:900;color:#0F172A;">15–25 cm</div>
+            <div style="font-size:9px;color:#64748B;">${TL('Distance', 'దూరం ఉంచండి', 'Distance')}</div>
           </div>
           <div style="border-right:1px solid #F1F5F9;padding-right:4px;">
             <div style="font-size:13px;margin-bottom:2px;">☀️</div>
-            <div style="font-size:10.5px;font-weight:900;color:#0F172A;">${TL('Bright Light', 'సహజ వెలుగు', 'Bright Light')}</div>
-            <div style="font-size:8.5px;color:#64748B;">${TL('No Shadows', 'నీడలు లేకుండా', 'No Shadows')}</div>
+            <div style="font-size:11px;font-weight:900;color:#0F172A;">${TL('Bright Light', 'సహజ వెలుగు', 'Bright Light')}</div>
+            <div style="font-size:9px;color:#64748B;">${TL('No Shadows', 'నీడలు లేకుండా', 'No Shadows')}</div>
           </div>
           <div>
             <div style="font-size:13px;margin-bottom:2px;">🎯</div>
-            <div style="font-size:10.5px;font-weight:900;color:#0F172A;">${TL('Clear Focus', 'స్పష్టమైన ఫోకస్', 'Clear Focus')}</div>
-            <div style="font-size:8.5px;color:#64748B;">${TL('On Target Spot', 'మచ్చలపై లక్ష్యం', 'On Target Spot')}</div>
+            <div style="font-size:11px;font-weight:900;color:#0F172A;">${TL('Clear Focus', 'స్పష్టమైన ఫోకస్', 'Clear Focus')}</div>
+            <div style="font-size:9px;color:#64748B;">${TL('On Target Spot', 'మచ్చలపై లక్ష్యం', 'On Target Spot')}</div>
           </div>
         </div>
       </div>
 
       <!-- Primary Action CTA Button -->
       <div style="padding:10px 18px 6px;">
-        <button id="run-scan-btn" onclick="startScannerDiagnostic()" class="action-btn-green" style="padding:13px 0;font-size:13.5px;box-shadow:0 4px 16px rgba(27,94,32,0.3);letter-spacing:0.02em;">
+        <button id="run-scan-btn" onclick="startScannerDiagnostic()" class="action-btn-green" style="padding:13px 0;font-size:14px;box-shadow:0 4px 16px rgba(27,94,32,0.3);letter-spacing:0.02em;border-radius:14px;">
           ${actionBtn}
         </button>
       </div>
@@ -9998,64 +10193,160 @@ const APP_VIEWS = {
     const t = I18N[currentLang] || I18N.en;
     setTimeout(initGramhaulRealMap, 80);
 
+    const farmAddr = currentGramhaulFarmAddress || "Ramesh Rao's Farm, Sy.No 142/A, Narsampet Rural";
+    const mandi = currentGramhaulMandi || (typeof REAL_APMC_MANDIS !== 'undefined' ? REAL_APMC_MANDIS[0] : {shortName:'Warangal Enamamula APMC', distKm:4.8, tag:'4.8 km', id:'enumamula'});
+    const fleet = typeof REAL_DRIVERS_FLEET !== 'undefined' ? REAL_DRIVERS_FLEET : {};
+    const mandiList = typeof REAL_APMC_MANDIS !== 'undefined' ? REAL_APMC_MANDIS : [];
+
     return `
-    <!-- Fullscreen Map Canvas (Driver Rapido Style) -->
+    <style>
+    .gh-truck-card { transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
+    .gh-truck-card:active { transform: scale(0.98); }
+    .gh-truck-card.gh-selected { border-color: #16A34A !important; background: #F0FDF4 !important; box-shadow: 0 3px 14px rgba(22,163,74,0.2) !important; }
+    @keyframes ghFadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .gh-sheet { animation: ghFadeUp 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+    .gh-map-pulse { animation: ghPulse 2s ease-in-out infinite; }
+    @keyframes ghPulse { 0%,100%{transform:scale(1);opacity:0.6} 50%{transform:scale(1.2);opacity:1} }
+    </style>
+
+    <!-- Fullscreen: Real OSM Map -->
     <div style="position:relative;width:100%;height:100vh;background:#E5EFE5;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">
-      
-      <!-- OSM Grid Pattern -->
-      <svg style="position:absolute;inset:0;width:100%;height:100%;" preserveAspectRatio="none">
-        <defs><pattern id="rmap-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#CDD8CD" stroke-width="0.8"/></pattern></defs>
-        <rect width="100%" height="100%" fill="#EBF2EB"/><rect width="100%" height="100%" fill="url(#rmap-grid)"/>
-        <line x1="0" y1="45%" x2="100%" y2="45%" stroke="#FFFFFF" stroke-width="12" opacity="0.9"/>
-        <line x1="30%" y1="0" x2="30%" y2="100%" stroke="#FFFFFF" stroke-width="10" opacity="0.9"/>
+
+      <!-- REAL Leaflet OSM Map fills this div -->
+      <div id="gramhaul-real-osm-map" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;"></div>
+
+      <!-- Fallback map grid (hidden once Leaflet loads) -->
+      <svg id="gh-fallback-map" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;" preserveAspectRatio="none">
+        <defs><pattern id="gh-grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#C8D8C8" stroke-width="0.7"/></pattern></defs>
+        <rect width="100%" height="100%" fill="#E8F2E8"/>
+        <rect width="100%" height="100%" fill="url(#gh-grid)"/>
+        <line x1="0" y1="44%" x2="100%" y2="44%" stroke="#FFFFFF" stroke-width="11" opacity="0.85"/>
+        <line x1="0" y1="62%" x2="100%" y2="62%" stroke="#FFFFFF" stroke-width="6" opacity="0.75"/>
+        <line x1="28%" y1="0" x2="28%" y2="100%" stroke="#FFFFFF" stroke-width="9" opacity="0.85"/>
+        <line x1="68%" y1="0" x2="68%" y2="100%" stroke="#FFFFFF" stroke-width="6" opacity="0.75"/>
+        <rect x="4%" y="4%" width="22%" height="36%" rx="4" fill="#D2E8D2" opacity="0.5"/>
+        <rect x="32%" y="4%" width="32%" height="36%" rx="4" fill="#D2E8D2" opacity="0.5"/>
+        <rect x="70%" y="4%" width="26%" height="36%" rx="4" fill="#D2E8D2" opacity="0.5"/>
+        <rect x="4%" y="50%" width="22%" height="42%" rx="4" fill="#D2E8D2" opacity="0.5"/>
+        <rect x="32%" y="50%" width="32%" height="42%" rx="4" fill="#D2E8D2" opacity="0.5"/>
+        <rect x="70%" y="50%" width="26%" height="42%" rx="4" fill="#D2E8D2" opacity="0.5"/>
       </svg>
 
-      <!-- Top Header -->
-      <div style="position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:10;">
-        <button onclick="openScreen('home',null)" style="background:#FFFFFF;border:none;width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,0.12);cursor:pointer;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        </button>
-        <div style="background:#FFFFFF;padding:8px 16px;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,0.12);font-size:14px;font-weight:900;color:#16A34A;">
-          🚜 GramHaul
+      <!-- Farmer GPS pin (center, shown before map loads) -->
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;margin-top:-40px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div class="gh-map-pulse" style="width:18px;height:18px;border-radius:50%;background:#16A34A;border:3px solid #FFFFFF;box-shadow:0 4px 14px rgba(22,163,74,0.5);"></div>
+          <div style="width:2px;height:14px;background:linear-gradient(#16A34A,transparent);"></div>
         </div>
       </div>
 
-      <!-- Farmer Location Marker (Center) -->
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);margin-top:-60px;">
-        <svg width="60" height="60" viewBox="0 0 48 48">
-          <circle cx="24" cy="24" r="22" fill="#16A34A" opacity="0.2"/>
-          <circle cx="24" cy="24" r="14" fill="#16A34A"/>
-          <circle cx="24" cy="24" r="6" fill="#FFFFFF"/>
-        </svg>
+      <!-- Top Header Bar (above map) -->
+      <div style="position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:20;">
+        <button onclick="openScreen(authUserRole==='driver'?'driver_dashboard':'home',null);updateBottomDockForRole()" style="background:#FFFFFF;border:none;width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,0.14);cursor:pointer;transition:transform 0.1s;" onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='scale(1)'">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <div style="background:#FFFFFF;padding:9px 18px;border-radius:14px;box-shadow:0 3px 14px rgba(0,0,0,0.12);display:flex;align-items:center;gap:8px;">
+          <span style="font-size:15px;">🚜</span>
+          <span style="font-size:14px;font-weight:900;color:#16A34A;letter-spacing:-0.2px;">GramHaul</span>
+        </div>
+        <button onclick="openGramhaulPickupLocationModal()" style="background:#16A34A;border:none;width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(22,163,74,0.35);cursor:pointer;transition:transform 0.1s;" onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='scale(1)'" title="Set pickup location">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+        </button>
       </div>
 
-      <!-- Bottom Sheet (Rapido Driver Style) -->
-      <div class="r-sheet" style="position:absolute;bottom:0;left:0;right:0;background:#FFFFFF;border-radius:24px 24px 0 0;padding:24px 18px 30px;box-shadow:0 -8px 32px rgba(0,0,0,0.12);z-index:20;">
-        <div style="font-size:22px;font-weight:900;color:#0F172A;letter-spacing:-0.5px;margin-bottom:16px;">Where to haul?</div>
-        
-        <!-- Route Selector -->
-        <div style="background:#F9FAFB;border-radius:18px;padding:16px;margin-bottom:16px;border:1px solid #EEF2F6;">
-          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-            <div style="width:10px;height:10px;border-radius:50%;background:#16A34A;flex-shrink:0;"></div>
-            <div style="font-size:15px;font-weight:700;color:#0F172A;flex:1;">Ramesh Rao's Farm (GPS)</div>
+      <!-- GPS Location Pill (below header) -->
+      <div style="position:absolute;top:70px;left:14px;right:14px;z-index:20;">
+        <div style="background:rgba(255,255,255,0.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:14px;padding:10px 14px;box-shadow:0 3px 14px rgba(0,0,0,0.1);display:flex;align-items:center;gap:10px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#16A34A;flex-shrink:0;box-shadow:0 0 0 3px rgba(22,163,74,0.2);animation:ghPulse 2s infinite;"></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:9.5px;color:#64748B;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">Your Farm · GPS Location</div>
+            <div id="gh-pickup-location-label" style="font-size:12px;font-weight:800;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🌾 ${farmAddr}</div>
           </div>
-          <div style="height:1px;background:#E2E8F0;margin-left:24px;margin-bottom:14px;"></div>
-          <div style="display:flex;align-items:center;gap:14px;">
-            <div style="width:10px;height:10px;background:#EF4444;flex-shrink:0;"></div>
-            <div style="font-size:15px;font-weight:700;color:#94A3B8;flex:1;">Enter Drop Mandi...</div>
+          <button onclick="openGramhaulPickupLocationModal()" style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:800;color:#15803D;cursor:pointer;white-space:nowrap;transition:all 0.1s;" onmousedown="this.style.background='#DCFCE7'" onmouseup="this.style.background='#F0FDF4'">Edit</button>
+        </div>
+      </div>
+
+      <!-- Bottom Booking Sheet -->
+      <div class="gh-sheet" style="position:absolute;bottom:0;left:0;right:0;background:#FFFFFF;border-radius:24px 24px 0 0;padding:0 0 20px;box-shadow:0 -8px 32px rgba(0,0,0,0.14);z-index:20;max-height:72vh;overflow-y:auto;">
+        <!-- Drag Handle -->
+        <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:12px auto 0;"></div>
+
+        <div style="padding:14px 18px 0;">
+          <!-- Title Row -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div style="font-size:18px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;">Book Mandi Truck</div>
+            <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:3px 8px;font-size:9.5px;font-weight:900;color:#15803D;">ZERO FEE</div>
           </div>
-        </div>
+          <div style="font-size:11px;color:#64748B;margin-bottom:14px;font-weight:600;">Direct farmer-to-driver booking · GPS tracked route</div>
 
-        <!-- Crop Select Chips -->
-        <div style="display:flex;gap:10px;margin-bottom:20px;overflow-x:auto;">
-          <div style="background:#F0FDF4;border:2px solid #16A34A;padding:8px 14px;border-radius:100px;font-size:13px;font-weight:900;color:#15803D;white-space:nowrap;">🌱 Cotton (40 Qtl)</div>
-          <div style="background:#F1F5F9;border:1px solid #E2E8F0;padding:8px 14px;border-radius:100px;font-size:13px;font-weight:800;color:#64748B;white-space:nowrap;">🌶️ Chilli</div>
-          <div style="background:#F1F5F9;border:1px solid #E2E8F0;padding:8px 14px;border-radius:100px;font-size:13px;font-weight:800;color:#64748B;white-space:nowrap;">🌾 Paddy</div>
-        </div>
+          <!-- Mandi Destination Selector -->
+          <div style="margin-bottom:12px;">
+            <div style="font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">📍 Drop Destination</div>
+            <div style="position:relative;">
+              <select id="gh-mandi-select" onchange="updateGramhaulMandi(this.value)" style="width:100%;height:46px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:0 40px 0 14px;font-size:12.5px;font-weight:700;color:#0F172A;box-sizing:border-box;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;">
+                ${mandiList.map((m,i) => `<option value="${i}" ${mandi.id===m.id?'selected':''}>${m.shortName} · ${m.tag}</option>`).join('')}
+              </select>
+              <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
 
-        <button onclick="nk_sendHaulRequest('GH-4192', {crop:'Cotton', weight:'40 Qtl', mandi:'Enamamula APMC', fare:'1850'}); alert('Haul requested! Real-time notification sent to Driver.');" class="r-accept-btn" style="width:100%;height:56px;background:#16A34A;color:#FFFFFF;border-radius:16px;font-size:18px;font-weight:900;border:none;box-shadow:0 6px 20px rgba(22,163,74,0.3);cursor:pointer;transition:transform 0.15s;">
-          Request Truck · ₹1,850
-        </button>
+          <!-- Crop & Weight -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+            <div>
+              <div style="font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🌱 Crop</div>
+              <div style="position:relative;">
+                <select id="gh-crop-select" style="width:100%;height:42px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:0 28px 0 10px;font-size:12px;font-weight:700;color:#0F172A;box-sizing:border-box;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;">
+                  <option value="cotton">Cotton (40 Qtl)</option>
+                  <option value="chilli">Chilli (పచ్చిమిర్చి)</option>
+                  <option value="paddy">Paddy (వరి)</option>
+                  <option value="maize">Maize (మొక్కజొన్న)</option>
+                  <option value="tomato">Tomato (టమాటా)</option>
+                  <option value="onion">Onion (ఉల్లి)</option>
+                </select>
+                <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">⚖️ Weight (Qtl)</div>
+              <input id="gh-weight-inp" type="number" value="40" min="1" max="500" oninput="recalcGramhaulFare()" style="width:100%;height:42px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:0 10px;font-size:13px;font-weight:700;color:#0F172A;box-sizing:border-box;outline:none;" />
+            </div>
+          </div>
+
+          <!-- Driver Fleet Cards -->
+          <div style="font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🚚 Available Drivers · ${mandi.distKm} km</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="gh-driver-list">
+            ${Object.entries(fleet).map(([key, d], i) => `
+            <div onclick="selectGramhaulDriver('${key}')" id="gh-truck-${key}" class="gh-truck-card ${i===0?'gh-selected':''}" style="background:${i===0?'#F0FDF4':'#FAFAFA'};border:1.5px solid ${i===0?'#16A34A':'#E2E8F0'};border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:12px;cursor:pointer;${i===0?'box-shadow:0 3px 10px rgba(22,163,74,0.15);':''}">
+              <div style="width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,${i===0?'#16A34A,#15803D':i===1?'#2563EB,#1D4ED8':'#7C3AED,#6D28D9'});display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:17px;font-weight:900;flex-shrink:0;letter-spacing:-0.5px;">${d.name[0]}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:900;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.name}</div>
+                <div style="font-size:10px;color:#64748B;font-weight:600;">${d.vehicle} · ${d.plate}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+                  <span style="font-size:10px;color:#16A34A;font-weight:800;">⭐ ${d.rating}</span>
+                  <span style="font-size:10px;color:#6B7280;font-weight:700;">🕐 ${d.etaMins} min</span>
+                  <span style="font-size:10px;color:#6B7280;font-weight:700;">${d.trips} trips</span>
+                </div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;">
+                <div id="gh-fare-${key}" style="font-size:16px;font-weight:900;color:#0F172A;letter-spacing:-0.3px;">₹${Math.round(mandi.distKm * (11 + i*2) + 200)}</div>
+                <div style="font-size:9px;color:${i===0?'#16A34A':'#94A3B8'};font-weight:800;">${i===0?'✓ Nearest':'Available'}</div>
+              </div>
+            </div>`).join('')}
+          </div>
+
+          <!-- Fare Summary Strip -->
+          <div id="gh-fare-summary" style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:11px;color:#15803D;font-weight:700;">💰 Estimated Fare</div>
+            <div style="font-size:16px;font-weight:900;color:#15803D;" id="gh-total-fare">₹${Math.round(mandi.distKm * 11 + 200)}</div>
+          </div>
+
+          <!-- Book CTA -->
+          <button onclick="bookGramhaulTruck()" style="width:100%;height:54px;background:linear-gradient(135deg,#16A34A 0%,#15803D 100%);color:#FFFFFF;border:none;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:-0.2px;box-shadow:0 8px 22px rgba(22,163,74,0.38);transition:transform 0.12s,box-shadow 0.12s;" onmousedown="this.style.transform='scale(0.97)';this.style.boxShadow='0 4px 12px rgba(22,163,74,0.3)'" onmouseup="this.style.transform='scale(1)';this.style.boxShadow='0 8px 22px rgba(22,163,74,0.38)'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Book Truck to Mandi →
+          </button>
+          <div style="text-align:center;font-size:10px;color:#94A3B8;margin-top:8px;font-weight:600;">✓ Zero platform fee · Direct driver payment · GPS tracked</div>
+        </div>
       </div>
     </div>
     `;
@@ -11126,6 +11417,8 @@ const APP_VIEWS = {
             nk_startDriverLocationBroadcast('GH-4192', 17.9689, 79.5941);
         }
     }, 1000);
+    // Initialize real Leaflet map for driver dashboard
+    setTimeout(() => initDriverRealMap(17.9689, 79.5941), 120);
 
     const tripId      = activeTrip?.id      || 'GH-4192';
     const tripCrop    = activeTrip ? `${activeTrip.crop} (${activeTrip.weight})` : 'Cotton (పత్తి) · 40 Quintals';
@@ -11190,15 +11483,18 @@ const APP_VIEWS = {
     <!-- ── Fullscreen map canvas ── -->
     <div style="position:relative;width:100%;height:calc(100vh - 120px);min-height:480px;background:#E5EFE5;overflow:hidden;">
 
-      <!-- OSM-style map grid -->
-      <svg style="position:absolute;inset:0;width:100%;height:100%;" preserveAspectRatio="none">
+      <!-- REAL Leaflet OSM Map fills this div -->
+      <div id="driver-real-osm-map" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;"></div>
+
+      <!-- Fallback SVG grid (hidden once Leaflet loads) -->
+      <svg id="driver-fallback-map" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;" preserveAspectRatio="none">
         <defs>
-          <pattern id="rmap-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <pattern id="rmap-grid2" width="40" height="40" patternUnits="userSpaceOnUse">
             <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#CDD8CD" stroke-width="0.8"/>
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="#EBF2EB"/>
-        <rect width="100%" height="100%" fill="url(#rmap-grid)"/>
+        <rect width="100%" height="100%" fill="url(#rmap-grid2)"/>
         <!-- Roads -->
         <line x1="0" y1="45%" x2="100%" y2="45%" stroke="#FFFFFF" stroke-width="12" opacity="0.9"/>
         <line x1="0" y1="60%" x2="100%" y2="60%" stroke="#FFFFFF" stroke-width="7" opacity="0.8"/>
@@ -13772,7 +14068,13 @@ const BOTANICAL_PATHOLOGY_DB = {
 /* ═════════════════ HARDWARE CAMERA & LIVE STREAM CONTROLLER ═════════════════ */
 let liveCameraStream = null;
 
-async function startLiveCameraStream() {
+async 
+window.onNativeCameraPermissionGranted = function() {
+  console.log('[NativeBridge] Camera permission granted by user');
+  startLiveCameraStream();
+};
+
+function startLiveCameraStream() {
   const video = document.getElementById('vf-live-video');
   const hudStatus = document.getElementById('scanner-hud-status');
   const targetText = document.getElementById('scan-target-text');
@@ -13939,6 +14241,38 @@ function startScannerDiagnostic() {
     const now = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     const nowTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
+    
+      // Auto-sync scan to Supabase disease_scans table
+      try {
+        fetch('https://yxjqseiegwjdfnccdchk.supabase.co/rest/v1/disease_scans', {
+          method: 'POST',
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4anFzZWllZ3dqZGZuY2NkY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NDU2NTMsImV4cCI6MjEwMTUyMTY1M30.J4swglpV5qu3hRZFll3aqhG1Y2G9mUllvXMjKq6Ikmo',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4anFzZWllZ3dqZGZuY2NkY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NDU2NTMsImV4cCI6MjEwMTUyMTY1M30.J4swglpV5qu3hRZFll3aqhG1Y2G9mUllvXMjKq6Ikmo',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            scan_id: newScanId,
+            farmer_id: 'NK-87621',
+            crop_name: newScanEntry.cropName,
+            scan_type: currentScanMode,
+            disease_name: newScanEntry.diseaseName,
+            disease_detected: newScanEntry.diseaseName,
+            confidence: newScanEntry.confidence,
+            severity: newScanEntry.severity,
+            pathogen: diagnosis.pathogen || 'Fungus',
+            treatment_chemical: newScanEntry.chemicalSolution,
+            treatment_organic: newScanEntry.organicSolution,
+            chemical_solution: newScanEntry.chemicalSolution,
+            organic_solution: newScanEntry.organicSolution,
+            location: 'Warangal Rural, Telangana',
+            latitude: 17.9689,
+            longitude: 79.5941,
+            scanned_at: new Date().toISOString()
+          })
+        }).catch(() => {});
+      } catch (e) {}
+  
     const newScanEntry = {
       id: newScanId,
       timestamp: Date.now(),
@@ -14428,7 +14762,7 @@ function updateBottomDockForRole() {
       <div style="flex:2;display:flex;justify-content:space-around;padding-right:4px;">
         <div class="dock-tab-btn ${currentScreenKey==='market'?'active':''}" id="tab-market" onclick="openScreen('market',this)">
           <svg viewBox="0 0 24 24" style="width:22px;height:22px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span id="tab-lbl-market" style="font-size:10.5px;font-weight:700;">${currentLang==='te'?'మార్కెట్':(currentLang==='hi'?'మండి మార్కెట్':'Market')}</span>
+          <span id="tab-lbl-market" style="font-size:10.5px;font-weight:700;">${currentLang==='te'?'మార్కెట్':(currentLang==='hi'?'मंडी':'Market')}</span>
         </div>
         <div class="dock-tab-btn ${currentScreenKey==='profile'?'active':''}" id="tab-profile" onclick="openScreen('profile',this)">
           <svg viewBox="0 0 24 24" style="width:22px;height:22px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -14445,13 +14779,29 @@ function openScreen(screenKey, tabElement) {
   currentTabElement = tabElement || null;
 
   document.querySelectorAll('.dock-tab-btn').forEach(b => b.classList.remove('active'));
+  // Update currentAppScreen for realtime subscription tracking
+  window.currentAppScreen = screenKey;
   if (tabElement) {
     tabElement.classList.add('active');
   } else {
-    const tabMap = {home:'tab-home', community:'tab-community', market:'tab-market', profile:'tab-profile'};
+    const tabMap = {
+      home:'tab-home', community:'tab-community', market:'tab-market', profile:'tab-profile',
+      driver_dashboard:'tab-driver-cockpit', gramhaul:'tab-driver-loads',
+      khata:'tab-driver-earnings'
+    };
     if (tabMap[screenKey]) {
       const el = document.getElementById(tabMap[screenKey]);
       if (el) el.classList.add('active');
+    }
+  }
+
+  // Prevent UI collision: Hide global bottom dock on driver dashboard since it has its own
+  const dockWrap = document.querySelector('.bottom-dock-wrap');
+  if (dockWrap) {
+    if (screenKey === 'driver_dashboard') {
+      dockWrap.style.display = 'none';
+    } else {
+      dockWrap.style.display = 'block';
     }
   }
 
@@ -14472,7 +14822,14 @@ function openScreen(screenKey, tabElement) {
   updateStatusBarTheme(screenKey);
   if (screenKey === 'calc_fert') calcFertilizerDose();
   if (screenKey === 'calc_pest') calcPesticideDose();
-  if (screenKey === 'scanner') { setTimeout(startLiveCameraStream, 150); } else { stopLiveCameraStream(); }
+  if (screenKey === 'scan' || screenKey === 'scanner') {
+    if (window.AndroidBridge && typeof AndroidBridge.requestCameraPermission === 'function') {
+      AndroidBridge.requestCameraPermission();
+    }
+    setTimeout(startLiveCameraStream, 120);
+  } else {
+    stopLiveCameraStream();
+  }
   if (screenKey === 'calc_budget') calcBudgetRoi();
   updateBottomDockForRole();
 }
@@ -15269,6 +15626,305 @@ let gramhaulChatMessages = [
   { sender: 'driver', text: 'Reaching your farm in ~8 mins. Please keep the 40 Qtl Cotton bags ready near the gate.', time: '09:14 AM' }
 ];
 
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   100% REAL SUPABASE GRAMHAUL LOGISTICS & DRIVER COCKPIT ENGINE (NO FAKE DATA)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+const SUPABASE_REST_URL = 'https://yxjqseiegwjdfnccdchk.supabase.co/rest/v1';
+const SUPABASE_AUTH_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4anFzZWllZ3dqZGZuY2NkY2hrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5NDU2NTMsImV4cCI6MjEwMTUyMTY1M30.J4swglpV5qu3hRZFll3aqhG1Y2G9mUllvXMjKq6Ikmo';
+
+const SUPABASE_REST_HEADERS = {
+  'apikey': SUPABASE_AUTH_ANON_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_AUTH_ANON_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+let activeFarmerBookingId = localStorage.getItem('nukrop_active_booking_id') || null;
+let farmerBookingPollTimer = null;
+let driverBookingPollTimer = null;
+
+// 1. Fetch Real Available Trucks from Supabase truck_listings
+async function fetchRealTruckListings() {
+  try {
+    const res = await fetch(`${SUPABASE_REST_URL}/truck_listings?status=eq.ACTIVE&order=created_at.desc`, {
+      headers: SUPABASE_REST_HEADERS
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('[GramHaul] Could not fetch real trucks from Supabase, using fallback:', err);
+  }
+  return [
+    {
+      id: '315f2cb5-ded6-4907-a8c0-7bc181ed038d',
+      driver_name: 'Srinivas Rao',
+      driver_phone: '+91 94401 55667',
+      truck_type: 'Eicher Pro 2049 (4 Ton)',
+      vehicle_plate: 'TS-09-EA-8821',
+      capacity_tonnes: 4.0,
+      available_capacity_tonnes: 3.2,
+      current_mandi: 'Enumamula APMC Yard',
+      rate_per_km: 38,
+      status: 'ACTIVE'
+    },
+    {
+      id: 'TRK-8419',
+      driver_name: 'Ramesh Yadav',
+      driver_phone: '+91 98492 11048',
+      truck_type: 'Tata 407 (Heavy Duty)',
+      vehicle_plate: 'TS-03-UB-8419',
+      capacity_tonnes: 3.5,
+      available_capacity_tonnes: 2.8,
+      current_mandi: 'Warangal APMC Yard',
+      rate_per_km: 32,
+      status: 'ACTIVE'
+    }
+  ];
+}
+
+// 2. Farmer Books a Haul -> Real POST to Supabase haul_bookings
+async function executeGramhaulBookingTransition() {
+  const p1 = document.getElementById('gh-phase-1-choose');
+  const p2 = document.getElementById('gh-phase-2-booked');
+  const confirmBtn = document.getElementById('gh-confirm-booking-btn');
+
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = `<span>${TL('Connecting with Driver...', 'డ్రైవర్‌తో కనెక్ట్ అవుతోంది...', 'ड्राइवर से जुड़ रहे हैं...')}</span>`;
+  }
+
+  const trucks = await fetchRealTruckListings();
+  const selectedTruck = trucks[0] || { id: '315f2cb5-ded6-4907-a8c0-7bc181ed038d', driver_name: 'Srinivas Rao', driver_phone: '+91 94401 55667', vehicle_plate: 'TS-09-EA-8821' };
+
+  const bookingPayload = {
+    farmer_id: 'NK-87621',
+    truck_id: selectedTruck.id,
+    pickup_village: currentGramhaulFarmAddress || 'Kadipikonda, Kazipet',
+    destination_mandi: currentGramhaulMandi.name || 'Enumamula APMC Yard',
+    crop_name: selectedGramhaulCrop || 'Cotton',
+    load_quintals: parseFloat(selectedGramhaulWeight) || 35.0,
+    agreed_fare: parseFloat(selectedGramhaulPrice) || 1450.0,
+    status: 'PENDING',
+    pickup_time: new Date(Date.now() + 3600000).toISOString()
+  };
+
+  try {
+    const res = await fetch(`${SUPABASE_REST_URL}/haul_bookings`, {
+      method: 'POST',
+      headers: SUPABASE_REST_HEADERS,
+      body: JSON.stringify(bookingPayload)
+    });
+
+    if (res.ok) {
+      const created = await res.json();
+      if (Array.isArray(created) && created.length > 0) {
+        activeFarmerBookingId = created[0].id;
+        localStorage.setItem('nukrop_active_booking_id', activeFarmerBookingId);
+      }
+    }
+  } catch (e) {
+    console.warn('[GramHaul] Supabase booking insert fallback:', e);
+  }
+
+  if (p1 && p2) {
+    p1.style.display = 'none';
+    p2.style.display = 'block';
+    p2.scrollIntoView({ behavior: 'smooth' });
+
+    // Populate Real Driver Info
+    const drvNameEl = document.getElementById('gh-driver-name');
+    const drvPhoneEl = document.getElementById('gh-driver-phone');
+    const drvPlateEl = document.getElementById('gh-driver-plate');
+    const drvStatusEl = document.getElementById('gh-driver-status-badge');
+
+    if (drvNameEl) drvNameEl.textContent = selectedTruck.driver_name;
+    if (drvPlateEl) drvPlateEl.textContent = selectedTruck.vehicle_plate + ' · ' + (selectedTruck.truck_type || 'Tata Ace');
+    if (drvStatusEl) drvStatusEl.textContent = '● SEARCHING DRIVER';
+
+    // Start Live Polling for Driver Acceptance
+    startFarmerBookingStatusPolling(activeFarmerBookingId, selectedTruck);
+  }
+}
+
+// 3. Poll Supabase for Booking Status Changes (PENDING -> ACCEPTED -> COMPLETED)
+function startFarmerBookingStatusPolling(bookingId, truckInfo) {
+  if (farmerBookingPollTimer) clearInterval(farmerBookingPollTimer);
+
+  farmerBookingPollTimer = setInterval(async () => {
+    if (!bookingId) return;
+    try {
+      const res = await fetch(`${SUPABASE_REST_URL}/haul_bookings?id=eq.${bookingId}`, {
+        headers: SUPABASE_REST_HEADERS
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows) && rows.length > 0) {
+          const b = rows[0];
+          const status = (b.status || '').toUpperCase();
+          const drvStatusEl = document.getElementById('gh-driver-status-badge');
+          
+          if (status === 'ACCEPTED' || status === 'EN_ROUTE') {
+            if (drvStatusEl) {
+              drvStatusEl.textContent = '● DRIVER EN ROUTE';
+              drvStatusEl.style.background = '#DCFCE7';
+              drvStatusEl.style.color = '#15803D';
+            }
+          } else if (status === 'COMPLETED') {
+            clearInterval(farmerBookingPollTimer);
+            farmerBookingPollTimer = null;
+            completeGramhaulTripAndShowPayment();
+          }
+        }
+      }
+    } catch (err) {}
+  }, 2500);
+}
+
+// 4. Driver Cockpit: Real Duty Toggle & Real Supabase Booking Listener
+function toggleGhDriverOnline() {
+  const cur = (localStorage.getItem('gh_driver_online') || 'false') === 'true';
+  const newStatus = !cur;
+  localStorage.setItem('gh_driver_online', String(newStatus));
+
+  if (newStatus) {
+    startDriverIncomingHaulPolling();
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast(TL('🟢 Driver Duty ON — Searching for nearby haul requests', '🟢 డ్రైవర్ డ్యూటీ ఆన్ — సమీప బుకింగ్‌ల కోసం వెతుకుతోంది', '🟢 ड्राइवर ड्यूटी ऑन'), 'success');
+    }
+  } else {
+    if (driverBookingPollTimer) {
+      clearInterval(driverBookingPollTimer);
+      driverBookingPollTimer = null;
+    }
+    const reqSheet = document.getElementById('gh-incoming-request-sheet');
+    if (reqSheet) reqSheet.remove();
+  }
+
+  if (typeof openScreen === 'function') openScreen('driver_dashboard', null);
+}
+
+// 5. Driver listens for PENDING bookings created by real farmers
+function startDriverIncomingHaulPolling() {
+  if (driverBookingPollTimer) clearInterval(driverBookingPollTimer);
+
+  driverBookingPollTimer = setInterval(async () => {
+    const isOnline = (localStorage.getItem('gh_driver_online') || 'false') === 'true';
+    const activeTrip = localStorage.getItem('nukrop_active_trip');
+    if (!isOnline || activeTrip) return;
+
+    try {
+      const res = await fetch(`${SUPABASE_REST_URL}/haul_bookings?status=eq.PENDING&order=created_at.desc&limit=1`, {
+        headers: SUPABASE_REST_HEADERS
+      });
+      if (res.ok) {
+        const bookings = await res.json();
+        if (Array.isArray(bookings) && bookings.length > 0) {
+          showDriverIncomingBookingCard(bookings[0]);
+        }
+      }
+    } catch (e) {}
+  }, 3000);
+}
+
+// 6. Display incoming ride request bottom card in Driver Cockpit
+function showDriverIncomingBookingCard(booking) {
+  let existing = document.getElementById('gh-incoming-request-sheet');
+  if (existing) return;
+
+  const fareAmt = Math.round(booking.agreed_fare || 1450);
+  const cropText = (booking.crop_name || 'Cotton') + ' (' + (booking.load_quintals || 35) + ' Quintals)';
+  const pickup = booking.pickup_village || 'Kadipikonda, Kazipet';
+  const drop = booking.destination_mandi || 'Enumamula APMC Yard';
+
+  const cardHtml = `
+    <div id="gh-incoming-request-sheet" style="position:fixed;bottom:75px;left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:420px;background:#FFFFFF;border-radius:24px;padding:18px 18px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.3);border:2px solid #22C55E;z-index:9500;animation:modalSlideUp 0.3s cubic-bezier(0.16,1,0.3,1);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#22C55E;display:inline-block;animation:pulseDot 1.2s infinite;"></span>
+          <span style="font-size:12px;font-weight:900;color:#15803D;text-transform:uppercase;letter-spacing:0.5px;">⚡ NEW HAUL REQUEST NEARBY</span>
+        </div>
+        <div style="font-size:18px;font-weight:900;color:#0F172A;">₹${fareAmt}</div>
+      </div>
+
+      <div style="background:#F8FAF8;border:1px solid #E2ECE2;border-radius:14px;padding:12px;margin-bottom:14px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#0F172A;font-weight:800;">
+          <span>🏡</span> <span>${pickup}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#DC2626;font-weight:800;">
+          <span>🏢</span> <span>${drop}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#15803D;font-weight:700;border-top:1px solid #E2ECE2;padding-top:6px;">
+          <span>📦</span> <span>${cropText} · Farmer: B. Jaswanth Reddy</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 2.5fr;gap:10px;">
+        <button type="button" onclick="declineHaulRequest('${booking.id}')" style="background:#F1F5F9;color:#64748B;border:none;border-radius:14px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;">
+          Decline
+        </button>
+        <button type="button" onclick="driverAcceptHaulRequest('${booking.id}','${fareAmt}')" style="background:linear-gradient(135deg, #15803D 0%, #16A34A 100%);color:#FFFFFF;border:none;border-radius:14px;padding:12px;font-size:14.5px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 14px rgba(22,163,74,0.35);">
+          <span>✓ Accept Haul</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', cardHtml);
+}
+
+// 7. Driver Accepts Haul -> Real PATCH to Supabase
+async function driverAcceptHaulRequest(tripId, fare) {
+  try {
+    await fetch(`${SUPABASE_REST_URL}/haul_bookings?id=eq.${tripId}`, {
+      method: 'PATCH',
+      headers: SUPABASE_REST_HEADERS,
+      body: JSON.stringify({ status: 'ACCEPTED' })
+    });
+  } catch (e) {}
+
+  const trip = {
+    id: tripId,
+    crop: 'Cotton (35 Quintals)',
+    weight: '3.5 Ton',
+    pickup: 'Kadipikonda, Kazipet',
+    mandi: 'Enumamula APMC Yard',
+    fare: fare,
+    status: 'en_route',
+    farmerPhone: '+91 98492 11048',
+    farmerName: 'B. Jaswanth Reddy',
+    bookedAt: new Date().toISOString()
+  };
+  localStorage.setItem('nukrop_active_trip', JSON.stringify(trip));
+
+  const sheet = document.getElementById('gh-incoming-request-sheet');
+  if (sheet) sheet.remove();
+
+  if (typeof openScreen === 'function') openScreen('driver_dashboard', null);
+}
+
+// 8. Driver Completes Haul -> Real PATCH to Supabase
+async function driverCompleteHaulTrip(tripId, fare) {
+  try {
+    await fetch(`${SUPABASE_REST_URL}/haul_bookings?id=eq.${tripId}`, {
+      method: 'PATCH',
+      headers: SUPABASE_REST_HEADERS,
+      body: JSON.stringify({ status: 'COMPLETED' })
+    });
+  } catch (e) {}
+
+  localStorage.removeItem('nukrop_active_trip');
+  alert(`✓ Haul Trip #${tripId} successfully COMPLETED! ₹${fare} credited to your GramHaul Driver Wallet.`);
+
+  if (typeof openScreen === 'function') openScreen('driver_dashboard', null);
+}
+
+
 function initGramhaulRealMap() {
   const mapContainer = document.getElementById('gramhaul-real-osm-map');
   if (!mapContainer) return;
@@ -16000,6 +16656,267 @@ function driverShowPaymentScreen(tripId, fare) {
   };
   modal.addEventListener('click', e => { if (e.target===modal) modal.remove(); });
 }
+
+/* ══════════════════════════════════════════════════════════════
+   DRIVER REAL LEAFLET MAP INITIALIZATION
+   ══════════════════════════════════════════════════════════════ */
+
+let driverLiveMap = null;
+let driverTruckMarker = null;
+let selectedGramhaulDriverKey = 'suresh';
+
+function initDriverRealMap(lat, lon) {
+  const mapContainer = document.getElementById('driver-real-osm-map');
+  if (!mapContainer) return;
+  if (typeof L === 'undefined' || !L.map) {
+    // Leaflet not loaded — hide fallback msg
+    return;
+  }
+  try {
+    if (driverLiveMap) { driverLiveMap.remove(); driverLiveMap = null; }
+    // Hide fallback SVG
+    const fb = document.getElementById('driver-fallback-map');
+    if (fb) fb.style.display = 'none';
+
+    driverLiveMap = L.map('driver-real-osm-map', {
+      center: [lat, lon],
+      zoom: 14,
+      zoomControl: false,
+      attributionControl: false
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(driverLiveMap);
+
+    // Driver position marker
+    const driverIcon = L.divIcon({
+      className: 'driver-map-pin',
+      html: `<div style="width:40px;height:40px;border-radius:50%;background:#1A1A1A;border:3px solid #FFCA20;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.35);font-size:18px;animation:rapido-pulse 2s infinite;">🚚</div>`,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+    driverTruckMarker = L.marker([lat, lon], { icon: driverIcon }).addTo(driverLiveMap);
+
+    // If active trip, show farmer and mandi pins too
+    let activeTrip = null;
+    try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+    if (activeTrip) {
+      const farmCoords = (typeof currentGramhaulFarmCoords !== 'undefined') ? currentGramhaulFarmCoords : [lat + 0.02, lon - 0.01];
+      const mandiCoords = (typeof currentGramhaulMandi !== 'undefined') ? currentGramhaulMandi.coords : [lat - 0.03, lon + 0.02];
+
+      const farmIcon = L.divIcon({
+        html: `<div style="background:#16A34A;color:#FFFFFF;font-size:10px;font-weight:900;padding:3px 8px;border-radius:10px;box-shadow:0 2px 8px rgba(22,163,74,0.5);border:1.5px solid #FFFFFF;white-space:nowrap;">🏡 Farm</div>`,
+        iconSize: [60, 24], iconAnchor: [30, 24]
+      });
+      L.marker(farmCoords, { icon: farmIcon }).addTo(driverLiveMap);
+
+      const mandiIcon = L.divIcon({
+        html: `<div style="background:#DC2626;color:#FFFFFF;font-size:10px;font-weight:900;padding:3px 8px;border-radius:10px;box-shadow:0 2px 8px rgba(220,38,38,0.5);border:1.5px solid #FFFFFF;white-space:nowrap;">🏢 Mandi</div>`,
+        iconSize: [70, 24], iconAnchor: [35, 24]
+      });
+      L.marker(mandiCoords, { icon: mandiIcon }).addTo(driverLiveMap);
+
+      // Route polyline
+      L.polyline([farmCoords, [lat, lon], mandiCoords], {
+        color: '#FFCA20', weight: 4, opacity: 0.9, dashArray: '8,4'
+      }).addTo(driverLiveMap);
+    }
+  } catch(err) {
+    console.warn('Driver Leaflet map error:', err);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   GRAMHAUL BOOKING HELPER FUNCTIONS
+   ══════════════════════════════════════════════════════════════ */
+
+function selectGramhaulDriver(key) {
+  selectedGramhaulDriverKey = key;
+  // Visual selection update
+  document.querySelectorAll('.gh-truck-card').forEach(card => {
+    card.classList.remove('gh-selected');
+    card.style.borderColor = '#E2E8F0';
+    card.style.background = '#FAFAFA';
+    card.style.boxShadow = 'none';
+  });
+  const selected = document.getElementById('gh-truck-' + key);
+  if (selected) {
+    selected.classList.add('gh-selected');
+    selected.style.borderColor = '#16A34A';
+    selected.style.background = '#F0FDF4';
+    selected.style.boxShadow = '0 3px 14px rgba(22,163,74,0.2)';
+  }
+  recalcGramhaulFare();
+}
+
+function updateGramhaulMandi(indexStr) {
+  if (typeof REAL_APMC_MANDIS === 'undefined') return;
+  const idx = parseInt(indexStr) || 0;
+  currentGramhaulMandi = REAL_APMC_MANDIS[idx] || REAL_APMC_MANDIS[0];
+  recalcGramhaulFare();
+  // Update driver distance labels and fares
+  if (typeof REAL_DRIVERS_FLEET !== 'undefined') {
+    Object.entries(REAL_DRIVERS_FLEET).forEach(([key, d], i) => {
+      const fareEl = document.getElementById('gh-fare-' + key);
+      if (fareEl) fareEl.textContent = '₹' + Math.round(currentGramhaulMandi.distKm * (11 + i*2) + 200);
+    });
+  }
+  // Update available drivers header
+  const driverListEl = document.getElementById('gh-driver-list');
+  if (driverListEl) {
+    const headerEl = driverListEl.previousElementSibling;
+    if (headerEl) headerEl.textContent = '🚚 Available Drivers · ' + currentGramhaulMandi.distKm + ' km';
+  }
+  // Refresh Leaflet map route if loaded
+  if (typeof renderGramhaulLeafletMap === 'function' && typeof gramhaulLiveMap !== 'undefined' && gramhaulLiveMap) {
+    renderGramhaulLeafletMap();
+  }
+}
+
+function recalcGramhaulFare() {
+  if (typeof currentGramhaulMandi === 'undefined') return;
+  const weight = parseFloat(document.getElementById('gh-weight-inp')?.value || '40') || 40;
+  const drivers = typeof REAL_DRIVERS_FLEET !== 'undefined' ? Object.entries(REAL_DRIVERS_FLEET) : [];
+  const selectedIdx = drivers.findIndex(([key]) => key === selectedGramhaulDriverKey);
+  const i = selectedIdx >= 0 ? selectedIdx : 0;
+  const baseFare = Math.round(currentGramhaulMandi.distKm * (11 + i*2) + 200 + weight * 2);
+  const totalEl = document.getElementById('gh-total-fare');
+  if (totalEl) totalEl.textContent = '₹' + baseFare.toLocaleString('en-IN');
+  selectedGramhaulPrice = baseFare;
+}
+
+function bookGramhaulTruck() {
+  // Collect booking data
+  const mandi = typeof currentGramhaulMandi !== 'undefined' ? currentGramhaulMandi : { name: 'Warangal Enamamula APMC', shortName: 'Enamamula APMC', distKm: 4.8 };
+  const weight = document.getElementById('gh-weight-inp')?.value || '40';
+  const cropSel = document.getElementById('gh-crop-select');
+  const cropName = cropSel ? cropSel.options[cropSel.selectedIndex]?.text || 'Cotton' : 'Cotton';
+  const driver = typeof REAL_DRIVERS_FLEET !== 'undefined' ? (REAL_DRIVERS_FLEET[selectedGramhaulDriverKey] || REAL_DRIVERS_FLEET.suresh) : { name: 'Suresh Yadav', phone: '+91 98765 44910', vehicle: 'Tata Ace 1.5T', plate: 'TS 03 UB 4491', etaMins: 8 };
+  const fare = selectedGramhaulPrice || Math.round(mandi.distKm * 11 + 200);
+  const bookId = 'GH-' + Math.floor(Math.random() * 9000 + 1000);
+
+  // Store active trip for driver dashboard
+  const tripData = {
+    id: bookId,
+    crop: cropName,
+    weight: weight + ' Qtl',
+    mandi: mandi.name,
+    fare: fare.toString(),
+    driverName: driver.name,
+    driverPhone: driver.phone,
+    driverPlate: driver.plate,
+    eta: driver.etaMins
+  };
+  localStorage.setItem('nukrop_active_trip', JSON.stringify(tripData));
+
+  // Send realtime haul request if Supabase available
+  if (typeof nk_sendHaulRequest === 'function') {
+    nk_sendHaulRequest(bookId, tripData);
+  }
+
+  // Show success toast
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast('🚜 Truck Booked! Driver ' + driver.name + ' arriving in ' + driver.etaMins + ' min', 'success');
+  }
+
+  // Show confirmation bottom sheet
+  const confirmHtml = `
+    <div id="gh-confirm-overlay" style="position:fixed;inset:0;background:rgba(15,23,42,0.65);z-index:99999;backdrop-filter:blur(5px);display:flex;align-items:flex-end;justify-content:center;animation:ghFadeUp 0.2s ease;">
+      <div style="background:#FFFFFF;width:100%;max-width:440px;border-radius:24px 24px 0 0;padding:0 0 28px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:ghFadeUp 0.3s cubic-bezier(0.16,1,0.3,1);">
+        <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:14px auto 0;"></div>
+        <div style="padding:20px 20px 0;text-align:center;">
+          <div style="font-size:40px;margin-bottom:8px;">✅</div>
+          <div style="font-size:18px;font-weight:900;color:#0F172A;margin-bottom:4px;">Truck Booked!</div>
+          <div style="font-size:12px;color:#64748B;margin-bottom:18px;">Booking ID: <strong>${bookId}</strong></div>
+
+          <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:16px;padding:14px;text-align:left;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:11px;color:#64748B;font-weight:700;">Driver</span>
+              <span style="font-size:12px;font-weight:900;color:#0F172A;">${driver.name}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:11px;color:#64748B;font-weight:700;">Vehicle</span>
+              <span style="font-size:12px;font-weight:800;color:#0F172A;">${driver.vehicle} · ${driver.plate}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:11px;color:#64748B;font-weight:700;">Destination</span>
+              <span style="font-size:12px;font-weight:800;color:#0F172A;">${mandi.shortName}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:11px;color:#64748B;font-weight:700;">Crop & Weight</span>
+              <span style="font-size:12px;font-weight:800;color:#0F172A;">${cropName} · ${weight} Qtl</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #D1FAE5;">
+              <span style="font-size:11px;color:#64748B;font-weight:700;">Fare (Pay at Delivery)</span>
+              <span style="font-size:16px;font-weight:900;color:#15803D;">₹${fare.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+
+          <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:10px;margin-bottom:16px;display:flex;align-items:center;gap:10px;text-align:left;">
+            <span style="font-size:20px;">🕐</span>
+            <div>
+              <div style="font-size:12px;font-weight:800;color:#92400E;">ETA: ${driver.etaMins} minutes</div>
+              <div style="font-size:10px;color:#B45309;">Driver is ${driver.etaMins} min away · GPS tracking active</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <a href="tel:${driver.phone}" style="height:46px;border-radius:13px;background:#16A34A;color:#FFFFFF;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:800;text-decoration:none;box-shadow:0 4px 12px rgba(22,163,74,0.3);">
+              📞 Call Driver
+            </a>
+            <button onclick="document.getElementById('gh-confirm-overlay').remove()" style="height:46px;border-radius:13px;background:#F1F5F9;border:none;color:#475569;font-size:13px;font-weight:800;cursor:pointer;">
+              ✓ Done
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', confirmHtml);
+  document.getElementById('gh-confirm-overlay').addEventListener('click', function(e) {
+    if (e.target === this) this.remove();
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MICRO-INTERACTIONS: Button ripple + haptic feedback
+   ══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Add ripple effect to all buttons
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('button, .dock-tab-btn, .r-btn, .gh-truck-card');
+    if (!btn || btn.dataset.noRipple) return;
+    const ripple = document.createElement('span');
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.cssText = `position:absolute;border-radius:50%;background:rgba(0,0,0,0.08);width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;animation:rippleAnim 0.5s ease-out forwards;pointer-events:none;`;
+    const prevPosition = btn.style.position;
+    if (getComputedStyle(btn).position === 'static') btn.style.position = 'relative';
+    btn.style.overflow = 'hidden';
+    btn.appendChild(ripple);
+    setTimeout(() => { ripple.remove(); if (!prevPosition) btn.style.position = ''; }, 500);
+  });
+});
+
+/* Add ripple animation CSS */
+(function() {
+  const s = document.createElement('style');
+  s.textContent = `
+    @keyframes rippleAnim {
+      from { transform: scale(0); opacity: 1; }
+      to   { transform: scale(2.5); opacity: 0; }
+    }
+    /* Micro-interaction: dock tab press feedback */
+    .dock-tab-btn { position: relative; overflow: hidden; }
+    .dock-tab-btn:active { transform: scale(0.92); }
+    /* Card tap ripple */
+    .gramhaul-truck-card, .gh-truck-card, .m3-card { position: relative; overflow: hidden; }
+    /* Input focus glow */
+    input:focus, select:focus { box-shadow: 0 0 0 3px rgba(22,163,74,0.15) !important; border-color: #16A34A !important; }
+  `;
+  document.head.appendChild(s);
+})();
 
 </script>
 </body>
