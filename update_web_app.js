@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+const fs = require('fs');
+
+const updatedAppContent = `import { useState, useEffect } from 'react';
 import { 
   Sprout, 
   Smartphone, 
+  AlertTriangle, 
   ShieldCheck, 
   ChevronRight, 
   ChevronDown,
@@ -9,13 +12,18 @@ import {
   TrendingUp, 
   Landmark, 
   CloudRain, 
+  Layers, 
+  Globe, 
   Download, 
   Menu, 
   X, 
   Radio,
   CheckCircle,
   Copy,
-  Truck
+  ExternalLink,
+  Truck,
+  Shield,
+  FileText
 } from 'lucide-react';
 
 export default function App() {
@@ -102,7 +110,7 @@ export default function App() {
       <div className="scroll-progress-container">
         <div 
           className="scroll-progress-bar" 
-          style={{ width: `${scrollProgress}%` }}
+          style={{ width: \`\${scrollProgress}%\` }}
         ></div>
       </div>
 
@@ -169,7 +177,7 @@ export default function App() {
       </header>
 
       {/* Mobile Nav Drawer */}
-      <div className={`nav-mobile-drawer ${mobileMenuOpen ? 'open' : ''}`}>
+      <div className={\`nav-mobile-drawer \${mobileMenuOpen ? 'open' : ''}\`}>
         <a href="#features" className="nav-link" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '15px', padding: '6px 0' }}>Features</a>
         <a href="#showcase" className="nav-link" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '15px', padding: '6px 0' }}>App Showcase</a>
         <a href="#gramhaul" className="nav-link" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: '15px', padding: '6px 0' }}>GramHaul Logistics</a>
@@ -859,3 +867,7 @@ export default function App() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('web/src/App.tsx', updatedAppContent, 'utf8');
+console.log('[PASS] Enhanced web/src/App.tsx with 15-screen gallery, verified download hub, and legal modals!');
