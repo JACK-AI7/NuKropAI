@@ -8349,7 +8349,7 @@ function renderPlantixFlow() {
       renderCarouselSlide(overlay, {
         image: 'images/onboard_crop_doctor.jpg',
         topBadge: '🌿 NuKropAI OS',
-        categoryBadge: '🌱 AI CROP DOCTOR',
+        categoryBadge: '🌾 AI CROP DOCTOR',
         title: 'Instant AI Leaf Diagnostics',
         sub: 'Scan crop leaves in milliseconds to identify pests, fungal blights, and nutrient deficiencies with expert AI treatment prescriptions.',
         activeDot: 0,
@@ -8554,13 +8554,13 @@ function renderCarouselSlide(container, config) {
   const bgImage = config.image || 'images/onboard_crop_doctor.jpg';
 
   container.innerHTML = `
-    <div style="width:100%;height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+    <div style="width:100%;height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
       
       <!-- Fullscreen High-Resolution Background Image -->
       <div style="position:absolute;inset:0;background-image:url('${bgImage}');background-size:cover;background-position:center;z-index:1;"></div>
       
       <!-- Subtle Ambient Gradient Overlay -->
-      <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.38) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Navigation Bar -->
       <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
@@ -8572,34 +8572,34 @@ function renderCarouselSlide(container, config) {
         </button>
       </div>
 
-      <!-- Bottom Sheet Card -->
-      <div style="position:relative;z-index:10;background:#FFFFFF;border-radius:36px 36px 0 0;padding:28px 24px 28px;box-shadow:0 -12px 40px rgba(0,0,0,0.22);box-sizing:border-box;">
+      <!-- Bottom Sheet Card (Matching media_1790938800434.png 1:1) -->
+      <div style="position:relative;z-index:10;background:#FFFFFF;border-radius:36px 36px 0 0;padding:28px 24px 32px 24px;box-shadow:0 -10px 40px rgba(0,0,0,0.16);box-sizing:border-box;">
         
         <!-- Category Pill Badge -->
-        <div style="display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;color:#15803D;padding:6px 14px;border-radius:999px;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:12px;">
-          ${config.categoryBadge || '🌱 CROP INTELLIGENCE'}
+        <div style="display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;border:1px solid #BBF7D0;color:#15803D;padding:5px 14px;border-radius:9999px;font-size:12px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px;font-family:'Plus Jakarta Sans',sans-serif;">
+          ${config.categoryBadge || '🌾 AI CROP DOCTOR'}
         </div>
 
         <!-- Title -->
-        <div style="font-size:24px;font-weight:900;color:#0F172A;line-height:1.25;letter-spacing:-0.4px;margin-bottom:8px;">
+        <div style="font-size:24px;font-weight:800;color:#0F172A;line-height:1.25;letter-spacing:-0.5px;margin-bottom:10px;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;">
           ${config.title}
         </div>
 
         <!-- Subtitle -->
-        <div style="font-size:13.5px;color:#64748B;font-weight:500;line-height:1.48;margin-bottom:24px;">
+        <div style="font-size:14.5px;color:#475569;font-weight:500;line-height:1.55;margin-bottom:28px;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;">
           ${config.sub || ''}
         </div>
 
-        <!-- Bottom Row: Dots + Green Circle Arrow -->
+        <!-- Bottom Row: Dots + Green Circle Arrow Button -->
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <!-- Dots Indicator -->
           <div style="display:flex;align-items:center;gap:6px;">
             ${dotsHtml}
           </div>
 
-          <!-- Circular Green Action Button -->
-          <button onclick="advanceSlide('${config.nextScreen}')" style="width:56px;height:56px;border-radius:50%;background:#16A34A;display:flex;align-items:center;justify-content:center;color:#FFFFFF;border:none;box-shadow:0 8px 24px rgba(22,163,74,0.38);cursor:pointer;transition:transform 0.15s ease;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Circular Green Action Button with Arrow -->
+          <button onclick="advanceSlide('${config.nextScreen}')" style="width:56px;height:56px;border-radius:50%;background:#16A34A;display:flex;align-items:center;justify-content:center;color:#FFFFFF;border:none;box-shadow:0 10px 24px rgba(22,163,74,0.4);cursor:pointer;transition:transform 0.15s ease;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
