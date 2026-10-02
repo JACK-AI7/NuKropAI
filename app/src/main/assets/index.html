@@ -11523,7 +11523,7 @@ const APP_VIEWS = {
         <!-- Today earnings badge -->
         <div style="background:var(--r-dark);border-radius:14px;padding:10px 14px;box-shadow:0 3px 12px rgba(0,0,0,0.20);">
           <div style="font-size:10px;color:#9CA3AF;font-weight:700;text-align:center;">TODAY</div>
-          <div style="font-size:16px;font-weight:900;color:var(--r-yellow);letter-spacing:-0.3px;">₹3,450</div>
+          <div style="font-size:16px;font-weight:900;color:var(--r-yellow);letter-spacing:-0.3px;">₹${getDriverRealtimeEarnings().today}</div>
         </div>
       </div>
 
@@ -11575,18 +11575,18 @@ const APP_VIEWS = {
         <div style="padding:12px 18px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:40px;height:40px;border-radius:13px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:var(--r-dark);">R</div>
+              <div style="width:40px;height:40px;border-radius:13px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:var(--r-dark);">${(activeTrip.farmerName || 'Farmer')[0]}</div>
               <div>
-                <div style="font-size:13.5px;font-weight:900;color:var(--r-dark);">Ramesh Rao</div>
+                <div style="font-size:13.5px;font-weight:900;color:var(--r-dark);">${activeTrip.farmerName || 'B. Jaswanth Reddy'}</div>
                 <div style="display:flex;align-items:center;gap:3px;">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="var(--r-yellow)" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <span style="font-size:10.5px;color:#6B7280;font-weight:700;">4.8 · Farmer</span>
+                  <span style="font-size:10.5px;color:#6B7280;font-weight:700;">4.9 · Verified Farmer</span>
                 </div>
               </div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:20px;font-weight:900;color:var(--r-dark);letter-spacing:-0.4px;">₹${tripFare}</div>
-              <div style="font-size:10px;color:#6B7280;">Haul Fare</div>
+              <div style="font-size:20px;font-weight:900;color:var(--r-dark);letter-spacing:-0.4px;">₹${activeTrip.fare || '1,450'}</div>
+              <div style="font-size:10px;color:#6B7280;">Agreed Haul Fare</div>
             </div>
           </div>
 
@@ -11601,116 +11601,61 @@ const APP_VIEWS = {
               <div style="flex:1;min-width:0;">
                 <div style="margin-bottom:10px;">
                   <div style="font-size:10px;color:#9CA3AF;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">PICKUP (GPS)</div>
-                  <div style="font-size:12.5px;font-weight:800;color:var(--r-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tripPickup}</div>
+                  <div style="font-size:12.5px;font-weight:800;color:var(--r-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${activeTrip.pickup || 'Kadipikonda, Kazipet'}</div>
                 </div>
                 <div>
                   <div style="font-size:10px;color:#9CA3AF;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">DROP MANDI</div>
-                  <div style="font-size:12.5px;font-weight:800;color:var(--r-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${tripDrop}</div>
+                  <div style="font-size:12.5px;font-weight:800;color:var(--r-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${activeTrip.mandi || 'Enumamula APMC Yard'}</div>
                 </div>
               </div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid #F0F0F0;">
-              <span style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;color:#92400E;">🌾 ${tripCrop}</span>
+              <span style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;color:#92400E;">🌾 ${activeTrip.crop || 'Cotton (35 Qtl)'}</span>
               <span style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;color:#166534;">✓ Zero Platform Fee</span>
             </div>
           </div>
 
           <!-- Action buttons -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
-            <button onclick="driverCallFarmer('+919440122910')" class="r-btn" style="height:44px;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:13px;font-size:11px;font-weight:800;color:var(--r-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;">
+            <button onclick="driverCallFarmer('${activeTrip.farmerPhone || '+91 94401 55667'}')" class="r-btn" style="height:44px;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:13px;font-size:11px;font-weight:800;color:var(--r-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.82a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              Call
+              Call Farmer
             </button>
-            <button onclick="messageGramhaulDriver()" class="r-btn" style="height:44px;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:13px;font-size:11px;font-weight:800;color:var(--r-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;">
+            <button onclick="openLiveHaulChat('${activeTrip.id}', 'driver', '${activeTrip.farmerName || 'Farmer'}', '${activeTrip.farmerPhone || ''}')" class="r-btn" style="height:44px;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:13px;font-size:11px;font-weight:800;color:var(--r-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Chat
+              Live Chat
             </button>
             <button onclick="driverOpenGpsNav(17.9689,79.5941)" class="r-btn" style="height:44px;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;font-size:11px;font-weight:800;color:var(--r-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
               Navigate
             </button>
           </div>
-          <button onclick="driverShowPaymentScreen('${tripId}','${tripFare}')" class="r-btn" style="width:100%;height:52px;background:var(--r-dark);color:#FFFFFF;border:none;border-radius:15px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+          <button onclick="driverCompleteHaulTrip('${activeTrip.id}','${activeTrip.fare || 1450}')" class="r-btn" style="width:100%;height:52px;background:var(--r-dark);color:#FFFFFF;border:none;border-radius:15px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--r-yellow)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Mark as Delivered
+            Mark Haul Completed & Collect ₹${activeTrip.fare || '1,450'}
           </button>
         </div>
       </div>
       ` : `
-      <!-- ── HAUL REQUEST BOTTOM SHEET (Rapido-style slide-up) ── -->
-      <div id="gh-request-sheet" class="r-sheet" style="position:absolute;bottom:65px;left:0;right:0;background:#FFFFFF;border-radius:22px 22px 0 0;padding:0 0 20px;box-shadow:0 -8px 32px rgba(0,0,0,0.15);z-index:20;">
-        <div style="width:36px;height:4px;background:#E5E7EB;border-radius:10px;margin:12px auto 0;"></div>
-
-        <!-- Request incoming -->
-        <div style="padding:14px 18px 0;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <div style="font-size:11px;font-weight:800;color:#6B7280;text-transform:uppercase;letter-spacing:0.8px;">New Haul Request</div>
-            <!-- Countdown timer ring -->
-            <div style="position:relative;width:38px;height:38px;">
-              <svg width="38" height="38" viewBox="0 0 38 38" style="transform:rotate(-90deg);">
-                <circle cx="19" cy="19" r="16" fill="none" stroke="#F3F4F6" stroke-width="3"/>
-                <circle cx="19" cy="19" r="16" fill="none" stroke="var(--r-yellow)" stroke-width="3" stroke-dasharray="100" stroke-dashoffset="25" style="animation:rapido-spin 15s linear forwards;"/>
-              </svg>
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--r-dark);">15s</div>
-            </div>
+      <!-- ── REALTIME DRIVER STANDBY SHEET (NO FAKE RIDE POPUP) ── -->
+      <div class="r-sheet" style="position:absolute;bottom:65px;left:0;right:0;background:#FFFFFF;border-radius:22px 22px 0 0;padding:18px 18px 22px;box-shadow:0 -8px 32px rgba(0,0,0,0.14);z-index:20;text-align:center;">
+        <div style="width:36px;height:4px;background:#E5E7EB;border-radius:10px;margin:0 auto 14px;"></div>
+        ${isOnline ? `
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#16A34A;display:inline-block;animation:pulseDot 1.2s infinite;"></span>
+            <span style="font-size:13.5px;font-weight:900;color:#15803D;text-transform:uppercase;letter-spacing:0.5px;">Driver Duty Online</span>
           </div>
-
-          <!-- ETA + Fare Hero Row -->
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;">
-            <div>
-              <div style="font-size:30px;font-weight:900;color:var(--r-dark);letter-spacing:-0.8px;line-height:1.1;">5 min · 5.8 km</div>
-              <div style="font-size:12px;color:#6B7280;font-weight:600;margin-top:3px;">to Farmer Pickup</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:26px;font-weight:900;color:var(--r-dark);letter-spacing:-0.6px;">₹4,200</div>
-              <div style="background:var(--r-yellow);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:900;color:var(--r-dark);margin-top:3px;display:inline-block;">×2.4 SURGE</div>
-            </div>
+          <div style="font-size:12px;color:#64748B;font-weight:600;margin-bottom:12px;">
+            Waiting for real farmer haul bookings in Warangal & surrounding APMCs...
           </div>
-
-          <!-- Route -->
-          <div style="background:#F9FAFB;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
-            <div style="display:flex;gap:10px;align-items:stretch;">
-              <div style="display:flex;flex-direction:column;align-items:center;padding-top:2px;flex-shrink:0;width:16px;">
-                <div style="width:10px;height:10px;border-radius:50%;background:#22C55E;"></div>
-                <div style="width:1.5px;height:26px;background:linear-gradient(#22C55E,#EF4444);margin:3px 0;"></div>
-                <div style="width:10px;height:10px;border-radius:50%;background:#EF4444;"></div>
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="margin-bottom:10px;">
-                  <div style="font-size:10px;color:#9CA3AF;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Farmer Pickup (GPS)</div>
-                  <div style="font-size:13px;font-weight:800;color:var(--r-dark);">K. Anjaiah Farm, Hasanparthy</div>
-                  <div style="font-size:11px;color:#9CA3AF;">5.8 km · ~12 min drive</div>
-                </div>
-                <div>
-                  <div style="font-size:10px;color:#9CA3AF;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Drop APMC Mandi</div>
-                  <div style="font-size:13px;font-weight:800;color:var(--r-dark);">Khammam Spices APMC Mandi</div>
-                  <div style="font-size:11px;color:#9CA3AF;">Gate 1 · 28 km total</div>
-                </div>
-              </div>
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;margin-top:8px;border-top:1px solid #F0F0F0;">
-              <span style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;color:#92400E;">🌶️ Teja Chilli · 2.5 Ton</span>
-              <span style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;color:#166534;">⚡ No Commission</span>
-              <span style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:800;color:#1E40AF;">👤 Anjaiah</span>
-            </div>
+          <div style="background:#F8FAF8;border:1px solid #E2ECE2;border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:#0F172A;font-weight:800;">
+            <span>📍 Vehicle Telematics: ${vehiclePlate}</span>
+            <span style="color:#16A34A;">● GPS Live</span>
           </div>
-
-          <!-- Accept / Decline -->
-          <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;">
-            <button onclick="declineHaulRequest('GH-8824')" class="r-btn" style="height:54px;width:56px;background:#F3F4F6;border:1.5px solid #E5E7EB;border-radius:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-            <button onclick="driverAcceptHaulRequest('GH-8824','4200')" class="r-accept-btn">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--r-dark)" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Accept Haul · ₹4,200
-            </button>
-          </div>
-        </div>
-      </div>
-
-      
-          </div>
-        </button>
+        ` : `
+          <div style="font-size:14px;font-weight:900;color:#475569;margin-bottom:4px;">⚪ You are Currently Offline</div>
+          <div style="font-size:12px;color:#94A3B8;margin-bottom:10px;">Turn on "Go Online" above to receive real-time farmer dispatch orders.</div>
+        `}
       </div>
       `}
     </div>`;
@@ -11725,12 +11670,12 @@ const APP_VIEWS = {
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div>
             <div style="font-size:11px;color:#9CA3AF;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">30 Mar – 5 Apr 2025</div>
-            <div style="font-size:38px;font-weight:900;color:var(--r-dark);letter-spacing:-1.5px;line-height:1;">₹60,665</div>
+            <div style="font-size:38px;font-weight:900;color:var(--r-dark);letter-spacing:-1.5px;line-height:1;">₹${getDriverRealtimeEarnings().total}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;text-align:right;">
             <div style="background:#F0FDF4;border-radius:10px;padding:6px 12px;">
               <div style="font-size:10px;color:#9CA3AF;font-weight:700;">Redeemable</div>
-              <div style="font-size:16px;font-weight:900;color:#16A34A;">₹8,625</div>
+              <div style="font-size:16px;font-weight:900;color:#16A34A;">₹${getDriverRealtimeEarnings().today}</div>
             </div>
           </div>
         </div>
@@ -11749,7 +11694,7 @@ const APP_VIEWS = {
         <!-- Stats -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding-top:14px;margin-top:14px;border-top:1px solid #F3F4F6;">
           <div style="text-align:center;padding:4px 0;">
-            <div style="font-size:20px;font-weight:900;color:var(--r-dark);">71</div>
+            <div style="font-size:20px;font-weight:900;color:var(--r-dark);">${getDriverRealtimeEarnings().count}</div>
             <div style="font-size:10px;color:#9CA3AF;font-weight:700;">Hauls</div>
           </div>
           <div style="text-align:center;padding:4px 0;border-left:1px solid #F3F4F6;border-right:1px solid #F3F4F6;">
@@ -12397,6 +12342,21 @@ function openDriverVehicleDocsModal() {
     </div>
   `;
   document.body.appendChild(modal);
+}
+
+
+function getDriverRealtimeEarnings() {
+  try {
+    const list = JSON.parse(localStorage.getItem('gh_driver_completed_trips') || '[]');
+    const total = list.reduce((sum, item) => sum + (parseFloat(item.fare) || 0), 0);
+    return {
+      count: list.length,
+      total: total.toLocaleString('en-IN'),
+      today: total.toLocaleString('en-IN')
+    };
+  } catch(e) {
+    return { count: 0, total: '0', today: '0' };
+  }
 }
 
 /* ═════════════════ CONTROLLER LOGIC ═════════════════ */
