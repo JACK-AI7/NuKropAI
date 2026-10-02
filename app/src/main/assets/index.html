@@ -6972,7 +6972,7 @@ function renderSplashScreen(container) {
   splashProgress = 0;
 
   container.innerHTML = `
-    <div id="splash-viewport" onclick="advanceSlide('slide_disease')" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-sizing:border-box;padding:48px 24px 36px;background:radial-gradient(circle at 50% 30%, #F0FDF4 0%, #FFFFFF 55%, #F8FAF8 100%);position:relative;overflow:hidden;transition:all 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
+    <div id="splash-viewport" onclick="advanceSlide('language')" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-sizing:border-box;padding:48px 24px 36px;background:radial-gradient(circle at 50% 30%, #F0FDF4 0%, #FFFFFF 55%, #F8FAF8 100%);position:relative;overflow:hidden;transition:all 0.5s cubic-bezier(0.4, 0, 0.2, 1);">
       
       <!-- Tier-1 Ambient Radiant Aura Lights -->
       <div style="position:absolute;top:32%;left:50%;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle, rgba(74,222,128,0.22) 0%, rgba(16,185,129,0.12) 40%, rgba(255,255,255,0) 70%);transform:translate(-50%, -50%);animation:splashAuraPulse 4s ease-in-out infinite;pointer-events:none;filter:blur(24px);"></div>
@@ -8612,8 +8612,7 @@ function selectPlantixLang(code) {
   renderPlantixFlow();
 }
 
-function acceptLanguageAndContinue() {
-  plantixFlowState.currentScreen = 'login';
+function acceptLanguageAndContinue() { plantixFlowState.currentScreen = 'slide_disease';
   renderPlantixFlow();
 }
 
@@ -8770,14 +8769,16 @@ function renderCameraPermissionScreen(container) {
 
 function triggerRealCameraPermission() {
   plantixFlowState.cameraAllowed = true;
-  try {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => stream.getTracks().forEach(t => t.stop()))
-        .catch(e => console.warn("Camera OS prompt:", e));
-    }
-  } catch(e) {
-    console.warn("Camera OS prompt:", e);
+  if (window.AndroidBridge && typeof AndroidBridge.requestCameraPermission === 'function') {
+    AndroidBridge.requestCameraPermission();
+  } else {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => stream.getTracks().forEach(t => t.stop()))
+          .catch(e => console.warn("Camera OS prompt:", e));
+      }
+    } catch(e) {}
   }
   grantCameraAndContinue();
 }
@@ -8854,16 +8855,12 @@ function renderLocationPermissionScreen(container) {
 
 function triggerRealLocationPermission() {
   plantixFlowState.locationAllowed = true;
-  try {
-    if (navigator.geolocation && navigator.geolocation.getCurrentPosition) {
-      navigator.geolocation.getCurrentPosition(
-        pos => console.log("Location granted:", pos.coords.latitude, pos.coords.longitude),
-        err => console.warn("Location error:", err),
-        { timeout: 3000, maximumAge: 0 }
-      );
+  if (window.AndroidBridge && typeof AndroidBridge.requestLocationPermission === 'function') {
+    AndroidBridge.requestLocationPermission();
+  } else {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(() => {}, () => {});
     }
-  } catch(e) {
-    console.warn("Location OS prompt:", e);
   }
   grantLocationAndContinue();
 }
@@ -8940,12 +8937,14 @@ function renderNotificationPermissionScreen(container) {
 
 function triggerRealNotificationPermission() {
   plantixFlowState.notificationsAllowed = true;
-  try {
-    if (typeof Notification !== 'undefined' && Notification.requestPermission) {
-      Notification.requestPermission().catch(e => console.warn("Notif prompt:", e));
-    }
-  } catch(e) {
-    console.warn("Notification OS prompt:", e);
+  if (window.AndroidBridge && typeof AndroidBridge.requestNotificationPermission === 'function') {
+    AndroidBridge.requestNotificationPermission();
+  } else {
+    try {
+      if (typeof Notification !== 'undefined' && Notification.requestPermission) {
+        Notification.requestPermission().catch(e => console.warn("Notif prompt:", e));
+      }
+    } catch(e) {}
   }
   grantNotificationAndContinue();
 }
@@ -11770,10 +11769,7 @@ const APP_VIEWS = {
             <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">${vehicleType}</div>
             <div style="font-size:12px;color:#9CA3AF;">${vehiclePlate}</div>
           </div>
-          <button onclick="switchUserRole('farmer')" class="r-btn" style="background:rgba(255,202,32,0.12);border:1px solid rgba(255,202,32,0.3);border-radius:12px;padding:8px 12px;color:var(--r-yellow);font-size:11px;font-weight:800;cursor:pointer;text-align:center;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:block;margin:0 auto 3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Farmer View
-          </button>
+          
         </div>
         <!-- Rating row -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
@@ -11793,7 +11789,7 @@ const APP_VIEWS = {
             ['M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2','Haul History','All past trips & receipts'],
             ['M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z','Insurance & FASTag','TS 03 UB 4491 · Active till Dec 2025'],
             ['M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 0-2-2z|M9 22V12h6v10','Vehicle Documents','RC, Permit, Fitness, PUC'],
-            ['M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2|M23 21v-2a4 4 0 0 0-3-3.87|M16 3.13a4 4 0 0 1 0 7.75','Refer & Earn','₹500 per driver referred'],
+            ['M3 3v18h18|M18 17V9|M13 17V5|M8 17v-3','Settings','App preferences'],
             ['M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-5 0a4 4 0 1 1-8 0 4 4 0 0 1 8 0z','Help & Support','24/7 driver helpline'],
           ].map(([d,label,sub],i)=>`
             <button class="r-btn" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px 18px;background:none;border:none;border-bottom:${i<4?'1px solid #F9FAFB':'none'};cursor:pointer;text-align:left;">
@@ -11909,10 +11905,7 @@ const APP_VIEWS = {
             <div style="font-size:12px;color:#A7F3D0;margin-top:2px;">ID: ${farmerProfile.farmerId}</div>
             <div style="font-size:12px;color:#A7F3D0;">📍 ${curVillage}</div>
           </div>
-          <button onclick="switchUserRole('driver')" class="r-btn" style="background:rgba(134,239,172,0.12);border:1px solid rgba(134,239,172,0.3);border-radius:12px;padding:8px 12px;color:#86EFAC;font-size:11px;font-weight:800;cursor:pointer;text-align:center;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:block;margin:0 auto 3px;"><path d="M5 17h14v-2H5v2zm0-4h14v-2H5v2zm0-4h14V7H5v2z"/><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
-            Driver View
-          </button>
+          
         </div>
         <!-- Rating row -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
@@ -11932,7 +11925,7 @@ const APP_VIEWS = {
             ['M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2','AgriStack Identity','TS-WGL-8941 · Verified'],
             ['M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z','KCC Loan Status','Sanctioned: ₹1.25L'],
             ['M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 0-2-2z|M9 22V12h6v10','Farm Documents','RoR, Pattadar Passbook'],
-            ['M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2|M23 21v-2a4 4 0 0 0-3-3.87|M16 3.13a4 4 0 0 1 0 7.75','Refer & Earn','₹500 per farmer referred'],
+            ['M3 3v18h18|M18 17V9|M13 17V5|M8 17v-3','Settings','App preferences'],
             ['M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-5 0a4 4 0 1 1-8 0 4 4 0 0 1 8 0z','Help & Support','24/7 agriculture helpline'],
           ].map(([d,label,sub],i)=>`
             <button class="r-btn" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px 18px;background:none;border:none;border-bottom:${i<4?'1px solid #F3F4F6':'none'};cursor:pointer;text-align:left;">
@@ -11949,6 +11942,12 @@ const APP_VIEWS = {
             </button>
           `).join('')}
         </div>
+      </div>
+      <div style="padding:0 16px 20px;">
+        <button onclick="localStorage.removeItem('nukrop_user_role'); window.location.reload();" style="width:100%;padding:14px;border-radius:14px;background:#FEF2F2;color:#DC2626;font-size:14px;font-weight:900;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(220,38,38,0.2);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          Log Out
+        </button>
       </div>
     </div>
     `;
