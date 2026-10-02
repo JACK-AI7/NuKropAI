@@ -8347,13 +8347,11 @@ function renderPlantixFlow() {
 
     case 'slide_disease':
       renderCarouselSlide(overlay, {
-        svg: `
-    <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-      <img src="images/onboard_crop_doctor.jpg" alt="AI Crop Doctor" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
-    </div>
-  `,
-        title: OB_TL('slide_disease_title'),
-        sub: OB_TL('slide_disease_sub'),
+        image: 'images/onboard_crop_doctor.jpg',
+        topBadge: '🌿 NuKropAI OS',
+        categoryBadge: '🌱 AI CROP DOCTOR',
+        title: 'Instant AI Leaf Diagnostics',
+        sub: 'Scan crop leaves in milliseconds to identify pests, fungal blights, and nutrient deficiencies with expert AI treatment prescriptions.',
         activeDot: 0,
         totalDots: 6,
         nextScreen: 'slide_tips',
@@ -8363,13 +8361,11 @@ function renderPlantixFlow() {
 
     case 'slide_tips':
       renderCarouselSlide(overlay, {
-        svg: `
-    <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-      <img src="images/onboard_ai_voice_weather.jpg" alt="AI Voice & Weather" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
-    </div>
-  `,
-        title: OB_TL('slide_tips_title'),
-        sub: OB_TL('slide_tips_sub'),
+        image: 'images/onboard_ai_voice_weather.jpg',
+        topBadge: '🌿 NuKropAI OS',
+        categoryBadge: '🎙️ AI VOICE & MICRO-CLIMATE',
+        title: 'Voice Farming & Hyper-Local Weather',
+        sub: 'Speak in your native dialect to get real-time sowing, spray advisory, rainfall forecasts, and 7-day weather predictions.',
         activeDot: 1,
         totalDots: 6,
         nextScreen: 'slide_mandi',
@@ -8379,13 +8375,11 @@ function renderPlantixFlow() {
 
     case 'slide_mandi':
       renderCarouselSlide(overlay, {
-        svg: `
-    <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-      <img src="images/onboard_mandi_prices.jpg" alt="Live Mandi Rates" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
-    </div>
-  `,
-        title: OB_TL('slide_mandi_title'),
-        sub: OB_TL('slide_mandi_sub'),
+        image: 'images/onboard_mandi_prices.jpg',
+        topBadge: '🌿 NuKropAI OS',
+        categoryBadge: '📊 MANDI MARKET INTELLIGENCE',
+        title: 'Live Mandi Rates & Price Forecasts',
+        sub: 'Real-time APMC commodity rates, arrivals, and price-trend forecasting to sell your produce at peak profit.',
         activeDot: 2,
         totalDots: 6,
         nextScreen: 'slide_deals',
@@ -8395,13 +8389,11 @@ function renderPlantixFlow() {
 
     case 'slide_deals':
       renderCarouselSlide(overlay, {
-        svg: `
-    <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-      <img src="images/onboard_community_machinery.jpg" alt="Machinery Rentals & Community" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
-    </div>
-  `,
-        title: OB_TL('slide_deals_title'),
-        sub: OB_TL('slide_deals_sub'),
+        image: 'images/onboard_community_machinery.jpg',
+        topBadge: '🌿 NuKropAI OS',
+        categoryBadge: '🚜 FARM IMPLEMENTS & COMMUNITY',
+        title: 'Tractor & Harvester Sharing',
+        sub: 'Rent high-efficiency farm machinery nearby and connect with thousands of local farmers for collaborative farming.',
         activeDot: 3,
         totalDots: 6,
         nextScreen: 'slide_haul',
@@ -8411,13 +8403,11 @@ function renderPlantixFlow() {
 
     case 'slide_haul':
       renderCarouselSlide(overlay, {
-        svg: `
-    <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-      <img src="images/onboard_farm_logistics.jpg" alt="GramHaul Farm Logistics" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
-    </div>
-  `,
-        title: OB_TL('slide_haul_title'),
-        sub: OB_TL('slide_haul_sub'),
+        image: 'images/onboard_farm_logistics.jpg',
+        topBadge: '🌿 NuKropAI OS',
+        categoryBadge: '🚚 GRAMHAUL LOGISTICS NETWORK',
+        title: 'Smart Freight & Crop Pooling',
+        sub: 'Shared transport trucks and GPS-tracked routes from farm gate to mandi at up to 40% lower transport costs.',
         activeDot: 4,
         totalDots: 6,
         nextScreen: 'slide_agristack',
@@ -8427,30 +8417,28 @@ function renderPlantixFlow() {
 
     case 'slide_agristack':
       renderCarouselSlide(overlay, {
-        svg: `
-    <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-      <img src="images/onboard_agristack_tech.jpg" alt="AgriStack Digital Passport" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
-    </div>
-  `,
-        title: OB_TL('slide_agristack_title'),
-        sub: OB_TL('slide_agristack_sub'),
+        image: 'images/onboard_agristack_tech.jpg',
+        topBadge: '🌿 NuKropAI OS',
+        categoryBadge: '🏛️ AGRISTACK DIGITAL PASSPORT',
+        title: 'Cadastral RoR & Instant KCC Loans',
+        sub: 'Official digital land parcels, soil health cards, and instant pre-approved Kisan Credit Card loans directly in your wallet.',
         activeDot: 5,
         totalDots: 6,
-        nextScreen: 'perm_location',
+        nextScreen: 'perm_camera',
         prevScreen: 'slide_haul'
       });
       break;
 
-    case 'perm_notifications':
-      renderNotificationPermissionScreen(overlay);
+    case 'perm_camera':
+      renderCameraPermissionScreen(overlay);
       break;
 
     case 'perm_location':
       renderLocationPermissionScreen(overlay);
       break;
 
-    case 'perm_camera':
-      renderCameraPermissionScreen(overlay);
+    case 'perm_notifications':
+      renderNotificationPermissionScreen(overlay);
       break;
 
     case 'crops':
@@ -8532,7 +8520,7 @@ function acceptLanguageAndContinue() {
 
 
 function skipToPermissions() {
-  advanceSlide('perm_location');
+  advanceSlide('perm_camera');
 }
 
 function advanceSlide(screen) {
@@ -8556,80 +8544,229 @@ function renderCarouselSlide(container, config) {
 
   let dotsHtml = '';
   for (let i = 0; i < config.totalDots; i++) {
-    const isActive = i === config.activeDot;
-    dotsHtml += `<div onclick="advanceSlide('${slideScreens[i]}')" style="width:7px;height:7px;border-radius:50%;background:${isActive ? '#0052CC' : '#CBD5E1'};cursor:pointer;transition:all 0.2s ease;"></div>`;
+    if (i === config.activeDot) {
+      dotsHtml += `<div style="width:28px;height:6px;border-radius:999px;background:#16A34A;transition:all 0.3s ease;"></div>`;
+    } else {
+      dotsHtml += `<div onclick="advanceSlide('${slideScreens[i]}')" style="width:6px;height:6px;border-radius:50%;background:#E2E8F0;cursor:pointer;transition:all 0.3s ease;"></div>`;
+    }
   }
 
-  const isFirstSlide = config.activeDot === 0;
+  const bgImage = config.image || 'images/onboard_crop_doctor.jpg';
 
   container.innerHTML = `
-    <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;padding:24px;position:relative;">
+    <div style="width:100%;height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
       
-      <!-- Top Discrete Skip Link (Available anytime on all slides) -->
-      <div style="position:absolute;top:20px;right:20px;z-index:10;">
-        <button onclick="skipToPermissions()" style="background:none;border:none;font-size:13px;font-weight:700;color:#64748B;cursor:pointer;padding:4px 8px;">
-          ${OB_TL('skip')}
+      <!-- Fullscreen High-Resolution Background Image -->
+      <div style="position:absolute;inset:0;background-image:url('${bgImage}');background-size:cover;background-position:center;z-index:1;"></div>
+      
+      <!-- Subtle Ambient Gradient Overlay -->
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
+
+      <!-- Top Navigation Bar -->
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
+        <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
+          ${config.topBadge || '🌿 NuKropAI OS'}
+        </div>
+        <button onclick="skipToPermissions()" style="background:#FFFFFF;color:#16A34A;border:none;padding:7px 20px;border-radius:999px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.18);transition:transform 0.15s ease;">
+          Skip
         </button>
       </div>
 
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-        ${config.svg}
-        <div style="font-size:22px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;margin-bottom:8px;max-width:270px;line-height:1.3;">
+      <!-- Bottom Sheet Card -->
+      <div style="position:relative;z-index:10;background:#FFFFFF;border-radius:36px 36px 0 0;padding:28px 24px 28px;box-shadow:0 -12px 40px rgba(0,0,0,0.22);box-sizing:border-box;">
+        
+        <!-- Category Pill Badge -->
+        <div style="display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;color:#15803D;padding:6px 14px;border-radius:999px;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:12px;">
+          ${config.categoryBadge || '🌱 CROP INTELLIGENCE'}
+        </div>
+
+        <!-- Title -->
+        <div style="font-size:24px;font-weight:900;color:#0F172A;line-height:1.25;letter-spacing:-0.4px;margin-bottom:8px;">
           ${config.title}
         </div>
-        <div style="font-size:13px;color:#64748B;font-weight:600;max-width:270px;line-height:1.45;margin-bottom:24px;">
+
+        <!-- Subtitle -->
+        <div style="font-size:13.5px;color:#64748B;font-weight:500;line-height:1.48;margin-bottom:24px;">
           ${config.sub || ''}
         </div>
-        <div style="display:flex;gap:7px;align-items:center;justify-content:center;">
-          ${dotsHtml}
-        </div>
-      </div>
 
-      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;z-index:10;">
-        ${isFirstSlide ? `
-          <button onclick="skipToPermissions()" style="background:none;border:none;font-size:14px;font-weight:800;color:#64748B;cursor:pointer;padding:8px 12px;">
-            ${OB_TL('skip')}
+        <!-- Bottom Row: Dots + Green Circle Arrow -->
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <!-- Dots Indicator -->
+          <div style="display:flex;align-items:center;gap:6px;">
+            ${dotsHtml}
+          </div>
+
+          <!-- Circular Green Action Button -->
+          <button onclick="advanceSlide('${config.nextScreen}')" style="width:56px;height:56px;border-radius:50%;background:#16A34A;display:flex;align-items:center;justify-content:center;color:#FFFFFF;border:none;box-shadow:0 8px 24px rgba(22,163,74,0.38);cursor:pointer;transition:transform 0.15s ease;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
           </button>
-        ` : `
-          <button onclick="advanceSlide('${config.prevScreen}')" style="background:none;border:none;font-size:14px;font-weight:800;color:#0052CC;cursor:pointer;padding:8px 12px;display:flex;align-items:center;gap:4px;border-radius:20px;transition:background 0.15s ease;">
-            <span style="font-size:16px;">←</span> <span>${OB_TL('previous')}</span>
-          </button>
-        `}
-        <button onclick="advanceSlide('${config.nextScreen}')" style="background:#0052CC;color:#FFFFFF;border:none;border-radius:24px;padding:12px 32px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,82,204,0.3);transition:all 0.15s ease;">
-          ${OB_TL('next')}
-        </button>
+        </div>
       </div>
     </div>
   `;
 }
 
+// ─── 3 PERMISSIONS FLOW (CAMERA ➔ GPS ➔ NOTIFICATIONS) ─────────────────
+function renderCameraPermissionScreen(container) {
+  NuKropAnalytics.track('onboarding_camera_permission');
+
+  const dotsHtml = `
+    <div style="width:24px;height:5px;border-radius:999px;background:#16A34A;"></div>
+    <div style="width:5px;height:5px;border-radius:50%;background:#E2E8F0;"></div>
+    <div style="width:5px;height:5px;border-radius:50%;background:#E2E8F0;"></div>
+  `;
+
+  container.innerHTML = `
+    <div style="width:100%;height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+      
+      <!-- Fullscreen Background Image -->
+      <div style="position:absolute;inset:0;background-image:url('images/perm_camera_scan.jpg');background-size:cover;background-position:center;z-index:1;"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
+
+      <!-- Top Bar -->
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
+        <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
+          🔒 Permissions (1/3)
+        </div>
+        <button onclick="skipCameraPermission()" style="background:#FFFFFF;color:#16A34A;border:none;padding:7px 20px;border-radius:999px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.18);">
+          Skip
+        </button>
+      </div>
+
+      <!-- Bottom Sheet Card -->
+      <div style="position:relative;z-index:10;background:#FFFFFF;border-radius:36px 36px 0 0;padding:28px 24px 24px;box-shadow:0 -12px 40px rgba(0,0,0,0.22);box-sizing:border-box;">
+        
+        <!-- Category Pill -->
+        <div style="display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;color:#15803D;padding:6px 14px;border-radius:999px;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:12px;">
+          📷 SMART SCANNER (1/3)
+        </div>
+
+        <!-- Title -->
+        <div style="font-size:24px;font-weight:900;color:#0F172A;line-height:1.25;letter-spacing:-0.4px;margin-bottom:8px;">
+          Camera Access & Crop Scanner
+        </div>
+
+        <!-- Subtitle -->
+        <div style="font-size:13.5px;color:#64748B;font-weight:500;line-height:1.5;margin-bottom:24px;">
+          Allow camera access to instantly snap crop leaves, identify pest infestations, fungal blights, and receive precision dosage recommendations.
+        </div>
+
+        <!-- Full Width Green Button -->
+        <button onclick="triggerRealCameraPermission()" style="width:100%;padding:16px;border-radius:16px;background:#16A34A;color:#FFFFFF;font-size:16px;font-weight:800;border:none;box-shadow:0 8px 24px rgba(22,163,74,0.32);cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
+          Allow Camera Access →
+        </button>
+
+        <!-- Dots Indicator -->
+        <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;">
+          ${dotsHtml}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function triggerRealCameraPermission() {
+  plantixFlowState.cameraAllowed = true;
+  try {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => stream.getTracks().forEach(t => t.stop()))
+        .catch(e => console.warn("Camera OS prompt:", e));
+    }
+  } catch(e) {
+    console.warn("Camera OS prompt:", e);
+  }
+  grantCameraAndContinue();
+}
+
+function grantCameraAndContinue() {
+  plantixFlowState.cameraAllowed = true;
+  plantixFlowState.currentScreen = 'perm_location';
+  renderPlantixFlow();
+}
+
+function skipCameraPermission() {
+  plantixFlowState.cameraAllowed = false;
+  plantixFlowState.currentScreen = 'perm_location';
+  renderPlantixFlow();
+}
 
 function renderLocationPermissionScreen(container) {
   NuKropAnalytics.track('onboarding_location_permission');
 
+  const dotsHtml = `
+    <div style="width:5px;height:5px;border-radius:50%;background:#E2E8F0;"></div>
+    <div style="width:24px;height:5px;border-radius:999px;background:#16A34A;"></div>
+    <div style="width:5px;height:5px;border-radius:50%;background:#E2E8F0;"></div>
+  `;
+
   container.innerHTML = `
-    <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;padding:24px;">
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-        <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-          <img src="images/perm_location_gps.jpg" alt="Location Access" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
+    <div style="width:100%;height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+      
+      <!-- Fullscreen Background Image -->
+      <div style="position:absolute;inset:0;background-image:url('images/perm_location_gps.jpg');background-size:cover;background-position:center;z-index:1;"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
+
+      <!-- Top Bar -->
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
+        <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
+          🔒 Permissions (2/3)
         </div>
-        <div style="font-size:22px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;margin-bottom:8px;max-width:280px;line-height:1.3;">
-          ${OB_TL('perm_location_title')}
-        </div>
-        <div style="font-size:14px;color:#64748B;font-weight:600;max-width:280px;line-height:1.5;">
-          ${OB_TL('perm_location_sub')}
-        </div>
+        <button onclick="skipLocationPermission()" style="background:#FFFFFF;color:#16A34A;border:none;padding:7px 20px;border-radius:999px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.18);">
+          Skip
+        </button>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;">
-        <button onclick="skipLocationPermission()" style="background:none;border:none;font-size:14px;font-weight:800;color:#64748B;cursor:pointer;padding:8px 12px;">
-          ${OB_TL('skip')}
+
+      <!-- Bottom Sheet Card -->
+      <div style="position:relative;z-index:10;background:#FFFFFF;border-radius:36px 36px 0 0;padding:28px 24px 24px;box-shadow:0 -12px 40px rgba(0,0,0,0.22);box-sizing:border-box;">
+        
+        <!-- Category Pill -->
+        <div style="display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;color:#15803D;padding:6px 14px;border-radius:999px;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:12px;">
+          📍 GPS TELEMETRY (2/3)
+        </div>
+
+        <!-- Title -->
+        <div style="font-size:24px;font-weight:900;color:#0F172A;line-height:1.25;letter-spacing:-0.4px;margin-bottom:8px;">
+          GPS Location & Mandi Radar
+        </div>
+
+        <!-- Subtitle -->
+        <div style="font-size:13.5px;color:#64748B;font-weight:500;line-height:1.5;margin-bottom:24px;">
+          Allow precise location to detect your nearest APMC mandi commodity prices, hyper-local farm weather forecasts, and GramHaul transport trucks.
+        </div>
+
+        <!-- Full Width Green Button -->
+        <button onclick="triggerRealLocationPermission()" style="width:100%;padding:16px;border-radius:16px;background:#16A34A;color:#FFFFFF;font-size:16px;font-weight:800;border:none;box-shadow:0 8px 24px rgba(22,163,74,0.32);cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
+          Allow GPS Location →
         </button>
-        <button onclick="grantLocationAndContinue()" style="background:#0052CC;color:#FFFFFF;border:none;border-radius:24px;padding:12px 32px;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,82,204,0.3);">
-          ${OB_TL('allow')}
-        </button>
+
+        <!-- Dots Indicator -->
+        <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;">
+          ${dotsHtml}
+        </div>
       </div>
     </div>
   `;
+}
+
+function triggerRealLocationPermission() {
+  plantixFlowState.locationAllowed = true;
+  try {
+    if (navigator.geolocation && navigator.geolocation.getCurrentPosition) {
+      navigator.geolocation.getCurrentPosition(
+        pos => console.log("Location granted:", pos.coords.latitude, pos.coords.longitude),
+        err => console.warn("Location error:", err),
+        { timeout: 3000, maximumAge: 0 }
+      );
+    }
+  } catch(e) {
+    console.warn("Location OS prompt:", e);
+  }
+  grantLocationAndContinue();
 }
 
 function grantLocationAndContinue() {
@@ -8644,84 +8781,84 @@ function skipLocationPermission() {
   renderPlantixFlow();
 }
 
-
-
 function renderNotificationPermissionScreen(container) {
   NuKropAnalytics.track('onboarding_notifications_permission');
 
+  const dotsHtml = `
+    <div style="width:5px;height:5px;border-radius:50%;background:#E2E8F0;"></div>
+    <div style="width:5px;height:5px;border-radius:50%;background:#E2E8F0;"></div>
+    <div style="width:24px;height:5px;border-radius:999px;background:#16A34A;"></div>
+  `;
+
   container.innerHTML = `
-    <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;padding:24px;">
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-        <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-          <img src="images/perm_notification_bell.jpg" alt="Notifications" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
+    <div style="width:100%;height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+      
+      <!-- Fullscreen Background Image -->
+      <div style="position:absolute;inset:0;background-image:url('images/perm_notification_bell.jpg');background-size:cover;background-position:center;z-index:1;"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
+
+      <!-- Top Bar -->
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
+        <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
+          🔒 Permissions (3/3)
         </div>
-        <div style="font-size:22px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;margin-bottom:8px;max-width:280px;line-height:1.3;">
-          ${OB_TL('perm_notif_title')}
-        </div>
-        <div style="font-size:14px;color:#64748B;font-weight:600;max-width:280px;line-height:1.5;">
-          ${OB_TL('perm_notif_sub')}
-        </div>
+        <button onclick="skipNotificationPermission()" style="background:#FFFFFF;color:#16A34A;border:none;padding:7px 20px;border-radius:999px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.18);">
+          Skip
+        </button>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;">
-        <button onclick="skipNotificationPermission()" style="background:none;border:none;font-size:14px;font-weight:800;color:#64748B;cursor:pointer;padding:8px 12px;">
-          ${OB_TL('skip')}
+
+      <!-- Bottom Sheet Card -->
+      <div style="position:relative;z-index:10;background:#FFFFFF;border-radius:36px 36px 0 0;padding:28px 24px 24px;box-shadow:0 -12px 40px rgba(0,0,0,0.22);box-sizing:border-box;">
+        
+        <!-- Category Pill -->
+        <div style="display:inline-flex;align-items:center;gap:6px;background:#DCFCE7;color:#15803D;padding:6px 14px;border-radius:999px;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:12px;">
+          🔔 REAL-TIME ADVISORY (3/3)
+        </div>
+
+        <!-- Title -->
+        <div style="font-size:24px;font-weight:900;color:#0F172A;line-height:1.25;letter-spacing:-0.4px;margin-bottom:8px;">
+          Instant Weather & Mandi Alerts
+        </div>
+
+        <!-- Subtitle -->
+        <div style="font-size:13.5px;color:#64748B;font-weight:500;line-height:1.5;margin-bottom:24px;">
+          Enable push notifications for sudden unseasonal rainfall radar warnings, pest outbreak alerts, and live transport truck arrival notifications.
+        </div>
+
+        <!-- Full Width Green Button -->
+        <button onclick="triggerRealNotificationPermission()" style="width:100%;padding:16px;border-radius:16px;background:#16A34A;color:#FFFFFF;font-size:16px;font-weight:800;border:none;box-shadow:0 8px 24px rgba(22,163,74,0.32);cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;">
+          Enable Notifications ✓ →
         </button>
-        <button onclick="grantNotificationAndContinue()" style="background:#0052CC;color:#FFFFFF;border:none;border-radius:24px;padding:12px 32px;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,82,204,0.3);">
-          ${OB_TL('allow')}
-        </button>
+
+        <!-- Dots Indicator -->
+        <div style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;">
+          ${dotsHtml}
+        </div>
       </div>
     </div>
   `;
 }
 
+function triggerRealNotificationPermission() {
+  plantixFlowState.notificationsAllowed = true;
+  try {
+    if (typeof Notification !== 'undefined' && Notification.requestPermission) {
+      Notification.requestPermission().catch(e => console.warn("Notif prompt:", e));
+    }
+  } catch(e) {
+    console.warn("Notification OS prompt:", e);
+  }
+  grantNotificationAndContinue();
+}
+
 function grantNotificationAndContinue() {
   plantixFlowState.notificationsAllowed = true;
-  plantixFlowState.currentScreen = 'perm_camera';
+  plantixFlowState.currentScreen = 'crops';
   renderPlantixFlow();
 }
 
 function skipNotificationPermission() {
   plantixFlowState.notificationsAllowed = false;
-  plantixFlowState.currentScreen = 'perm_camera';
-  renderPlantixFlow();
-}
-
-
-function renderCameraPermissionScreen(container) {
-  NuKropAnalytics.track('onboarding_camera_permission');
-
-  container.innerHTML = `
-    <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;padding:24px;">
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-        
-  <div style="position:relative;width:260px;height:210px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-          <img src="images/perm_camera_scan.jpg" alt="Camera Access" style="width:250px;height:185px;object-fit:cover;border-radius:24px;box-shadow:0 10px 25px rgba(0,0,0,0.12);">
-        </div>
-
-        <div style="font-size:22px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;margin-bottom:8px;">
-          ${OB_TL('perm_camera_title')}
-        </div>
-        <div style="font-size:13.5px;color:#475569;font-weight:600;max-width:270px;line-height:1.45;">
-          ${OB_TL('perm_camera_sub')}
-        </div>
-        <div style="margin-top:12px;font-size:11.5px;color:#7C3AED;font-weight:700;background:#F5F3FF;padding:8px 14px;border-radius:12px;border:1px solid #DDD6FE;max-width:270px;line-height:1.4;">
-          ${OB_TL('perm_camera_benefit')}
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;">
-        <button onclick="advanceSlide('crops')" style="background:none;border:none;font-size:14px;font-weight:800;color:#64748B;cursor:pointer;padding:8px 12px;">
-          ${OB_TL('skip')}
-        </button>
-        <button onclick="grantCameraAndContinue()" style="background:#0052CC;color:#FFFFFF;border:none;border-radius:24px;padding:12px 32px;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,82,204,0.3);">
-          ${OB_TL('allow')}
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-function grantCameraAndContinue() {
-  plantixFlowState.cameraAllowed = true;
   plantixFlowState.currentScreen = 'crops';
   renderPlantixFlow();
 }
