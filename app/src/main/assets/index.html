@@ -7218,7 +7218,7 @@ function renderLoginScreen(container) {
   if (authUserRole === 'driver') {
     // 🚚 DRIVER LOGIN
     container.innerHTML = `
-      <div style="width:100%;height:100%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;background:linear-gradient(180deg, #ECFDF5 0%, #F8FAF8 30%, #FFFFFF 100%);color:#0F172A;overflow-y:auto;position:relative;padding:20px 18px;">
+      <div style="width:100%;height:100%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;background:linear-gradient(180deg, #ECFDF5 0%, #F8FAF8 30%, #FFFFFF 100%);color:#0F172A;overflow-y:auto;position:relative;padding:max(48px, env(safe-area-inset-top, 48px)) 18px 24px;">
         
         <!-- Top Branding Section with 4K Green Leaf Emblem -->
         <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:auto;margin-bottom:12px;flex-shrink:0;z-index:2;">
@@ -7337,7 +7337,7 @@ function renderLoginScreen(container) {
   const rememberedPassword = (localStorage.getItem('nukrop_remembered_password') || '').replace(/"/g, '&quot;');
 
   container.innerHTML = `
-    <div style="width:100%;height:100%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;background:linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 35%, #FFFFFF 100%);color:#0F172A;overflow-y:auto;position:relative;padding:20px 18px;">
+    <div style="width:100%;height:100%;min-height:100%;display:flex;flex-direction:column;justify-content:center;box-sizing:border-box;background:linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 35%, #FFFFFF 100%);color:#0F172A;overflow-y:auto;position:relative;padding:max(48px, env(safe-area-inset-top, 48px)) 18px 24px;">
       
       <!-- Top Branding Section -->
       <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:auto;margin-bottom:12px;flex-shrink:0;z-index:2;">
@@ -8584,7 +8584,7 @@ function renderPlantixLanguageScreen(container) {
 
   container.innerHTML = `
     <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;">
-      <div style="padding:24px 20px 10px;text-align:center;flex-shrink:0;">
+      <div style="padding:max(52px, env(safe-area-inset-top, 52px)) 20px 10px;text-align:center;flex-shrink:0;">
         <div style="margin-bottom:8px;">
           ${getNukropLogoImg(38)}
         </div>
@@ -8662,7 +8662,7 @@ function renderCarouselSlide(container, config) {
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.38) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Navigation Bar -->
-      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 0;">
         <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
           ${config.topBadge || '🌿 NuKropAI OS'}
         </div>
@@ -8727,7 +8727,7 @@ function renderCameraPermissionScreen(container) {
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Bar -->
-      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 0;">
         <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
           🔒 Permissions (1/3)
         </div>
@@ -8811,7 +8811,7 @@ function renderLocationPermissionScreen(container) {
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Bar -->
-      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 0;">
         <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
           🔒 Permissions (2/3)
         </div>
@@ -8897,7 +8897,7 @@ function renderNotificationPermissionScreen(container) {
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Bar -->
-      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 20px 0;">
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 0;">
         <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
           🔒 Permissions (3/3)
         </div>
@@ -9003,7 +9003,7 @@ function renderPlantixCropsScreen(container) {
 
   container.innerHTML = `
     <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;">
-      <div style="padding:24px 20px 10px;flex-shrink:0;">
+      <div style="padding:max(52px, env(safe-area-inset-top, 52px)) 20px 10px;flex-shrink:0;">
         <div style="font-size:24px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;">
           ${OB_TL('crops_title')}
         </div>
@@ -9529,7 +9529,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Header -->
-    <div style="background:#F8FAF8;padding:10px 18px 6px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding:max(48px, env(safe-area-inset-top, 48px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="font-size:24px;font-weight:900;color:#1B5E20;letter-spacing:-0.5px;display:flex;align-items:center;gap:6px;">
         <svg width="26" height="26" viewBox="0 0 64 64" fill="none">
           <path d="M54 10C36 10 20 22 14 38C12 43 11 48 10 54C16 53 21 52 26 50C42 44 54 28 54 10Z" fill="#16A34A"/>
@@ -10241,7 +10241,7 @@ const APP_VIEWS = {
       </div>
 
       <!-- Top Header Bar (above map) -->
-      <div style="position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:20;">
+      <div style="position:absolute;top:max(48px, env(safe-area-inset-top, 48px));left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:20;">
         <button onclick="openScreen(authUserRole==='driver'?'driver_dashboard':'home',null);updateBottomDockForRole()" style="background:#FFFFFF;border:none;width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,0.14);cursor:pointer;transition:transform 0.1s;" onmousedown="this.style.transform='scale(0.93)'" onmouseup="this.style.transform='scale(1)'">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
@@ -10255,7 +10255,7 @@ const APP_VIEWS = {
       </div>
 
       <!-- GPS Location Pill (below header) -->
-      <div style="position:absolute;top:70px;left:14px;right:14px;z-index:20;">
+      <div style="position:absolute;top:max(104px, calc(env(safe-area-inset-top, 48px) + 56px));left:14px;right:14px;z-index:20;">
         <div style="background:rgba(255,255,255,0.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:14px;padding:10px 14px;box-shadow:0 3px 14px rgba(0,0,0,0.1);display:flex;align-items:center;gap:10px;">
           <div style="width:8px;height:8px;border-radius:50%;background:#16A34A;flex-shrink:0;box-shadow:0 0 0 3px rgba(22,163,74,0.2);animation:ghPulse 2s infinite;"></div>
           <div style="flex:1;min-width:0;">
@@ -11351,7 +11351,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Header (Pristine Luxury Agrarian Bar with Status Bar Clearance) -->
-    <div style="background:#F8FAF8;padding:10px 18px 8px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;">
+    <div style="background:#F8FAF8;padding:max(48px, env(safe-area-inset-top, 48px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;">
       <div>
         <div style="font-size:18px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;display:flex;align-items:center;gap:6px;">
           <span>👥</span>
@@ -11511,7 +11511,7 @@ const APP_VIEWS = {
       </svg>
 
       <!-- Top map controls strip -->
-      <div style="position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;z-index:10;">
+      <div style="position:absolute;top:max(48px, env(safe-area-inset-top, 48px));left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;z-index:10;">
         <!-- Driver info pill -->
         <div style="background:#FFFFFF;border-radius:14px;padding:10px 14px;box-shadow:0 3px 12px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;">
           <div style="width:36px;height:36px;border-radius:11px;background:var(--r-dark);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--r-yellow);">S</div>
@@ -11721,7 +11721,7 @@ const APP_VIEWS = {
     const earningsTab = `
     <div style="background:var(--r-bg);min-height:100%;padding:16px 16px 20px;">
       <!-- Week earnings hero -->
-      <div class="r-card" style="padding:20px 18px;margin-bottom:14px;">
+      <div class="r-card" style="padding:max(48px, env(safe-area-inset-top, 48px)) 18px 24px;margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div>
             <div style="font-size:11px;color:#9CA3AF;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">30 Mar – 5 Apr 2025</div>
@@ -11817,7 +11817,7 @@ const APP_VIEWS = {
     const profileTab = `
     <div style="background:var(--r-bg);min-height:100%;padding-bottom:20px;">
       <!-- Profile hero -->
-      <div style="background:var(--r-dark);padding:28px 20px 24px;">
+      <div style="background:var(--r-dark);padding:max(48px, env(safe-area-inset-top, 48px)) 20px 24px;">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
           <div style="width:64px;height:64px;border-radius:50%;background:var(--r-yellow);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:var(--r-dark);flex-shrink:0;">S</div>
           <div style="flex:1;">
@@ -11956,7 +11956,7 @@ const APP_VIEWS = {
     return `
     <div style="background:#F3F4F6;min-height:100vh;padding-bottom:90px;">
       <!-- Profile hero -->
-      <div style="background:#064E3B;padding:28px 20px 24px;border-radius:0 0 24px 24px;">
+      <div style="background:#064E3B;padding:max(48px, env(safe-area-inset-top, 48px)) 20px 24px;border-radius:0 0 24px 24px;">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
           <div style="width:64px;height:64px;border-radius:50%;background:#86EFAC;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#064E3B;flex-shrink:0;box-shadow:0 4px 12px rgba(134,239,172,0.3);">R</div>
           <div style="flex:1;">
@@ -12009,6 +12009,395 @@ const APP_VIEWS = {
     `;
   },
 };
+
+
+/* ══════════════════════════════════════════════════════════════════
+   PRODUCTION MODAL SUITE: REAL AGRISTACK, KCC, FASTAG, LEDGER
+   ══════════════════════════════════════════════════════════════════ */
+
+function openAgriStackModal() {
+  const modalId = 'agristack-identity-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  const pName = (typeof farmerProfile !== 'undefined' && farmerProfile.name) ? (farmerProfile.name[currentLang] || farmerProfile.name.en) : 'B. Jaswanth Reddy';
+  const fId = (typeof farmerProfile !== 'undefined') ? farmerProfile.farmerId : 'FR-2026-9874512';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:22px;">🪪</div>
+          <div>
+            <div style="font-size:17px;font-weight:900;color:#0F172A;">AgriStack Passport</div>
+            <div style="font-size:11px;color:#16A34A;font-weight:800;">✓ Digital Bharat Verified</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#064E3B 0%,#0B4628 100%);border-radius:20px;padding:18px;color:#FFFFFF;margin-bottom:16px;box-shadow:0 8px 24px rgba(6,78,59,0.25);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+          <div>
+            <div style="font-size:10.5px;color:#A7F3D0;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Farmer Name</div>
+            <div style="font-size:16px;font-weight:900;letter-spacing:-0.2px;">${pName}</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.15);padding:4px 8px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:0.5px;">TS-WGL-8941</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
+          <div>
+            <div style="font-size:9.5px;color:#A7F3D0;font-weight:600;">Land Holding</div>
+            <div style="font-size:13.5px;font-weight:900;">4.50 Acres (Survey 142/A)</div>
+          </div>
+          <div>
+            <div style="font-size:9.5px;color:#A7F3D0;font-weight:600;">Soil Health Score</div>
+            <div style="font-size:13.5px;font-weight:900;color:#86EFAC;">850 · Grade A+</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:16px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:800;color:#334155;margin-bottom:8px;">Linked Cadastral Registry</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:11.5px;color:#64748B;">
+          <div style="display:flex;justify-content:space-between;"><span>State & District</span><b style="color:#0F172A;">Telangana · Warangal Rural</b></div>
+          <div style="display:flex;justify-content:space-between;"><span>Mandal & Village</span><b style="color:#0F172A;">Geesukonda · Dharmaram</b></div>
+          <div style="display:flex;justify-content:space-between;"><span>Pattadar Passbook</span><b style="color:#0F172A;">TS-99812-PP (Active)</b></div>
+          <div style="display:flex;justify-content:space-between;"><span>Aadhaar Link</span><b style="color:#16A34A;">✓ Verified (eKYC)</b></div>
+        </div>
+      </div>
+
+      <button onclick="alert('Digital AgriStack Land Certificate downloaded successfully.');document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#16A34A;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(22,163,74,0.3);">
+        📥 Download Digital Certificate (PDF)
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function openKccLoanModal() {
+  const modalId = 'kcc-loan-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:22px;">💳</div>
+          <div>
+            <div style="font-size:17px;font-weight:900;color:#0F172A;">Kisan Credit Card (KCC)</div>
+            <div style="font-size:11px;color:#2563EB;font-weight:800;">NABARD Interest Subvention Active</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#1E3A8A 0%,#1E40AF 100%);border-radius:20px;padding:18px;color:#FFFFFF;margin-bottom:16px;box-shadow:0 8px 24px rgba(30,58,138,0.25);">
+        <div style="font-size:11px;color:#BFDBFE;font-weight:700;">Sanctioned Credit Limit</div>
+        <div style="font-size:28px;font-weight:900;letter-spacing:-0.5px;margin:4px 0 12px;">₹1,25,000</div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
+          <div>
+            <div style="font-size:9.5px;color:#BFDBFE;">Available Balance</div>
+            <div style="font-size:14px;font-weight:900;color:#86EFAC;">₹80,000</div>
+          </div>
+          <div>
+            <div style="font-size:9.5px;color:#BFDBFE;">Subsidized Interest</div>
+            <div style="font-size:14px;font-weight:900;">4.0% p.a.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <button onclick="alert('Instant Drawdown of ₹25,000 initiated to your linked Bank account.');document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#2563EB;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.3);">
+          ⚡ Instant Drawdown to Bank
+        </button>
+        <button onclick="alert('Loan Repayment gateway launched.');document.getElementById('${modalId}').remove();" style="width:100%;padding:12px;border-radius:14px;background:#F1F5F9;color:#334155;font-size:13.5px;font-weight:800;border:none;cursor:pointer;">
+          🔄 Repay Outstanding ₹45,000
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function openFarmDocsModal() {
+  const modalId = 'farm-docs-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:22px;">📂</div>
+          <div>
+            <div style="font-size:17px;font-weight:900;color:#0F172A;">Farm Documents</div>
+            <div style="font-size:11px;color:#D97706;font-weight:800;">DigiLocker Synced Records</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        ${[
+          ['📜 Pattadar Passbook','TS-99812-PP · Dharani Telangana','Verified (4.50 Ac)'],
+          ['📑 Record of Rights (RoR 1B)','Survey No. 142/A, Kazipet Mandal','Issued Jan 2025'],
+          ['🧪 Soil Health Test Certificate','ICAR & PJTSAU Soil Lab','Balanced NPK · Grade A+'],
+          ['🌾 PM-Kisan Scheme Registration','Farmer ID: TS-9874512','Active Beneficiary']
+        ].map(([title,sub,status])=>`
+          <div style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#0F172A;">${title}</div>
+              <div style="font-size:11px;color:#64748B;margin-top:2px;">${sub}</div>
+            </div>
+            <div style="background:#DCFCE7;color:#15803D;font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:6px;white-space:nowrap;">${status}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <button onclick="alert('Document bundle downloaded successfully.');document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#0F172A;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;">
+        📥 Download All Documents (ZIP)
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function openReferEarnModal(role) {
+  const modalId = 'refer-earn-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  const code = role === 'driver' ? 'DRV-WGL-4491' : 'NK-FARM-8821';
+  const label = role === 'driver' ? 'Driver Partner' : 'Farmer Community';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;text-align:center;">
+      <div style="width:56px;height:56px;border-radius:50%;background:#FEF3C7;border:2px solid #FDE68A;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px;">🎁</div>
+      
+      <div style="font-size:20px;font-weight:900;color:#0F172A;">Refer & Earn ₹500</div>
+      <div style="font-size:12px;color:#64748B;margin:4px 0 16px;">Invite other ${label}s to NuKropAI and earn ₹500 directly in your wallet on their first scan or haul.</div>
+
+      <div style="background:#F8FAFC;border:2px dashed #CBD5E1;border-radius:16px;padding:14px;margin-bottom:18px;">
+        <div style="font-size:10px;font-weight:800;color:#64748B;text-transform:uppercase;">Your Referral Code</div>
+        <div style="font-size:22px;font-weight:900;color:#16A34A;letter-spacing:1px;margin-top:4px;">${code}</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button onclick="if(navigator.clipboard) navigator.clipboard.writeText('${code}');alert('Referral code copied to clipboard!');document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#16A34A;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(22,163,74,0.3);">
+          📋 Copy Referral Code
+        </button>
+        <button onclick="document.getElementById('${modalId}').remove()" style="width:100%;padding:12px;border-radius:14px;background:#F1F5F9;color:#475569;font-size:13.5px;font-weight:800;border:none;cursor:pointer;">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function openSupportModal(role) {
+  const modalId = 'support-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:22px;">📞</div>
+          <div>
+            <div style="font-size:17px;font-weight:900;color:#0F172A;">24/7 Helpline & Support</div>
+            <div style="font-size:11px;color:#16A34A;font-weight:800;">Toll-Free Govt & Logistics Desk</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        <div onclick="if(window.AndroidBridge && window.AndroidBridge.openDialer) window.AndroidBridge.openDialer('18001801551'); else window.open('tel:18001801551');" style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:16px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:24px;">🎙️</div>
+          <div style="flex:1;">
+            <div style="font-size:13.5px;font-weight:800;color:#0F172A;">Kisan Call Center (1800-180-1551)</div>
+            <div style="font-size:11px;color:#64748B;">Free Agronomist Consultation (22 Languages)</div>
+          </div>
+          <div style="color:#16A34A;font-weight:800;font-size:12px;">Dial 📞</div>
+        </div>
+
+        <div onclick="if(window.AndroidBridge && window.AndroidBridge.openDialer) window.AndroidBridge.openDialer('18002008899'); else window.open('tel:18002008899');" style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:16px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:24px;">🚚</div>
+          <div style="flex:1;">
+            <div style="font-size:13.5px;font-weight:800;color:#0F172A;">GramHaul Roadside & Dispatch Help</div>
+            <div style="font-size:11px;color:#64748B;">Breakdown assistance & Mandi dispute resolution</div>
+          </div>
+          <div style="color:#16A34A;font-weight:800;font-size:12px;">Dial 📞</div>
+        </div>
+      </div>
+
+      <button onclick="document.getElementById('${modalId}').remove()" style="width:100%;padding:12px;border-radius:14px;background:#F1F5F9;color:#475569;font-size:13.5px;font-weight:800;border:none;cursor:pointer;">
+        Close
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function openDriverHaulHistoryModal() {
+  const modalId = 'driver-haul-history-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:#FEF9C3;display:flex;align-items:center;justify-content:center;font-size:22px;">🚚</div>
+          <div>
+            <div style="font-size:17px;font-weight:900;color:#0F172A;">Driver Haul History</div>
+            <div style="font-size:11px;color:#CA8A04;font-weight:800;">420 Total Verified Deliveries</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        ${[
+          ['🌾 Cotton 40 Qtl','Kadipikonda → Warangal APMC','₹1,683 · Completed'],
+          ['🌶️ Teja Chilli 25 Qtl','Hasanparthy → Khammam APMC','₹890 · Completed'],
+          ['🌽 Maize 50 Qtl','Narsampet → Jangaon APMC','₹1,250 · Completed'],
+          ['🌾 Paddy 35 Qtl','Geesukonda → Enumamula APMC','₹940 · Completed']
+        ].map(([crop,route,fare])=>`
+          <div style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#0F172A;">${crop}</div>
+              <div style="font-size:11px;color:#64748B;margin-top:2px;">${route}</div>
+            </div>
+            <div style="font-size:13.5px;font-weight:900;color:#16A34A;">${fare}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <button onclick="alert('GST Trip Ledger exported to device.');document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#0F172A;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;">
+        📥 Export Full GST Ledger (CSV)
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function openDriverFastagModal() {
+  const modalId = 'driver-fastag-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:22px;">🛡️</div>
+          <div>
+            <div style="font-size:17px;font-weight:900;color:#0F172A;">FASTag & Insurance</div>
+            <div style="font-size:11px;color:#2563EB;font-weight:800;">TS 03 UB 4491 · Commercial</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <div style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:16px;padding:14px;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:12px;color:#64748B;font-weight:700;">FASTag Balance</span>
+          <span style="font-size:20px;font-weight:900;color:#16A34A;">₹1,450</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid #E2E8F0;">
+          <span style="font-size:12px;color:#64748B;font-weight:700;">Insurance Validity</span>
+          <span style="font-size:12.5px;font-weight:900;color:#0F172A;">Till 31 Dec 2025</span>
+        </div>
+      </div>
+
+      <button onclick="alert('FASTag recharged with ₹500 via UPI.');document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#2563EB;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.3);">
+        ⚡ Recharge FASTag ₹500
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function openDriverVehicleDocsModal() {
+  const modalId = 'driver-vehicle-docs-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:#F0FDF4;display:flex;align-items:center;justify-content:center;font-size:22px;">📑</div>
+          <div>
+            <div style="font-size:17px;font-weight:900;color:#0F172A;">Vehicle Compliance Docs</div>
+            <div style="font-size:11px;color:#16A34A;font-weight:800;">mParivahan Verified</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        ${[
+          ['🚗 Vehicle RC','TS 03 UB 4491 · Tata Ace Gold 1.5T','Active (Valid 2038)'],
+          ['📜 Commercial Goods Permit','Telangana State Transport Department','Active (Valid 2028)'],
+          ['🩺 Fitness Certificate','RTA Warangal North Inspection','Valid till Oct 2026'],
+          ['🌿 PUC Green Emission Certificate','Bharat Stage VI Compliant','Valid till Jan 2026']
+        ].map(([title,sub,status])=>`
+          <div style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#0F172A;">${title}</div>
+              <div style="font-size:11px;color:#64748B;margin-top:2px;">${sub}</div>
+            </div>
+            <div style="background:#DCFCE7;color:#15803D;font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:6px;white-space:nowrap;">${status}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <button onclick="alert('Vehicle documents verified on mParivahan portal.');document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#0F172A;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;">
+        ✓ Verify on mParivahan
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
 
 /* ═════════════════ CONTROLLER LOGIC ═════════════════ */
 let currentScanMode = 'crop';
