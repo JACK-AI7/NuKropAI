@@ -589,7 +589,29 @@ CREATE TABLE IF NOT EXISTS public.mandi_ingestion_runs (
 DO $$
 DECLARE
   v_default_user text;
+  pol RECORD;
+  fk RECORD;
 BEGIN
+  -- 1. DROP ALL EXISTING RLS POLICIES TO PREVENT ERROR 0A000
+  -- (PostgreSQL blocks altering column types if used in a policy definition)
+  FOR pol IN (
+    SELECT schemaname, tablename, policyname 
+    FROM pg_policies 
+    WHERE schemaname = 'public'
+  ) LOOP
+    EXECUTE format('DROP POLICY IF EXISTS %I ON %I.%I', pol.policyname, pol.schemaname, pol.tablename);
+  END LOOP;
+
+  -- 2. DROP ALL EXISTING FOREIGN KEYS ON PUBLIC TABLES
+  -- (Prevents type-mismatch constraint conflicts during column alteration)
+  FOR fk IN (
+    SELECT conname, conrelid::regclass AS table_name
+    FROM pg_constraint
+    WHERE contype = 'f' AND connamespace = 'public'::regnamespace
+  ) LOOP
+    EXECUTE format('ALTER TABLE %s DROP CONSTRAINT IF EXISTS %I', fk.table_name, fk.conname);
+  END LOOP;
+
   -- Grab first valid profile id
   SELECT id INTO v_default_user FROM public.profiles LIMIT 1;
   IF v_default_user IS NULL THEN
