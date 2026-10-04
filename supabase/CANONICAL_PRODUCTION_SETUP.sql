@@ -651,24 +651,14 @@ BEGIN
   v_name := COALESCE(NEW.raw_user_meta_data->>'full_name', 'Farmer');
   v_role := COALESCE(NEW.raw_user_meta_data->>'role', 'farmer');
 
-  INSERT INTO public.profiles (
-    id,
-    user_id,
-    farmer_id,
-    email,
-    full_name,
-    role
-  ) VALUES (
-    NEW.id,
-    NEW.id,
-    v_fid,
-    NEW.email,
-    v_name,
-    v_role
-  )
-  ON CONFLICT (id) DO UPDATE
-  SET email = EXCLUDED.email,
-      full_name = EXCLUDED.full_name;
+  IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id = NEW.id) THEN
+    INSERT INTO public.profiles (id, user_id, farmer_id, email, full_name, role)
+    VALUES (NEW.id, NEW.id, v_fid, NEW.email, v_name, v_role);
+  ELSE
+    UPDATE public.profiles
+    SET email = NEW.email, full_name = v_name
+    WHERE id = NEW.id;
+  END IF;
 
   RETURN NEW;
 END;
@@ -720,31 +710,44 @@ END $$;
 -- STEP 7: MASTER LOOKUP SEEDS (OFFICIAL SCHEMES & RECIPES ONLY)
 -- ─────────────────────────────────────────────────────────────────
 
--- BioRx Recipes Seed
+-- BioRx Recipes Seed (Safe Zero-Conflict)
 INSERT INTO public.biorx_recipes (title, target_pest_disease, ingredients, preparation_steps, fermentation_hours, dilution_ratio, shelf_life_days, icar_approved)
-VALUES
-('Dashaparni Kashayam', ARRAY['thrips', 'aphids', 'whiteflies', 'caterpillars'],
+SELECT 'Dashaparni Kashayam', ARRAY['thrips', 'aphids', 'whiteflies', 'caterpillars'],
  '{"neem_leaves_kg": 5, "papaya_leaves_kg": 2, "custard_apple_leaves_kg": 2, "cow_urine_liters": 10, "cow_dung_kg": 2, "water_liters": 200}'::jsonb,
  '["Crush all 10 medicinal leaves into a coarse paste", "Mix cow dung and cow urine in 200L water tank", "Add crushed leaves paste into the solution", "Cover with gunny bag and stir clockwise twice daily for 21 days", "Filter through fine cotton cloth before spraying"]'::jsonb,
- 504, '1:10 (Water)', 180, true),
-('Jeevamrutha (Liquid Bio-Fertilizer)', ARRAY['soil_fertility', 'root_rot', 'microbial_boost'],
+ 504, '1:10 (Water)', 180, true
+WHERE NOT EXISTS (SELECT 1 FROM public.biorx_recipes WHERE title = 'Dashaparni Kashayam');
+
+INSERT INTO public.biorx_recipes (title, target_pest_disease, ingredients, preparation_steps, fermentation_hours, dilution_ratio, shelf_life_days, icar_approved)
+SELECT 'Jeevamrutha (Liquid Bio-Fertilizer)', ARRAY['soil_fertility', 'root_rot', 'microbial_boost'],
  '{"cow_dung_kg": 10, "cow_urine_liters": 10, "jaggery_kg": 2, "pulse_flour_kg": 2, "virgin_soil_handfuls": 1, "water_liters": 200}'::jsonb,
  '["Fill 200L drum with fresh water", "Add fresh cow dung and cow urine and stir vigorously", "Dissolve 2kg jaggery and 2kg chickpea flour in water and add to drum", "Add handful of fertile soil from field bund", "Keep in shade, stir 10 minutes clockwise twice daily for 48-72 hours"]'::jsonb,
- 72, '1:10 (Irrigation/Foliar)', 7, true),
-('Neemastra', ARRAY['sucking_pests', 'mealybugs', 'leaf_hoppers'],
+ 72, '1:10 (Irrigation/Foliar)', 7, true
+WHERE NOT EXISTS (SELECT 1 FROM public.biorx_recipes WHERE title = 'Jeevamrutha (Liquid Bio-Fertilizer)');
+
+INSERT INTO public.biorx_recipes (title, target_pest_disease, ingredients, preparation_steps, fermentation_hours, dilution_ratio, shelf_life_days, icar_approved)
+SELECT 'Neemastra', ARRAY['sucking_pests', 'mealybugs', 'leaf_hoppers'],
  '{"cow_urine_liters": 5, "cow_dung_kg": 2, "neem_leaves_kg": 5, "water_liters": 100}'::jsonb,
  '["Crush 5kg neem leaves into fine pulp", "Mix with 2kg fresh cow dung and 5L cow urine in 100L water", "Ferment for 48 hours in shadow", "Filter cloth and spray directly without extra dilution"]'::jsonb,
- 48, 'Direct Spray (No Dilution)', 21, true)
-ON CONFLICT (title) DO NOTHING;
+ 48, 'Direct Spray (No Dilution)', 21, true
+WHERE NOT EXISTS (SELECT 1 FROM public.biorx_recipes WHERE title = 'Neemastra');
 
--- Official Government Subsidies Seed
+-- Official Government Subsidies Seed (Safe Zero-Conflict)
 INSERT INTO public.subsidies (scheme_name, authority, benefit_amount, eligibility, official_portal_url, status)
-VALUES
-('PM-KISAN Samman Nidhi', 'Ministry of Agriculture, Govt of India', '₹6,000 / year (3 installments)', 'All landholding farmer families with valid Aadhaar and e-KYC', 'https://pmkisan.gov.in/', 'Active / Open'),
-('Telangana Rythu Bandhu / Rythu Bharosa', 'Government of Telangana', '₹15,000 / acre / year', 'All verified pattadar landholders in Telangana Dharani database', 'https://rythubandhu.telangana.gov.in/', 'Active / Open'),
-('Kisan Credit Card (KCC) Subvention', 'Reserve Bank of India / NABARD', 'Up to ₹3,00,000 at 4% Interest', 'All farmers with land passbook or verified tenant agreement', 'https://www.nabard.org/', 'Active / Open'),
-('PM Krishi Sinchayee Yojana (Micro-Irrigation)', 'Dept of Agriculture & Cooperation', 'Up to 90% Drip / Sprinkler Subsidy', 'Small and marginal farmers with active borewell/water source', 'https://pmksy.gov.in/', 'Active / Open')
-ON CONFLICT (scheme_name) DO NOTHING;
+SELECT 'PM-KISAN Samman Nidhi', 'Ministry of Agriculture, Govt of India', '₹6,000 / year (3 installments)', 'All landholding farmer families with valid Aadhaar and e-KYC', 'https://pmkisan.gov.in/', 'Active / Open'
+WHERE NOT EXISTS (SELECT 1 FROM public.subsidies WHERE scheme_name = 'PM-KISAN Samman Nidhi');
+
+INSERT INTO public.subsidies (scheme_name, authority, benefit_amount, eligibility, official_portal_url, status)
+SELECT 'Telangana Rythu Bandhu / Rythu Bharosa', 'Government of Telangana', '₹15,000 / acre / year', 'All verified pattadar landholders in Telangana Dharani database', 'https://rythubandhu.telangana.gov.in/', 'Active / Open'
+WHERE NOT EXISTS (SELECT 1 FROM public.subsidies WHERE scheme_name = 'Telangana Rythu Bandhu / Rythu Bharosa');
+
+INSERT INTO public.subsidies (scheme_name, authority, benefit_amount, eligibility, official_portal_url, status)
+SELECT 'Kisan Credit Card (KCC) Subvention', 'Reserve Bank of India / NABARD', 'Up to ₹3,00,000 at 4% Interest', 'All farmers with land passbook or verified tenant agreement', 'https://www.nabard.org/', 'Active / Open'
+WHERE NOT EXISTS (SELECT 1 FROM public.subsidies WHERE scheme_name = 'Kisan Credit Card (KCC) Subvention');
+
+INSERT INTO public.subsidies (scheme_name, authority, benefit_amount, eligibility, official_portal_url, status)
+SELECT 'PM Krishi Sinchayee Yojana (Micro-Irrigation)', 'Dept of Agriculture & Cooperation', 'Up to 90% Drip / Sprinkler Subsidy', 'Small and marginal farmers with active borewell/water source', 'https://pmksy.gov.in/', 'Active / Open'
+WHERE NOT EXISTS (SELECT 1 FROM public.subsidies WHERE scheme_name = 'PM Krishi Sinchayee Yojana (Micro-Irrigation)');
 
 -- APMC Live Mandi Rates Initial Snapshot
 INSERT INTO public.mandi_live_rates (state, district, market, commodity, commodity_te, commodity_hi, min_price, max_price, modal_price, msp_price, arrivals_qtl, trend, trend_pct)
@@ -754,7 +757,7 @@ VALUES
 ('Telangana', 'Warangal', 'Warangal APMC Yard', 'Paddy (Common)', 'వరి ధాన్యం', 'धान', 2180, 2320, 2250, 2183, 4200, 'stable', 0.5),
 ('Telangana', 'Hyderabad', 'Gudimalkapur APMC Yard', 'Tomato (Hybrid)', 'టమోటా', 'टमाटर', 1400, 2200, 1800, 0, 1200, 'down', -3.1),
 ('Telangana', 'Hyderabad', 'Bowenpally Wholesale APMC', 'Onion (Red)', 'ఉల్లిపాయ', 'प्याज', 2200, 3100, 2750, 0, 3800, 'up', 1.9)
-ON CONFLICT DO NOTHING;
+;
 
 -- ══════════════════════════════════════════════════════════════════════════════
 -- END OF CANONICAL PRODUCTION SCHEMA SETUP

@@ -149,7 +149,12 @@ body {
   cursor: pointer;
   padding: 4px 0;
   user-select: none;
-  transition: all 0.15s ease;
+  transition: transform 0.18s cubic-bezier(0.16,1,0.3,1), color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.dock-tab-btn:active {
+  transform: scale(0.86);
 }
 .dock-tab-btn svg {
   width: 22px;
@@ -159,26 +164,89 @@ body {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: stroke 0.15s ease;
+  transition: stroke 0.18s ease, transform 0.18s cubic-bezier(0.16,1,0.3,1), filter 0.18s ease;
 }
 .dock-tab-btn span {
   font-size: 10.5px;
   font-weight: 700;
   color: #64748B;
-  transition: color 0.15s ease, font-weight 0.15s ease;
+  transition: color 0.18s ease, font-weight 0.18s ease;
+}
+
+/* Active State & Micro-Interactions */
+.dock-tab-btn.active {
+  animation: navTabPop 0.35s cubic-bezier(0.16,1,0.3,1);
 }
 .dock-tab-btn.active svg {
   stroke: #15803D;
-  stroke-width: 2.3;
-  fill: none;
+  stroke-width: 2.4;
+  filter: drop-shadow(0 2px 6px rgba(22, 163, 74, 0.45));
 }
 .dock-tab-btn.active span {
   color: #15803D;
   font-weight: 900;
 }
-.dock-tab-btn.active span {
-  color: #15803D;
-  font-weight: 900;
+.dock-tab-btn.active::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #15803D;
+  margin-top: 1px;
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.8);
+  animation: navDotScale 0.25s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes navTabPop {
+  0% { transform: scale(0.9); }
+  45% { transform: scale(1.18) translateY(-3px); }
+  75% { transform: scale(0.97) translateY(0); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes navDotScale {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Tab-Specific Fluid Animations */
+@keyframes navHomeRoofBounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-3px) scale(1.08); }
+  75% { transform: translateY(0.5px); }
+}
+.dock-tab-btn#tab-home.active svg {
+  animation: navHomeRoofBounce 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes navCommAvatarNod {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-8deg) scale(1.08); }
+  70% { transform: rotate(8deg) scale(1.08); }
+}
+.dock-tab-btn#tab-community.active svg {
+  animation: navCommAvatarNod 0.55s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes navMarketBarsRise {
+  0% { transform: scaleY(0.7); transform-origin: bottom; }
+  50% { transform: scaleY(1.18); transform-origin: bottom; }
+  100% { transform: scaleY(1); transform-origin: bottom; }
+}
+.dock-tab-btn#tab-market.active svg {
+  animation: navMarketBarsRise 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes navProfilePop {
+  0% { transform: scale(1) rotate(0deg); }
+  35% { transform: scale(1.18) rotate(10deg); }
+  70% { transform: scale(0.96) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.dock-tab-btn#tab-profile.active svg {
+  animation: navProfilePop 0.55s cubic-bezier(0.16,1,0.3,1);
 }
 
 /* Center Elevated Tactile Green FAB */
@@ -191,6 +259,26 @@ body {
   position: relative;
   z-index: 50;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes navFabBreathingGlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow:
+      0 6px 18px rgba(22, 163, 74, 0.42),
+      0 0 0 0 rgba(34, 197, 94, 0.35),
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 3px rgba(0,0,0,0.25);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow:
+      0 10px 24px rgba(22, 163, 74, 0.58),
+      0 0 0 6px rgba(34, 197, 94, 0),
+      inset 0 2px 3px rgba(255,255,255,0.4),
+      inset 0 -2px 3px rgba(0,0,0,0.25);
+  }
 }
 
 .dock-center-fab {
@@ -206,10 +294,11 @@ body {
     inset 0 2px 3px rgba(255,255,255,0.4),
     inset 0 -2px 3px rgba(0,0,0,0.25);
   border: 3.5px solid #FFFFFF;
-  transition: transform 0.12s ease;
+  transition: transform 0.15s cubic-bezier(0.16,1,0.3,1);
+  animation: navFabBreathingGlow 3s ease-in-out infinite;
 }
 .dock-center-fab:active {
-  transform: scale(0.93);
+  transform: scale(0.91) !important;
 }
 .dock-center-fab svg {
   width: 26px;
@@ -1762,7 +1851,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div>
               <div style="font-size:20px;font-weight:900;color:#0F172A;" id="m-crop-title">Select your crops</div>
-              <div style="font-size:11px;color:#15803D;font-weight:700;" id="m-crop-sub">🌱 Complete OpenFarm Crop Library (120+ Varieties)</div>
+              <div style="font-size:11px;color:#15803D;font-weight:700;" id="m-crop-sub"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.2" style="vertical-align:middle;margin-right:4px;"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.2A7 7 0 0 1 11 20z"/><path d="M11 20v-8"/></svg>Complete OpenFarm Crop Library (120+ Varieties)</div>
             </div>
             <button onclick="closeCropModal(null)" style="background:#F1F5F9;border:none;border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;">✕</button>
           </div>
@@ -1820,7 +1909,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:20px;">🚜</div>
+            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="7" cy="17" r="4"/><circle cx="17" cy="17" r="3"/><path d="M10 9h4l2 4H4l1-3h5z"/><path d="M14 9V5h3l2 4"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;" id="mb-title">Rent Machinery</div>
               <div style="font-size:10px;color:#15803D;font-weight:800;" id="mb-sub">Instant On-Demand Booking</div>
@@ -1838,7 +1927,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:88vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:38px;height:38px;border-radius:10px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:20px;">🚜</div>
+            <div style="width:38px;height:38px;border-radius:10px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;color:#D97706;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="7" cy="17" r="4"/><circle cx="17" cy="17" r="3"/><path d="M10 9h4l2 4H4l1-3h5z"/><path d="M14 9V5h3l2 4"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;" id="ml-title">List Your Machinery</div>
               <div style="font-size:10px;color:#D97706;font-weight:800;" id="ml-sub">Earn ₹25k - ₹40k/mo from Local Farmers</div>
@@ -1856,7 +1945,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:20px;">📒</div>
+            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;" id="ke-title">Add Farm Transaction</div>
               <div style="font-size:10px;color:#15803D;font-weight:800;" id="ke-sub">Income & Expense Tracker</div>
@@ -1874,7 +1963,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:38px;height:38px;border-radius:10px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;font-size:20px;">🚛</div>
+            <div style="width:38px;height:38px;border-radius:10px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;color:#D97706;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="6" width="14" height="11" rx="2"/><polygon points="15 8 19 8 22 11 22 17 15 17 15 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;" id="tb-title">Book Shared Mandi Truck</div>
               <div style="font-size:10px;color:#D97706;font-weight:800;" id="tb-sub">Pool with Neighboring Farmers & Save 40%</div>
@@ -1892,7 +1981,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:88vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:20px;">🌿</div>
+            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 2v7.31L4.36 19.46A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.71-2.54L14 9.31V2h-4z"/><line x1="8.5" y1="2" x2="15.5" y2="2"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;" id="bx-title">Bio-Medicine Recipe</div>
               <div style="font-size:10px;color:#15803D;font-weight:800;" id="bx-sub">100% Organic Vedic Formulation</div>
@@ -1910,7 +1999,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:20px;">📈</div>
+            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;" id="pt-modal-title">Live Mandi Price Trend</div>
               <div style="font-size:10px;color:#15803D;font-weight:800;" id="pt-modal-sub">Direct Agmarknet 15-Day Historical Analytics</div>
@@ -1928,7 +2017,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:20px;">🔔</div>
+            <div style="width:38px;height:38px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;" id="pa-modal-title">Set Mandi Price Alert</div>
               <div style="font-size:10px;color:#15803D;font-weight:800;" id="pa-modal-sub">Real-Time SMS & Push Notification Triggers</div>
@@ -1949,7 +2038,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:40px;height:40px;border-radius:12px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:20px;border:1.2px solid #86EFAC;">✏️</div>
+            <div style="width:40px;height:40px;border-radius:12px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;border:1.2px solid #86EFAC;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;">Edit Farmer Profile</div>
               <div style="font-size:10.5px;color:#15803D;font-weight:800;">Update Land & Identification Details</div>
@@ -1960,23 +2049,23 @@ button[onclick*="openPriceAlertModal"]:hover svg {
 
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div>
-            <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:block;margin-bottom:4px;">👤 Farmer Full Name:</label>
+            <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:flex;align-items:center;gap:5px;margin-bottom:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Farmer Full Name:</span></label>
             <input type="text" id="edit-prof-name" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:12.5px;font-weight:700;color:#0F172A;background:#FFFFFF;outline:none;box-sizing:border-box;">
           </div>
           <div>
-            <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:block;margin-bottom:4px;">📱 Mobile Number:</label>
+            <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:flex;align-items:center;gap:5px;margin-bottom:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg><span>Mobile Number:</span></label>
             <input type="text" id="edit-prof-phone" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:12.5px;font-weight:700;color:#0F172A;background:#FFFFFF;outline:none;box-sizing:border-box;">
           </div>
           <div>
-            <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:block;margin-bottom:4px;">📍 Village & Mandi Location:</label>
+            <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:flex;align-items:center;gap:5px;margin-bottom:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Village &amp; Mandi Location:</span></label>
             <input type="text" id="edit-prof-village" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:12.5px;font-weight:600;color:#0F172A;background:#FFFFFF;outline:none;box-sizing:border-box;">
           </div>
           <div>
-            <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:block;margin-bottom:4px;">🌾 Total Registered Land (Acres):</label>
+            <label style="font-size:11.5px;font-weight:800;color:#0F172A;display:flex;align-items:center;gap:5px;margin-bottom:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.2A7 7 0 0 1 11 20z"/><path d="M11 20v-8"/></svg><span>Total Registered Land (Acres):</span></label>
             <input type="text" id="edit-prof-land" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:12.5px;font-weight:700;color:#0F172A;background:#FFFFFF;outline:none;box-sizing:border-box;">
           </div>
           <button onclick="saveFarmerProfile()" style="width:100%;background:#16A34A;color:#FFFFFF;border:none;border-radius:12px;padding:12px 0;font-size:13.5px;font-weight:900;cursor:pointer;box-shadow:0 3px 12px rgba(22,163,74,0.28);margin-top:6px;">
-            💾 Save Profile Details
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="vertical-align:middle;margin-right:6px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Profile Details
           </button>
         </div>
       </div>
@@ -1987,7 +2076,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:40px;height:40px;border-radius:12px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:20px;border:1.2px solid #86EFAC;">🧪</div>
+            <div style="width:40px;height:40px;border-radius:12px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;border:1.2px solid #86EFAC;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10 2v7.31L4.36 19.46A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.71-2.54L14 9.31V2h-4z"/><line x1="8.5" y1="2" x2="15.5" y2="2"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;">Digital Soil Health Card</div>
               <div style="font-size:10.5px;color:#15803D;font-weight:800;">Govt Soil Testing Lab · Sample ID: TG-WGL-3891</div>
@@ -1998,17 +2087,17 @@ button[onclick*="openPriceAlertModal"]:hover svg {
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
           <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px;">
-            <div style="font-size:10.5px;color:#64748B;font-weight:700;">🌱 Nitrogen (N)</div>
+            <div style="font-size:10.5px;color:#64748B;font-weight:700;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#16A34A;display:inline-block;"></span><span>Nitrogen (N)</span></div>
             <div style="font-size:15px;font-weight:900;color:#0F172A;margin:2px 0;">240 kg/ha</div>
             <div style="font-size:9.5px;color:#16A34A;font-weight:800;">🟢 Medium (Optimal)</div>
           </div>
           <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px;">
-            <div style="font-size:10.5px;color:#64748B;font-weight:700;">🌾 Phosphorus (P)</div>
+            <div style="font-size:10.5px;color:#64748B;font-weight:700;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#EAB308;display:inline-block;"></span><span>Phosphorus (P)</span></div>
             <div style="font-size:15px;font-weight:900;color:#0F172A;margin:2px 0;">32 kg/ha</div>
             <div style="font-size:9.5px;color:#16A34A;font-weight:800;">🟢 High Level</div>
           </div>
           <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px;">
-            <div style="font-size:10.5px;color:#64748B;font-weight:700;">🌿 Potassium (K)</div>
+            <div style="font-size:10.5px;color:#64748B;font-weight:700;display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:#3B82F6;display:inline-block;"></span><span>Potassium (K)</span></div>
             <div style="font-size:15px;font-weight:900;color:#0F172A;margin:2px 0;">280 kg/ha</div>
             <div style="font-size:9.5px;color:#16A34A;font-weight:800;">🟢 High Level</div>
           </div>
@@ -2033,7 +2122,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:40px;height:40px;border-radius:12px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:20px;border:1.2px solid #BFDBFE;">📜</div>
+            <div style="width:40px;height:40px;border-radius:12px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;color:#2563EB;border:1.2px solid #BFDBFE;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;">Privacy Policy & Data Security</div>
               <div style="font-size:10.5px;color:#2563EB;font-weight:800;">DPDP Act 2023 Compliant · Encrypted Storage</div>
@@ -2064,7 +2153,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:85vh;overflow-y:auto;padding:20px 20px 36px;background:#FFFFFF;border-top-left-radius:24px;border-top-right-radius:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:40px;height:40px;border-radius:12px;background:#F8FAFC;display:flex;align-items:center;justify-content:center;font-size:20px;border:1.2px solid #E2E8F0;">⚖️</div>
+            <div style="width:40px;height:40px;border-radius:12px;background:#F8FAFC;display:flex;align-items:center;justify-content:center;color:#475569;border:1.2px solid #E2E8F0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v18M3 8l9-5 9 5M6 13l-3 6h6l-3-6zm12 0l-3 6h6l-3-6z"/></svg></div>
             <div>
               <div style="font-size:16px;font-weight:900;color:#0F172A;">Terms of Service & Disclaimers</div>
               <div style="font-size:10.5px;color:#64748B;font-weight:800;">Agrarian AI Diagnostic & Market Guidelines</div>
@@ -2146,7 +2235,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
           <div style="margin-bottom:10px;">
             <span id="isv-tag" class="isv-topic-tag">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="#FACC15"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              <span>⚡ KVK Advisory</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>KVK Advisory</span></span>
             </span>
           </div>
 
@@ -2414,17 +2503,50 @@ button[onclick*="openPriceAlertModal"]:hover svg {
         <span>Feature Navigator</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr;gap:6px;" id="side-nav-group">
-        <button class="panel-nav-btn active" id="btn-home" onclick="openScreen('home',null);syncSideNav('btn-home')">🏠 Home Dashboard</button>
-        <button class="panel-nav-btn" id="btn-scanner" onclick="openScreen('scanner',null);syncSideNav('btn-scanner')">🔬 AI Crop &amp; Soil Scanner</button>
-        <button class="panel-nav-btn" id="btn-market" onclick="openScreen('market',null);syncSideNav('btn-market')">📊 Live Mandi Rates</button>
-        <button class="panel-nav-btn" id="btn-gramhaul" onclick="openScreen('gramhaul',null);syncSideNav('btn-gramhaul')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px;"><rect x="1" y="6" width="14" height="11" rx="2" fill="currentColor"/><path d="M15 9H19L22 13V17H15V9Z" fill="currentColor"/><circle cx="5.5" cy="17" r="2.2" fill="#FFFFFF"/><circle cx="18.5" cy="17" r="2.2" fill="#FFFFFF"/></svg>Mandi Truck Sharing</button>
-        <button class="panel-nav-btn" id="btn-agristack" onclick="openScreen('agristack',null);syncSideNav('btn-agristack')">🪪 Farmer ID &amp; Credit</button>
-        <button class="panel-nav-btn" id="btn-equipment" onclick="openScreen('equipment',null);syncSideNav('btn-equipment')">🚜 Rent Machinery</button>
-        <button class="panel-nav-btn" id="btn-loan" onclick="openScreen('loan',null);syncSideNav('btn-loan')">💰 Loans &amp; Subsidies</button>
-        <button class="panel-nav-btn" id="btn-chat" onclick="openScreen('chat',null);syncSideNav('btn-chat')">🤖 24/7 AI Farm Advisor</button>
-        <button class="panel-nav-btn" id="btn-khata" onclick="openScreen('khata',null);syncSideNav('btn-khata')">🧾 Farm Khata Ledger</button>
-        <button class="panel-nav-btn" id="btn-bioshield" onclick="openScreen('bioshield',null);syncSideNav('btn-bioshield')">🚨 Pest &amp; Disease Alerts</button>
-        <button class="panel-nav-btn" id="btn-biorx" onclick="openScreen('biorx',null);syncSideNav('btn-biorx')">🌿 Organic Bio-Medicines</button>
+        <button class="panel-nav-btn active" id="btn-home" onclick="openScreen('home',null);syncSideNav('btn-home')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M3 10.5L12 3l9 7.5v9.5a2 2 0 0 1-2 2h-4a1 1 0 0 1-1-1v-5a2 2 0 0 0-2-2 2 2 0 0 0-2 2v5a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2v-9.5z"/></svg>
+          <span>Home Dashboard</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-scanner" onclick="openScreen('scanner',null);syncSideNav('btn-scanner')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.2A7 7 0 0 1 11 20z"/><path d="M11 20v-8"/></svg>
+          <span>AI Crop &amp; Soil Scanner</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-market" onclick="openScreen('market',null);syncSideNav('btn-market')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span>Live Mandi Rates</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-gramhaul" onclick="openScreen('gramhaul',null);syncSideNav('btn-gramhaul')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="1" y="6" width="14" height="11" rx="2"/><polygon points="15 8 19 8 22 11 22 17 15 17 15 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <span>Mandi Truck Sharing</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-agristack" onclick="openScreen('agristack',null);syncSideNav('btn-agristack')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><line x1="15" y1="8" x2="17" y2="8"/><line x1="15" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+          <span>Farmer ID &amp; Credit</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-equipment" onclick="openScreen('equipment',null);syncSideNav('btn-equipment')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="7" cy="17" r="4"/><circle cx="17" cy="17" r="3"/><path d="M10 9h4l2 4H4l1-3h5z"/><path d="M14 9V5h3l2 4"/></svg>
+          <span>Rent Machinery</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-loan" onclick="openScreen('loan',null);syncSideNav('btn-loan')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Loans &amp; Subsidies</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-chat" onclick="openScreen('chat',null);syncSideNav('btn-chat')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>
+          <span>24/7 AI Farm Advisor</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-khata" onclick="openScreen('khata',null);syncSideNav('btn-khata')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          <span>Farm Khata Ledger</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-bioshield" onclick="openScreen('bioshield',null);syncSideNav('btn-bioshield')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/></svg>
+          <span>Pest &amp; Disease Alerts</span>
+        </button>
+        <button class="panel-nav-btn" id="btn-biorx" onclick="openScreen('biorx',null);syncSideNav('btn-biorx')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10 2v7.31L4.36 19.46A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.71-2.54L14 9.31V2h-4z"/><line x1="8.5" y1="2" x2="15.5" y2="2"/></svg>
+          <span>Organic Bio-Medicines</span>
+        </button>
       </div>
     </div>
   </div>
@@ -3292,6 +3414,8 @@ const MANDI_TRUCKS_SEED = [
 let MANDI_TRUCKS_CATALOG = [...MANDI_TRUCKS_SEED];
 
 // Fetch real online drivers from Supabase driver_telemetry table
+var gramhaulLiveDriversLayer = null;
+
 async function loadRealTrucksFromSupabase() {
   try {
     if (typeof sbClient === 'undefined' || !sbClient) return;
@@ -3300,43 +3424,85 @@ async function loadRealTrucksFromSupabase() {
       .select('driver_id, driver_name, vehicle_type, vehicle_plate, current_lat, current_lng, is_online, last_ping')
       .eq('is_online', true)
       .order('last_ping', { ascending: false })
-      .limit(10);
+      .limit(20);
+
+    // Clear existing live driver markers
+    if (gramhaulLiveMap) {
+      if (!gramhaulLiveDriversLayer) {
+        gramhaulLiveDriversLayer = L.layerGroup().addTo(gramhaulLiveMap);
+      } else {
+        gramhaulLiveDriversLayer.clearLayers();
+      }
+    }
 
     if (error || !data || data.length === 0) {
-      console.log('[GramHaul] No live drivers in Supabase — showing seed trucks.');
+      console.log('[GramHaul] Zero active online drivers in Supabase telemetry.');
+      GRAMHAUL_POOLED_TRUCKS = [];
+      if (typeof renderGramhaulTrucksList === 'function') renderGramhaulTrucksList();
+      const statusPill = document.getElementById('gh-live-radar-status');
+      if (statusPill) statusPill.innerHTML = '<span>📡 Live Radar: 0 Drivers Broadcasting GPS · Request Dispatch Below</span>';
       return;
     }
 
-    const realTrucks = data.map((d, i) => ({
+    const realTrucks = data.filter(d => d.current_lat && d.current_lng).map((d, i) => ({
       id: d.driver_id || ('drv-' + i),
-      driver: { en: d.driver_name || 'Driver', te: d.driver_name || 'Driver', hi: d.driver_name || 'Driver' },
-      vehicle: { en: d.vehicle_type || 'Commercial Vehicle', te: d.vehicle_type || 'వాహనం', hi: d.vehicle_type || 'वाहन' },
-      phone: '',
-      dist: { en: 'Live GPS Tracking', te: 'లైవ్ GPS ట్రాకింగ్', hi: 'लाइव GPS ट्रैकिंग' },
-      dest: { en: 'Available for Haul Booking', te: 'బుకింగ్ కోసం అందుబాటులో', hi: 'बुकिंग के लिए उपलब्ध' },
-      spaceLeft: 'Contact driver',
-      fillPercent: 0,
-      ratePerQtl: 0,
-      rating: '★ Active',
-      leavesAt: { en: 'On-demand', te: 'అవసరాన్ని బట్టి', hi: 'मांग पर' },
+      plate: d.vehicle_plate || 'TS-LIVE-GPS',
+      vehicle: d.vehicle_type || 'Commercial Vehicle',
+      driverName: d.driver_name || 'Active Transporter',
+      driverPhone: '+91 Verified Driver',
+      rating: '🟢 Live GPS Broadcasting',
+      origin: 'Online on Route',
+      destination: 'Regional Mandi Route',
+      distance: 'Live GPS Active',
+      pickupEta: 'On-Demand Dispatch',
+      departure: 'Immediate Dispatch',
+      totalBagsCapacity: 50,
+      filledBags: 0,
+      freeSlots: 50,
+      ratePerBag: 35,
+      soloRate: 1500,
       lat: d.current_lat,
       lng: d.current_lng,
-      plate: d.vehicle_plate,
       isLive: true
     }));
 
-    // Merge: live drivers first, seed fallbacks for offline
-    MANDI_TRUCKS_CATALOG = [
-      ...realTrucks,
-      ...MANDI_TRUCKS_SEED.filter(s => !realTrucks.find(r => r.id === s.id))
-    ];
-    console.log('[GramHaul] Loaded ' + realTrucks.length + ' live drivers from Supabase');
+    GRAMHAUL_POOLED_TRUCKS = realTrucks;
+    console.log('[GramHaul] Rendered ' + realTrucks.length + ' real live driver GPS markers.');
 
-    // Re-render the truck list if GramHaul screen is visible
-    const truckListEl = document.querySelector('.gramhaul-truck-card');
-    if (truckListEl && typeof renderGramHaulTruckList === 'function') renderGramHaulTruckList();
+    // Plot ONLY Real Online Drivers on the Map
+    if (gramhaulLiveMap && gramhaulLiveDriversLayer) {
+      realTrucks.forEach(t => {
+        const liveTruckIcon = L.divIcon({
+          className: 'gh-live-online-driver-pin',
+          html: `
+            <div style="position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translate(-50%, -100%);">
+              <div style="background:#0F172A;color:#FFFFFF;border:1.5px solid #22C55E;padding:3px 8px;border-radius:8px;font-size:9.5px;font-weight:900;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.35);display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+                <span style="width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 8px #22C55E;display:inline-block;animation:sunGlowPulse 1.2s infinite;"></span>
+                <span>${t.plate} · ${t.driverName}</span>
+              </div>
+              <div style="width:34px;height:34px;background:#15803D;border:2px solid #FFFFFF;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(22,163,74,0.4);color:#FFF;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="6" width="14" height="11" rx="2"/><polygon points="15 8 19 8 22 11 22 17 15 17 15 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              </div>
+            </div>
+          `,
+          iconSize: [0, 0]
+        });
+
+        const m = L.marker([t.lat, t.lng], { icon: liveTruckIcon }).addTo(gramhaulLiveDriversLayer);
+        m.bindPopup(`
+          <div style="font-size:12px;font-weight:900;color:#0F172A;">🚚 ${t.vehicle}</div>
+          <div style="font-size:10.5px;color:#15803D;font-weight:800;">${t.driverName} (${t.plate})</div>
+          <div style="font-size:9.5px;color:#64748B;margin-top:2px;">🟢 Live GPS Verified Online</div>
+        `);
+      });
+    }
+
+    const statusPill = document.getElementById('gh-live-radar-status');
+    if (statusPill) statusPill.innerHTML = `<span>🟢 <strong>${realTrucks.length} Active Driver${realTrucks.length>1?'s':''} Online</strong> on Radar</span>`;
+
+    if (typeof renderGramhaulTrucksList === 'function') renderGramhaulTrucksList();
   } catch (e) {
-    console.warn('[GramHaul] Supabase trucks load failed, using seed data:', e);
+    console.warn('[GramHaul] Supabase real trucks load failed:', e);
   }
 }
 
@@ -5986,7 +6152,7 @@ function renderMandiCardsHtml() {
           🚚 ${TL('Book Mandi Truck', 'ట్రక్ బుక్ చేయండి', 'Book Mandi Truck')}
         </button>
         <button onclick="openPriceTrendModal('${item.id}')" style="background:#FFFFFF;color:#1B5E20;border:1.5px solid #1B5E20;border-radius:10px;padding:9px 0;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
-          📈 ${TL('Price Trend', 'ధరల చార్ట్', 'Price Trend')}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>${TL('Price Trend', 'ధరల చార్ట్', 'Price Trend')}
         </button>
       </div>
     </div>
@@ -13112,7 +13278,7 @@ const APP_VIEWS = {
               <div style="display:flex;align-items:center;gap:6px;">
                 <div style="font-size:11.5px;font-weight:900;color:#EA580C;line-height:1.2;">${t.liveMandiTitle} · ${cropName}</div>
                 <span style="width:6px;height:6px;border-radius:50%;background:#16A34A;animation:sunGlowPulse 1.4s infinite;display:inline-block;"></span>
-                <button id="home-mandi-refresh-btn" onclick="event.stopPropagation();refreshMandiRatesLive();" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:#EA580C;line-height:1;" title="Refresh live rate">🔄</button>
+                <button id="home-mandi-refresh-btn" onclick="event.stopPropagation();refreshMandiRatesLive();" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:#EA580C;line-height:1;" title="Refresh live rate"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg></button>
               </div>
               <div style="font-size:12px;color:#64748B;margin-top:4px;font-weight:500;">📍 ${mandiName}</div>
             </div>
@@ -13126,10 +13292,10 @@ const APP_VIEWS = {
         <!-- Quick 1-Tap Price Trend & Price Alert Buttons on Home Mandi Card -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;border-top:1px dashed #FED7AA;padding-top:8px;">
           <button onclick="event.stopPropagation();openPriceTrendModal('${mandiInfo.mandiId}')" style="background:#FFFFFF;color:#C2410C;border:1px solid #FED7AA;border-radius:10px;padding:6px 0;font-size:10.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            📈 ${TL('Price Trend', 'ధరల చార్ట్', 'Price Trend')}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>${TL('Price Trend', 'ధరల చార్ట్', 'Price Trend')}
           </button>
           <button onclick="event.stopPropagation();openPriceAlertModal('${mandiInfo.mandiId}')" style="background:#FFFFFF;color:#C2410C;border:1px solid #FED7AA;border-radius:10px;padding:6px 0;font-size:10.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            🔔 ${TL('Set Price Alert', 'అలర్ట్ సెట్', 'Set Price Alert')}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>${TL('Set Price Alert', 'అలర్ట్ సెట్', 'Set Price Alert')}
           </button>
         </div>
       </div>
@@ -13197,11 +13363,17 @@ const APP_VIEWS = {
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
             <div>
               <div style="font-size:12px;font-weight:900;color:#0F172A;" id="w-sunrise">${liveWeather.sunrise || liveWeather.sunriseStr || "05:57 am"}</div>
-              <div style="font-size:9.5px;color:#64748B;font-weight:700;">🌅 ${t.sunrise}</div>
+              <div style="font-size:9.5px;color:#64748B;font-weight:700;display:flex;align-items:center;gap:3px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.3"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                <span>${t.sunrise}</span>
+              </div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:12px;font-weight:900;color:#0F172A;" id="w-sunset">${liveWeather.sunset || liveWeather.sunsetStr || "06:26 pm"}</div>
-              <div style="font-size:9.5px;color:#64748B;font-weight:700;">🌇 ${t.sunset}</div>
+              <div style="font-size:9.5px;color:#64748B;font-weight:700;display:flex;align-items:center;justify-content:flex-end;gap:3px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2.3"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/></svg>
+                <span>${t.sunset}</span>
+              </div>
             </div>
           </div>
 
@@ -13234,19 +13406,31 @@ const APP_VIEWS = {
         <!-- 2. 4 METEOROLOGICAL METRICS -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;background:#F8FAF8;border:1px solid #E2ECE2;border-radius:12px;padding:8px 0;margin-bottom:10px;">
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 2px;">
-            <div style="font-size:9px;color:#64748B;font-weight:700;white-space:nowrap;">💧 ${t.humidity}</div>
+            <div style="font-size:9px;color:#64748B;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:3px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2.3"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              <span>${t.humidity}</span>
+            </div>
             <div style="font-size:12px;font-weight:900;color:#0F172A;margin-top:2px;white-space:nowrap;" id="w-humidity">${parseInt(liveWeather.humidity) || 80}%</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 2px;border-left:1px solid #E2ECE2;">
-            <div style="font-size:9px;color:#64748B;font-weight:700;white-space:nowrap;">🌧️ ${t.rainfall || t.precipitation}</div>
+            <div style="font-size:9px;color:#64748B;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:3px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.3"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="16" y1="19" x2="16" y2="21"/></svg>
+              <span>${t.rainfall || t.precipitation}</span>
+            </div>
             <div style="font-size:12px;font-weight:900;color:#0F172A;margin-top:2px;white-space:nowrap;" id="w-precip">${parseInt(liveWeather.precip || liveWeather.precipitation) || 0} mm</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 2px;border-left:1px solid #E2ECE2;">
-            <div style="font-size:9px;color:#64748B;font-weight:700;white-space:nowrap;">🧭 ${t.pressure}</div>
+            <div style="font-size:9px;color:#64748B;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:3px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              <span>${t.pressure}</span>
+            </div>
             <div style="font-size:12px;font-weight:900;color:#0F172A;margin-top:2px;white-space:nowrap;" id="w-pressure">${parseInt(liveWeather.pressure) || 953} hpa</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 2px;border-left:1px solid #E2ECE2;">
-            <div style="font-size:9px;color:#64748B;font-weight:700;white-space:nowrap;">💨 ${t.windSpeed || t.wind}</div>
+            <div style="font-size:9px;color:#64748B;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:3px;">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.3"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+              <span>${t.windSpeed || t.wind}</span>
+            </div>
             <div style="font-size:12px;font-weight:900;color:#0F172A;margin-top:2px;white-space:nowrap;" id="w-wind">${parseInt(liveWeather.wind || liveWeather.windSpeed) || 4} km/h</div>
           </div>
         </div>
@@ -13255,8 +13439,8 @@ const APP_VIEWS = {
         <div id="w-spray-compact-pill-box">
           <div onclick="openSprayModal()" style="background:#F0FDF4;border:1.2px solid #BBF7D0;border-radius:14px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
             <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-              <div style="width:32px;height:32px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-                🧑‍🌾
+              <div style="width:32px;height:32px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
               </div>
               <div style="min-width:0;">
                 <div style="font-size:12px;font-weight:900;color:#15803D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:145px;">
@@ -13730,7 +13914,7 @@ const APP_VIEWS = {
     const isHi = currentLang === 'hi';
     const mktTitle = TL('Live Mandi Rates', 'లైవ్ మార్కెట్ ధరలు', 'लाइव मंडी भाव');
     const mktSub = TL('Direct Agmarknet Govt API Integration', 'ప్రత్యక్ష అగ్మార్క్‌నెట్ ప్రభుత్వ API అనుసంధానం', 'प्रत्यक्ष एगमार्कनेट सरकारी API एकीकरण');
-    const autoLocBtn = TL('📍 Auto-Detect Location', '📍 ఆటో-లొకేషన్', '📍 ऑटो-लोकेशन');
+    const autoLocBtn = TL('Auto-Detect Location', 'ఆటో-లొకేషన్', 'ऑटो-लोकेशन');
     const cropPlaceholder = TL('Enter crop (e.g. Tomato, Wheat...)', 'పంట పేరు (ఉదా: టమోటా, గోధుమ...)', 'फसल दर्ज करें (उदा: टमाटर, गेहूं...)');
     const searchBtn = TL('Search', 'శోధించండి', 'खोजें');
     const statePlaceholder = TL('State (e.g. Punjab)', 'రాష్ట్రం (ఉదా: తెలంగాణ)', 'राज्य (उदा: पंजाब)');
@@ -14199,7 +14383,10 @@ const APP_VIEWS = {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
         <div style="min-width:0;">
-          <div style="font-size:16px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🪪 ${headerTitle}</div>
+          <div style="font-size:16px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><line x1="15" y1="8" x2="17" y2="8"/><line x1="15" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+            <span>${headerTitle}</span>
+          </div>
           <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${headerSub}</div>
         </div>
       </div>
@@ -14215,8 +14402,8 @@ const APP_VIEWS = {
         <div style="flex:1;position:relative;">
           <input id="agristack-search-input" type="text" placeholder="${TL('Search Survey / Khasra No, Khata No, or Farmer ID...', 'సర్వే నం, ఖాతా నం లేదా రైతు ID శోధించండి...', 'खसरा नंबर, खाता नंबर या किसान ID खोजें...')}" onkeypress="if(event.key==='Enter') triggerFarmerLandSearch()" style="width:100%;height:46px;border:1.5px solid #E2E8F0;border-radius:14px;padding:0 16px !important;font-size:12.5px;font-weight:600;color:#0F172A;background:#FFFFFF;box-shadow:0 1px 3px rgba(15,23,42,0.04);outline:none;box-sizing:border-box;transition:all 0.15s ease;" />
         </div>
-        <button onclick="triggerFarmerLandSearch()" style="background:linear-gradient(135deg,#16A34A 0%,#15803D 100%);color:#FFFFFF;border:none;border-radius:14px;padding:0 16px;height:46px;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(22,163,74,0.22);white-space:nowrap;flex-shrink:0;transition:transform 0.15s ease;">
-          <span>🔍</span>
+        <button onclick="triggerFarmerLandSearch()" style="background:linear-gradient(135deg,#16A34A 0%,#15803D 100%);color:#FFFFFF;border:none;border-radius:14px;padding:0 16px;height:46px;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 3px 10px rgba(22,163,74,0.22);white-space:nowrap;flex-shrink:0;transition:transform 0.15s ease;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <span>${TL('Verify & Search', 'శోధించండి', 'खोजें')}</span>
         </button>
       </div>
@@ -14224,8 +14411,8 @@ const APP_VIEWS = {
       <!-- Prominent Primary Action: Add Real Land Parcel -->
       <div onclick="openSearchLandSurveyModal()" style="margin-bottom:14px;background:#FFFFFF;border:1.5px solid #BBF7D0;border-radius:16px;padding:12px 14px;box-shadow:0 2px 8px rgba(22,163,74,0.06);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:transform 0.15s ease;">
         <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <div style="width:38px;height:38px;border-radius:12px;background:#DCFCE7;border:1px solid #86EFAC;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
-            🏛️
+          <div style="width:38px;height:38px;border-radius:12px;background:#DCFCE7;border:1px solid #86EFAC;display:flex;align-items:center;justify-content:center;color:#15803D;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/><line x1="9" y1="10" x2="9" y2="14"/><line x1="15" y1="10" x2="15" y2="14"/></svg>
           </div>
           <div style="min-width:0;">
             <div style="font-size:13px;font-weight:800;color:#15803D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
@@ -14268,10 +14455,10 @@ const APP_VIEWS = {
 
     const filterLabels = {
       all: TL('All', 'అన్నీ', 'सभी'),
-      tractor: TL('🚜 Tractors', '🚜 ట్రాక్టర్లు', '🚜 ट्रैक्टर'),
-      drone: TL('🛸 Drones', '🛸 డ్రోన్లు', '🛸 ड्रोन्स'),
-      harvester: TL('🌾 Harvesters', '🌾 హార్వెస్టర్లు', '🌾 हार्वेस्टर'),
-      sprayer: TL('💦 Sprayers', '💦 స్ప్రేయర్లు', '💦 स्प्रेयर')
+      tractor: TL('Tractors', 'ట్రాక్టర్లు', 'ट्रैक्टर'),
+      drone: TL('Drones', 'డ్రోన్లు', 'ड्रोन्स'),
+      harvester: TL('Harvesters', 'హార్వెస్టర్లు', 'हार्वेस्टर'),
+      sprayer: TL('Sprayers', 'స్ప్రేయర్లు', 'स्प्रेयर')
     };
 
     const filteredList = currentMachineryFilter === 'all' 
@@ -14808,7 +14995,7 @@ const APP_VIEWS = {
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
         <div>
-          <div style="font-size:18px;font-weight:900;color:#1B5E20;">🌿 ${TL('Indigenous Organic Bio-Medicines', 'సహజ సేంద్రీయ బయో-మందులు', 'देसी जैविक कीटनाशक व टॉनिक')}</div>
+          <div style="font-size:18px;font-weight:900;color:#1B5E20;display:flex;align-items:center;gap:6px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.2"><path d="M10 2v7.31L4.36 19.46A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.71-2.54L14 9.31V2h-4z"/><line x1="8.5" y1="2" x2="15.5" y2="2"/></svg><span>${TL('Indigenous Organic Bio-Medicines', 'సహజ సేంద్రీయ బయో-మందులు', 'देसी जैविक कीटनाशक व टॉनिक')}</div>
           <div style="font-size:10px;color:#16A34A;font-weight:800;">${TL('100% Authentic Time-Tested Vedic Formulations', '100% ప్రామాణికమైన ఆయుర్వేద వ్యవసాయ పద్ధతులు', '100% वैदिक एवं प्राकृतिक कृषि विधियां')}</div>
         </div>
       </div>
@@ -15166,13 +15353,13 @@ const APP_VIEWS = {
     const isHi = currentLang === 'hi';
 
     const categories = [
-      { id: 'all', name: { en: '🌾 All Topics', te: '🌾 అన్ని అంశాలు', hi: '🌾 सभी विषय', ta: '🌾 அனைத்து தலைப்புகள்', kn: '🌾 ಎಲ್ಲಾ ವಿಷಯಗಳು', ml: '🌾 എല്ലാ വിഷയങ്ങളും', mr: '🌾 सर्व विषय', bn: '🌾 সকল বিষয়', gu: '🌾 તમામ વિષયો', pa: '🌾 ਸਾਰੇ ਵਿਸ਼ੇ', or: '🌾 ସମସ୍ତ ବିଷୟ' } },
-      { id: 'cotton', name: { en: '🌱 Cotton', te: '🌱 పత్తి', hi: '🌱 कपास', ta: '🌱 பருத்தி', kn: '🌱 ಹತ್ತಿ', ml: '🌱 പരുത്തി', mr: '🌱 कापूस', bn: '🌱 তুলা', gu: '🌱 કપાસ', pa: '🌱 ਕਪਾਹ', or: '🌱 କପା' } },
-      { id: 'chilli', name: { en: '🌶️ Chilli', te: '🌶️ మిరప', hi: '🌶️ मिर्च', ta: '🌶️ மிளகாய்', kn: '🌶️ ಮೆಣಸಿನಕಾಯಿ', ml: '🌶️ മുളക്', mr: '🌶️ मिरची', bn: '🌶️ লঙ্কা', gu: '🌶️ મરચાં', pa: '🌶️ ਮਿਰਚ', or: '🌶️ ଲଙ୍କା' } },
-      { id: 'paddy', name: { en: '🌾 Paddy', te: '🌾 వరి', hi: '🌾 धान', ta: '🌾 நெல்', kn: '🌾 ಭತ್ತ', ml: '🌾 നെല്ല്', mr: '🌾 भात', bn: '🌾 ধান', gu: '🌾 ડાંગર', pa: '🌾 ਝੋਨਾ', or: '🌾 ଧାନ' } },
-      { id: 'tomato', name: { en: '🍅 Tomato', te: '🍅 టమోటా', hi: '🍅 टमाटर', ta: '🍅 தக்காளி', kn: '🍅 ಟೊಮೆಟೊ', ml: '🍅 തക്കാളി', mr: '🍅 टोमॅटो', bn: '🍅 টমেটো', gu: '🍅 ટામેટા', pa: '🍅 ਟਮਾਟਰ', or: '🍅 ଟମାଟୋ' } },
-      { id: 'equipment', name: { en: '🚜 Equipment', te: '🚜 యంత్రాలు', hi: '🚜 उपकरण', ta: '🚜 இயந்திரங்கள்', kn: '🚜 ಉಪಕರಣಗಳು', ml: '🚜 യന്ത്രങ്ങൾ', mr: '🚜 उपकरणे', bn: '🚜 যন্ত্রপাতি', gu: '🚜 સાધનો', pa: '🚜 ਸੰਦ', or: '🚜 ଯନ୍ତ୍ରପାତି' } },
-      { id: 'biorx', name: { en: '🧪 BioRx Organic', te: '🧪 సేంద్రీయ మందులు', hi: '🧪 जैविक दवाएं', ta: '🧪 இயற்கை மருந்து', kn: '🧪 ಜೈವಿಕ ಔಷಧ', ml: '🧪 ജൈവ മരുന്ന്', mr: '🧪 सेंद्रिय औषध', bn: '🧪 জৈব ওষুধ', gu: '🧪 જૈવિક દવાઓ', pa: '🧪 ਜੈਵਿਕ ਦਵਾਈਆਂ', or: '🧪 ଜୈବିକ ଔଷଧ' } }
+      { id: 'all', name: { en: 'All Topics', te: 'అన్ని అంశాలు', hi: 'सभी विषय', ta: '🌾 அனைத்து தலைப்புகள்', kn: '🌾 ಎಲ್ಲಾ ವಿಷಯಗಳು', ml: '🌾 എല്ലാ വിഷയങ്ങളും', mr: '🌾 सर्व विषय', bn: '🌾 সকল বিষয়', gu: '🌾 તમામ વિષયો', pa: '🌾 ਸਾਰੇ ਵਿਸ਼ੇ', or: '🌾 ସମସ୍ତ ବିଷୟ' } },
+      { id: 'cotton', name: { en: 'Cotton', te: 'పత్తి', hi: 'कपास', ta: '🌱 பருத்தி', kn: '🌱 ಹತ್ತಿ', ml: '🌱 പരുത്തി', mr: '🌱 कापूस', bn: '🌱 তুলা', gu: '🌱 કપાસ', pa: '🌱 ਕਪਾਹ', or: '🌱 କପା' } },
+      { id: 'chilli', name: { en: 'Chilli', te: 'మిరప', hi: 'मिर्च', ta: '🌶️ மிளகாய்', kn: '🌶️ ಮೆಣಸಿನಕಾಯಿ', ml: '🌶️ മുളക്', mr: '🌶️ मिरची', bn: '🌶️ লঙ্কা', gu: '🌶️ મરચાં', pa: '🌶️ ਮਿਰਚ', or: '🌶️ ଲଙ୍କା' } },
+      { id: 'paddy', name: { en: 'Paddy', te: 'వరి', hi: 'धान', ta: '🌾 நெல்', kn: '🌾 ಭತ್ತ', ml: '🌾 നെല്ല്', mr: '🌾 भात', bn: '🌾 ধান', gu: '🌾 ડાંગર', pa: '🌾 ਝੋਨਾ', or: '🌾 ଧାନ' } },
+      { id: 'tomato', name: { en: 'Tomato', te: 'టమోటా', hi: 'टमाटर', ta: '🍅 தக்காளி', kn: '🍅 ಟೊಮೆಟೊ', ml: '🍅 തക്കാളി', mr: '🍅 टोमॅटो', bn: '🍅 টমেটো', gu: '🍅 ટામેટા', pa: '🍅 ਟਮਾਟਰ', or: '🍅 ଟମାଟୋ' } },
+      { id: 'equipment', name: { en: 'Equipment', te: 'యంత్రాలు', hi: 'उपकरण', ta: '🚜 இயந்திரங்கள்', kn: '🚜 ಉಪಕರಣಗಳು', ml: '🚜 യന്ത്രങ്ങൾ', mr: '🚜 उपकरणे', bn: '🚜 যন্ত্রপাতি', gu: '🚜 સાધનો', pa: '🚜 ਸੰਦ', or: '🚜 ଯନ୍ତ୍ରପାତି' } },
+      { id: 'biorx', name: { en: '🧪 BioRx Organic', te: '🧪 సేంద్రీయ మందులు', hi: 'जैविक दवाएं', ta: '🧪 இயற்கை மருந்து', kn: '🧪 ಜೈವಿಕ ಔಷಧ', ml: '🧪 ജൈവ മരുന്ന്', mr: '🧪 सेंद्रिय औषध', bn: '🧪 জৈব ওষুধ', gu: '🧪 જૈવિક દવાઓ', pa: '🧪 ਜੈਵਿਕ ਦਵਾਈਆਂ', or: '🧪 ଜୈବିକ ଔଷଧ' } }
     ];
 
     setTimeout(() => renderCommunityFeedDom(), 50);
@@ -18161,7 +18348,7 @@ function getAgristackFarmerCardHtml() {
     return `
       <div style="background:linear-gradient(135deg,#065F46 0%,#047857 55%,#064E3B 100%);border-radius:22px;padding:22px 18px;color:#FFFFFF;box-shadow:0 8px 24px rgba(4,120,87,0.28);margin-bottom:14px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.2);text-align:center;">
         <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);padding:3px 10px;border-radius:20px;margin-bottom:10px;backdrop-filter:blur(4px);">
-          <span>🏛️</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           <span style="font-size:9.5px;font-weight:900;letter-spacing:0.04em;">
             GOVT OF INDIA · AGRISTACK REGISTRY
           </span>
@@ -18306,7 +18493,7 @@ function getAgristackDynamicBodyHtml() {
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;margin-bottom:14px;box-shadow:0 4px 16px -2px rgba(15,23,42,0.06);border:1.5px solid #E2ECE2;">
       <div style="padding:10px 14px;background:#F8FAF8;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2ECE2;">
         <div style="display:flex;align-items:center;gap:6px;min-width:0;">
-          <span style="font-size:14px;">🗺️</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
           <span style="font-size:10.5px;font-weight:900;color:#0F172A;letter-spacing:0.02em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
             ${TL('OpenStreetMap Cadastral RoR', 'ఓపెన్‌స్ట్రీట్‌మ్యాప్ సరిహద్దులు', 'OpenStreetMap Cadastral RoR')}
           </span>
@@ -18326,11 +18513,13 @@ function getAgristackDynamicBodyHtml() {
 
         <!-- Floating Map Controls -->
         <div style="position:absolute;top:8px;right:8px;z-index:1000;display:flex;flex-direction:column;gap:4px;">
-          <button onclick="toggleMapTileType('satellite')" style="background:rgba(255,255,255,0.92);border:1px solid #CBD5E1;color:#0F172A;border-radius:8px;padding:4px 8px;font-size:9px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-            🛰️ Sat
+          <button onclick="toggleMapTileType('satellite')" style="background:rgba(255,255,255,0.95);border:1px solid #CBD5E1;color:#0F172A;border-radius:8px;padding:4px 8px;font-size:9.5px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.08);display:flex;align-items:center;gap:4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            <span>Sat</span>
           </button>
-          <button onclick="toggleMapTileType('cadastral')" style="background:rgba(255,255,255,0.92);border:1px solid #CBD5E1;color:#15803D;border-radius:8px;padding:4px 8px;font-size:9px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-            🗺️ RoR
+          <button onclick="toggleMapTileType('cadastral')" style="background:rgba(255,255,255,0.95);border:1px solid #CBD5E1;color:#15803D;border-radius:8px;padding:4px 8px;font-size:9.5px;font-weight:800;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.08);display:flex;align-items:center;gap:4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+            <span>RoR</span>
           </button>
         </div>
       </div>
@@ -18624,65 +18813,7 @@ function refreshFarmerEkycConsent() {
 
 
 /* ═════════════════ GRAMHAUL REAL-TIME POOLED FLEET ENGINE ═════════════════ */
-let GRAMHAUL_POOLED_TRUCKS = [
-  {
-    id: 'TRK-8419',
-    plate: 'TS-03-UB-4491',
-    vehicle: 'Tata 407 (Heavy Duty)',
-    driverName: 'Ramesh Yadav',
-    driverPhone: '+91 98490 22338',
-    rating: '⭐ 4.9 (142 Trips)',
-    origin: 'Narsampet Rural',
-    destination: 'Warangal Enumamula APMC Yard',
-    distance: '2.1 km away',
-    pickupEta: '25 mins (Pickup at 4:15 PM)',
-    departure: 'Today, 4:30 PM',
-    totalBagsCapacity: 30,
-    filledBags: 22,
-    freeSlots: 8,
-    ratePerBag: 45,
-    soloRate: 1800,
-    mapPos: { x: 125, y: 130, label: 'Tata 407 (₹45)' }
-  },
-  {
-    id: 'TRK-4920',
-    plate: 'AP-36-TA-4920',
-    vehicle: 'Eicher Pro 2049 (Express)',
-    driverName: 'K. Venkatesham',
-    driverPhone: '+91 94401 77391',
-    rating: '⭐ 4.8 (98 Trips)',
-    origin: 'Station Road, Warangal',
-    destination: 'Bowenpally APMC, Hyderabad (+₹180/Qtl)',
-    distance: '3.4 km away',
-    pickupEta: '45 mins (Pickup at 5:15 PM)',
-    departure: 'Today, 6:00 PM',
-    totalBagsCapacity: 45,
-    filledBags: 31,
-    freeSlots: 14,
-    ratePerBag: 65,
-    soloRate: 2800,
-    mapPos: { x: 230, y: 80, label: 'Eicher (₹65)' }
-  },
-  {
-    id: 'TRK-1102',
-    plate: 'TS-04-EA-1102',
-    vehicle: 'Mahindra Bolero Maxi Truck',
-    driverName: 'Md. Ismail Khan',
-    driverPhone: '+91 99890 32184',
-    rating: '⭐ 4.9 (210 Trips)',
-    origin: 'Mulugu Hub',
-    destination: 'Warangal Enumamula APMC Yard',
-    distance: '6.2 km away',
-    pickupEta: '35 mins (Pickup at 4:40 PM)',
-    departure: 'Today, 5:15 PM',
-    totalBagsCapacity: 20,
-    filledBags: 14,
-    freeSlots: 6,
-    ratePerBag: 45,
-    soloRate: 1400,
-    mapPos: { x: 225, y: 160, label: 'Bolero (₹45)' }
-  }
-];
+let GRAMHAUL_POOLED_TRUCKS = [];
 
 let selectedTruckIndex = 0;
 let gramhaulBookingBags = 10;
