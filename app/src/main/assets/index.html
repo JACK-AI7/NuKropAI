@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 
@@ -8509,6 +8509,9 @@ function submitMachineryListing() {
   };
 
   MACHINERY_CATALOG.unshift(newItem);
+  if (typeof nk_createMachineryListing === 'function') {
+    try { nk_createMachineryListing(newItem); } catch(e) {}
+  }
   closeMachineryListingModal(null);
 
   alert(TL(
@@ -8698,6 +8701,9 @@ function saveKhataEntry() {
   };
 
   farmKhataEntries.unshift(newEntry);
+  if (typeof nk_saveKhataTransaction === 'function') {
+    try { nk_saveKhataTransaction(newEntry); } catch(e) {}
+  }
   closeKhataModal(null);
 
   alert(TL(
@@ -10197,10 +10203,39 @@ async function syncLiveOnlineDriversFromSupabase() {
   }
 }
 
-// 2. Fetch Real Equipment Rentals from Supabase
+// 2. Fetch Real Machinery Listings from Supabase
 async function fetchEquipmentFromSupabase() {
   try {
-    const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/equipment_rentals?select=*`, {
+    const client = window.sbClient || (typeof supabase !== 'undefined' ? supabase : null);
+    if (client && typeof nk_fetchMachineryListings === 'function') {
+      const data = await nk_fetchMachineryListings('all');
+      if (Array.isArray(data) && data.length > 0) {
+        console.log(`✅ Fetched ${data.length} machinery listings from Supabase!`);
+        data.forEach((eq, idx) => {
+          const modelName = eq.model_name || eq.name || 'Machinery';
+          const exists = (typeof FARM_MACHINERY_CATALOG !== 'undefined') && FARM_MACHINERY_CATALOG.find(x => (x.name.en||'').toLowerCase().includes(modelName.toLowerCase()));
+          if (!exists && typeof FARM_MACHINERY_CATALOG !== 'undefined') {
+            FARM_MACHINERY_CATALOG.unshift({
+              id: eq.id || ('sb-mach-' + idx),
+              name: { en: modelName, te: modelName, hi: modelName },
+              category: eq.machinery_type || eq.category || 'tractor',
+              hourlyRate: parseInt(eq.hourly_rate || eq.rate) || 700,
+              acreRate: parseInt(eq.acre_rate) || (parseInt(eq.hourly_rate || eq.rate) || 700) * 1.5,
+              owner: { en: 'Local Verified Hub', te: 'ధృవీకరించబడిన కేంద్రం', hi: 'प्रमाणित हब' },
+              phone: eq.contact_phone || eq.phone_number || '+91 98490 22338',
+              hub: { en: eq.district || 'Warangal Hub', te: 'వరంగల్ హబ్', hi: 'वारंगल हब' },
+              dist: { en: '1.5 km (Local Hub)', te: '1.5 కి.మీ (స్థానిక హబ్)', hi: '1.5 किमी (स्थानीय हब)' },
+              rating: '⭐ 4.9 (Supabase Verified)',
+              available: eq.is_available !== false,
+              photoUrl: eq.photo_url || (eq.machinery_type === 'drone' ? 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=400&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=400&auto=format&fit=crop&q=80')
+            });
+          }
+        });
+        return;
+      }
+    }
+
+    const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/machinery_listings?select=*`, {
       method: 'GET',
       headers: {
         'apikey': SUPABASE_CONFIG.anonKey,
@@ -10211,24 +10246,24 @@ async function fetchEquipmentFromSupabase() {
     if (!res.ok) throw new Error('Supabase HTTP ' + res.status);
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {
-      console.log(`✅ Fetched ${data.length} equipment listings from Supabase!`);
-      // Add or merge into local equipment items
+      console.log(`✅ Fetched ${data.length} machinery listings from Supabase!`);
       data.forEach((eq, idx) => {
-        const exists = (typeof FARM_MACHINERY_CATALOG !== 'undefined') && FARM_MACHINERY_CATALOG.find(x => (x.name.en||'').toLowerCase().includes(eq.name.toLowerCase()));
+        const modelName = eq.model_name || eq.name || 'Machinery';
+        const exists = (typeof FARM_MACHINERY_CATALOG !== 'undefined') && FARM_MACHINERY_CATALOG.find(x => (x.name.en||'').toLowerCase().includes(modelName.toLowerCase()));
         if (!exists && typeof FARM_MACHINERY_CATALOG !== 'undefined') {
           FARM_MACHINERY_CATALOG.unshift({
-            id: 'sb-eq-' + idx,
-            name: { en: eq.name, te: eq.name, hi: eq.name },
-            category: eq.category || 'tractor',
-            hourlyRate: parseInt(eq.rate) || 600,
-            acreRate: (parseInt(eq.rate) || 600) * 1.6,
-            ownerName: eq.owner_name,
-            phone: eq.phone_number,
-            hub: { en: eq.location, te: eq.location, hi: eq.location },
-            distanceKm: parseFloat(eq.distance_str) || 3.5,
-            rating: '★ 4.9 (Supabase Verified)',
+            id: eq.id || ('sb-mach-' + idx),
+            name: { en: modelName, te: modelName, hi: modelName },
+            category: eq.machinery_type || eq.category || 'tractor',
+            hourlyRate: parseInt(eq.hourly_rate || eq.rate) || 700,
+            acreRate: parseInt(eq.acre_rate) || (parseInt(eq.hourly_rate || eq.rate) || 700) * 1.5,
+            owner: { en: 'Local Verified Hub', te: 'ధృవీకరించబడిన కేంద్రం', hi: 'प्रमाणित हब' },
+            phone: eq.contact_phone || eq.phone_number || '+91 98490 22338',
+            hub: { en: eq.district || 'Warangal Hub', te: 'వరంగల్ హబ్', hi: 'वारंगल हब' },
+            dist: { en: '1.5 km (Local Hub)', te: '1.5 కి.మీ (స్థానిక హబ్)', hi: '1.5 किमी (स्थानीय हब)' },
+            rating: '⭐ 4.9 (Supabase Verified)',
             available: eq.is_available !== false,
-            photoUrl: eq.category === 'drone' ? 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=400&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=400&auto=format&fit=crop&q=80'
+            photoUrl: eq.photo_url || (eq.machinery_type === 'drone' ? 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=400&auto=format&fit=crop&q=80' : 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=400&auto=format&fit=crop&q=80')
           });
         }
       });
@@ -10241,7 +10276,11 @@ async function fetchEquipmentFromSupabase() {
 // 3. Push Newly Listed Equipment to Supabase
 async function pushEquipmentToSupabase(eqData) {
   try {
-    const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/equipment_rentals`, {
+    if (typeof nk_createMachineryListing === 'function') {
+      await nk_createMachineryListing(eqData);
+      return;
+    }
+    const res = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/machinery_listings`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_CONFIG.anonKey,
@@ -10250,13 +10289,12 @@ async function pushEquipmentToSupabase(eqData) {
         'Prefer': 'return=representation'
       },
       body: JSON.stringify({
-        name: eqData.name,
-        category: eqData.category || 'tractor',
-        rate: String(eqData.rate),
-        owner_name: eqData.owner_name,
-        phone_number: eqData.phone_number,
-        location: eqData.location,
-        distance_str: '1.2 km away',
+        model_name: eqData.name,
+        machinery_type: eqData.category || 'tractor',
+        hourly_rate: parseFloat(eqData.rate) || 700,
+        contact_phone: eqData.phone_number || '+91 98490 22338',
+        district: eqData.location || 'Warangal',
+        state: 'Telangana',
         is_available: true
       })
     });
@@ -18044,12 +18082,18 @@ function fetchAndVerifyRealLandRecord() {
   const client = window.sbClient || (typeof supabase !== 'undefined' ? supabase : null);
   if (client && typeof client.from === 'function') {
     try {
-      client.from('farmer_profiles').upsert([{
+      const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
+      const profilePayload = {
         full_name: name,
         fid: dpiStore.data.farmer_profile.fid,
         aadhaar_hash: aadhaarToken || '',
         is_ekyc_verified: true
-      }]).catch(() => {});
+      };
+      if (userUuid) {
+        profilePayload.id = userUuid;
+        profilePayload.user_id = userUuid;
+      }
+      client.from('profiles').upsert([profilePayload]).catch(() => {});
     } catch(e) {}
   }
 
