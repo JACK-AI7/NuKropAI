@@ -749,15 +749,20 @@ INSERT INTO public.subsidies (scheme_name, authority, benefit_amount, eligibilit
 SELECT 'PM Krishi Sinchayee Yojana (Micro-Irrigation)', 'Dept of Agriculture & Cooperation', 'Up to 90% Drip / Sprinkler Subsidy', 'Small and marginal farmers with active borewell/water source', 'https://pmksy.gov.in/', 'Active / Open'
 WHERE NOT EXISTS (SELECT 1 FROM public.subsidies WHERE scheme_name = 'PM Krishi Sinchayee Yojana (Micro-Irrigation)');
 
--- APMC Live Mandi Rates Initial Snapshot
+-- APMC Live Mandi Rates Initial Snapshot (Safe Zero-Conflict)
 INSERT INTO public.mandi_live_rates (state, district, market, commodity, commodity_te, commodity_hi, min_price, max_price, modal_price, msp_price, arrivals_qtl, trend, trend_pct)
-VALUES
-('Telangana', 'Warangal', 'Warangal APMC Yard', 'Cotton (Long Staple)', 'పత్తి', 'कपास', 7450, 7850, 7680, 7121, 2450, 'up', 2.8),
-('Telangana', 'Warangal', 'Warangal APMC Yard', 'Chilli (Teja Variety)', 'తేజ మిరప', 'तेजा मिर्च', 18200, 21500, 19800, 0, 850, 'up', 4.2),
-('Telangana', 'Warangal', 'Warangal APMC Yard', 'Paddy (Common)', 'వరి ధాన్యం', 'धान', 2180, 2320, 2250, 2183, 4200, 'stable', 0.5),
-('Telangana', 'Hyderabad', 'Gudimalkapur APMC Yard', 'Tomato (Hybrid)', 'టమోటా', 'टमाटर', 1400, 2200, 1800, 0, 1200, 'down', -3.1),
-('Telangana', 'Hyderabad', 'Bowenpally Wholesale APMC', 'Onion (Red)', 'ఉల్లిపాయ', 'प्याज', 2200, 3100, 2750, 0, 3800, 'up', 1.9)
-;
+SELECT v.state, v.district, v.market, v.commodity, v.commodity_te, v.commodity_hi, v.min_price, v.max_price, v.modal_price, v.msp_price, v.arrivals_qtl, v.trend, v.trend_pct
+FROM (VALUES
+  ('Telangana', 'Warangal', 'Warangal APMC Yard', 'Cotton (Long Staple)', 'పత్తి', 'कपास', 7450::numeric, 7850::numeric, 7680::numeric, 7121::numeric, 2450::numeric, 'up', 2.8::numeric),
+  ('Telangana', 'Warangal', 'Warangal APMC Yard', 'Chilli (Teja Variety)', 'తేజ మిరప', 'तेजा मिर्च', 18200::numeric, 21500::numeric, 19800::numeric, 0::numeric, 850::numeric, 'up', 4.2::numeric),
+  ('Telangana', 'Warangal', 'Warangal APMC Yard', 'Paddy (Common)', 'వరి ధాన్యం', 'धान', 2180::numeric, 2320::numeric, 2250::numeric, 2183::numeric, 4200::numeric, 'stable', 0.5::numeric),
+  ('Telangana', 'Hyderabad', 'Gudimalkapur APMC Yard', 'Tomato (Hybrid)', 'టమోటా', 'टमाटर', 1400::numeric, 2200::numeric, 1800::numeric, 0::numeric, 1200::numeric, 'down', -3.1::numeric),
+  ('Telangana', 'Hyderabad', 'Bowenpally Wholesale APMC', 'Onion (Red)', 'ఉల్లిపాయ', 'प्याज', 2200::numeric, 3100::numeric, 2750::numeric, 0::numeric, 3800::numeric, 'up', 1.9::numeric)
+) AS v(state, district, market, commodity, commodity_te, commodity_hi, min_price, max_price, modal_price, msp_price, arrivals_qtl, trend, trend_pct)
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.mandi_live_rates
+  WHERE market = v.market AND commodity = v.commodity
+);
 
 -- ══════════════════════════════════════════════════════════════════════════════
 -- END OF CANONICAL PRODUCTION SCHEMA SETUP
