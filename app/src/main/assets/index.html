@@ -6378,179 +6378,9 @@ let activeInstagramStoryIdx = 0;
 
 let userAttachedMedia = { photos: [], videos: [], voiceNote: null };
 
-let COMMUNITY_STORIES_CATALOG = [
-  {
-    id: 'story-1',
-    author: { en: 'Dr. Rao (KVK)', te: 'డా. రావు (KVK)', hi: 'डॉ. राव (KVK)', ta: 'டாக்டர் ராவ் (KVK)' },
-    role: 'ICAR Agronomist',
-    avatar: '👨‍🔬',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    title: { en: 'Yellow Stem Borer Alert in Paddy', te: 'వరిలో కాండం తొలుచు పురుగు నివారణ హెచ్చరిక', hi: 'धान में तना छेदक कीट की रोकथाम', ta: 'நெல் தண்டு துளைப்பான் எச்சரிக்கை' },
-    mediaUrl: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=600&auto=format&fit=crop&q=80',
-    audioText: {
-      en: 'Immediate advisory for paddy farmers: Heavy dew causes stem borer larvae hatching. Apply Cartap Hydrochloride 4G at 8kg per acre with dry sand.',
-      te: 'రైతులకు అత్యవసర సలహా: మంచు ప్రభావంతో వరిలో కాండం తొలుచు పురుగు ఉధృతి పెరిగింది. ఎకరానికి 8 కిలోల కార్టాప్ హైడ్రోక్లోరైడ్ 4G ఇసుకలో కలిపి చల్లండి.',
-      hi: 'धान किसानों के लिए आपातकालीन सलाह: ओस के कारण तना छेदक कीट का प्रकोप बढ़ गया है। 8 किलो कार्टाप हाइड्रोक्लोराइड 4G प्रति एकड़ डालें।',
-      ta: 'நெல் விவசாயிகளுக்கு அவசர ஆலோசனை: பனிப்பொழிவால் தண்டு துளைப்பான் புழுக்கள் பெருகுகின்றன. ஏக்கருக்கு 8 கிலோ கார்டாப் ஹைட்ரோகுளோரைடு 4G தெளிக்கவும்.'
-    },
-    tag: '⚡ KVK Advisory',
-    timeAgo: '15m ago'
-  },
-  {
-    id: 'story-2',
-    author: { en: 'APMC Warangal Live', te: 'వరంగల్ మార్కెట్ లైవ్', hi: 'वारंगल मंडी लाइव', ta: 'வாரங்கல் சந்தை' },
-    role: 'Market Official',
-    avatar: '🏛️',
-    avatarUrl: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?w=150&auto=format&fit=crop&q=80',
-    title: { en: 'Cotton Auction Surges to ₹7,850/Q', te: 'పత్తి ధర క్వింటాలుకు ₹7,850 చేరింది', hi: 'कपास का भाव ₹7,850/क्विंटल पहुंचा', ta: 'பருத்தி விலை குவிண்டாலுக்கு ₹7,850 எட்டியது' },
-    mediaUrl: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=600&auto=format&fit=crop&q=80',
-    audioText: {
-      en: 'Live APMC Warangal: Supreme quality long staple cotton touched 7850 rupees today. 45 trucks unloaded so far.',
-      te: 'వరంగల్ మార్కెట్ ప్రత్యక్ష సమాచారం: ఉత్తమ నాణ్యమైన పత్తి ధర నేడు క్వింటాలుకు ₹7,850 పలికింది. ఇప్పటివరకు 45 లారీలు వచ్చాయి.',
-      hi: 'वारंगल मंडी लाइव: उत्तम क्वालिटी कपास का भाव आज 7850 रुपये प्रति क्विंटल तक पहुंचा। अब तक 45 ट्रक अनलोड हुए।',
-      ta: 'வாரங்கல் சந்தை நேரலை: உயர்தர பருத்தி விலை இன்று ₹7,850 ஐ தொட்டது.'
-    },
-    tag: '📈 Market Surge',
-    timeAgo: '42m ago'
-  },
-  {
-    id: 'story-3',
-    author: { en: 'Raju Naidu', te: 'రాజు నాయుడు', hi: 'राजू नायडू', ta: 'ராஜு நாயுடு' },
-    role: 'Cotton Farmer (4.5 Ac)',
-    avatar: '👨‍🌾',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    title: { en: 'BioRx Organic Foliar Spray Results', te: 'బయోఆర్ఎక్స్ సేంద్రీయ పిచికారీ అద్భుత ఫలితం', hi: 'बायोआरएक्स जैविक स्प्रे के परिणाम', ta: 'பயோஆர்எக்ஸ் இயற்கை தெளிப்பு முடிவுகள்' },
-    mediaUrl: 'https://images.unsplash.com/photo-1592417817098-8f3d6910985b?w=600&auto=format&fit=crop&q=80',
-    audioText: {
-      en: 'Brothers, see this green foliage in 50 days cotton after using BioRx organic spray. Boll weight increased noticeably without chemical burn.',
-      te: 'రైతు సోదరులారా, బయోఆర్ఎక్స్ సేంద్రీయ స్ప్రే వాడిన తర్వాత 50 రోజుల పత్తి పంట పచ్చదనంతో కళకళలాడుతోంది. కాయ సైజు బాగా పెరిగింది.',
-      hi: 'किसान भाइयों, बायोआरएक्स जैविक स्प्रे के बाद 50 दिन की कपास में बेहतरीन फुटाव और हरी पत्तियां दिख रही हैं।',
-      ta: 'விவசாய தோழர்களே, பயோஆர்எக்ஸ் இயற்கை தெளிப்பு பயன்படுத்திய பிறகு பருத்தி பயிர் நல்ல பசுமையுடன் உள்ளது.'
-    },
-    tag: '🌱 Field Trial',
-    timeAgo: '1h ago'
-  },
-  {
-    id: 'story-4',
-    author: { en: 'Suresh Yadav', te: 'సురేష్ యాదవ్', hi: 'सुरेश यादव', ta: 'சுரேஷ் யாதவ்' },
-    role: 'Chilli Farmer (3.2 Ac)',
-    avatar: '🌶️',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    title: { en: 'Blue Sticky Traps Catching Thrips', te: 'నీలం జిగురు అట్టలకు చిక్కిన నల్ల తామర పురుగులు', hi: 'नीले स्टिकी ट्रैप में फंसे थ्रिप्स', ta: 'நீல ஒட்டும் பொறியில் சிக்கிய இலைப்பேன்' },
-    mediaUrl: 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?w=600&auto=format&fit=crop&q=80',
-    audioText: {
-      en: 'Installed 25 blue sticky traps per acre yesterday. Over 500 thrips caught overnight, preventing leaf curl virus spread.',
-      te: 'నిన్న ఎకరానికి 25 నీలం జిగురు అట్టలు పెట్టాను. రాత్రికి రాత్రే వందలాది నల్ల తామర పురుగులు చిక్కాయి. ముడత తెగులు వ్యాప్తి ఆగింది.',
-      hi: 'कल प्रति एकड़ 25 नीले ट्रैप लगाए थे। सैकड़ों थ्रिप्स चिपक गए और मिर्च का मरोड़िया रोग रुक गया।',
-      ta: 'நேற்று ஏக்கருக்கு 25 நீல பொறிகள் வைத்தேன். ஒரே இரவில் நூற்றுக்கணக்கான இலைப்பேன்கள் சிக்கின.'
-    },
-    tag: '💡 Smart Tip',
-    timeAgo: '2h ago'
-  },
-  {
-    id: 'story-5',
-    author: { en: 'IMD Agromet Advisory', te: 'వాతావరణ శాఖ సూచన', hi: 'मौसम विभाग सलाह', ta: 'வானிலை ஆலோசனை' },
-    role: 'Agro-Meteorology Unit',
-    avatar: '🌦️',
-    avatarUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=150&auto=format&fit=crop&q=80',
-    title: { en: 'Light Rains Forecasted for 48 Hours', te: 'రాగల 48 గంటల్లో తేలికపాటి వర్ష సూచన', hi: 'अगले 48 घंटों में हल्की बारिश की संभावना', ta: 'அடுத்த 48 மணி நேரத்தில் லேசான மழை' },
-    mediaUrl: 'https://images.unsplash.com/photo-1514632595-4944383f2737?w=600&auto=format&fit=crop&q=80',
-    audioText: {
-      en: 'Cloudy weather with scattered drizzle expected. Postpone fertilizer broadcasting until rain stops to avoid nutrient leaching.',
-      te: 'మేఘావృతమైన వాతావరణం, తేలికపాటి చిరుజల్లులు పడే అవకాశం ఉంది. ఎరువులు చల్లడం 2 రోజులు వాయిదా వేయండి.',
-      hi: 'बादल छाए रहेंगे और बूंदाबांदी संभव है। खाद का छिड़काव 2 दिन के लिए टाल दें ताकि पोषक तत्व बह न जाएं।',
-      ta: 'மேகமூட்டம் மற்றும் சாரல் மழை பெய்ய வாய்ப்புள்ளது. உரமிடுவதை 2 நாட்கள் தள்ளிப்போடுங்கள்.'
-    },
-    tag: '🌧️ Weather Alert',
-    timeAgo: '3h ago'
-  }
-];
+let COMMUNITY_STORIES_CATALOG = [];
 
-let COMMUNITY_POSTS_CATALOG = [
-  {
-    id: 'post-1',
-    author: { en: 'Raju Naidu', te: 'రాజు నాయుడు', hi: 'राजू नायडू', ta: 'ராஜு நாயுடு' },
-    avatar: '👨‍🌾',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    verified: true,
-    verifiedBadge: 'Verified Progressive Farmer',
-    village: { en: 'Geesugonda (4.5 Acres)', te: 'గీసుకొండ (4.5 ఎకరాలు)', hi: 'गीसुगोंडा (4.5 एकड़)', ta: 'கீசுகொண்டா (4.5 ஏக்கர்)' },
-    cropId: 'cotton',
-    cropName: { en: 'Cotton', te: 'పత్తి', hi: 'कपास', ta: 'பருத்தி' },
-    timeAgo: { en: '2 hours ago', te: '2 గంటల క్రితం', hi: '2 घंटे पहले', ta: '2 மணி நேரத்திற்கு முன்' },
-    title: {
-      en: 'Pink bollworm in 45-day Cotton crop. Is Profenofos 50% EC working well?',
-      te: '45 రోజుల పత్తిలో గులాబీ రంగు పురుగు కనిపిస్తోంది. ప్రొఫెనోఫాస్ 50% EC సమర్థవంతంగా పనిచేస్తుందా?',
-      hi: '45 दिन की कपास में गुलाबी सुंडी। क्या प्रोफेनोफॉस 50% EC प्रभावी है?',
-      ta: '45 நாள் பருத்தியில் இளஞ்சிவப்பு காய்ப்புழு. Profenofos 50% EC நன்றாக வேலை செய்யுமா?'
-    },
-    text: {
-      en: 'Found 3 rosette flowers per 20 plants. Also noticed small pink larvae inside bolls. Weather is humid (88%). What dosage should I spray with power sprayer? Should I mix Neem Oil?',
-      te: 'ప్రతి 20 మొక్కలకు 3 ముడుచుకున్న పూలు ఉన్నాయి. కాయల్లో చిన్న గులాబీ రంగు పురుగులు కనిపించాయి. గాలిలో తేమ ఎక్కువగా ఉంది. పవర్ స్ప్రేయర్ తో ఎంత మోతాదు పిచికారీ చేయాలి? వేప నూనె కలపవచ్చా?',
-      hi: 'प्रति 20 पौधों में 3 रोसेट फूल मिले हैं। अंदर छोटी गुलाबी सुंडी भी दिखी। नमी 88% है। सही दवा और मात्रा बताएं।',
-      ta: '20 செடிகளுக்கு 3 ரோஸட் பூக்கள் உள்ளன. காய் உள்ளே புழுக்கள் உள்ளன. சரியான மருந்து மற்றும் அளவை பரிந்துரைக்கவும்.'
-    },
-    likes: 24,
-    isLiked: false,
-    photos: [
-      'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=500&auto=format&fit=crop&q=80'
-    ],
-    videos: [],
-    voiceNote: {
-      duration: '0:28',
-      text: 'Found rosette flowers in 45 day cotton field. High humidity 88 percent. Need advice on Profenofos or Emamectin.'
-    },
-    mediaLabel: { en: '1 Field Photo · 1 Voice Note', te: '1 ఫోటో · 1 వాయిస్ నోట్', hi: '1 फोटो · 1 वॉयस नोट' },
-    isResolved: false,
-    comments: [
-      {
-        author: { en: 'Dr. Srinivas (Agronomist, KVK)', te: 'డా. శ్రీనివాస్ (వ్యవసాయ శాస్త్రవేత్త, KVK)', hi: 'डॉ. श्रीनिवास (कृषि वैज्ञानिक, KVK)' },
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        role: 'Verified ICAR Scientist',
-        text: {
-          en: 'Immediately install 5 Pheromone Traps/acre. For chemical spray, use Profenofos 50% EC @ 350ml/acre (2ml/L) or Emamectin Benzoate 5% SG @ 88g/acre. Spray between 4:00 PM – 6:30 PM.',
-          te: 'వెంటనే ఎకరానికి 5 లింగాకర్షక బుట్టలు అమర్చండి. రసాయన పిచికారీ కోసం ప్రొఫెనోఫాస్ 50% EC (2మి.లీ/లీటరు) లేదా ఎమామెక్టిన్ బెంజోయేట్ 5% SG (88గ్రా/ఎకరం) వాడండి. సాయంత్రం 4:00 – 6:30 మధ్య పిచికారీ చేయండి.',
-          hi: 'तुरंत 5 फेरोमोन ट्रैप लगाएं। प्रोफेनोफॉस 50% EC (2ml/L) या इमामेक्टिन बेंजोएट 5% SG (88g/एकड़) का छिड़काव शाम 4:00 से 6:30 के बीच करें।'
-        },
-        time: '1 hour ago'
-      }
-    ]
-  },
-  {
-    id: 'post-2',
-    author: { en: 'Anil Kumar', te: 'అనిల్ కుమార్', hi: 'अनिल कुमार', ta: 'அனில் குமார்' },
-    avatar: '👨‍🌾',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    verified: true,
-    verifiedBadge: 'Organic Farmer',
-    village: { en: 'Wardhannapet (3.2 Acres)', te: 'వర్ధన్నపేట (3.2 ఎకరాలు)', hi: 'वर्धन्नापेट (3.2 एकड़)', ta: 'வர்தன்னபேட் (3.2 ஏக்கர்)' },
-    cropId: 'chilli',
-    cropName: { en: 'Chilli', te: 'మిరప', hi: 'मिर्च', ta: 'மிளகாய்' },
-    timeAgo: { en: '5 hours ago', te: '5 గంటల క్రితం', hi: '5 घंटे पहले', ta: '5 மணி நேரத்திற்கு முன்' },
-    title: {
-      en: 'Black Thrips control with Dashaparni Kashayam - 100% Organic results!',
-      te: 'దశపర్ణి కషాయంతో నల్ల తామర పురుగుల నియంత్రణ - 100% సేంద్రీయ ఫలితాలు!',
-      hi: 'दशपर्णी काढ़े से ब्लैक थ्रिप्स का सफल जैविक नियंत्रण!',
-      ta: 'தசபர்ணி கஷாயத்துடன் கருப்பு இலைப்பேன் கட்டுப்பாடு - 100% இயற்கை முடிவுகள்!'
-    },
-    text: {
-      en: 'I sprayed 500ml Dashaparni Kashayam per 15L tank + 20 Blue Sticky Traps per acre. Within 48 hours, young foliage opened up with fresh green growth. No chemical shock to chilli plants!',
-      te: 'నేను 15 లీటర్ల ట్యాంకుకు 500మి.లీ దశపర్ణి కషాయం + ఎకరానికి 20 నీలం జిగురు అట్టలు పెట్టాను. 48 గంటల్లో కొత్త చిగుర్లు వచ్చాయి. మొక్కలకు ఎటువంటి రసాయన ఒత్తిడి కలగలేదు!',
-      hi: 'मैंने 15L की टंकी में 500ml दशपर्णी काढ़ा + 20 नीले चिपचिपे ट्रैप लगाए। 48 घंटे में नई पत्तियां स्वस्थ निकलीं। मिर्च के पौधों को कोई रासायनिक झटका नहीं लगा!',
-      ta: '15லி டேங்கிற்கு 500மி.லி தசபர்ணி கஷாயம் + ஏக்கருக்கு 20 நீல பொறிகள் வைத்தேன். 48 மணி நேரத்தில் புதிய தளிர் வந்தது.'
-    },
-    likes: 42,
-    isLiked: false,
-    photos: [
-      'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?w=500&auto=format&fit=crop&q=80'
-    ],
-    videos: [],
-    voiceNote: null,
-    mediaLabel: { en: '1 Field Photo', te: '1 ఫోటో', hi: '1 फोटो' },
-    isResolved: true,
-    comments: []
-  }
-];
+let COMMUNITY_POSTS_CATALOG = [];
 
 let instagramStoryTimer = null;
 let storyKeyboardListenerAttached = false;
@@ -12453,6 +12283,159 @@ var gramhaulTrackingTruckMarker = null;
 var gramhaulTrackingRouteLine = null;
 var gramhaulTrackingAnimTimer = null;
 
+
+/* ══════════════════════════════════════════════════════════════════
+   INTERACTIVE MOVABLE BOTTOM SHEET CONTROLLER (RAPIDO/UBER GRADE)
+   ══════════════════════════════════════════════════════════════════ */
+function initGramhaulMovableSheet() {
+  const sheet = document.getElementById('gramhaul-booking-sheet');
+  const handle = document.getElementById('gh-drag-handle-area');
+  const pill = document.getElementById('gh-drag-pill');
+  if (!sheet || !handle) return;
+
+  let isDragging = false;
+  let startY = 0;
+  let startHeight = 0;
+  let lastTime = 0;
+  let velocityY = 0;
+
+  const getVh = (vh) => (window.innerHeight * vh) / 100;
+  const peekHeight = 190;
+  const halfHeight = Math.round(getVh(52));
+  const fullHeight = Math.round(getVh(86));
+
+  function setSheetHeight(heightPx, animate = true) {
+    if (animate) {
+      sheet.style.transition = 'height 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+    } else {
+      sheet.style.transition = 'none';
+    }
+    const clamped = Math.max(peekHeight, Math.min(fullHeight, heightPx));
+    sheet.style.height = clamped + 'px';
+    if (gramhaulSelectorMap) {
+      setTimeout(() => { try { gramhaulSelectorMap.invalidateSize(); } catch(e) {} }, animate ? 320 : 0);
+    }
+  }
+
+  // Set initial height
+  setSheetHeight(halfHeight, false);
+
+  function onDragStart(clientY) {
+    isDragging = true;
+    startY = clientY;
+    startHeight = sheet.offsetHeight;
+    lastTime = Date.now();
+    velocityY = 0;
+    sheet.style.transition = 'none';
+    if (pill) {
+      pill.style.background = '#16A34A';
+      pill.style.transform = 'scaleX(1.2)';
+    }
+    document.body.style.userSelect = 'none';
+    document.body.style.webkitUserSelect = 'none';
+  }
+
+  function onDragMove(clientY) {
+    if (!isDragging) return;
+    const deltaY = clientY - startY;
+    const newHeight = startHeight - deltaY;
+    const now = Date.now();
+    const dt = now - lastTime || 1;
+    velocityY = (clientY - startY) / dt;
+    lastTime = now;
+
+    let finalHeight = newHeight;
+    if (newHeight < peekHeight) {
+      finalHeight = peekHeight - (peekHeight - newHeight) * 0.25;
+    } else if (newHeight > fullHeight) {
+      finalHeight = fullHeight + (newHeight - fullHeight) * 0.25;
+    }
+
+    sheet.style.height = Math.max(130, finalHeight) + 'px';
+  }
+
+  function onDragEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    document.body.style.userSelect = '';
+    document.body.style.webkitUserSelect = '';
+    if (pill) {
+      pill.style.background = '#CBD5E1';
+      pill.style.transform = 'scaleX(1)';
+    }
+
+    const curH = sheet.offsetHeight;
+    if (velocityY > 0.35) {
+      if (curH > halfHeight) {
+        setSheetHeight(halfHeight, true);
+      } else {
+        setSheetHeight(peekHeight, true);
+      }
+    } else if (velocityY < -0.35) {
+      if (curH < halfHeight) {
+        setSheetHeight(halfHeight, true);
+      } else {
+        setSheetHeight(fullHeight, true);
+      }
+    } else {
+      const distToPeek = Math.abs(curH - peekHeight);
+      const distToHalf = Math.abs(curH - halfHeight);
+      const distToFull = Math.abs(curH - fullHeight);
+      const minDist = Math.min(distToPeek, distToHalf, distToFull);
+
+      if (minDist === distToPeek) {
+        setSheetHeight(peekHeight, true);
+      } else if (minDist === distToFull) {
+        setSheetHeight(fullHeight, true);
+      } else {
+        setSheetHeight(halfHeight, true);
+      }
+    }
+  }
+
+  // Touch listener on handle
+  handle.ontouchstart = (e) => {
+    if (e.touches && e.touches[0]) {
+      onDragStart(e.touches[0].clientY);
+    }
+  };
+
+  window.ontouchmove = (e) => {
+    if (isDragging && e.touches && e.touches[0]) {
+      onDragMove(e.touches[0].clientY);
+    }
+  };
+
+  window.ontouchend = onDragEnd;
+  window.ontouchcancel = onDragEnd;
+
+  // Mouse / pointer listener on handle
+  handle.onmousedown = (e) => {
+    onDragStart(e.clientY);
+  };
+
+  window.onmousemove = (e) => {
+    if (isDragging) {
+      onDragMove(e.clientY);
+    }
+  };
+
+  window.onmouseup = onDragEnd;
+
+  // Click on handle to cycle snap heights
+  handle.onclick = () => {
+    const curH = sheet.offsetHeight;
+    if (curH <= peekHeight + 35) {
+      setSheetHeight(halfHeight, true);
+    } else if (curH <= halfHeight + 35) {
+      setSheetHeight(fullHeight, true);
+    } else {
+      setSheetHeight(halfHeight, true);
+    }
+  };
+}
+window.initGramhaulMovableSheet = initGramhaulMovableSheet;
+
 function initGramhaulRealMap() {
   const mapContainer = document.getElementById('gramhaul-real-osm-map');
   if (!mapContainer) return;
@@ -13847,6 +13830,7 @@ const APP_VIEWS = {
   gramhaul: () => {
     const t = I18N[currentLang] || I18N.en;
     setTimeout(initGramhaulRealMap, 80);
+    setTimeout(initGramhaulMovableSheet, 120);
     // Load real live drivers from Supabase driver_telemetry on screen open
     loadRealTrucksFromSupabase();
 
@@ -13865,12 +13849,63 @@ const APP_VIEWS = {
     .gh-vehicle-card { transition: all 0.18s ease; border: 1.5px solid #E2E8F0; background: #FFFFFF; border-radius: 18px; padding: 12px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
     .gh-vehicle-card:active { transform: scale(0.98); }
     .gh-vehicle-card.selected { border-color: #22C55E !important; background: #F0FDF4 !important; box-shadow: 0 4px 14px rgba(34,197,94,0.18) !important; }
+
+    /* Interactive Movable Bottom Sheet */
+    #gramhaul-booking-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 52vh;
+      max-height: 88vh;
+      min-height: 180px;
+      background: #FFFFFF;
+      border-radius: 28px 28px 0 0;
+      box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.16);
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: height;
+      touch-action: pan-y;
+    }
+    #gh-drag-handle-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0 8px;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      flex-shrink: 0;
+      background: #FFFFFF;
+      border-radius: 28px 28px 0 0;
+    }
+    #gh-drag-handle-area:active {
+      cursor: grabbing;
+    }
+    #gh-drag-pill {
+      width: 48px;
+      height: 5px;
+      background: #CBD5E1;
+      border-radius: 10px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #gh-drag-handle-area:hover #gh-drag-pill,
+    #gh-drag-handle-area:active #gh-drag-pill {
+      background: #16A34A;
+      transform: scaleX(1.18);
+    }
     </style>
 
-    <div style="position:relative;width:100%;height:100%;display:flex;flex-direction:column;background:#F8FAF8;overflow:hidden;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;">
+    <div style="position:relative;width:100%;height:100%;background:#F8FAF8;overflow:hidden;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;">
       
-      <!-- TOP 60%: DEDICATED UNOBSTRUCTED LEAFLET OSM MAP -->
-      <div style="position:relative;width:100%;height:60%;min-height:360px;background:#E5EFE5;flex-shrink:0;overflow:hidden;">
+      <!-- FULL-VIEWPORT LEAFLET OSM MAP -->
+      <div style="position:absolute;inset:0;width:100%;height:100%;background:#E5EFE5;overflow:hidden;z-index:1;">
         
         <!-- Interactive Leaflet Map -->
         <div id="gramhaul-real-osm-map" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;"></div>
@@ -13905,199 +13940,203 @@ const APP_VIEWS = {
         </div>
 
         <!-- Live GPS Dispatch Pill -->
-        <div style="position:absolute;bottom:10px;left:12px;z-index:20;background:rgba(15,23,42,0.85);backdrop-filter:blur(6px);color:#FFFFFF;padding:5px 12px;border-radius:999px;font-size:10.5px;font-weight:800;display:flex;align-items:center;gap:6px;box-shadow:0 2px 10px rgba(0,0,0,0.25);">
-          <span style="width:7px;height:7px;border-radius:50%;background:#4ADE80;box-shadow:0 0 6px #4ADE80;"></span>
+        <div style="position:absolute;top:70px;left:14px;z-index:20;background:rgba(15,23,42,0.88);backdrop-filter:blur(6px);color:#FFFFFF;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800;display:flex;align-items:center;gap:7px;box-shadow:0 4px 14px rgba(0,0,0,0.25);">
+          <span style="width:7px;height:7px;border-radius:50%;background:#4ADE80;box-shadow:0 0 8px #4ADE80;"></span>
           ${TL('10 KM Proximity Geofenced', '10 కి.మీ పరిధిలో వాహనాలు', '10 किमी दायरे में वाहन')}
         </div>
       </div>
 
-      <!-- BOTTOM 40%: CLEAN SCROLLABLE BOOKING CARD WITH CURVED TOP & MOVABLE HANDLE -->
-      <div id="gramhaul-booking-sheet" style="flex:1;background:#FFFFFF;border-radius:28px 28px 0 0;box-shadow:0 -8px 32px rgba(0,0,0,0.12);overflow-y:auto;padding:8px 18px 140px;box-sizing:border-box;position:relative;z-index:10;margin-top:-14px;">
-        <!-- Movable Drag Handle Pill -->
-        <div style="display:flex;justify-content:center;padding:6px 0 10px;cursor:grab;">
-          <div style="width:44px;height:5px;background:#CBD5E1;border-radius:10px;"></div>
+      <!-- MOVABLE INTERACTIVE BOTTOM SHEET (PEEK / HALF / EXPANDED) -->
+      <div id="gramhaul-booking-sheet">
+        <!-- Interactive Drag Handle Pill Area -->
+        <div id="gh-drag-handle-area">
+          <div id="gh-drag-pill"></div>
         </div>
         
-        <!-- ROUTE CARD: FROM -> TO WITH PERFECT VERTICAL TIMELINE -->
-        <div style="background:#FFFFFF;border:1.5px solid #E2E8F0;border-radius:18px;padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
-          <div style="display:flex;gap:12px;">
-            <!-- Left Vertical Timeline Track (Perfect Alignment) -->
-            <div style="display:flex;flex-direction:column;align-items:center;width:16px;padding-top:4px;flex-shrink:0;">
-              <!-- Green Pickup Dot -->
-              <div style="width:12px;height:12px;border-radius:50%;background:#16A34A;border:2.5px solid #DCFCE7;box-shadow:0 0 0 1px #16A34A;flex-shrink:0;"></div>
-              <!-- Vertical Dashed Connecting Line -->
-              <div style="width:2px;height:38px;background:repeating-linear-gradient(to bottom, #94A3B8 0, #94A3B8 4px, transparent 4px, transparent 8px);margin:3px 0;"></div>
-              <!-- Red Drop Square Pin -->
-              <div style="width:12px;height:12px;border-radius:3px;background:#DC2626;border:2.5px solid #FEE2E2;box-shadow:0 0 0 1px #DC2626;flex-shrink:0;"></div>
-            </div>
+        <!-- Scrollable Sheet Content -->
+        <div style="flex:1;overflow-y:auto;padding:4px 18px calc(max(20px, env(safe-area-inset-bottom, 20px)) + 70px);box-sizing:border-box;-webkit-overflow-scrolling:touch;">
+          <!-- ROUTE CARD: FROM -> TO WITH PERFECT VERTICAL TIMELINE -->
+          <div style="background:#FFFFFF;border:1.5px solid #E2E8F0;border-radius:18px;padding:14px 16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+            <div style="display:flex;gap:12px;">
+              <!-- Left Vertical Timeline Track (Perfect Alignment) -->
+              <div style="display:flex;flex-direction:column;align-items:center;width:16px;padding-top:4px;flex-shrink:0;">
+                <!-- Green Pickup Dot -->
+                <div style="width:12px;height:12px;border-radius:50%;background:#16A34A;border:2.5px solid #DCFCE7;box-shadow:0 0 0 1px #16A34A;flex-shrink:0;"></div>
+                <!-- Vertical Dashed Connecting Line -->
+                <div style="width:2px;height:38px;background:repeating-linear-gradient(to bottom, #94A3B8 0, #94A3B8 4px, transparent 4px, transparent 8px);margin:3px 0;"></div>
+                <!-- Red Drop Square Pin -->
+                <div style="width:12px;height:12px;border-radius:3px;background:#DC2626;border:2.5px solid #FEE2E2;box-shadow:0 0 0 1px #DC2626;flex-shrink:0;"></div>
+              </div>
 
-            <!-- Right Content Rows -->
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;">
-              <!-- Pickup Farm Row -->
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <!-- Right Content Rows -->
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;">
+                <!-- Pickup Farm Row -->
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:9.5px;color:#64748B;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;">${TL('FROM (PICKUP FARM)', 'నుండి (పొలం చిరునామా)', 'से (खेत का पता)')}</div>
+                    <div id="gh-pickup-location-label" style="font-size:13px;font-weight:900;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">${farmAddr}</div>
+                  </div>
+                  <button onclick="openGramhaulPickupLocationModal()" style="background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0;border-radius:10px;padding:5px 12px;font-size:11px;font-weight:900;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89783 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"/></svg>
+                    <span>${TL('Edit', 'మార్చు', 'बदलें')}</span>
+                  </button>
+                </div>
+
+                <!-- Content Separator -->
+                <div style="height:1px;background:#F1F5F9;"></div>
+
+                <!-- Destination Drop Mandi Row -->
                 <div style="flex:1;min-width:0;">
-                  <div style="font-size:9.5px;color:#64748B;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;">${TL('FROM (PICKUP FARM)', 'నుండి (పొలం చిరునామా)', 'से (खेत का पता)')}</div>
-                  <div id="gh-pickup-location-label" style="font-size:13px;font-weight:900;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">${farmAddr}</div>
-                </div>
-                <button onclick="openGramhaulPickupLocationModal()" style="background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0;border-radius:10px;padding:5px 12px;font-size:11px;font-weight:900;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89783 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"/></svg>
-              <span>${TL('Edit', 'మార్చు', 'बदलें')}</span>
-            </button>
-              </div>
-
-              <!-- Content Separator -->
-              <div style="height:1px;background:#F1F5F9;"></div>
-
-              <!-- Destination Drop Mandi Row -->
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:9.5px;color:#64748B;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;">${TL('TO (DESTINATION APMC MANDI)', 'చేరుకోవాల్సిన మండి (APMC)', 'मंडी गंतव्य (APMC)')}</div>
-                <div style="display:flex;align-items:center;gap:6px;margin-top:1px;">
-                  <select id="gh-mandi-select" onchange="updateGramhaulMandi(this.value)" style="width:100%;border:none;background:transparent;font-size:13.5px;font-weight:900;color:#0F172A;outline:none;cursor:pointer;padding:0;letter-spacing:-0.2px;">
-                    ${mandiList.map((m,i) => `<option value="${i}">${m.shortName} · ${m.distKm} km</option>`).join('')}
-                  </select>
+                  <div style="font-size:9.5px;color:#64748B;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;">${TL('TO (DESTINATION APMC MANDI)', 'చేరుకోవాల్సిన మండి (APMC)', 'मंडी गंतव्य (APMC)')}</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:1px;">
+                    <select id="gh-mandi-select" onchange="updateGramhaulMandi(this.value)" style="width:100%;border:none;background:transparent;font-size:13.5px;font-weight:900;color:#0F172A;outline:none;cursor:pointer;padding:0;letter-spacing:-0.2px;">
+                      ${mandiList.map((m,i) => `<option value="${i}">${m.shortName} · ${m.distKm} km</option>`).join('')}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- COMMODITY SPECS: 140+ CROPS MODAL PICKER + SACKS -->
-        <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-bottom:12px;">
-          <div>
-            <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:5px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 22V12M12 12C12 7 7 4 2 5C2 10 5 14 12 12ZM12 12C12 7 17 4 22 5C22 10 19 14 12 12Z" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>${TL('Crop Commodity', 'పంట రకం', 'फसल का प्रकार')}</span>
-            </div>
-            <div onclick="openGramhaulCropSelectorModal()" style="width:100%;height:44px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:0 10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-sizing:border-box;">
-              <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-                <div id="gh-selected-crop-icon" style="width:24px;height:24px;flex-shrink:0;">${getCropIconImg(null, currentCropSlug)}</div>
-                <span id="gh-selected-crop-label" style="font-size:12.5px;font-weight:900;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${getLocalizedCropName(currentCropSlug)}</span>
+          <!-- COMMODITY SPECS: 140+ CROPS MODAL PICKER + SACKS -->
+          <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-bottom:12px;">
+            <div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:5px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 22V12M12 12C12 7 7 4 2 5C2 10 5 14 12 12ZM12 12C12 7 17 4 22 5C22 10 19 14 12 12Z" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>${TL('Crop Commodity', 'పంట రకం', 'फसल का प्रकार')}</span>
               </div>
-              <span style="display:flex;align-items:center;color:#16A34A;flex-shrink:0;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-              </span>
+              <div onclick="openGramhaulCropSelectorModal()" style="width:100%;height:44px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:0 10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-sizing:border-box;">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+                  <div id="gh-selected-crop-icon" style="width:24px;height:24px;flex-shrink:0;">${getCropIconImg(null, currentCropSlug)}</div>
+                  <span id="gh-selected-crop-label" style="font-size:12.5px;font-weight:900;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${getLocalizedCropName(currentCropSlug)}</span>
+                </div>
+                <span style="display:flex;align-items:center;color:#16A34A;flex-shrink:0;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
+              <input type="hidden" id="gh-crop-select" value="${currentCropSlug}" />
             </div>
-            <input type="hidden" id="gh-crop-select" value="${currentCropSlug}" />
-          </div>
-          <div>
-            <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:5px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 8V6C6 4.34315 7.34315 3 9 3H15C16.6569 3 18 4.34315 18 6V8M3 8H21L19.5 20C19.5 21.1046 18.6046 22 17.5 22H6.5C5.39543 22 4.5 21.1046 4.5 20L3 8Z" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>${TL('Bags / Sacks', 'బస్తాల సంఖ్య', 'बोरी / कट्टे')}</span>
+            <div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:5px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 8V6C6 4.34315 7.34315 3 9 3H15C16.6569 3 18 4.34315 18 6V8M3 8H21L19.5 20C19.5 21.1046 18.6046 22 17.5 22H6.5C5.39543 22 4.5 21.1046 4.5 20L3 8Z" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>${TL('Bags / Sacks', 'బస్తాల సంఖ్య', 'बोरी / कट्टे')}</span>
+              </div>
+              <input id="gh-weight-inp" type="number" value="40" min="1" max="500" oninput="recalcGramhaulFare()" style="width:100%;height:44px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:0 12px;font-size:13px;font-weight:800;color:#0F172A;outline:none;box-sizing:border-box;" placeholder="e.g. 40" />
             </div>
-            <input id="gh-weight-inp" type="number" value="40" min="1" max="500" oninput="recalcGramhaulFare()" style="width:100%;height:44px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:0 12px;font-size:13px;font-weight:800;color:#0F172A;outline:none;box-sizing:border-box;" placeholder="e.g. 40" />
           </div>
-        </div>
 
-        <!-- REAL COMMERCIAL TRUCK FLEET (5 REALISTIC VEHICLE TIERS) -->
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <img src="images/trucks/tata_ace.png" alt="Truck" style="width:20px;height:14px;object-fit:contain;vertical-align:middle;" />
-            <span style="font-size:11px;font-weight:900;color:#334155;text-transform:uppercase;letter-spacing:0.4px;">${TL('Choose Commercial Truck', 'వాహనాన్ని ఎంచుకోండి', 'वाणिज्यिक ट्रक चुनें')}</span>
+          <!-- REAL COMMERCIAL TRUCK FLEET (5 REALISTIC VEHICLE TIERS) -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <img src="images/trucks/tata_ace.png" alt="Truck" style="width:20px;height:14px;object-fit:contain;vertical-align:middle;" />
+              <span style="font-size:11px;font-weight:900;color:#334155;text-transform:uppercase;letter-spacing:0.4px;">${TL('Choose Commercial Truck', 'వాహనాన్ని ఎంచుకోండి', 'वाणिज्यिक ट्रक चुनें')}</span>
+            </div>
+            <span style="font-size:10px;color:#16A34A;font-weight:800;">${TL('5 Verified Tiers', '5 ధృవీకరించిన రకాలు', '5 सत्यापित श्रेणियां')}</span>
           </div>
-          <span style="font-size:10px;color:#16A34A;font-weight:800;">${TL('5 Verified Tiers', '5 ధృవీకరించిన రకాలు', '5 सत्यापित श्रेणियां')}</span>
-        </div>
-        
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="gh-truck-categories">
           
-          <!-- Truck 1: Tata Ace Gold -->
-          <div onclick="selectGramhaulTruckTier(1)" id="gh-tier-1" class="gh-vehicle-card ${selectedGramhaulTier===1?'selected':''}">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
-                <img src="images/trucks/tata_ace.png" alt="Tata Ace Gold" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;" id="gh-truck-categories">
+            
+            <!-- Truck 1: Tata Ace Gold -->
+            <div onclick="selectGramhaulTruckTier(1)" id="gh-tier-1" class="gh-vehicle-card ${selectedGramhaulTier===1?'selected':''}">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
+                  <img src="images/trucks/tata_ace.png" alt="Tata Ace Gold" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
+                </div>
+                <div>
+                  <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Tata Ace Gold (1.5 Ton)</div>
+                  <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 25 Qtl · 50 Sacks · Chota Hathi</div>
+                </div>
               </div>
-              <div>
-                <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Tata Ace Gold (1.5 Ton)</div>
-                <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 25 Qtl · 50 Sacks · Chota Hathi</div>
+              <div style="text-align:right;">
+                <div id="gh-fare-tier-1" style="font-size:16px;font-weight:900;color:#0F172A;">₹380</div>
+                <div style="font-size:9.5px;color:#16A34A;font-weight:800;margin-top:1px;display:flex;align-items:center;justify-content:flex-end;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Ready</span></div>
               </div>
             </div>
-            <div style="text-align:right;">
-              <div id="gh-fare-tier-1" style="font-size:16px;font-weight:900;color:#0F172A;">₹380</div>
-              <div style="font-size:9.5px;color:#16A34A;font-weight:800;margin-top:1px;display:flex;align-items:center;justify-content:flex-end;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Ready</span></div>
+
+            <!-- Truck 2: Bolero Maxi Truck -->
+            <div onclick="selectGramhaulTruckTier(2)" id="gh-tier-2" class="gh-vehicle-card ${selectedGramhaulTier===2?'selected':''}">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
+                  <img src="images/trucks/bolero_maxi.png" alt="Mahindra Bolero Maxi" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
+                </div>
+                <div>
+                  <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Mahindra Bolero Maxi (2.5 Ton)</div>
+                  <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 50 Qtl · 100 Sacks · Heavy Produce</div>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div id="gh-fare-tier-2" style="font-size:16px;font-weight:900;color:#0F172A;">₹560</div>
+                <div style="font-size:9.5px;color:#2563EB;font-weight:800;margin-top:1px;">Available</div>
+              </div>
+            </div>
+
+            <!-- Truck 3: Ashok Leyland Dost+ -->
+            <div onclick="selectGramhaulTruckTier(3)" id="gh-tier-3" class="gh-vehicle-card ${selectedGramhaulTier===3?'selected':''}">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
+                  <img src="images/trucks/ashok_leyland_dost.png" alt="Ashok Leyland Dost+" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
+                </div>
+                <div>
+                  <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Ashok Leyland Dost+ (3.0 Ton)</div>
+                  <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 60 Qtl · 120 Sacks · Fast Haul</div>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div id="gh-fare-tier-3" style="font-size:16px;font-weight:900;color:#0F172A;">₹680</div>
+                <div style="font-size:9.5px;color:#16A34A;font-weight:800;margin-top:1px;">Available</div>
+              </div>
+            </div>
+
+            <!-- Truck 4: Tata 407 Gold -->
+            <div onclick="selectGramhaulTruckTier(4)" id="gh-tier-4" class="gh-vehicle-card ${selectedGramhaulTier===4?'selected':''}">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
+                  <img src="images/trucks/tata_407.png" alt="Tata 407 Gold SFC" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
+                </div>
+                <div>
+                  <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Tata 407 Gold SFC (4.5 Ton)</div>
+                  <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 85 Qtl · 170 Sacks · Mandi Legend</div>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div id="gh-fare-tier-4" style="font-size:16px;font-weight:900;color:#0F172A;">₹820</div>
+                <div style="font-size:9.5px;color:#D97706;font-weight:800;margin-top:1px;">Heavy Duty</div>
+              </div>
+            </div>
+
+            <!-- Truck 5: Eicher Pro 14ft -->
+            <div onclick="selectGramhaulTruckTier(5)" id="gh-tier-5" class="gh-vehicle-card ${selectedGramhaulTier===5?'selected':''}">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
+                  <img src="images/trucks/eicher_pro.png" alt="Eicher Pro 14ft" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
+                </div>
+                <div>
+                  <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Eicher Pro 14ft (5.5 Ton)</div>
+                  <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 120 Qtl · 240 Sacks · Bulk Freight</div>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div id="gh-fare-tier-5" style="font-size:16px;font-weight:900;color:#0F172A;">₹1,150</div>
+                <div style="font-size:9.5px;color:#7C3AED;font-weight:800;margin-top:1px;">Bulk Pool</div>
+              </div>
             </div>
           </div>
 
-          <!-- Truck 2: Bolero Maxi Truck -->
-          <div onclick="selectGramhaulTruckTier(2)" id="gh-tier-2" class="gh-vehicle-card ${selectedGramhaulTier===2?'selected':''}">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
-                <img src="images/trucks/bolero_maxi.png" alt="Mahindra Bolero Maxi" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
-              </div>
-              <div>
-                <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Mahindra Bolero Maxi (2.5 Ton)</div>
-                <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 50 Qtl · 100 Sacks · Heavy Produce</div>
-              </div>
+          <!-- FARE BREAKDOWN & BOOK BUTTON -->
+          <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:10.5px;color:#16A34A;font-weight:800;text-transform:uppercase;">${TL('Transparent Mandi Freight', 'పారదర్శక మండి రవాణా ఛార్జీ', 'पारदर्शी मंडी भाड़ा')}</div>
+              <div style="font-size:11px;color:#64748B;">${TL('0% Commission · Pay Driver directly', '0% కమీషన్ · డ్రైవర్‌కే నేరుగా చెల్లించండి', '0% कमीशन · ड्राइवर को सीधे भुगतान')}</div>
             </div>
-            <div style="text-align:right;">
-              <div id="gh-fare-tier-2" style="font-size:16px;font-weight:900;color:#0F172A;">₹560</div>
-              <div style="font-size:9.5px;color:#2563EB;font-weight:800;margin-top:1px;">Available</div>
-            </div>
+            <div id="gh-total-fare" style="font-size:20px;font-weight:900;color:#15803D;">₹380</div>
           </div>
 
-          <!-- Truck 3: Ashok Leyland Dost+ -->
-          <div onclick="selectGramhaulTruckTier(3)" id="gh-tier-3" class="gh-vehicle-card ${selectedGramhaulTier===3?'selected':''}">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
-                <img src="images/trucks/ashok_leyland_dost.png" alt="Ashok Leyland Dost+" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
-              </div>
-              <div>
-                <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Ashok Leyland Dost+ (3.0 Ton)</div>
-                <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 60 Qtl · 120 Sacks · Fast Haul</div>
-              </div>
-            </div>
-            <div style="text-align:right;">
-              <div id="gh-fare-tier-3" style="font-size:16px;font-weight:900;color:#0F172A;">₹680</div>
-              <div style="font-size:9.5px;color:#16A34A;font-weight:800;margin-top:1px;">Available</div>
-            </div>
-          </div>
-
-          <!-- Truck 4: Tata 407 Gold -->
-          <div onclick="selectGramhaulTruckTier(4)" id="gh-tier-4" class="gh-vehicle-card ${selectedGramhaulTier===4?'selected':''}">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
-                <img src="images/trucks/tata_407.png" alt="Tata 407 Gold SFC" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
-              </div>
-              <div>
-                <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Tata 407 Gold SFC (4.5 Ton)</div>
-                <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 85 Qtl · 170 Sacks · Mandi Legend</div>
-              </div>
-            </div>
-            <div style="text-align:right;">
-              <div id="gh-fare-tier-4" style="font-size:16px;font-weight:900;color:#0F172A;">₹820</div>
-              <div style="font-size:9.5px;color:#D97706;font-weight:800;margin-top:1px;">Heavy Duty</div>
-            </div>
-          </div>
-
-          <!-- Truck 5: Eicher Pro 14ft -->
-          <div onclick="selectGramhaulTruckTier(5)" id="gh-tier-5" class="gh-vehicle-card ${selectedGramhaulTier===5?'selected':''}">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="width:72px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;">
-                <img src="images/trucks/eicher_pro.png" alt="Eicher Pro 14ft" style="width:70px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(15,23,42,0.14));transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);" />
-              </div>
-              <div>
-                <div style="font-size:13.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">Eicher Pro 14ft (5.5 Ton)</div>
-                <div style="font-size:11px;color:#64748B;font-weight:600;margin-top:1px;">Up to 120 Qtl · 240 Sacks · Bulk Freight</div>
-              </div>
-            </div>
-            <div style="text-align:right;">
-              <div id="gh-fare-tier-5" style="font-size:16px;font-weight:900;color:#0F172A;">₹1,150</div>
-              <div style="font-size:9.5px;color:#7C3AED;font-weight:800;margin-top:1px;">Bulk Pool</div>
-            </div>
-          </div>
+          <button id="gh-confirm-booking-btn" onclick="executeRealGramhaulDispatch()" style="width:100%;height:52px;background:linear-gradient(135deg,#16A34A,#15803D);color:#FFFFFF;border:none;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 24px rgba(22,163,74,0.35);transition:all 0.2s cubic-bezier(0.16,1,0.3,1);">
+            <img src="images/trucks/tata_ace.png" alt="Truck" style="width:30px;height:20px;object-fit:contain;filter:brightness(0) invert(1);" />
+            <span>${TL('Request Mandi Truck Now', 'మండి ట్రక్కును బుక్ చేయండి', 'मंडी ट्रक बुक करें')}</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
         </div>
-        <!-- FARE BREAKDOWN & BOOK BUTTON -->
-        <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <div style="font-size:10.5px;color:#16A34A;font-weight:800;text-transform:uppercase;">${TL('Transparent Mandi Freight', 'పారదర్శక మండి రవాణా ఛార్జీ', 'पारदर्शी मंडी भाड़ा')}</div>
-            <div style="font-size:11px;color:#64748B;">${TL('0% Commission · Pay Driver directly', '0% కమీషన్ · డ్రైవర్‌కే నేరుగా చెల్లించండి', '0% कमीशन · ड्राइवर को सीधे भुगतान')}</div>
-          </div>
-          <div id="gh-total-fare" style="font-size:20px;font-weight:900;color:#15803D;">₹380</div>
-        </div>
-
-        <button id="gh-confirm-booking-btn" onclick="executeRealGramhaulDispatch()" style="width:100%;height:52px;background:linear-gradient(135deg,#16A34A,#15803D);color:#FFFFFF;border:none;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 24px rgba(22,163,74,0.35);transition:all 0.2s cubic-bezier(0.16,1,0.3,1);">
-          <img src="images/trucks/tata_ace.png" alt="Truck" style="width:30px;height:20px;object-fit:contain;filter:brightness(0) invert(1);" />
-          <span>${TL('Request Mandi Truck Now', 'మండి ట్రక్కును బుక్ చేయండి', 'मंडी ट्रक बुक करें')}</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
       </div>
     </div>
     `;
