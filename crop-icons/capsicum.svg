@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ADE80"/>
+      <stop offset="50%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <!-- Stem -->
+  <path d="M64 36 C64 22 68 14 74 12" stroke="#15803D" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <!-- Pepper Lobes -->
+  <path d="M36 44 C26 58 26 94 38 108 C50 118 64 116 64 116 C64 116 78 118 90 108 C102 94 102 58 92 44 C84 34 76 38 64 38 C52 38 44 34 36 44 Z" fill="url(#capGrad)"/>
+  <path d="M50 42 C50 68 50 98 56 112" stroke="#14532D" stroke-width="2.5" fill="none" opacity="0.4"/>
+  <path d="M78 42 C78 68 78 98 72 112" stroke="#14532D" stroke-width="2.5" fill="none" opacity="0.4"/>
+  <!-- Highlight -->
+  <ellipse cx="44" cy="60" rx="6" ry="16" fill="#FFFFFF" opacity="0.4"/>
+</svg>

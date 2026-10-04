@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="ragGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A16207"/>
+      <stop offset="60%" stop-color="#78350F"/>
+      <stop offset="100%" stop-color="#451A03"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 122 L64 56" stroke="#15803D" stroke-width="5" stroke-linecap="round"/>
+  <!-- Finger millet fingers -->
+  <path d="M64 56 C54 36 34 26 26 30 C30 46 52 52 64 56 Z" fill="url(#ragGrad)"/>
+  <path d="M64 56 C60 30 52 14 62 12 C70 24 68 46 64 56 Z" fill="url(#ragGrad)"/>
+  <path d="M64 56 C74 36 94 26 102 30 C98 46 76 52 64 56 Z" fill="url(#ragGrad)"/>
+  <path d="M64 56 C68 30 76 14 66 12 C58 24 60 46 64 56 Z" fill="url(#ragGrad)"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="corLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ADE80"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 118 C64 80 62 60 48 40" stroke="#16A34A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <path d="M64 80 C74 64 84 56 94 44" stroke="#16A34A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- Serrated Leaflets -->
+  <path d="M48 40 C34 32 30 16 44 14 C52 24 54 34 48 40 Z" fill="url(#corLeaf)"/>
+  <path d="M94 44 C106 36 112 20 98 18 C90 28 88 38 94 44 Z" fill="url(#corLeaf)"/>
+  <circle cx="64" cy="24" r="5" fill="#CA8A04"/>
+  <circle cx="74" cy="28" r="4.5" fill="#EAB308"/>
+</svg>

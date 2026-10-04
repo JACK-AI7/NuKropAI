@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="pomSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F87171"/>
+      <stop offset="40%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#991B1B"/>
+    </linearGradient>
+  </defs>
+  <!-- Crown calyx -->
+  <path d="M52 24 L64 12 L76 24 L86 16 L80 30 L48 30 L42 16 Z" fill="#991B1B"/>
+  <circle cx="64" cy="72" r="46" fill="url(#pomSkin)"/>
+  <!-- Cut window showing red jewel seeds -->
+  <path d="M50 56 C70 50 86 64 84 84 C76 96 54 94 46 80 Z" fill="#FEE2E2"/>
+  <circle cx="56" cy="66" r="4.5" fill="#DC2626"/>
+  <circle cx="68" cy="64" r="4.5" fill="#B91C1C"/>
+  <circle cx="62" cy="76" r="5" fill="#E11D48"/>
+  <circle cx="74" cy="76" r="4.5" fill="#991B1B"/>
+  <circle cx="58" cy="84" r="4" fill="#DC2626"/>
+  <!-- Highlight -->
+  <ellipse cx="44" cy="50" rx="8" ry="14" transform="rotate(-30 44 50)" fill="#FFFFFF" opacity="0.3"/>
+</svg>

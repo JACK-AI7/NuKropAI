@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="casGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F87171"/>
+      <stop offset="60%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#991B1B"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="36" fill="url(#casGrad)"/>
+  <!-- Spikes -->
+  <g stroke="#991B1B" stroke-width="4" stroke-linecap="round">
+    <line x1="64" y1="28" x2="64" y2="16"/><line x1="64" y1="100" x2="64" y2="112"/>
+    <line x1="28" y1="64" x2="16" y2="64"/><line x1="100" y1="64" x2="112" y2="64"/>
+    <line x1="38" y1="38" x2="28" y2="28"/><line x1="90" y1="90" x2="100" y2="100"/>
+    <line x1="90" y1="38" x2="100" y2="28"/><line x1="38" y1="90" x2="28" y2="100"/>
+  </g>
+</svg>

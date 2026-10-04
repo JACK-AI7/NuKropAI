@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="rgPod" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F87171"/>
+      <stop offset="100%" stop-color="#B91C1C"/>
+    </linearGradient>
+    <linearGradient id="rgSeed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDBA74"/>
+      <stop offset="100%" stop-color="#C2410C"/>
+    </linearGradient>
+  </defs>
+  <!-- Pod Shell -->
+  <path d="M24 104 C40 92 78 68 108 32 C112 28 110 24 104 26 C74 48 44 80 20 98 C18 102 20 106 24 104 Z" fill="url(#rgPod)"/>
+  <!-- Exposed seeds inside pod -->
+  <circle cx="48" cy="76" r="13" fill="url(#rgSeed)"/>
+  <circle cx="68" cy="58" r="13" fill="url(#rgSeed)"/>
+  <circle cx="88" cy="40" r="13" fill="url(#rgSeed)"/>
+  <circle cx="46" cy="74" r="3" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="66" cy="56" r="3" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="86" cy="38" r="3" fill="#FFFFFF" opacity="0.4"/>
+</svg>

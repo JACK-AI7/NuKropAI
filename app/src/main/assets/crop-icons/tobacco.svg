@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="tobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047"/>
+      <stop offset="40%" stop-color="#CA8A04"/>
+      <stop offset="100%" stop-color="#854D0E"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 16 C88 40 98 80 64 116 C30 80 40 40 64 16 Z" fill="url(#tobGrad)"/>
+  <path d="M64 16 L64 120" stroke="#78350F" stroke-width="3" stroke-linecap="round"/>
+  <path d="M64 42 Q80 50 86 60" stroke="#78350F" stroke-width="2" fill="none"/>
+  <path d="M64 42 Q48 50 42 60" stroke="#78350F" stroke-width="2" fill="none"/>
+  <path d="M64 68 Q82 76 88 88" stroke="#78350F" stroke-width="2" fill="none"/>
+  <path d="M64 68 Q46 76 40 88" stroke="#78350F" stroke-width="2" fill="none"/>
+</svg>

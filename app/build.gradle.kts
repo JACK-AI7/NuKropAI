@@ -158,6 +158,7 @@ val apkOutputDir = layout.buildDirectory.dir("outputs/apk")
 
 tasks.register("syncApkToWeb") {
     description = "Syncs the newly built APK directly to the root and web/public directory"
+    notCompatibleWithConfigurationCache("Dynamic file copy to web directory")
     doLast {
         val releaseApk = apkOutputDir.get().file("release/app-release.apk").asFile
         val debugApk = apkOutputDir.get().file("debug/app-debug.apk").asFile

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="ggGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#86EFAC"/>
+      <stop offset="40%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <!-- Bean 1 -->
+  <ellipse cx="50" cy="56" rx="28" ry="20" transform="rotate(-30 50 56)" fill="url(#ggGrad)"/>
+  <path d="M42 48 Q50 54 58 60" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8"/>
+  <!-- Bean 2 -->
+  <ellipse cx="80" cy="76" rx="26" ry="18" transform="rotate(25 80 76)" fill="url(#ggGrad)"/>
+  <path d="M72 74 Q80 78 88 82" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8"/>
+</svg>

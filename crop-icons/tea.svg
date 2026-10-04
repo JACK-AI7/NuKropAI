@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="teaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#86EFAC"/>
+      <stop offset="60%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <!-- Stem -->
+  <path d="M64 116 L64 56" stroke="#166534" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Center young bud -->
+  <path d="M64 56 C60 40 62 26 64 18 C66 26 68 40 64 56 Z" fill="url(#teaGrad)"/>
+  <!-- Left Leaf -->
+  <path d="M64 74 C44 70 26 52 30 36 C46 38 60 56 64 74 Z" fill="url(#teaGrad)"/>
+  <!-- Right Leaf -->
+  <path d="M64 68 C84 64 102 46 98 30 C82 32 68 50 64 68 Z" fill="url(#teaGrad)"/>
+</svg>

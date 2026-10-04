@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="cashApple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F87171"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+    <linearGradient id="cashNut" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+  </defs>
+  <!-- Cashew Apple (false fruit) -->
+  <path d="M64 20 C82 20 94 36 94 56 C94 76 80 88 64 88 C48 88 34 76 34 56 C34 36 46 20 64 20 Z" fill="url(#cashApple)"/>
+  <!-- Kidney nut attached below -->
+  <path d="M52 88 C56 86 72 86 76 88 C82 96 82 108 72 116 C62 122 52 116 50 108 C48 100 48 94 52 88 Z" fill="url(#cashNut)"/>
+</svg>

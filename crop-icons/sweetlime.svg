@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="mosGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#BEF264"/>
+      <stop offset="50%" stop-color="#84CC16"/>
+      <stop offset="100%" stop-color="#4D7C0F"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 24 C76 10 98 12 104 16 C98 28 84 34 72 28 Z" fill="#15803D"/>
+  <circle cx="64" cy="72" r="46" fill="url(#mosGrad)"/>
+  <ellipse cx="48" cy="54" rx="8" ry="16" transform="rotate(-30 48 54)" fill="#FFFFFF" opacity="0.3"/>
+</svg>

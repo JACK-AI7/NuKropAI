@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="cofRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F87171"/>
+      <stop offset="50%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#7F1D1D"/>
+    </linearGradient>
+    <linearGradient id="cofBean" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#78350F"/>
+      <stop offset="100%" stop-color="#451A03"/>
+    </linearGradient>
+  </defs>
+  <!-- Branch & Leaf -->
+  <path d="M64 42 C78 26 104 28 112 32 C108 48 90 56 74 48 Z" fill="#15803D"/>
+  <path d="M34 100 L94 40" stroke="#78350F" stroke-width="4" stroke-linecap="round"/>
+  <!-- Red Cherries -->
+  <circle cx="56" cy="62" r="18" fill="url(#cofRed)"/>
+  <circle cx="76" cy="74" r="18" fill="url(#cofRed)"/>
+  <circle cx="54" cy="58" r="4" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="74" cy="70" r="4" fill="#FFFFFF" opacity="0.4"/>
+</svg>

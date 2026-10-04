@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="rubGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="70%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+  </defs>
+  <!-- Tree trunk tapping with white latex bowl -->
+  <rect x="42" y="16" width="44" height="96" rx="4" fill="#78350F"/>
+  <path d="M42 36 L86 64" stroke="#451A03" stroke-width="4"/>
+  <!-- Collection spout & bowl -->
+  <ellipse cx="64" cy="90" rx="22" ry="14" fill="url(#rubGrad)"/>
+  <path d="M64 64 L64 82" stroke="#FFFFFF" stroke-width="3.5"/>
+</svg>

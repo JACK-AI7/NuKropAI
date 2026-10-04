@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="lemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="50%" stop-color="#FACC15"/>
+      <stop offset="100%" stop-color="#CA8A04"/>
+    </linearGradient>
+  </defs>
+  <!-- Green leaf -->
+  <path d="M72 26 C86 12 108 14 114 18 C110 32 94 40 80 34 Z" fill="#16A34A"/>
+  <!-- Lemon body with pointed ends -->
+  <path d="M30 40 C44 26 84 26 98 40 C114 56 114 84 98 100 C84 114 44 114 30 100 C14 84 14 56 30 40 Z" fill="url(#lemGrad)"/>
+  <ellipse cx="48" cy="54" rx="8" ry="16" transform="rotate(-40 48 54)" fill="#FFFFFF" opacity="0.35"/>
+</svg>

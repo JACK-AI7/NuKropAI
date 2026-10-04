@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bgYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="40%" stop-color="#FACC15"/>
+      <stop offset="100%" stop-color="#CA8A04"/>
+    </linearGradient>
+    <linearGradient id="bgGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ADE80"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <!-- Main Banana -->
+  <path d="M32 26 C48 30 76 46 92 78 C102 98 94 114 86 116 C78 118 70 102 60 88 C46 68 30 52 24 38 C20 30 24 24 32 26 Z" fill="url(#bgYellow)"/>
+  <path d="M22 28 C28 32 38 46 50 64 C64 84 76 102 82 108" stroke="#EAB308" stroke-width="2" fill="none" opacity="0.6"/>
+  <!-- Second banana overlap -->
+  <path d="M42 34 C58 40 82 58 96 86 C102 98 98 110 92 112 C98 102 94 88 84 72 C70 52 54 40 44 34 Z" fill="#EAB308"/>
+  <!-- Crown stem -->
+  <path d="M22 24 C24 16 32 14 36 20 L30 30 Z" fill="url(#bgGreen)"/>
+  <!-- Tip -->
+  <circle cx="86" cy="115" r="3" fill="#713F12"/>
+</svg>

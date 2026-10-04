@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#86EFAC"/>
+      <stop offset="50%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <!-- Cardamom ribbed capsule -->
+  <path d="M64 20 C78 36 86 64 80 88 C76 102 68 112 64 112 C60 112 52 102 48 88 C42 64 50 36 64 20 Z" fill="url(#cardGrad)"/>
+  <!-- Rib ridges -->
+  <path d="M64 20 L64 112" stroke="#166534" stroke-width="2"/>
+  <path d="M64 20 C72 40 76 74 64 112" stroke="#166534" stroke-width="1.8" fill="none"/>
+  <path d="M64 20 C56 40 52 74 64 112" stroke="#166534" stroke-width="1.8" fill="none"/>
+  <!-- Tip -->
+  <path d="M64 14 L62 20 L66 20 Z" fill="#78350F"/>
+</svg>

@@ -36,23 +36,28 @@ async function nk_signUp(email, password, fullName) {
     const { data: authData, error: authError } = await sbClient.auth.signUp({ email, password });
     if (authError) throw authError;
 
+    const userUuid = authData?.user?.id || null;
     const farmerId = 'NK-' + Math.floor(10000 + Math.random() * 89999);
 
-    // Step 2: Insert into `profiles` first (FK parent)
+    // Step 2: Insert into `profiles` first with proper UUID relationship
     await sbClient.from('profiles').insert([{
+      id: userUuid,
+      user_id: userUuid,
       email,
       full_name: fullName,
       farmer_id: farmerId,
       role: 'farmer'
     }]);
 
-    // Step 3: Insert into `user_profiles` (FK child → references profiles.farmer_id)
+    // Step 3: Insert into `user_profiles`
     await sbClient.from('user_profiles').insert([{
+      user_id: userUuid,
       email,
       full_name: fullName,
       farmer_id: farmerId
     }]);
 
+    if (userUuid) localStorage.setItem('nukrop_user_uuid', userUuid);
     localStorage.setItem('nukrop_farmer_id', farmerId);
     localStorage.setItem('nukrop_user_email', email);
     localStorage.setItem('nukrop_user_name', fullName);
@@ -69,12 +74,17 @@ async function nk_loginUser(email, password) {
     const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
+    if (data?.user?.id) {
+      localStorage.setItem('nukrop_user_uuid', data.user.id);
+    }
+
     // Fetch and cache the full farmer profile on login
     const profile = await nk_fetchUserProfile(email);
     if (profile) {
       localStorage.setItem('nukrop_active_user', JSON.stringify(profile));
       localStorage.setItem('nukrop_farmer_id', profile.farmer_id || '');
       localStorage.setItem('nukrop_user_name', profile.full_name || '');
+      if (profile.id) localStorage.setItem('nukrop_user_uuid', profile.id);
     }
     return { data, error: null };
   } catch (err) {
@@ -184,17 +194,20 @@ async function nk_sendHaulRequest(driverId, haulData) {
   console.log('📤 Haul request broadcast to driver:', driverId);
 }
 
-// FIX: Persist accepted haul to `haul_bookings` table so it is never lost
+// FIX: Persist accepted haul to `haul_bookings` table using authenticated farmer UUID
 async function nk_acceptHaul(haulData) {
   if (!sbClient) return;
+  const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
   const { data, error } = await sbClient.from('haul_bookings').insert([{
+    farmer_user_id:    userUuid,
     farmer_id:         farmerId,
     pickup_village:    haulData.pickup   || 'Farm Location',
     destination_mandi: haulData.mandi    || 'APMC Yard',
     crop_name:         haulData.crop     || 'Cotton',
     load_quintals:     haulData.weight   || 40,
     agreed_fare:       haulData.fare     || 1850,
+    truck_type:        haulData.truckType || 'Commercial Freight 2.5T',
     status:            'CONFIRMED'
   }]);
   if (error) console.error('Haul booking save error:', error.message);
@@ -203,9 +216,15 @@ async function nk_acceptHaul(haulData) {
 
 async function nk_fetchHaulHistory() {
   if (!sbClient) return [];
+  const userUuid = localStorage.getItem('nukrop_user_uuid');
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  const { data, error } = await sbClient.from('haul_bookings').select('*').eq('farmer_id', farmerId)
-    .order('created_at', { ascending: false });
+  let query = sbClient.from('haul_bookings').select('*');
+  if (userUuid) {
+    query = query.or(`farmer_user_id.eq.${userUuid},farmer_id.eq.${farmerId}`);
+  } else {
+    query = query.eq('farmer_id', farmerId);
+  }
+  const { data, error } = await query.order('created_at', { ascending: false });
   return data || [];
 }
 
@@ -214,11 +233,58 @@ async function nk_fetchHaulHistory() {
 // ─────────────────────────────────────────────────────────────────
 let _gpsInterval = null;
 
+async function nk_updateDriverTelemetry(driverId, lat, lng, speed = 0, heading = 0) {
+  if (!sbClient || !driverId) return;
+  const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
+  const driverName = localStorage.getItem('nukrop_user_name') || 'Registered Driver';
+  const payload = {
+    driver_id: driverId,
+    driver_name: driverName,
+    vehicle_plate: localStorage.getItem('nukrop_driver_plate') || 'TS 03 COMMERCIAL',
+    vehicle_type: localStorage.getItem('nukrop_driver_vehicle') || 'Commercial Freight 2.5T',
+    current_lat: lat,
+    current_lng: lng,
+    speed_kmh: speed,
+    heading: heading,
+    is_online: true,
+    last_ping: new Date().toISOString()
+  };
+  if (userUuid) payload.user_id = userUuid;
+
+  try {
+    const { data, error } = await sbClient
+      .from('driver_telemetry')
+      .update(payload)
+      .eq('driver_id', driverId)
+      .select('driver_id');
+    
+    // Only attempt insert if an authenticated session exists (avoids 401 RLS restriction on anon)
+    if (!error && (!data || data.length === 0)) {
+      const { data: sessionData } = await sbClient.auth.getSession();
+      if (sessionData && sessionData.session) {
+        await sbClient.from('driver_telemetry').insert([payload]);
+      }
+    }
+  } catch (_) {}
+}
+
 function nk_startDriverLocationBroadcast(driverId, lat, lng) {
   if (!sbClient) return;
   if (_gpsInterval) clearInterval(_gpsInterval); // Prevent duplicate intervals
 
-  const channel = sbClient.channel(`gps:${driverId}`, {
+  // Update cloud telemetry record immediately
+  nk_updateDriverTelemetry(driverId, lat, lng);
+
+  // Clean up any existing channel with same topic to avoid duplicate callback crash
+  const topic = `gps:${driverId}`;
+  if (sbClient.getChannels) {
+    const existing = sbClient.getChannels().find(c => c.topic === `realtime:${topic}` || c.topic === topic);
+    if (existing) {
+      try { sbClient.removeChannel(existing); } catch (_) {}
+    }
+  }
+
+  const channel = sbClient.channel(topic, {
     config: { presence: { key: driverId } }
   });
 
@@ -228,28 +294,62 @@ function nk_startDriverLocationBroadcast(driverId, lat, lng) {
       if (status === 'SUBSCRIBED') {
         await channel.track({ driver: driverId, status: 'ONLINE', at: new Date().toISOString() });
         _gpsInterval = setInterval(async () => {
+          // Send broadcast packet and keep cloud heartbeat fresh
           await channel.send({
             type: 'broadcast', event: 'gps',
             payload: { lat, lng, ts: Date.now() }
           });
-        }, 3000);
+          nk_updateDriverTelemetry(driverId, lat, lng);
+        }, 5000);
       }
     });
 }
 
-function nk_stopDriverBroadcast() {
+async function nk_stopDriverBroadcast(driverId) {
   if (_gpsInterval) { clearInterval(_gpsInterval); _gpsInterval = null; }
+  if (sbClient && driverId) {
+    await sbClient.from('driver_telemetry').update({ is_online: false }).eq('driver_id', driverId);
+  }
   console.log('📍 GPS Broadcast stopped.');
 }
 
 function nk_trackDriverLocation(driverId, onGPS, onStatus) {
-  if (!sbClient) return;
-  const channel = sbClient.channel(`gps:${driverId}`);
+  if (!sbClient || !driverId) return;
+  const topic = `gps:${driverId}`;
+  if (sbClient.getChannels) {
+    const existing = sbClient.getChannels().find(c => c.topic === `realtime:${topic}` || c.topic === topic);
+    if (existing) {
+      try { sbClient.removeChannel(existing); } catch (_) {}
+    }
+  }
+  const channel = sbClient.channel(topic);
   channel
     .on('broadcast', { event: 'gps' }, ({ payload }) => onGPS(payload))
     .on('presence', { event: 'join' },  () => onStatus && onStatus('ONLINE'))
     .on('presence', { event: 'leave' }, () => onStatus && onStatus('OFFLINE'))
     .subscribe();
+  return channel;
+}
+
+// Controlled telemetry fetch: calls secure RPC get_active_driver_telemetry()
+async function nk_fetchOnlineDrivers(limit = 15) {
+  if (!sbClient) return [];
+  try {
+    const { data, error } = await sbClient.rpc('get_active_driver_telemetry');
+    if (!error && Array.isArray(data) && data.length > 0) return data;
+  } catch (_) {}
+
+  const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  const { data, error } = await sbClient.from('driver_telemetry')
+    .select('driver_id, vehicle_type, vehicle_plate, current_lat, current_lng, heading, speed_kmh, is_online, last_ping')
+    .eq('is_online', true)
+    .gt('last_ping', fiveMinsAgo)
+    .limit(limit);
+  if (error) {
+    console.warn('Driver telemetry fetch:', error.message);
+    return [];
+  }
+  return data || [];
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -312,14 +412,52 @@ async function nk_saveDiseaScan(scanRecord) {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// 7. MANDI LIVE RATES — Realtime + Fetch
+// 7. MANDI RATES (GOVERNMENT OGD / AGMARKNET INTEGRATION)
 // ─────────────────────────────────────────────────────────────────
-async function nk_fetchMandiRates(state = 'Telangana', limit = 20) {
+async function nk_fetchMandiRates(state = 'Telangana', limit = 40) {
   if (!sbClient) return [];
-  const { data, error } = await sbClient.from('mandi_live_rates').select('*').eq('state', state)
-    .order('updated_at', { ascending: false }).limit(limit);
+  const { data, error } = await sbClient.from('mandi_live_rates')
+    .select('id, state, district, market_name, commodity, variety, min_price, max_price, modal_price, trend, trade_date, freshness_status, source_name, market_center_lat, market_center_lng, updated_at')
+    .eq('state', state)
+    .order('trade_date', { ascending: false })
+    .limit(limit);
   if (error) console.warn('Mandi rates fetch:', error.message);
   return data || [];
+}
+
+async function nk_fetchNearbyMandis(lat, lng, radiusKm = 100, commodity = null) {
+  if (!sbClient) return [];
+  const validLat = parseFloat(lat);
+  const validLng = parseFloat(lng);
+  if (isNaN(validLat) || isNaN(validLng) || validLat < -90 || validLat > 90 || validLng < -180 || validLng > 180) {
+    console.warn('Invalid GPS coordinates for nearby mandi resolution:', lat, lng);
+    return nk_fetchMandiRates();
+  }
+
+  try {
+    let query = sbClient.from('mandi_live_rates').select('*');
+    if (commodity) query = query.ilike('commodity', `%${commodity}%`);
+    const { data, error } = await query.order('trade_date', { ascending: false }).limit(60);
+    if (!error && Array.isArray(data) && data.length > 0) {
+      const withDistance = data.map(m => {
+        const mLat = parseFloat(m.market_center_lat || m.lat || 16.3067);
+        const mLng = parseFloat(m.market_center_lng || m.lng || 80.4365);
+        const dLat = (mLat - validLat) * Math.PI / 180;
+        const dLng = (mLng - validLng) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(validLat * Math.PI / 180) * Math.cos(mLat * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distance_km = Math.round(6371 * c * 10) / 10;
+        return { ...m, distance_km };
+      });
+      withDistance.sort((a, b) => a.distance_km - b.distance_km);
+      return withDistance;
+    }
+  } catch (err) {
+    console.warn('Direct mandi distance fetch fallback:', err.message);
+  }
+  return nk_fetchMandiRates();
 }
 
 function nk_subscribeToMandiRates(onUpdate) {

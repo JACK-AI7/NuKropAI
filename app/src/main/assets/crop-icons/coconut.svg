@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="cocoHusk" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A16207"/>
+      <stop offset="60%" stop-color="#78350F"/>
+      <stop offset="100%" stop-color="#451A03"/>
+    </linearGradient>
+  </defs>
+  <!-- Palm Leaf -->
+  <path d="M40 32 C56 16 88 18 104 22 C96 36 78 44 56 40 Z" fill="#15803D"/>
+  <!-- Coconut Body -->
+  <ellipse cx="64" cy="74" rx="42" ry="46" fill="url(#cocoHusk)"/>
+  <!-- Three dark eyes of coconut -->
+  <circle cx="54" cy="56" r="5" fill="#291203"/>
+  <circle cx="74" cy="56" r="5" fill="#291203"/>
+  <circle cx="64" cy="68" r="5" fill="#291203"/>
+  <!-- Fiber lines -->
+  <path d="M34 74 Q64 96 94 74" stroke="#451A03" stroke-width="2" fill="none" opacity="0.5"/>
+</svg>

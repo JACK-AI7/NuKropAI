@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="jowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="60%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#854D0E"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 122 L64 36" stroke="#15803D" stroke-width="5" stroke-linecap="round"/>
+  <!-- Dense grain cluster -->
+  <ellipse cx="64" cy="52" rx="22" ry="34" fill="url(#jowGrad)"/>
+  <!-- Grains details -->
+  <g fill="#78350F" opacity="0.6">
+    <circle cx="58" cy="38" r="3.5"/><circle cx="70" cy="38" r="3.5"/>
+    <circle cx="52" cy="48" r="4"/><circle cx="64" cy="48" r="4"/><circle cx="76" cy="48" r="4"/>
+    <circle cx="54" cy="60" r="4"/><circle cx="66" cy="60" r="4"/><circle cx="78" cy="60" r="3.5"/>
+    <circle cx="58" cy="72" r="3.5"/><circle cx="70" cy="72" r="3.5"/>
+  </g>
+</svg>

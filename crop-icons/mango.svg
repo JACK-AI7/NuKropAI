@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="mgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F87171"/>
+      <stop offset="35%" stop-color="#FB923C"/>
+      <stop offset="75%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#FDE047"/>
+    </linearGradient>
+    <linearGradient id="mgLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22C55E"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <!-- Leaf -->
+  <path d="M64 36 C74 16 98 18 108 22 C106 36 94 48 76 44 Z" fill="url(#mgLeaf)"/>
+  <path d="M64 36 Q88 28 108 22" stroke="#166534" stroke-width="2" fill="none"/>
+  <!-- Stem -->
+  <path d="M64 42 C64 30 68 24 72 20" stroke="#78350F" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- Mango Body -->
+  <path d="M64 40 C84 40 102 56 102 78 C102 102 84 118 64 118 C42 118 28 98 28 78 C28 54 44 40 64 40 Z" fill="url(#mgGrad)"/>
+  <!-- Beak curve -->
+  <path d="M64 118 C58 118 52 114 54 108 C56 102 64 104 64 118 Z" fill="#F59E0B"/>
+  <!-- Highlight -->
+  <ellipse cx="50" cy="62" rx="10" ry="16" transform="rotate(-25 50 62)" fill="#FFFFFF" opacity="0.35"/>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="papFlesh" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C"/>
+      <stop offset="100%" stop-color="#EA580C"/>
+    </linearGradient>
+    <linearGradient id="papRind" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#84CC16"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer Rind -->
+  <path d="M64 16 C88 16 104 44 104 76 C104 104 86 120 64 120 C42 120 24 104 24 76 C24 44 40 16 64 16 Z" fill="url(#papRind)"/>
+  <!-- Cut Orange Flesh -->
+  <path d="M64 22 C84 22 96 46 96 76 C96 100 82 114 64 114 C46 114 32 100 32 76 C32 46 44 22 64 22 Z" fill="url(#papFlesh)"/>
+  <!-- Hollow center cavity -->
+  <ellipse cx="64" cy="74" rx="16" ry="26" fill="#FBBF24"/>
+  <!-- Black seeds -->
+  <circle cx="64" cy="62" r="3" fill="#1E293B"/>
+  <circle cx="60" cy="70" r="3.2" fill="#0F172A"/>
+  <circle cx="68" cy="72" r="3.1" fill="#1E293B"/>
+  <circle cx="62" cy="78" r="3" fill="#0F172A"/>
+  <circle cx="66" cy="84" r="3.2" fill="#1E293B"/>
+  <circle cx="61" cy="88" r="2.8" fill="#0F172A"/>
+</svg>
