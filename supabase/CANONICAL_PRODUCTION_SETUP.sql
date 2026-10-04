@@ -680,23 +680,41 @@ AFTER INSERT ON auth.users
 FOR EACH ROW EXECUTE FUNCTION public.handle_new_auth_user();
 
 -- ─────────────────────────────────────────────────────────────────
--- STEP 6: REALTIME REPLICATION CONFIGURATION
+-- STEP 6: REALTIME REPLICATION CONFIGURATION (100% IDEMPOTENT)
 -- ─────────────────────────────────────────────────────────────────
 DO $$
+DECLARE
+  tbl TEXT;
+  tables TEXT[] := ARRAY[
+    'driver_telemetry',
+    'haul_bookings',
+    'trip_waypoints',
+    'community_posts',
+    'community_comments',
+    'machinery_messages',
+    'chat_messages',
+    'peer_messages'
+  ];
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
     CREATE PUBLICATION supabase_realtime;
   END IF;
-END $$;
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.driver_telemetry;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.haul_bookings;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.trip_waypoints;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.community_posts;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.community_comments;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.machinery_messages;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_messages;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.peer_messages;
+  FOREACH tbl IN ARRAY tables LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_publication_tables
+      WHERE pubname = 'supabase_realtime'
+        AND schemaname = 'public'
+        AND tablename = tbl
+    ) THEN
+      BEGIN
+        EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', tbl);
+      EXCEPTION WHEN duplicate_object THEN
+        NULL;
+      END;
+    END IF;
+  END LOOP;
+END $$;
 
 -- ─────────────────────────────────────────────────────────────────
 -- STEP 7: MASTER LOOKUP SEEDS (OFFICIAL SCHEMES & RECIPES ONLY)
