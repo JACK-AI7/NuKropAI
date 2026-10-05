@@ -162,7 +162,8 @@ tasks.register("syncApkToWeb") {
     doLast {
         val releaseApk = apkOutputDir.get().file("release/app-release.apk").asFile
         val debugApk = apkOutputDir.get().file("debug/app-debug.apk").asFile
-        val targetApk = if (releaseApk.exists()) releaseApk else if (debugApk.exists()) debugApk else null
+        val candidates = listOf(releaseApk, debugApk).filter { it.exists() }
+        val targetApk = candidates.maxByOrNull { it.lastModified() }
 
         if (targetApk != null && targetApk.exists()) {
             val rootApk = File(projectRootDir, "NuKropAI.apk")
