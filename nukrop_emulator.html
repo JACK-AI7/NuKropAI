@@ -2650,7 +2650,7 @@ function safeSetHtml(id, html) {
 }
 
 /* ═════════════════ DEEP MULTI-LINGUAL TRANSLATION DICTIONARY ═════════════════ */
-let currentLang = 'en'; // Default to English
+let currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('nukrop_user_lang')) ? localStorage.getItem('nukrop_user_lang') : 'en'; // Default to saved language or English
 
 
 const I18N = {
@@ -9423,6 +9423,7 @@ function renderOnboardingStep() {
 
 function selectOnboardingLang(langCode) {
   onboardingState.lang = langCode;
+  try { if (typeof localStorage !== 'undefined') localStorage.setItem('nukrop_user_lang', langCode); } catch(e){}
   if (typeof setLanguage === 'function') setLanguage(langCode);
   nextOnboardingStep();
 }
@@ -9737,29 +9738,223 @@ function togglePasswordVisibility() {
 
 
 
+function openDriverTruckRegistrationModal(opts = {}) {
+  const modalId = 'driver-truck-reg-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
+
+  const prefillName = opts.name || localStorage.getItem('nukrop_driver_name') || localStorage.getItem('nukrop_user_name') || '';
+  const prefillPhone = opts.phone || localStorage.getItem('nukrop_driver_phone') || '';
+  const existingPlate = localStorage.getItem('nukrop_driver_plate') || '';
+  const prefillPlate = (existingPlate !== 'TS 03 UB 4491' ? existingPlate : '');
+  const prefillVehicle = localStorage.getItem('nukrop_driver_vehicle') || 'Tata Ace Gold (1.5 Ton)';
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.88);backdrop-filter:blur(8px);z-index:9999999;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn 0.22s ease-out;';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;width:100%;max-width:440px;border-radius:28px 28px 0 0;padding:22px 20px 32px;box-shadow:0 -12px 40px rgba(0,0,0,0.3);animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1);max-height:90vh;overflow-y:auto;box-sizing:border-box;">
+      <div style="width:40px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 16px;"></div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:48px;height:48px;border-radius:16px;background:#DCFCE7;border:1.5px solid #86EFAC;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">
+          🚚
+        </div>
+        <div>
+          <div style="font-size:17px;font-weight:900;color:#0F172A;letter-spacing:-0.3px;">Real Commercial Truck Registration</div>
+          <div style="font-size:11.5px;color:#16A34A;font-weight:700;">Required for Google Sign-In · Pure Authentic Details</div>
+        </div>
+      </div>
+
+      <div id="truck-reg-error-msg" style="display:none;background:#FEF2F2;border:1px solid #FCA5A5;color:#DC2626;border-radius:12px;padding:9px 12px;font-size:12px;font-weight:700;margin-bottom:14px;"></div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+        <div>
+          <label style="display:block;font-size:10.5px;font-weight:800;color:#64748B;margin-bottom:4px;text-transform:uppercase;">Driver Full Name *</label>
+          <input id="reg-driver-name" type="text" value="${prefillName.replace(/"/g, '&quot;')}" placeholder="e.g. B. Jaswanth Reddy" required style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:700;color:#0F172A;outline:none;" />
+        </div>
+
+        <div>
+          <label style="display:block;font-size:10.5px;font-weight:800;color:#64748B;margin-bottom:4px;text-transform:uppercase;">Mobile Number (10 Digits) *</label>
+          <div style="display:flex;align-items:center;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:0 12px;">
+            <span style="font-size:13.5px;font-weight:800;color:#64748B;margin-right:6px;">+91</span>
+            <input id="reg-driver-phone" type="tel" maxlength="10" value="${prefillPhone.replace(/[^0-9]/g, '').slice(-10)}" placeholder="9849012345" required style="flex:1;background:transparent;border:none;padding:10px 0;font-size:13.5px;font-weight:700;color:#0F172A;outline:none;" />
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:10.5px;font-weight:800;color:#64748B;margin-bottom:4px;text-transform:uppercase;">Commercial Vehicle Model *</label>
+          <select id="reg-driver-vehicle" style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;color:#0F172A;outline:none;">
+            <option value="Tata Ace Gold (1.5 Ton)" ${prefillVehicle.includes('Ace')?'selected':''}>Tata Ace Gold (1.5 Ton Mini Truck · Up to 50 Sacks)</option>
+            <option value="Mahindra Bolero Maxi Truck (1.7 Ton)" ${prefillVehicle.includes('Bolero')?'selected':''}>Mahindra Bolero Maxi Truck (1.7 Ton · Up to 70 Sacks)</option>
+            <option value="Ashok Leyland Dost+ (2.5 Ton)" ${prefillVehicle.includes('Dost')?'selected':''}>Ashok Leyland Dost+ (2.5 Ton · Up to 100 Sacks)</option>
+            <option value="Tata 407 Gold SFC (4.5 Ton)" ${prefillVehicle.includes('407')?'selected':''}>Tata 407 Gold SFC (4.5 Ton · Up to 180 Sacks)</option>
+            <option value="Eicher Pro 2049 (5.0 Ton)" ${prefillVehicle.includes('Eicher')?'selected':''}>Eicher Pro 2049 (5.0 Ton Light Commercial · Up to 220 Sacks)</option>
+            <option value="BharatBenz 1217C (12 Ton Heavy Duty)" ${prefillVehicle.includes('BharatBenz')?'selected':''}>BharatBenz 1217C (12 Ton Multi-Axle Heavy Hauler)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:10.5px;font-weight:800;color:#64748B;margin-bottom:4px;text-transform:uppercase;">Vehicle Registration Plate No. (MoRTH IND) *</label>
+          <input id="reg-driver-plate" type="text" value="${prefillPlate.replace(/"/g, '&quot;')}" placeholder="e.g. TS 08 UB 4491 / AP 39 TX 5678" style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:900;color:#0F172A;text-transform:uppercase;letter-spacing:1px;font-family:monospace;outline:none;" required />
+        </div>
+
+        <div>
+          <label style="display:block;font-size:10.5px;font-weight:800;color:#64748B;margin-bottom:4px;text-transform:uppercase;">Truck Payload Capacity (Quintals) *</label>
+          <input id="reg-driver-capacity" type="number" min="5" max="300" value="${localStorage.getItem('nukrop_driver_capacity') || '25'}" placeholder="e.g. 25 Quintals" style="width:100%;box-sizing:border-box;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:700;color:#0F172A;outline:none;" required />
+        </div>
+      </div>
+
+      <button id="submit-truck-reg-btn" onclick="submitRealTruckRegistration()" style="width:100%;height:50px;border-radius:16px;background:#0F172A;color:#C6FF00;border:2px solid #C6FF00;font-size:14.5px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(0,0,0,0.25);">
+        <span>🚚</span>
+        <span>SAVE REAL TRUCK & ENTER COCKPIT</span>
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+window.openDriverTruckRegistrationModal = openDriverTruckRegistrationModal;
+
+async function submitRealTruckRegistration() {
+  const errBox = document.getElementById('truck-reg-error-msg');
+  const showErr = (msg) => {
+    if (errBox) {
+      errBox.textContent = '⚠️ ' + msg;
+      errBox.style.display = 'block';
+      errBox.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      alert(msg);
+    }
+  };
+
+  const name = (document.getElementById('reg-driver-name')?.value || '').trim();
+  const phone = (document.getElementById('reg-driver-phone')?.value || '').trim();
+  const vehicle = (document.getElementById('reg-driver-vehicle')?.value || '').trim();
+  const plate = (document.getElementById('reg-driver-plate')?.value || '').trim().toUpperCase();
+  const capacity = (document.getElementById('reg-driver-capacity')?.value || '').trim();
+
+  if (!name) return showErr('Please enter your full driver name.');
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  if (cleanPhone.length < 10) return showErr('Please enter a valid 10-digit Indian mobile number.');
+  if (!plate || plate.length < 5) return showErr('Please enter your authentic vehicle registration plate number.');
+  if (!capacity || parseFloat(capacity) <= 0) return showErr('Please specify the payload capacity in quintals.');
+
+  const formattedPhone = '+91 ' + cleanPhone.slice(-10);
+
+  localStorage.setItem('nukrop_user_role', 'driver');
+  localStorage.setItem('nukrop_driver_name', name);
+  localStorage.setItem('nukrop_driver_phone', formattedPhone);
+  localStorage.setItem('nukrop_driver_plate', plate);
+  localStorage.setItem('nukrop_driver_vehicle', vehicle);
+  localStorage.setItem('nukrop_driver_capacity', capacity);
+  localStorage.setItem('nukrop_driver_vehicle_img', typeof getDriverTruckImg === 'function' ? getDriverTruckImg(vehicle) : 'images/trucks/tata_ace.png');
+  localStorage.setItem('gh_driver_online', 'true');
+
+  if (window.sbClient) {
+    try {
+      await window.sbClient.from('truck_listings').upsert([{
+        driver_name: name,
+        driver_phone: formattedPhone,
+        vehicle_plate: plate,
+        truck_type: vehicle,
+        capacity_tonnes: (parseFloat(capacity) || 20) / 10,
+        available_capacity_tonnes: (parseFloat(capacity) || 20) / 10,
+        rate_per_km: 35,
+        status: 'ACTIVE'
+      }], { onConflict: 'vehicle_plate' });
+
+      await window.sbClient.from('driver_telemetry').upsert([{
+        driver_id: formattedPhone,
+        driver_name: name,
+        vehicle_type: vehicle,
+        vehicle_plate: plate,
+        is_online: true,
+        last_ping: new Date().toISOString()
+      }], { onConflict: 'driver_id' });
+    } catch(e) {
+      console.warn('Supabase truck upsert error:', e);
+    }
+  }
+
+  const modal = document.getElementById('driver-truck-reg-modal');
+  if (modal) modal.remove();
+
+  const ids = ['startup-experience-overlay', 'onboarding-experience-overlay', 'splash-viewport', 'login-screen-overlay'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast(`✅ Truck Registered: ${plate}! Welcome, ${name}.`, 'success');
+  }
+
+  openScreen('driver_dashboard', null);
+}
+window.submitRealTruckRegistration = submitRealTruckRegistration;
+
 function loginAsDriver() {
   const nameInp = document.getElementById('drv-login-name');
   const phoneInp = document.getElementById('drv-login-phone');
   const plateInp = document.getElementById('drv-login-plate');
   const vehicleInp = document.getElementById('drv-login-vehicle');
 
-  const driverName = (nameInp && nameInp.value.trim()) || localStorage.getItem('nukrop_driver_name') || 'Registered Driver';
-  const driverPhone = (phoneInp && phoneInp.value.trim()) || localStorage.getItem('nukrop_driver_phone') || '+91 98490 22338';
-  const driverPlate = (plateInp && plateInp.value.trim()) || localStorage.getItem('nukrop_driver_plate') || 'TS 03 UB 4491';
-  const vehicleType = (vehicleInp && vehicleInp.value) || 'Tata Ace Gold (1.5 Ton)';
+  const driverName = (nameInp && nameInp.value.trim()) || '';
+  const driverPhone = (phoneInp && phoneInp.value.trim()) || '';
+  const driverPlate = (plateInp && plateInp.value.trim().toUpperCase()) || '';
+  const vehicleType = (vehicleInp && vehicleInp.value) || '';
+
+  if (!driverName) {
+    if (typeof showLuxuryToast === 'function') showLuxuryToast('⚠️ Driver Name is required', 'warning');
+    else alert('Please enter your driver full name');
+    if (nameInp) nameInp.focus();
+    return;
+  }
+  const cleanPhone = driverPhone.replace(/[^0-9]/g, '');
+  if (cleanPhone.length < 10) {
+    if (typeof showLuxuryToast === 'function') showLuxuryToast('⚠️ Valid 10-digit phone number is required', 'warning');
+    else alert('Please enter a valid 10-digit mobile number');
+    if (phoneInp) phoneInp.focus();
+    return;
+  }
+  if (!driverPlate || driverPlate.length < 5) {
+    if (typeof showLuxuryToast === 'function') showLuxuryToast('⚠️ Valid vehicle registration plate is required', 'warning');
+    else alert('Please enter your vehicle registration plate number (e.g. TS 08 UB 4491)');
+    if (plateInp) plateInp.focus();
+    return;
+  }
+
+  const formattedPhone = '+91 ' + cleanPhone.slice(-10);
 
   localStorage.setItem('nukrop_user_role', 'driver');
   localStorage.setItem('nukrop_driver_name', driverName);
-  localStorage.setItem('nukrop_driver_phone', driverPhone);
+  localStorage.setItem('nukrop_driver_phone', formattedPhone);
   localStorage.setItem('nukrop_driver_plate', driverPlate);
-  localStorage.setItem('nukrop_driver_vehicle', vehicleType);
+  localStorage.setItem('nukrop_driver_vehicle', vehicleType || 'Tata Ace Gold (1.5 Ton)');
   localStorage.setItem('nukrop_driver_vehicle_img', typeof getDriverTruckImg === 'function' ? getDriverTruckImg(vehicleType) : 'images/trucks/tata_ace.png');
+  localStorage.setItem('gh_driver_online', 'true');
 
-  if (typeof GRAMHAUL_POOLED_TRUCKS !== 'undefined' && GRAMHAUL_POOLED_TRUCKS.length > 0) {
-    GRAMHAUL_POOLED_TRUCKS[0].driverName = driverName;
-    GRAMHAUL_POOLED_TRUCKS[0].driverPhone = driverPhone;
-    GRAMHAUL_POOLED_TRUCKS[0].plate = driverPlate;
-    GRAMHAUL_POOLED_TRUCKS[0].vehicle = vehicleType;
+  if (window.sbClient) {
+    window.sbClient.from('truck_listings').upsert([{
+      driver_name: driverName,
+      driver_phone: formattedPhone,
+      vehicle_plate: driverPlate,
+      truck_type: vehicleType || 'Tata Ace Gold (1.5 Ton)',
+      capacity_tonnes: 2.0,
+      available_capacity_tonnes: 2.0,
+      rate_per_km: 35,
+      status: 'ACTIVE'
+    }], { onConflict: 'vehicle_plate' }).then(() => {});
+
+    window.sbClient.from('driver_telemetry').upsert([{
+      driver_id: formattedPhone,
+      driver_name: driverName,
+      vehicle_type: vehicleType || 'Tata Ace Gold (1.5 Ton)',
+      vehicle_plate: driverPlate,
+      is_online: true,
+      last_ping: new Date().toISOString()
+    }], { onConflict: 'driver_id' }).then(() => {});
   }
 
   const ids = ['startup-experience-overlay', 'onboarding-experience-overlay', 'splash-viewport', 'login-screen-overlay'];
@@ -10903,6 +11098,15 @@ window.onNativeGoogleAccountSelected = async function(email, name) {
   }
 
   if (authUserRole === 'driver') {
+    const savedPlate = localStorage.getItem('nukrop_driver_plate');
+    const savedPhone = localStorage.getItem('nukrop_driver_phone');
+    const isRealTruckRegistered = savedPlate && savedPhone &&
+      savedPlate.trim() !== '' && savedPlate !== 'TS 03 UB 4491';
+
+    if (!isRealTruckRegistered) {
+      openDriverTruckRegistrationModal({ email, name: farmerName });
+      return;
+    }
     openScreen('driver_dashboard', null);
   } else {
     openScreen('home', document.getElementById('tab-home'));
@@ -11034,6 +11238,15 @@ function switchUserRole(role) {
   authUserRole = role;
   localStorage.setItem('nukrop_user_role', role);
   if (role === 'driver') {
+    const savedPlate = localStorage.getItem('nukrop_driver_plate');
+    const savedPhone = localStorage.getItem('nukrop_driver_phone');
+    const isRealTruckRegistered = savedPlate && savedPhone &&
+      savedPlate.trim() !== '' && savedPlate !== 'TS 03 UB 4491';
+
+    if (!isRealTruckRegistered) {
+      openDriverTruckRegistrationModal();
+      return;
+    }
     openScreen('driver_dashboard', null);
     if (typeof showLuxuryToast === 'function') showLuxuryToast('🚚 Switched to GramHaul Driver Cockpit', 'info');
   } else {
@@ -11331,6 +11544,7 @@ function renderPlantixLanguageScreen(container) {
 
 function selectPlantixLang(code) {
   plantixFlowState.selectedLang = code;
+  try { if (typeof localStorage !== 'undefined') localStorage.setItem('nukrop_user_lang', code); } catch(e){}
   if (typeof setLanguage === 'function') setLanguage(code);
   renderPlantixFlow();
 }
@@ -12882,60 +13096,169 @@ var driverRoutePolyline = null;
 var driverSimTimer = null;
 
 
-function driverAcceptHaulRequest() {
-  let activeTrip = null;
-  try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
-  if (!activeTrip) return;
-
-  const driverName = localStorage.getItem('nukrop_driver_name') || 'Suresh Yadav';
-  const driverPlate = localStorage.getItem('nukrop_driver_plate') || 'TS 03 UB 4491';
-  const driverPhone = '+91 94401 55667';
-  const vehicle = localStorage.getItem('nukrop_driver_vehicle') || 'Tata Ace Gold (1.5T)';
-  const driverId = localStorage.getItem('nukrop_driver_id') || 'driver_suresh_01';
-  const driverCoords = window.driverRealGps || [activeTrip.pickupLat + 0.007, activeTrip.pickupLon + 0.005];
-
-  activeTrip.status = 'ACCEPTED';
-  activeTrip.driverId = driverId;
-  activeTrip.driverName = driverName;
-  activeTrip.driverPlate = driverPlate;
-  activeTrip.driverPhone = driverPhone;
-  activeTrip.vehicle = vehicle;
-  activeTrip.driverCoords = driverCoords;
-  activeTrip.etaMins = 2;
-  activeTrip.otp = activeTrip.otp || '4491';
-  activeTrip.step = 0;
-
-  localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
-  window.activeTrip = activeTrip;
-
-  // 1. Update in Supabase
-  if (typeof sbClient !== 'undefined' && sbClient) {
-    sbClient.from('haul_bookings').update({
-      status: 'ACCEPTED',
-      driver_name: driverName,
-      driver_phone: driverPhone,
-      vehicle_plate: driverPlate,
-      vehicle_type: vehicle
-    }).eq('status', 'SEARCHING').then(() => {});
-
-    // 2. Broadcast to Farmer in real-time
-    sbClient.channel('driver-tracking').send({
-      type: 'broadcast',
-      event: 'driver_accepted_trip',
-      payload: activeTrip
-    });
-  }
-
-  if (typeof showLuxuryToast === 'function') {
-    showLuxuryToast(`✓ Trip accepted! Navigating to ${activeTrip.pickup}`, 'success');
-  }
-
-  // Re-render driver dashboard in active navigation mode
-  openScreen('driver_dashboard');
+function computeHaversineDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
-window.driverAcceptHaulRequest = driverAcceptHaulRequest;
+window.computeHaversineDistanceKm = computeHaversineDistanceKm;
 
-function driverDeclineHaulRequest() {
+function initDriverRealtimeDispatchListener() {
+  if (window._driverDispatchSubInitialized) return;
+  window._driverDispatchSubInitialized = true;
+  window.declinedTripIds = window.declinedTripIds || new Set();
+
+  function evaluateIncomingBooking(trip) {
+    if (!trip) return;
+    const isOnline = (localStorage.getItem('gh_driver_online') || 'true') === 'true';
+    if (!isOnline) return;
+
+    const tripId = trip.booking_id || trip.id;
+    if (tripId && window.declinedTripIds.has(tripId)) return;
+
+    let existingActive = null;
+    try { existingActive = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e){}
+    if (existingActive && existingActive.status !== 'SEARCHING' && existingActive.status !== 'broadcast') {
+      return;
+    }
+
+    const pLat = parseFloat(trip.pickup_lat || trip.pickupLat);
+    const pLng = parseFloat(trip.pickup_lng || trip.pickupLon);
+    if (isNaN(pLat) || isNaN(pLng)) return;
+
+    const dLat = (window.driverRealGps && window.driverRealGps[0]) || parseFloat(localStorage.getItem('driver_live_lat'));
+    const dLng = (window.driverRealGps && window.driverRealGps[1]) || parseFloat(localStorage.getItem('driver_live_lon'));
+
+    let distKm = 1.5;
+    if (!isNaN(dLat) && !isNaN(dLng) && dLat !== 0 && dLng !== 0) {
+      distKm = computeHaversineDistanceKm(dLat, dLng, pLat, pLng);
+    }
+
+    // STRICT 5.0 KM RADIUS FILTER (as requested by user)
+    if (distKm <= 5.0) {
+      console.log(`[GramHaul Dispatch] Booking ${tripId} is within 5km (${distKm.toFixed(2)} km). Triggering driver modal.`);
+      trip.distKm = distKm.toFixed(1);
+      window.pendingIncomingHaul = trip;
+      displayDriverIncomingHaulModal(trip);
+    } else {
+      console.log(`[GramHaul Dispatch] Booking ${tripId} is ${distKm.toFixed(2)} km away (> 5.0 km radius). Filtered out.`);
+    }
+  }
+
+  // 1. Supabase Realtime Broadcast Channel
+  if (window.sbClient) {
+    const channel = window.sbClient.channel('driver-tracking');
+    channel.on('broadcast', { event: 'new_haul_booking' }, ({ payload }) => {
+      console.log('Driver received new_haul_booking broadcast:', payload);
+      evaluateIncomingBooking(payload);
+    }).subscribe();
+
+    // 2. Supabase Postgres Changes Channel
+    const dbChannel = window.sbClient.channel('haul-bookings-changes');
+    dbChannel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'haul_bookings' }, (payload) => {
+      console.log('Driver received haul_bookings INSERT:', payload.new);
+      evaluateIncomingBooking(payload.new);
+    }).subscribe();
+  }
+
+  // 3. Fallback polling loop every 3 seconds while online
+  if (window._driverDispatchPollTimer) clearInterval(window._driverDispatchPollTimer);
+  window._driverDispatchPollTimer = setInterval(async () => {
+    try {
+      const isOnline = (localStorage.getItem('gh_driver_online') || 'true') === 'true';
+      if (!isOnline || !window.sbClient) return;
+
+      let existingActive = null;
+      try { existingActive = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e){}
+      if (existingActive && existingActive.status !== 'SEARCHING' && existingActive.status !== 'broadcast') {
+        return;
+      }
+
+      const { data } = await window.sbClient
+        .from('haul_bookings')
+        .select('*')
+        .eq('status', 'SEARCHING')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (data && Array.isArray(data) && data.length > 0) {
+        for (const booking of data) {
+          evaluateIncomingBooking(booking);
+          break;
+        }
+      }
+    } catch(e) {}
+  }, 3000);
+}
+window.initDriverRealtimeDispatchListener = initDriverRealtimeDispatchListener;
+
+function displayDriverIncomingHaulModal(trip) {
+  const existing = document.getElementById('driver-incoming-haul-modal');
+  if (existing) existing.remove();
+
+  try {
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  } catch(e) {}
+
+  const fName = trip.farmer_id || trip.farmerName || 'Farmer';
+  const fPhone = trip.farmer_phone || trip.farmerPhone || '+91 94401 55667';
+  const crop = trip.crop_name || trip.crop || 'Produce';
+  const sacks = trip.load_quintals ? (trip.load_quintals + ' Quintals') : (trip.sacks || '40 Bags');
+  const pickup = trip.pickup_village || trip.pickup || 'Farm Location';
+  const mandi = trip.destination_mandi || trip.mandi || 'APMC Yard';
+  const fare = trip.total_fare || trip.fare || 380;
+  const dist = trip.distKm ? (trip.distKm + ' km away') : 'Within 5 km radius';
+
+  const modal = document.createElement('div');
+  modal.id = 'driver-incoming-haul-modal';
+  modal.style.cssText = 'position:fixed;bottom:16px;left:14px;right:14px;background:#FFFFFF;border:2.5px solid #22E56B;border-radius:24px;padding:18px 18px 22px;box-shadow:0 16px 48px rgba(15,23,42,0.25), 0 0 0 2px rgba(34,229,107,0.3);z-index:999999;animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1);color:#0F172A;box-sizing:border-box;max-width:440px;margin:0 auto;';
+
+  modal.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:#22E56B;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(34,229,107,0.5);">
+          <span style="font-size:20px;">🔔</span>
+        </div>
+        <div>
+          <div style="font-size:14.5px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;">INCOMING HAUL (WITHIN 5 KM)</div>
+          <div style="font-size:11px;color:#15803D;font-weight:800;">📍 ${dist} · Direct Farmer Booking</div>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#A3E635,#22E56B);color:#0F172A;font-weight:900;font-size:16px;padding:5px 14px;border-radius:999px;box-shadow:0 2px 8px rgba(34,229,107,0.35);">
+        ₹${fare}
+      </div>
+    </div>
+
+    <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:12px 14px;margin-bottom:14px;display:flex;flex-direction:column;gap:8px;font-size:12.5px;">
+      <div style="display:flex;justify-content:space-between;"><span style="color:#64748B;">Farmer:</span><strong style="color:#0F172A;">${fName} (${fPhone})</strong></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#64748B;">Cargo:</span><strong style="color:#0F172A;">${crop} · ${sacks}</strong></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#64748B;">📍 Pickup:</span><strong style="color:#15803D;max-width:200px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${pickup}</strong></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:#64748B;">🏛️ Drop Mandi:</span><strong style="color:#B45309;max-width:200px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mandi}</strong></div>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <button onclick="driverDeclineHaulRequest('${trip.booking_id || trip.id}')" style="flex:1;height:48px;background:#F1F5F9;color:#475569;border:1px solid #CBD5E1;border-radius:14px;font-size:13.5px;font-weight:800;cursor:pointer;">Decline</button>
+      <button onclick="driverAcceptHaulRequest()" style="flex:2;height:48px;background:linear-gradient(135deg,#A3E635,#22E56B);color:#0F172A;border:none;border-radius:14px;font-size:14.5px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(34,229,107,0.45);display:flex;align-items:center;justify-content:center;gap:6px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>ACCEPT HAUL TRIP</span>
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+window.displayDriverIncomingHaulModal = displayDriverIncomingHaulModal;
+
+function driverDeclineHaulRequest(tripId) {
+  if (tripId) {
+    window.declinedTripIds = window.declinedTripIds || new Set();
+    window.declinedTripIds.add(tripId);
+  }
+  window.pendingIncomingHaul = null;
   localStorage.removeItem('nukrop_active_trip');
   const card = document.getElementById('driver-incoming-haul-modal');
   if (card) card.remove();
@@ -12944,6 +13267,73 @@ function driverDeclineHaulRequest() {
   }
 }
 window.driverDeclineHaulRequest = driverDeclineHaulRequest;
+
+async function driverAcceptHaulRequest() {
+  let activeTrip = null;
+  try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+  if (!activeTrip && window.pendingIncomingHaul) {
+    activeTrip = window.pendingIncomingHaul;
+  }
+  if (!activeTrip) return;
+
+  const driverName = localStorage.getItem('nukrop_driver_name') || 'Registered Driver';
+  const driverPlate = localStorage.getItem('nukrop_driver_plate') || 'Active Fleet';
+  const driverPhone = localStorage.getItem('nukrop_driver_phone') || '';
+  const vehicle = localStorage.getItem('nukrop_driver_vehicle') || 'Tata Ace Gold (1.5 Ton)';
+  const driverId = localStorage.getItem('nukrop_driver_phone') || localStorage.getItem('nukrop_driver_plate') || 'driver_live';
+
+  const driverCoords = (window.driverRealGps && window.driverRealGps[0])
+    ? window.driverRealGps
+    : [activeTrip.pickupLat || 17.9689, activeTrip.pickupLon || 79.5941];
+
+  activeTrip.status = 'ACCEPTED';
+  activeTrip.driverId = driverId;
+  activeTrip.driverName = driverName;
+  activeTrip.driverPlate = driverPlate;
+  activeTrip.driverPhone = driverPhone;
+  activeTrip.vehicle = vehicle;
+  activeTrip.driverCoords = driverCoords;
+  activeTrip.etaMins = Math.max(1, Math.round((parseFloat(activeTrip.distKm) || 2) * 2));
+  activeTrip.otp = activeTrip.otp || String(Math.floor(1000 + Math.random() * 9000));
+  activeTrip.step = 0;
+
+  localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
+  window.activeTrip = activeTrip;
+
+  const card = document.getElementById('driver-incoming-haul-modal');
+  if (card) card.remove();
+
+  // 1. Update in Supabase
+  if (typeof sbClient !== 'undefined' && sbClient) {
+    try {
+      await sbClient.from('haul_bookings').update({
+        status: 'ACCEPTED',
+        driver_name: driverName,
+        driver_phone: driverPhone,
+        vehicle_plate: driverPlate,
+        vehicle_type: vehicle,
+        driver_lat: driverCoords[0],
+        driver_lng: driverCoords[1]
+      }).eq('status', 'SEARCHING');
+    } catch(e) {}
+
+    // 2. Broadcast to Farmer in real-time
+    try {
+      sbClient.channel('driver-tracking').send({
+        type: 'broadcast',
+        event: 'driver_accepted_trip',
+        payload: activeTrip
+      });
+    } catch(e) {}
+  }
+
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast(`✓ Trip accepted! Navigating to ${activeTrip.pickup || 'Farm'}`, 'success');
+  }
+
+  openScreen('driver_dashboard');
+}
+window.driverAcceptHaulRequest = driverAcceptHaulRequest;
 
 function initDriverRealMap(lat, lon) {
   const mapContainer = document.getElementById('driver-real-osm-map');
@@ -12956,18 +13346,20 @@ function initDriverRealMap(lat, lon) {
     let activeTrip = null;
     try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
 
-    // Default coordinates: Kadipikonda/Kazipet Farm -> Warangal Enamamula APMC Yard
-    const pickupLat = (activeTrip && activeTrip.pickupLat) ? activeTrip.pickupLat : 17.9689;
-    const pickupLon = (activeTrip && activeTrip.pickupLon) ? activeTrip.pickupLon : 79.5941;
-    const dropLat   = (activeTrip && activeTrip.dropLat)   ? activeTrip.dropLat   : 17.9945;
-    const dropLon   = (activeTrip && activeTrip.dropLon)   ? activeTrip.dropLon   : 79.5892;
+    // Driver's real live coordinates
+    let curLat = lat || (window.driverRealGps && window.driverRealGps[0]) || parseFloat(localStorage.getItem('driver_live_lat')) || 17.9689;
+    let curLon = lon || (window.driverRealGps && window.driverRealGps[1]) || parseFloat(localStorage.getItem('driver_live_lon')) || 79.5941;
 
-    const currentDriverLat = lat || (pickupLat - 0.007);
-    const currentDriverLon = lon || (pickupLon - 0.005);
+    const pickupLat = (activeTrip && activeTrip.pickupLat) ? activeTrip.pickupLat : curLat;
+    const pickupLon = (activeTrip && activeTrip.pickupLon) ? activeTrip.pickupLon : curLon;
+    const dropLat   = (activeTrip && activeTrip.dropLat)   ? activeTrip.dropLat   : (curLat + 0.03);
+    const dropLon   = (activeTrip && activeTrip.dropLon)   ? activeTrip.dropLon   : (curLon + 0.03);
+
+    const isTripAccepted = activeTrip && (activeTrip.status === 'ACCEPTED' || activeTrip.status === 'DISPATCHED' || activeTrip.status === 'ARRIVED' || activeTrip.status === 'IN_TRANSIT');
 
     driverLiveMap = L.map('driver-real-osm-map', {
-      center: activeTrip ? [(pickupLat + dropLat) / 2, (pickupLon + dropLon) / 2] : [currentDriverLat, currentDriverLon],
-      zoom: activeTrip ? 13 : 14,
+      center: isTripAccepted ? [(pickupLat + dropLat) / 2, (pickupLon + dropLon) / 2] : [curLat, curLon],
+      zoom: isTripAccepted ? 13 : 15,
       zoomControl: false,
       attributionControl: false
     });
@@ -12979,37 +13371,33 @@ function initDriverRealMap(lat, lon) {
     const fallbackSvg = document.getElementById('driver-fallback-map');
     if (fallbackSvg) fallbackSvg.style.display = 'none';
 
-    // Active driver vehicle info and real PNG
-    const activeDriverPlate = localStorage.getItem('nukrop_driver_plate') || 'TS 03 UB 4491';
+    const activeDriverPlate = localStorage.getItem('nukrop_driver_plate') || 'Real Truck';
     const activeDriverVehicle = localStorage.getItem('nukrop_driver_vehicle') || 'Tata Ace Gold (1.5 Ton)';
     const activeDriverImg = getDriverTruckImg(activeDriverVehicle);
 
-    if (isAccepted) {
-      // 1. Pickup Marker (Green Farm Pin)
+    if (isTripAccepted) {
       const pickupIcon = L.divIcon({
         className: 'gh-driver-pickup-pin',
         html: `<div style="background:#16A34A;color:#FFFFFF;font-size:11px;font-weight:900;padding:5px 10px;border-radius:14px;border:2px solid #FFFFFF;box-shadow:0 4px 14px rgba(22,163,74,0.45);display:flex;align-items:center;gap:5px;white-space:nowrap;">
                  <span style="font-size:13px;">🌾</span>
-                 <span>${activeTrip.pickup || 'Kadipikonda Farm'}</span>
+                 <span>${activeTrip.pickup || 'Farm Pickup'}</span>
                </div>`,
         iconSize: [120, 32],
         iconAnchor: [60, 32]
       });
       driverPickupMarker = L.marker([pickupLat, pickupLon], { icon: pickupIcon }).addTo(driverLiveMap);
 
-      // 2. Drop Marker (Red Mandi Pin)
       const dropIcon = L.divIcon({
         className: 'gh-driver-drop-pin',
         html: `<div style="background:#DC2626;color:#FFFFFF;font-size:11px;font-weight:900;padding:5px 10px;border-radius:14px;border:2px solid #FFFFFF;box-shadow:0 4px 14px rgba(220,38,38,0.45);display:flex;align-items:center;gap:5px;white-space:nowrap;">
                  <span style="font-size:13px;">🏛️</span>
-                 <span>${activeTrip.mandi || 'Warangal APMC Yard'}</span>
+                 <span>${activeTrip.mandi || 'APMC Yard'}</span>
                </div>`,
         iconSize: [130, 32],
         iconAnchor: [65, 32]
       });
       driverDropMarker = L.marker([dropLat, dropLon], { icon: dropIcon }).addTo(driverLiveMap);
 
-      // 3. Driver Truck Marker (Real PNG matching driver's selected vehicle)
       const truckIcon = L.divIcon({
         className: 'gh-driver-truck-pin',
         html: `<div style="position:relative;display:flex;flex-direction:column;align-items:center;transform:translate(-50%, -100%);">
@@ -13022,90 +13410,39 @@ function initDriverRealMap(lat, lon) {
                </div>`,
         iconSize: [0, 0]
       });
-      driverTruckMarker = L.marker([currentDriverLat, currentDriverLon], { icon: truckIcon }).addTo(driverLiveMap);
+      driverTruckMarker = L.marker([curLat, curLon], { icon: truckIcon }).addTo(driverLiveMap);
 
-      // 4. Real-Streets Path Routing & OSRM Engine (Driver -> Pickup -> Drop APMC Mandi)
       const geo = getGeoTrackingService();
       if (geo) {
-        const driverLonLat = [currentDriverLon, currentDriverLat];
-        const pickupLonLat = [pickupLon, pickupLat];
-        const dropLonLat   = [dropLon, dropLat];
-
         Promise.all([
-          geo.fetchStreetRoute(driverLonLat, pickupLonLat),
-          geo.fetchStreetRoute(pickupLonLat, dropLonLat)
+          geo.fetchStreetRoute([curLon, curLat], [pickupLon, pickupLat]),
+          geo.fetchStreetRoute([pickupLon, pickupLat], [dropLon, dropLat])
         ]).then(([leg1, leg2]) => {
           if (!driverLiveMap) return;
           const leg1Pts = leg1.coordinates.map(pt => [pt[1], pt[0]]);
           const leg2Pts = leg2.coordinates.map(pt => [pt[1], pt[0]]);
           const allStreetPts = [...leg1Pts, ...leg2Pts];
-
-          if (driverRoutePolyline) {
-            try { driverLiveMap.removeLayer(driverRoutePolyline); } catch(e) {}
-          }
-          if (window.driverRouteGlowLayer) {
-            try { driverLiveMap.removeLayer(window.driverRouteGlowLayer); } catch(e) {}
-          }
-
-          // Dark contrast route glow for high visibility over OSM tiles
-          window.driverRouteGlowLayer = L.polyline(allStreetPts, {
-            color: '#0F172A',
-            weight: 7,
-            opacity: 0.5,
-            lineCap: 'round',
-            lineJoin: 'round'
-          }).addTo(driverLiveMap);
-
-          // Emerald active real-street line
           driverRoutePolyline = L.polyline(allStreetPts, {
             color: '#16A34A',
-            weight: 4.5,
+            weight: 5,
             opacity: 0.95,
             lineCap: 'round',
             lineJoin: 'round'
           }).addTo(driverLiveMap);
-
           driverLiveMap.fitBounds(driverRoutePolyline.getBounds(), { padding: [45, 45] });
-        }).catch(err => {
-          console.warn('[Driver Map] OSRM route fetch fallback:', err);
+        }).catch(() => {
+          driverRoutePolyline = L.polyline([[curLat, curLon], [pickupLat, pickupLon], [dropLat, dropLon]], {
+            color: '#16A34A', weight: 4, dashArray: '8, 8'
+          }).addTo(driverLiveMap);
         });
-
-        // Decoupled Background GPS Realtime Broadcast (Zero-polling)
-        if (!window.driverBroadcastController) {
-          window.driverBroadcastController = geo.startDriverBroadcast({
-            driverId: activeTrip.driverId || 'GH-4192',
-            intervalMs: 2500,
-            persistToDb: true,
-            getCoordinates: () => {
-              const pos = driverTruckMarker ? driverTruckMarker.getLatLng() : { lat: currentDriverLat, lng: currentDriverLon };
-              return {
-                lon: pos.lng,
-                lat: pos.lat,
-                heading: 90,
-                speed: 28
-              };
-            }
-          });
-        }
-      } else {
-        // Fallback straight-line
-        driverRoutePolyline = L.polyline([[currentDriverLat, currentDriverLon], [pickupLat, pickupLon], [dropLat, dropLon]], {
-          color: '#16A34A',
-          weight: 4,
-          dashArray: '8, 8'
-        }).addTo(driverLiveMap);
       }
-
-      // Real GPS coordinates maintained without jitter loop
-      if (driverSimTimer) { clearInterval(driverSimTimer); driverSimTimer = null; }
     } else {
-      // Standby Driver Marker (Real PNG matching driver's selected vehicle)
       const standbyIcon = L.divIcon({
         className: 'gh-driver-standby-pin',
         html: `<div style="position:relative;display:flex;flex-direction:column;align-items:center;transform:translate(-50%, -100%);">
                  <div style="background:#0F172A;color:#C6FF00;font-size:9.5px;font-weight:900;padding:2px 7px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;margin-bottom:3px;border:1px solid rgba(198,255,0,0.5);display:flex;align-items:center;gap:4px;">
                    <span style="width:6px;height:6px;border-radius:50%;background:#C6FF00;box-shadow:0 0 6px #C6FF00;"></span>
-                   <span>${activeDriverPlate} · Online</span>
+                   <span>${activeDriverPlate} · On Duty</span>
                  </div>
                  <div style="width:48px;height:48px;border-radius:50%;background:#FFFFFF;border:2.5px solid #0F172A;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.25);overflow:hidden;padding:2px;">
                    <img src="${activeDriverImg}" alt="${activeDriverVehicle}" style="width:42px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));" />
@@ -13113,20 +13450,35 @@ function initDriverRealMap(lat, lon) {
                </div>`,
         iconSize: [0, 0]
       });
-      driverTruckMarker = L.marker([currentDriverLat, currentDriverLon], { icon: standbyIcon }).addTo(driverLiveMap);
+      driverTruckMarker = L.marker([curLat, curLon], { icon: standbyIcon }).addTo(driverLiveMap);
     }
 
     setTimeout(() => { if (driverLiveMap) driverLiveMap.invalidateSize(); }, 200);
 
-    // Auto-start real device GPS watch as soon as map is ready
-    setTimeout(() => startDriverRealGPSWatch(), 400);
+    // Pure GPS lock from device hardware
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const liveLat = pos.coords.latitude;
+        const liveLon = pos.coords.longitude;
+        window.driverRealGps = [liveLat, liveLon];
+        localStorage.setItem('driver_live_lat', String(liveLat));
+        localStorage.setItem('driver_live_lon', String(liveLon));
+        if (driverTruckMarker) driverTruckMarker.setLatLng([liveLat, liveLon]);
+        if (driverLiveMap && !isTripAccepted) driverLiveMap.panTo([liveLat, liveLon]);
+      }, () => {}, { enableHighAccuracy: true, timeout: 8000 });
+    }
+
+    const isOnline = (localStorage.getItem('gh_driver_online') || 'true') === 'true';
+    if (isOnline) {
+      startDriverRealGPSWatch();
+      initDriverRealtimeDispatchListener();
+    }
   } catch(e) {
     console.warn('Driver Leaflet Map init fallback:', e);
   }
 }
 
-// REAL GPS DRIVER POSITION UPDATER — No fake simulation
-// Uses browser navigator.geolocation watchPosition for live marker updates
+// REAL GPS DRIVER POSITION UPDATER — Pure Live Telemetry (No fake simulation)
 function startDriverRealGPSWatch() {
   if (driverSimTimer) { clearInterval(driverSimTimer); driverSimTimer = null; }
 
@@ -13135,9 +13487,17 @@ function startDriverRealGPSWatch() {
     return;
   }
 
-  const driverId = localStorage.getItem('nukrop_driver_id') || 'GH-4192';
+  if (window._driverGpsWatchId) {
+    navigator.geolocation.clearWatch(window._driverGpsWatchId);
+    window._driverGpsWatchId = null;
+  }
 
-  const watchId = navigator.geolocation.watchPosition(
+  const driverId = localStorage.getItem('nukrop_driver_phone') || localStorage.getItem('nukrop_driver_plate') || 'DRV-LIVE';
+  const driverName = localStorage.getItem('nukrop_driver_name') || 'Driver';
+  const driverPlate = localStorage.getItem('nukrop_driver_plate') || 'Active Fleet';
+  const vehicle = localStorage.getItem('nukrop_driver_vehicle') || 'Tata Ace Gold (1.5 Ton)';
+
+  window._driverGpsWatchId = navigator.geolocation.watchPosition(
     (pos) => {
       const curLat = pos.coords.latitude;
       const curLon = pos.coords.longitude;
@@ -13146,15 +13506,15 @@ function startDriverRealGPSWatch() {
 
       window.driverRealGps = [curLat, curLon];
       driverLiveCoords = [curLat, curLon];
-      localStorage.setItem('gh_driver_last_lat', String(curLat));
-      localStorage.setItem('gh_driver_last_lon', String(curLon));
       localStorage.setItem('driver_live_lat', String(curLat));
       localStorage.setItem('driver_live_lon', String(curLon));
 
       // Update map marker to real GPS position
       if (driverTruckMarker && typeof driverTruckMarker.setLatLng === 'function') {
         driverTruckMarker.setLatLng([curLat, curLon]);
-        if (driverLiveMap) driverLiveMap.panTo([curLat, curLon], { animate: true, duration: 0.8 });
+      }
+      if (driverLiveMap) {
+        driverLiveMap.panTo([curLat, curLon], { animate: true });
       }
 
       // Sync farmer-side GramHaul map marker if visible
@@ -13162,24 +13522,42 @@ function startDriverRealGPSWatch() {
         gramhaulTruckMarker.setLatLng([curLat, curLon]);
       }
 
-      // Broadcast real position to Supabase
-      const geo = (typeof getGeoTrackingService === 'function') ? getGeoTrackingService() : null;
-      if (geo) {
-        geo.recordDriverLocation({ driverId, lon: curLon, lat: curLat, heading, speedKmh });
-      }
-      if (typeof nk_updateDriverTelemetry === 'function') {
-        nk_updateDriverTelemetry(driverId, curLat, curLon, speedKmh, heading);
+      // Broadcast real position to Supabase channel & database
+      if (window.sbClient) {
+        window.sbClient.channel('driver-tracking').send({
+          type: 'broadcast',
+          event: 'driver_location_update',
+          payload: {
+            driverId,
+            driverName,
+            plate: driverPlate,
+            lat: curLat,
+            lng: curLon,
+            heading,
+            speedKmh,
+            timestamp: Date.now()
+          }
+        });
+
+        window.sbClient.from('driver_telemetry').upsert([{
+          driver_id: driverId,
+          driver_name: driverName,
+          vehicle_type: vehicle,
+          vehicle_plate: driverPlate,
+          current_lat: curLat,
+          current_lng: curLon,
+          is_online: true,
+          last_ping: new Date().toISOString()
+        }], { onConflict: 'driver_id' }).then(() => {});
       }
     },
     (err) => {
-      console.warn('[GramHaul GPS Watch]', err.message);
+      console.warn('[GramHaul GPS Watch Error]', err.message);
     },
-    { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+    { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
   );
 
-  // Store watchId so it can be cleared when driver goes offline
-  window._driverGpsWatchId = watchId;
-  console.log('🛰️ Real GPS watch started for driver:', driverId);
+  console.log('🛰️ Pure Real GPS watch started for driver:', driverId);
 }
 window.startDriverRealGPSWatch = startDriverRealGPSWatch;
 
@@ -15450,9 +15828,14 @@ const APP_VIEWS = {
     const isAccepted = activeTrip && (activeTrip.status === 'ACCEPTED' || activeTrip.status === 'DISPATCHED' || activeTrip.status === 'ARRIVED' || activeTrip.status === 'IN_TRANSIT');
     const hasPendingSearch = activeTrip && (activeTrip.status === 'SEARCHING' || activeTrip.status === 'broadcast');
 
-    const driverName   = localStorage.getItem('nukrop_driver_name')    || 'Suresh Yadav';
-    const vehiclePlate = localStorage.getItem('nukrop_driver_plate')   || 'TS 03 UB 4491';
-    const vehicleType  = localStorage.getItem('nukrop_driver_vehicle') || 'Tata Ace Gold 1.5T';
+    const driverName   = localStorage.getItem('nukrop_driver_name')    || '';
+    const vehiclePlate = localStorage.getItem('nukrop_driver_plate')   || '';
+    const vehicleType  = localStorage.getItem('nukrop_driver_vehicle') || 'Tata Ace Gold (1.5 Ton)';
+
+    // Enforce real truck details: if none registered or old placeholder, prompt registration modal
+    if (!driverName || !vehiclePlate || vehiclePlate === 'TS 03 UB 4491') {
+      setTimeout(() => { openDriverTruckRegistrationModal(); }, 250);
+    }
     const isOnline     = (localStorage.getItem('gh_driver_online') || 'true') === 'true';
     const activeTab    = localStorage.getItem('gh_driver_tab') || 'map';
 
@@ -15541,10 +15924,10 @@ const APP_VIEWS = {
       <div style="position:absolute;top:max(48px, env(safe-area-inset-top, 48px));left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:10;">
         <!-- Driver info pill -->
         <div style="background:#FFFFFF;border-radius:14px;padding:8px 12px;box-shadow:0 3px 12px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;">
-          <div style="width:34px;height:34px;border-radius:10px;background:var(--r-dark);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--r-yellow);">S</div>
+          <div style="width:34px;height:34px;border-radius:10px;background:var(--r-dark);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--r-yellow);">${(driverName[0] || 'D').toUpperCase()}</div>
           <div>
-            <div style="font-size:12.5px;font-weight:900;color:var(--r-dark);letter-spacing:-0.2px;">${driverName}</div>
-            <div style="font-size:9.5px;color:#6B7280;font-weight:700;">${vehiclePlate}</div>
+            <div style="font-size:12.5px;font-weight:900;color:var(--r-dark);letter-spacing:-0.2px;">${driverName || 'Registered Driver'}</div>
+            <div style="font-size:9.5px;color:#6B7280;font-weight:700;">${vehiclePlate || 'Commercial Truck'}</div>
           </div>
         </div>
         <!-- Today earnings badge & Notifications -->
@@ -16102,11 +16485,38 @@ function toggleGhDriverOnline() {
   const cur = (localStorage.getItem('gh_driver_online') || 'true') === 'true';
   const next = !cur;
   localStorage.setItem('gh_driver_online', next ? 'true' : 'false');
-  if (typeof showLuxuryToast === 'function') {
-    showLuxuryToast(next ? '🟢 You are now ONLINE & receiving haul requests' : '⚪ You are now OFFLINE', 'info');
+
+  if (next) {
+    startDriverRealGPSWatch();
+    initDriverRealtimeDispatchListener();
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('🟢 You are ON DUTY · Real GPS Live & 5km Haul Radar Active', 'success');
+    }
+  } else {
+    if (window._driverGpsWatchId) {
+      navigator.geolocation.clearWatch(window._driverGpsWatchId);
+      window._driverGpsWatchId = null;
+    }
+    if (window._driverDispatchPollTimer) {
+      clearInterval(window._driverDispatchPollTimer);
+      window._driverDispatchPollTimer = null;
+    }
+    const incomingModal = document.getElementById('driver-incoming-haul-modal');
+    if (incomingModal) incomingModal.remove();
+
+    const driverId = localStorage.getItem('nukrop_driver_phone') || localStorage.getItem('nukrop_driver_plate') || 'DRV-LIVE';
+    if (window.sbClient) {
+      window.sbClient.from('driver_telemetry').update({ is_online: false }).eq('driver_id', driverId).then(() => {});
+    }
+
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('⚪ You are OFFLINE · Duty Turned Off', 'info');
+    }
   }
+
   openScreen('driver_dashboard');
 }
+window.toggleGhDriverOnline = toggleGhDriverOnline;
 
 function openDriverInsuranceFastagModal() {
   const existing = document.getElementById('driver-insurance-modal');
@@ -20376,6 +20786,11 @@ let currentTabElement = null;
 
 function setLanguage(langKey) {
   currentLang = langKey || 'en';
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('nukrop_user_lang', currentLang);
+    }
+  } catch(e) {}
   const t = I18N[currentLang] || I18N.en;
 
   safeSetText('tab-lbl-home', t.home);
@@ -21284,17 +21699,16 @@ function playVoiceAudio(text) {
   }
 }
 
-// Initial Boot & Fetch Real Weather
+// Initial Boot & Fetch Real Weather (Strictly respects user's selected language across sessions)
 document.addEventListener('DOMContentLoaded', () => {
-  setLanguage('te');
+  const savedLang = (typeof localStorage !== 'undefined' && localStorage.getItem('nukrop_user_lang')) || 'en';
+  setLanguage(savedLang);
   fetchRealLocationAndWeather();
   initStartupExperience();
 });
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  initStartupExperience();
-}
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  setLanguage('en');
+  const savedLang = (typeof localStorage !== 'undefined' && localStorage.getItem('nukrop_user_lang')) || 'en';
+  setLanguage(savedLang);
   fetchRealLocationAndWeather();
   initStartupExperience();
 }
@@ -22102,11 +22516,11 @@ function handleDriverAccepted(tripData) {
   if (!activeTrip) activeTrip = tripData;
 
   activeTrip.status = 'DISPATCHED';
-  activeTrip.driverName = tripData.driver_name || tripData.driverName || 'Suresh Yadav';
-  activeTrip.driverPhone = tripData.driver_phone || tripData.driverPhone || '+91 94401 55667';
-  activeTrip.driverPlate = tripData.vehicle_plate || tripData.driverPlate || 'TS 03 UB 4491';
-  activeTrip.vehicle = tripData.vehicle_type || tripData.vehicle || 'Tata Ace Gold (1.5T)';
-  activeTrip.driverCoords = tripData.driverCoords || [activeTrip.pickupLat + 0.007, activeTrip.pickupLon + 0.005];
+  activeTrip.driverName = tripData.driver_name || tripData.driverName || 'Registered Driver';
+  activeTrip.driverPhone = tripData.driver_phone || tripData.driverPhone || '';
+  activeTrip.driverPlate = tripData.vehicle_plate || tripData.driverPlate || 'Commercial Fleet';
+  activeTrip.vehicle = tripData.vehicle_type || tripData.vehicle || 'Commercial Truck';
+  activeTrip.driverCoords = tripData.driverCoords || [tripData.driver_lat || (activeTrip.pickupLat + 0.005), tripData.driver_lng || (activeTrip.pickupLon + 0.005)];
   activeTrip.etaMins = tripData.etaMins || 2;
   activeTrip.otp = activeTrip.otp || '4491';
 
@@ -22114,6 +22528,17 @@ function handleDriverAccepted(tripData) {
   window.activeTrip = activeTrip;
 
   renderTrackingDispatchedState(activeTrip);
+
+  // Subscribe to driver's live GPS movement on farmer tracking map
+  if (window.sbClient) {
+    window.sbClient.channel('driver-tracking').on('broadcast', { event: 'driver_location_update' }, ({ payload }) => {
+      if (payload && payload.lat && payload.lng) {
+        if (trackingDriverMarker && typeof trackingDriverMarker.setLatLng === 'function') {
+          trackingDriverMarker.setLatLng([payload.lat, payload.lng]);
+        }
+      }
+    });
+  }
 
   if (typeof showLuxuryToast === 'function') {
     showLuxuryToast(`Driver ${activeTrip.driverName} accepted! Arriving in ${activeTrip.etaMins} mins`, 'success');
@@ -22264,7 +22689,7 @@ function renderTrackingDispatchedState(activeTrip) {
           <!-- 4 TACTILE CIRCULAR ACTION BUTTONS -->
           <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:10px;margin-bottom:14px;">
             <!-- Call Action: Direct Real Phone Call -->
-            <div onclick="triggerDriverCall('${driverName}', '${v.phone}')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+            <div onclick="triggerDriverCall('${driverName}', '${activeTrip.driverPhone || v.phone}')" style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
               <div style="width:48px;height:48px;border-radius:50%;background:#DCFCE7;border:1px solid #86EFAC;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(22,163,74,0.15);transition:transform 0.15s ease;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               </div>
