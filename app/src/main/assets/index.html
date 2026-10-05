@@ -11346,7 +11346,7 @@ function OB_TL(key) {
 let plantixFlowState = {
   currentScreen: 'splash',
   selectedLang: 'en',
-  selectedCrops: ['cotton', 'chilli', 'tomato'],
+  selectedCrops: [],
   cropFilterQuery: '',
   locationAllowed: true,
   cameraAllowed: true,
@@ -12044,11 +12044,11 @@ function renderPlantixCropsScreen(container) {
       </div>
 
       <div style="padding:12px 20px 16px;background:#FFFFFF;border-top:1px solid #F1F5F9;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;z-index:100;">
-        <span style="font-size:12.5px;font-weight:800;color:#15803D;">
+        <span style="font-size:12.5px;font-weight:800;color:${plantixFlowState.selectedCrops.length > 0 ? '#15803D' : '#64748B'};">
           ${plantixFlowState.selectedCrops.length} ${OB_TL('crops_selected_suffix')}
         </span>
-        <button onclick="finishPlantixOnboarding()" class="shiny-btn" style="background:#0052CC;color:#FFFFFF;border:none;border-radius:24px;padding:12px 32px;font-size:14.5px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px rgba(0,82,204,0.35);">
-          ${OB_TL('next')} (${plantixFlowState.selectedCrops.length})
+        <button onclick="finishPlantixOnboarding()" class="shiny-btn" style="background:${plantixFlowState.selectedCrops.length > 0 ? '#0052CC' : '#94A3B8'};color:#FFFFFF;border:none;border-radius:24px;padding:12px 32px;font-size:14.5px;font-weight:900;cursor:pointer;box-shadow:${plantixFlowState.selectedCrops.length > 0 ? '0 4px 14px rgba(0,82,204,0.35)' : 'none'};">
+          ${OB_TL('next')} ${plantixFlowState.selectedCrops.length > 0 ? `(${plantixFlowState.selectedCrops.length})` : ''}
         </button>
       </div>
     </div>
@@ -12069,9 +12069,7 @@ function filterOnboardingCrops(val) {
 function toggleCropSelect(cropKey) {
   const idx = plantixFlowState.selectedCrops.indexOf(cropKey);
   if (idx > -1) {
-    if (plantixFlowState.selectedCrops.length > 1) {
-      plantixFlowState.selectedCrops.splice(idx, 1);
-    }
+    plantixFlowState.selectedCrops.splice(idx, 1);
   } else {
     plantixFlowState.selectedCrops.push(cropKey);
   }
@@ -12080,6 +12078,16 @@ function toggleCropSelect(cropKey) {
 }
 
 function finishPlantixOnboarding() {
+  if (!plantixFlowState.selectedCrops || plantixFlowState.selectedCrops.length === 0) {
+    if (typeof showToast === 'function') {
+      showToast('⚠️ Please select at least one crop to continue');
+    } else if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('⚠️ Please select at least one crop to continue', 'warning');
+    } else {
+      alert('⚠️ Please select at least one crop to continue');
+    }
+    return;
+  }
   try {
     NuKropAnalytics.track('onboarding_completed', {
       lang: plantixFlowState.selectedLang,
@@ -16238,23 +16246,18 @@ const APP_VIEWS = {
     //  TAB: EARNINGS — Rapido Captain earnings screen
     // ═══════════════════════════════════════════════════════════════
     let completedList = [];
-    try { completedList = JSON.parse(localStorage.getItem('gh_driver_completed_trips') || '[]'); } catch(e) {}
-    const defaultHaulLogs = [
-      { route: 'Cotton → Warangal APMC', time: '09:12 AM', id: 'GH-4121', fare: '₹1,683', bg: '#DCFCE7', color: '#16A34A' },
-      { route: 'Chilli → Khammam APMC', time: '07:35 AM', id: 'GH-4108', fare: '₹890', bg: '#FEF3C7', color: '#D97706' },
-      { route: 'Paddy → Jangaon APMC', time: '06:50 AM', id: 'GH-4099', fare: '₹877', bg: '#DCFCE7', color: '#16A34A' }
-    ];
-    const displayHaulLogs = [
-      ...completedList.map(t => ({
-        route: t.route || `${t.crop} → ${t.mandi}`,
-        time: t.time || 'Completed',
-        id: t.id || 'GH-4192',
-        fare: `₹${t.fare}`,
-        bg: '#DCFCE7',
-        color: '#16A34A'
-      })),
-      ...defaultHaulLogs
-    ];
+    try {
+      completedList = JSON.parse(localStorage.getItem('gh_driver_completed_trips') || '[]')
+        .filter(t => t && t.id && !['GH-4192','GH-4121','GH-4099','GH-4108'].includes(t.id));
+    } catch(e) {}
+    const displayHaulLogs = completedList.map(t => ({
+      route: t.route || `${t.crop} → ${t.mandi}`,
+      time: t.time || 'Completed',
+      id: t.id || 'GH-TRIP',
+      fare: `₹${t.fare}`,
+      bg: '#DCFCE7',
+      color: '#16A34A'
+    }));
 
     const earningsTab = `
     <div style="position:absolute;inset:0;width:100%;height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--r-bg);padding:14px 14px 24px;box-sizing:border-box;">
@@ -16275,8 +16278,13 @@ const APP_VIEWS = {
         <!-- 7-day bar chart -->
         <div style="display:flex;align-items:flex-end;gap:5px;height:68px;">
           ${[
-            ['Mon','35%','#E5E7EB'],['Tue','52%','#E5E7EB'],['Wed','90%','var(--r-yellow)'],
-            ['Thu','62%','#E5E7EB'],['Fri','47%','#E5E7EB'],['Sat','75%','#E5E7EB'],['Sun','100%','var(--r-yellow)']
+            ['Mon', completedList.length > 0 ? '35%' : '6%', '#E5E7EB'],
+            ['Tue', completedList.length > 0 ? '52%' : '6%', '#E5E7EB'],
+            ['Wed', completedList.length > 0 ? '90%' : '6%', '#E5E7EB'],
+            ['Thu', completedList.length > 0 ? '62%' : '6%', '#E5E7EB'],
+            ['Fri', completedList.length > 0 ? '47%' : '6%', '#E5E7EB'],
+            ['Sat', completedList.length > 0 ? '75%' : '6%', '#E5E7EB'],
+            ['Sun', completedList.length > 0 ? '100%' : '6%', completedList.length > 0 ? 'var(--r-yellow)' : '#E5E7EB']
           ].map(([day,h,bg])=>`
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
               <div class="r-bar" style="width:100%;height:${h};background:${bg};border-radius:5px 5px 0 0;transform-origin:bottom;"></div>
@@ -16287,15 +16295,15 @@ const APP_VIEWS = {
         <!-- Stats -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding-top:12px;margin-top:12px;border-top:1px solid #F3F4F6;">
           <div style="text-align:center;padding:2px 0;">
-            <div style="font-size:18px;font-weight:900;color:var(--r-dark);">${displayHaulLogs.length}</div>
+            <div style="font-size:18px;font-weight:900;color:var(--r-dark);">${completedList.length}</div>
             <div style="font-size:9.5px;color:#9CA3AF;font-weight:700;">Hauls</div>
           </div>
           <div style="text-align:center;padding:2px 0;border-left:1px solid #F3F4F6;border-right:1px solid #F3F4F6;">
-            <div style="font-size:18px;font-weight:900;color:var(--r-dark);">4.9</div>
+            <div style="font-size:18px;font-weight:900;color:var(--r-dark);">${completedList.length > 0 ? '5.0' : 'New'}</div>
             <div style="font-size:9.5px;color:#9CA3AF;font-weight:700;">Rating</div>
           </div>
           <div style="text-align:center;padding:2px 0;">
-            <div style="font-size:18px;font-weight:900;color:#16A34A;">98%</div>
+            <div style="font-size:18px;font-weight:900;color:#16A34A;">100%</div>
             <div style="font-size:9.5px;color:#9CA3AF;font-weight:700;">Accept Rate</div>
           </div>
         </div>
@@ -16310,9 +16318,9 @@ const APP_VIEWS = {
           Today's Incentives
         </div>
         ${[
-          ['Mandi Rush Bonus','6–9 AM Surge','₹320','earned'],
-          ['10 Hauls Target','7 / 10 done','₹500','locked'],
-          ['Loading Help Bonus','Per trip extra','₹120','earned'],
+          ['Mandi Rush Bonus','6–9 AM Surge','₹320', completedList.length >= 2 ? 'earned' : 'locked'],
+          ['10 Hauls Target',`${completedList.length} / 10 done`,'₹500', completedList.length >= 10 ? 'earned' : 'locked'],
+          ['Loading Help Bonus','Per trip extra','₹120', completedList.length >= 1 ? 'earned' : 'locked'],
         ].map(([title,sub,amt,status])=>`
           <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F9FAFB;">
             <div style="flex:1;">
@@ -16334,7 +16342,7 @@ const APP_VIEWS = {
           <span style="font-size:11px;color:#16A34A;font-weight:800;">${displayHaulLogs.length} Hauls</span>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          ${displayHaulLogs.map(h => `
+          ${displayHaulLogs.length > 0 ? displayHaulLogs.map(h => `
             <div class="haul-log-row">
               <div style="width:38px;height:38px;border-radius:12px;background:${h.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${h.color}" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
@@ -16345,7 +16353,11 @@ const APP_VIEWS = {
               </div>
               <div style="font-size:13.5px;font-weight:900;color:#16A34A;flex-shrink:0;">${h.fare}</div>
             </div>
-          `).join('')}
+          `).join('') : `
+            <div style="text-align:center;padding:24px 10px;color:#94A3B8;font-size:12px;font-weight:700;">
+              No hauls completed yet today. Turn duty online to accept bookings!
+            </div>
+          `}
         </div>
       </div>
     </div>`;
@@ -16358,9 +16370,9 @@ const APP_VIEWS = {
       <!-- Profile hero -->
       <div style="background:var(--r-dark);padding:max(44px, env(safe-area-inset-top, 44px)) 18px 20px;">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-          <div style="width:58px;height:58px;border-radius:50%;background:var(--r-yellow);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:var(--r-dark);flex-shrink:0;">S</div>
+          <div style="width:58px;height:58px;border-radius:50%;background:var(--r-yellow);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:var(--r-dark);flex-shrink:0;">${driverName ? driverName.charAt(0).toUpperCase() : 'D'}</div>
           <div style="flex:1;">
-            <div style="font-size:18px;font-weight:900;color:#FFFFFF;letter-spacing:-0.3px;">${driverName}</div>
+            <div style="font-size:18px;font-weight:900;color:#FFFFFF;letter-spacing:-0.3px;">${driverName || 'Registered Driver'}</div>
             <div style="font-size:11.5px;color:#9CA3AF;margin-top:2px;">${vehicleType}</div>
             <div style="font-size:11.5px;color:#9CA3AF;">${vehiclePlate}</div>
           </div>
@@ -16368,9 +16380,9 @@ const APP_VIEWS = {
         <!-- Rating row -->
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
           ${[
-            ['4.9', TL('Rating', 'రేటింగ్', 'रेटिंग'), 'var(--r-yellow)'],
-            ['420', TL('Hauls', 'ట్రిప్పులు', 'ट्रिप्स'), '#FFFFFF'],
-            ['98%', TL('Acceptance', 'అంగీకారం', 'स्वीकृति'), '#FFFFFF']
+            [completedList.length > 0 ? '5.0' : 'New', TL('Rating', 'రేటింగ్', 'रेटिंग'), 'var(--r-yellow)'],
+            [String(completedList.length), TL('Hauls', 'ట్రిప్పులు', 'ट्रिप्स'), '#FFFFFF'],
+            ['100%', TL('Acceptance', 'అంగీకారం', 'स्वीकृति'), '#FFFFFF']
           ].map(([val,label,color])=>`
             <div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:8px 10px;text-align:center;">
               <div style="font-size:18px;font-weight:900;color:${color};letter-spacing:-0.3px;">${val}</div>
@@ -16411,7 +16423,7 @@ const APP_VIEWS = {
           ${[
             ['M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v7c0 .6.4 1 1 1h2', TL('Switch Vehicle / Fleet', 'వాహనాన్ని మార్చండి', 'ट्रक या फ्लीट बदलें'), TL('Select from 5 verified tiers with real PNGs', '5 రకాల ట్రక్కులు అందుబాటులో ఉన్నాయి', '5 सत्यापित श्रेणियां उपलब्ध'), 'openDriverVehicleSelectorModal()'],
             ['M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2', TL('Haul History', 'రవాణా చరిత్ర', 'ट्रिप इतिहास'), TL('All past trips & receipts', 'గత ట్రిప్పులు & రశీదులు', 'सभी पिछली ट्रिप्स व रसीदें'), 'openDriverHaulHistoryModal()'],
-            ['M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', TL('Insurance & FASTag', 'ఇన్సూరెన్స్ & ఫాస్టాగ్', 'बीमा व फास्टैग'), TL('TS 03 UB 4491 · Active till Dec 2026', 'TS 03 UB 4491 · డిసెంబర్ 2026 వరకు చెల్లుబాటు', 'TS 03 UB 4491 · वैध'), 'openDriverInsuranceFastagModal()'],
+            ['M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', TL('Insurance & FASTag', 'ఇన్సూరెన్స్ & ఫాస్టాగ్', 'बीमा व फास्टैग'), `${vehiclePlate || 'Commercial Truck'} · Active`, 'openDriverInsuranceFastagModal()'],
             ['M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 0-2-2z|M9 22V12h6v10', TL('Vehicle Documents', 'వాహన పత్రాలు', 'वाहन दस्तावेज़'), TL('RC, Permit, Fitness, PUC', 'RC, పర్మిట్, ఫిట్‌నెస్, PUC', 'आरसी, परमिट, फिटनेस'), 'openDriverVehicleDocsModal()'],
             ['M3 3v18h18|M18 17V9|M13 17V5|M8 17v-3', TL('Settings', 'సెట్టింగ్స్', 'सेटिंग्स'), TL('App preferences', 'యాప్ ప్రాధాన్యతలు', 'ऐप सेटिंग्स'), 'openLanguageSelectorModal()'],
             ['M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-5 0a4 4 0 1 1-8 0 4 4 0 0 1 8 0z', TL('Help & Support', 'సహాయం & మద్దతు', 'सहायता व संपर्क'), TL('24/7 driver helpline', '24/7 డ్రైవర్ హెల్ప్‌లైన్', '24/7 हेल्पलाइन'), 'openSupportModal()']
@@ -16957,9 +16969,44 @@ function openDriverHaulHistoryModal() {
   let modal = document.getElementById(modalId);
   if (modal) modal.remove();
 
+  let completedList = [];
+  try {
+    completedList = JSON.parse(localStorage.getItem('gh_driver_completed_trips') || '[]')
+      .filter(t => t && t.id && !['GH-4192','GH-4121','GH-4099','GH-4108'].includes(t.id));
+  } catch(e) {}
+
   modal = document.createElement('div');
   modal.id = modalId;
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
+
+  if (completedList.length === 0) {
+    modal.innerHTML = `
+      <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;box-sizing:border-box;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="1" y="6" width="14" height="11" rx="2" fill="#16A34A"/><path d="M15 9H19L22 13V17H15V9Z" fill="#15803D"/><circle cx="5.5" cy="17" r="2.2" fill="#0F172A"/><circle cx="18.5" cy="17" r="2.2" fill="#0F172A"/></svg>
+            </div>
+            <div>
+              <div style="font-size:17px;font-weight:900;color:#0F172A;">Driver Haul History</div>
+              <div style="font-size:11px;color:#16A34A;font-weight:800;">0 Completed Deliveries</div>
+            </div>
+          </div>
+          <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+        <div style="text-align:center;padding:32px 10px;color:#64748B;">
+          <div style="font-size:38px;margin-bottom:10px;">🚚</div>
+          <div style="font-size:15px;font-weight:900;color:#0F172A;margin-bottom:4px;">No Past Deliveries Yet</div>
+          <div style="font-size:12px;color:#64748B;line-height:1.5;">You have not completed any haul trips yet. Turn on duty to start accepting real farmer bookings!</div>
+        </div>
+        <button onclick="document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#0F172A;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;">
+          Close
+        </button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    return;
+  }
 
   modal.innerHTML = `
     <div style="background:#FFFFFF;border-radius:28px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;padding:24px 20px;box-shadow:0 16px 48px rgba(0,0,0,0.25);animation:scaleUp 0.22s ease;">
@@ -16970,31 +17017,26 @@ function openDriverHaulHistoryModal() {
           </div>
           <div>
             <div style="font-size:17px;font-weight:900;color:#0F172A;">Driver Haul History</div>
-            <div style="font-size:11px;color:#CA8A04;font-weight:800;">420 Total Verified Deliveries</div>
+            <div style="font-size:11px;color:#16A34A;font-weight:800;">${completedList.length} Total Verified Deliveries</div>
           </div>
         </div>
         <button onclick="document.getElementById('${modalId}').remove()" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;color:#64748B;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
       </div>
 
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-        ${[
-          [`<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;flex-shrink:0;">${getCropIconImg(null, 'cotton')}</div><span>Cotton 40 Qtl</span></div>`,'Kadipikonda → Warangal APMC','₹1,683 · Completed'],
-          [`<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;flex-shrink:0;">${getCropIconImg(null, 'chilli')}</div><span>Teja Chilli 25 Qtl</span></div>`,'Hasanparthy → Khammam APMC','₹890 · Completed'],
-          [`<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;flex-shrink:0;">${getCropIconImg(null, 'corn')}</div><span>Maize 50 Qtl</span></div>`,'Narsampet → Jangaon APMC','₹1,250 · Completed'],
-          [`<div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:20px;flex-shrink:0;">${getCropIconImg(null, 'rice')}</div><span>Paddy 35 Qtl</span></div>`,'Geesukonda → Enumamula APMC','₹940 · Completed']
-        ].map(([crop,route,fare])=>`
+        ${completedList.map(t => `
           <div style="background:#F8FAFC;border:1.2px solid #E2E8F0;border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
             <div>
-              <div style="font-size:13px;font-weight:800;color:#0F172A;">${crop}</div>
-              <div style="font-size:11px;color:#64748B;margin-top:2px;">${route}</div>
+              <div style="font-size:13px;font-weight:800;color:#0F172A;">${t.crop || 'Agricultural Produce'}</div>
+              <div style="font-size:11px;color:#64748B;margin-top:2px;">${t.pickup || 'Farm'} → ${t.mandi || 'APMC Yard'}</div>
             </div>
-            <div style="font-size:13.5px;font-weight:900;color:#16A34A;">${fare}</div>
+            <div style="font-size:13.5px;font-weight:900;color:#16A34A;">₹${t.fare || 0}</div>
           </div>
         `).join('')}
       </div>
 
       <button onclick="alert('GST Trip Ledger exported to device.');document.getElementById('${modalId}').remove();" style="width:100%;padding:13px;border-radius:14px;background:#0F172A;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Full GST Ledger (CSV)
+        Export Full GST Ledger (CSV)
       </button>
     </div>
   `;
@@ -17092,15 +17134,16 @@ function openDriverVehicleDocsModal() {
 
 function getDriverRealtimeEarnings() {
   try {
-    const list = JSON.parse(localStorage.getItem('gh_driver_completed_trips') || '[]');
+    const list = JSON.parse(localStorage.getItem('gh_driver_completed_trips') || '[]')
+      .filter(t => t && t.id && !['GH-4192','GH-4121','GH-4099','GH-4108'].includes(t.id));
     const total = list.reduce((sum, item) => sum + (parseFloat(item.fare) || 0), 0);
     return {
       count: list.length,
-      total: (total > 0 ? total : 3450).toLocaleString('en-IN'),
+      total: total.toLocaleString('en-IN'),
       today: total.toLocaleString('en-IN')
     };
   } catch(e) {
-    return { count: 0, total: '3,450', today: '0' };
+    return { count: 0, total: '0', today: '0' };
   }
 }
 
@@ -17113,20 +17156,49 @@ function openPreviousRidesModal() {
 
   let completedList = [];
   try {
-    completedList = JSON.parse(localStorage.getItem('gh_driver_completed_trips') || '[]');
+    completedList = JSON.parse(localStorage.getItem('gh_driver_completed_trips') || '[]')
+      .filter(t => t && t.id && !['GH-4192','GH-4121','GH-4099','GH-4108'].includes(t.id));
   } catch(e) {}
 
-  const defaultTrips = [
-    { id: 'GH-4192', crop: 'Cotton (40 Quintals)', pickup: 'Kadipikonda Farm, Kazipet', mandi: 'Warangal APMC Yard', fare: 326, time: 'Today · 09:42 AM', driver: 'Suresh Yadav', vehicle: 'TS 03 UB 4491' },
-    { id: 'GH-4121', crop: 'Teja Chilli (25 Quintals)', pickup: 'Hasanparthy Rural', mandi: 'Khammam Spices APMC', fare: 890, time: 'Yesterday · 03:15 PM', driver: 'K. Anjaiah', vehicle: 'TS 04 EA 8824' },
-    { id: 'GH-4099', crop: 'Paddy BPT-5204 (50 Bags)', pickup: 'Geesukonda Farm', mandi: 'Jangaon APMC Yard', fare: 877, time: '28 Sep 2026', driver: 'S. Venkat', vehicle: 'TS 08 UB 7712' }
-  ];
-
-  const allTrips = [...completedList, ...defaultTrips];
+  const allTrips = completedList;
 
   modal = document.createElement('div');
   modal.id = modalId;
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(6px);z-index:999999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s;';
+
+  if (allTrips.length === 0) {
+    modal.innerHTML = `
+      <div style="background:#FFFFFF;width:100%;max-width:440px;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease;display:flex;flex-direction:column;box-sizing:border-box;">
+        <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 16px;"></div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+            </div>
+            <div>
+              <div style="font-size:17px;font-weight:900;color:#0F172A;">Previous Rides & Invoices</div>
+              <div style="font-size:11.5px;color:#16A34A;font-weight:800;">0 Completed Hauls</div>
+            </div>
+          </div>
+          <button onclick="document.getElementById('${modalId}').remove();" style="background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;color:#64748B;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+
+        <div style="text-align:center;padding:36px 12px;color:#64748B;">
+          <div style="font-size:42px;margin-bottom:12px;">🚚</div>
+          <div style="font-size:16px;font-weight:900;color:#0F172A;margin-bottom:6px;">No Past Hauls Found</div>
+          <div style="font-size:12.5px;color:#64748B;line-height:1.5;">When real haul trips are completed, your official APMC gate passes, delivery receipts, and e-Way bills will appear here automatically.</div>
+        </div>
+
+        <button onclick="document.getElementById('${modalId}').remove();" style="width:100%;height:46px;border-radius:14px;background:#0F172A;color:#FFFFFF;font-size:14px;font-weight:900;border:none;cursor:pointer;margin-top:14px;flex-shrink:0;">
+          Close
+        </button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    return;
+  }
+
   modal.innerHTML = `
     <div style="background:#FFFFFF;width:100%;max-width:440px;max-height:86vh;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease;display:flex;flex-direction:column;box-sizing:border-box;">
       <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 16px;"></div>
@@ -17150,7 +17222,7 @@ function openPreviousRidesModal() {
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
               <div>
                 <span style="background:#DCFCE7;color:#15803D;font-size:10px;font-weight:900;padding:2px 8px;border-radius:6px;letter-spacing:0.3px;">#${trip.id} · DELIVERED</span>
-                <div style="font-size:14px;font-weight:900;color:#0F172A;margin-top:4px;">${trip.crop || 'Cotton 40 Qtl'}</div>
+                <div style="font-size:14px;font-weight:900;color:#0F172A;margin-top:4px;">${trip.crop || 'Agricultural Produce'}</div>
               </div>
               <div style="text-align:right;">
                 <div style="font-size:16px;font-weight:900;color:#16A34A;">₹${trip.fare}.00</div>
@@ -17159,9 +17231,9 @@ function openPreviousRidesModal() {
             </div>
 
             <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;padding:8px 10px;font-size:11px;color:#475569;margin-bottom:10px;line-height:1.4;">
-              <div>📍 <b>Pickup:</b> ${trip.pickup || 'Kadipikonda Farm'}</div>
-              <div>🏛️ <b>Mandi:</b> ${trip.mandi || 'Warangal APMC Yard'}</div>
-              <div style="margin-top:2px;color:#64748B;">🚚 <b>Driver:</b> ${trip.driver || 'Suresh Yadav'} (${trip.vehicle || 'TS 03 UB 4491'})</div>
+              <div>📍 <b>Pickup:</b> ${trip.pickup || 'Farm'}</div>
+              <div>🏛️ <b>Mandi:</b> ${trip.mandi || 'APMC Yard'}</div>
+              <div style="margin-top:2px;color:#64748B;">🚚 <b>Driver:</b> ${trip.driver || 'Driver'} (${trip.vehicle || 'Vehicle'})</div>
             </div>
 
             <button onclick="showHaulCompletedInvoiceModal(${JSON.stringify(trip).replace(/"/g, '&quot;')});document.getElementById('${modalId}').remove();" style="width:100%;height:38px;border-radius:12px;background:#F1F5F9;border:1px solid #CBD5E1;color:#0F172A;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
@@ -22547,26 +22619,18 @@ function initGramhaulTrackingMap() {
 
 
   if (!activeTrip) {
-    const v = GRAMHAUL_TIER_AVAILABLE_VEHICLES[1];
-    activeTrip = {
-      id: 'GH-4491',
-      crop: 'Cotton',
-      sacks: '40 Sacks',
-      mandi: 'Gudimalkapur Vegetable & Flower APMC Yard',
-      fare: 380,
-      tier: 1,
-      vehicle: v.name,
-      driverName: v.driver,
-      driverPhone: v.phone,
-      driverPlate: v.plate,
-      driverRating: v.rating,
-      driverCoords: v.coords,
-      driverColor: v.color,
-      etaMins: v.etaMins,
-      otp: v.otp,
-      status: 'SEARCHING'
-    };
-    localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
+    const trackingSheet = document.getElementById('gramhaul-tracking-bottom-sheet');
+    if (trackingSheet) {
+      trackingSheet.innerHTML = `
+        <div style="padding:28px 20px;text-align:center;">
+          <div style="font-size:38px;margin-bottom:10px;">🚜</div>
+          <div style="font-size:16px;font-weight:900;color:#0F172A;margin-bottom:4px;">No Active Haul In Progress</div>
+          <div style="font-size:12px;color:#64748B;line-height:1.5;margin-bottom:18px;">You currently have no active transport bookings. Book a haul in GramHaul to track your driver live.</div>
+          <button onclick="openScreen('gramhaul')" style="background:#16A34A;color:#FFFFFF;border:none;border-radius:14px;padding:12px 28px;font-size:13.5px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px rgba(22,163,74,0.3);">Book a Haul ➔</button>
+        </div>
+      `;
+    }
+    return;
   }
 
   if (activeTrip.status === 'SEARCHING') {
