@@ -252,6 +252,7 @@ async function nk_fetchHaulHistory() {
 // 4. DRIVER GPS SYNC + PRESENCE (Online/Offline tracking)
 // ─────────────────────────────────────────────────────────────────
 let _gpsInterval = null;
+let _nkGpsWatchId = null;
 
 async function nk_updateDriverTelemetry(driverId, lat, lng, speed = 0, heading = 0) {
   if (!sbClient || !driverId) return;
@@ -290,10 +291,16 @@ async function nk_updateDriverTelemetry(driverId, lat, lng, speed = 0, heading =
 
 function nk_startDriverLocationBroadcast(driverId, lat, lng) {
   if (!sbClient) return;
-  if (_gpsInterval) clearInterval(_gpsInterval); // Prevent duplicate intervals
+  if (_gpsInterval) { clearInterval(_gpsInterval); _gpsInterval = null; }
+  if (_nkGpsWatchId && typeof navigator !== 'undefined' && navigator.geolocation) {
+    navigator.geolocation.clearWatch(_nkGpsWatchId);
+    _nkGpsWatchId = null;
+  }
 
   // Update cloud telemetry record immediately
-  nk_updateDriverTelemetry(driverId, lat, lng);
+  if (lat && lng) {
+    nk_updateDriverTelemetry(driverId, lat, lng);
+  }
 
   // Clean up any existing channel with same topic to avoid duplicate callback crash
   const topic = `gps:${driverId}`;
@@ -313,22 +320,63 @@ function nk_startDriverLocationBroadcast(driverId, lat, lng) {
     .subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
         await channel.track({ driver: driverId, status: 'ONLINE', at: new Date().toISOString() });
-        _gpsInterval = setInterval(async () => {
-          // Send broadcast packet and keep cloud heartbeat fresh
-          await channel.send({
+
+        // Broadcast initial coordinates if provided
+        if (lat && lng) {
+          channel.send({
             type: 'broadcast', event: 'gps',
             payload: { lat, lng, ts: Date.now() }
           });
-          nk_updateDriverTelemetry(driverId, lat, lng);
-        }, 5000);
+          sbClient.channel('driver-tracking').send({
+            type: 'broadcast',
+            event: 'driver_location_update',
+            payload: { driverId, lat, lng, heading: 0, speedKmh: 0, timestamp: Date.now() }
+          });
+        }
+
+        // Pure real-time hardware GPS watch (zero static setInterval simulation)
+        if (typeof navigator !== 'undefined' && navigator.geolocation && navigator.geolocation.watchPosition) {
+          _nkGpsWatchId = navigator.geolocation.watchPosition(
+            async (pos) => {
+              const liveLat = pos.coords.latitude;
+              const liveLng = pos.coords.longitude;
+              const heading = pos.coords.heading || 0;
+              const speedKmh = pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0;
+
+              await channel.send({
+                type: 'broadcast', event: 'gps',
+                payload: { lat: liveLat, lng: liveLng, heading, speedKmh, ts: Date.now() }
+              });
+
+              sbClient.channel('driver-tracking').send({
+                type: 'broadcast',
+                event: 'driver_location_update',
+                payload: { driverId, lat: liveLat, lng: liveLng, heading, speedKmh, timestamp: Date.now() }
+              });
+
+              nk_updateDriverTelemetry(driverId, liveLat, liveLng, speedKmh, heading);
+            },
+            (err) => console.warn('[Supabase GPS Broadcast error]', err.message),
+            { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
+          );
+        }
       }
     });
 }
 
 async function nk_stopDriverBroadcast(driverId) {
   if (_gpsInterval) { clearInterval(_gpsInterval); _gpsInterval = null; }
+  if (_nkGpsWatchId && typeof navigator !== 'undefined' && navigator.geolocation) {
+    navigator.geolocation.clearWatch(_nkGpsWatchId);
+    _nkGpsWatchId = null;
+  }
   if (sbClient && driverId) {
     await sbClient.from('driver_telemetry').update({ is_online: false }).eq('driver_id', driverId);
+    sbClient.channel('driver-tracking').send({
+      type: 'broadcast',
+      event: 'driver_duty_update',
+      payload: { driverId, is_online: false, timestamp: Date.now() }
+    });
   }
   console.log('📍 GPS Broadcast stopped.');
 }

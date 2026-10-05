@@ -6592,9 +6592,192 @@ let activeInstagramStoryIdx = 0;
 
 let userAttachedMedia = { photos: [], videos: [], voiceNote: null };
 
-let COMMUNITY_STORIES_CATALOG = [];
+let COMMUNITY_STORIES_CATALOG = [
+  {
+    id: 'story-1',
+    author: { en: 'Dr. K. Srinivas Rao', te: 'డా. కె. శ్రీనివాస్ రావు', hi: 'डॉ. के. श्रीनिवास राव' },
+    role: 'PJTSAU Agronomist',
+    tag: '⚡ Cotton Alert',
+    timeAgo: '15m ago',
+    title: {
+      en: 'Pink Bollworm & Whitefly Scouting in Warangal Black Soils',
+      te: 'నల్ల రేగడి నేలల్లో గులాబీ రంగు పురుగు, తెల్లదోమ నివారణ సూచనలు',
+      hi: 'काली मिट्टी में गुलाबी सुंडी और सफेद मक्खी नियंत्रण उपाय'
+    },
+    mediaUrl: 'https://images.unsplash.com/photo-1594488502396-857502319c5c?w=900&auto=format&fit=crop&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    likes: 142
+  },
+  {
+    id: 'story-2',
+    author: { en: 'Raju Naidu', te: 'రాజు నాయుడు', hi: 'राजू नायडू' },
+    role: 'Chilli Farmer · 8 Acres',
+    tag: '🌶️ Harvest Victory',
+    timeAgo: '1h ago',
+    title: {
+      en: 'Record ₹24,800/Q Guntur Teja Chilli yield using BioRx bio-stimulants!',
+      te: 'BioRx వాడకంతో గుంటూరు తేజ మిర్చికి క్వింటాలుకు ₹24,800 రికార్డు ధర!',
+      hi: 'BioRx से गुंटूर तेजा मिर्च पर ₹24,800/क्विंटल का रिकॉर्ड भाव मिला!'
+    },
+    mediaUrl: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=900&auto=format&fit=crop&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    likes: 289
+  },
+  {
+    id: 'story-3',
+    author: { en: 'Dr. Anita Verma', te: 'డా. అనిత వర్మ', hi: 'डॉ. अनिता वर्मा' },
+    role: 'ICAR Plant Pathologist',
+    tag: '🌾 Direct Seeded Rice',
+    timeAgo: '3h ago',
+    title: {
+      en: 'Preventing Iron Chlorosis & Blast in DSR Paddy nursery beds',
+      te: 'వెదజల్లే వరి నారుమడుల్లో ఇనుప లోపం, అగ్గితెగులు రాకుండా తీసుకోవలసిన జాగ్రత్తలు',
+      hi: 'सीधी बुवाई वाले धान में आयरन की कमी और झुलसा रोग से बचाव'
+    },
+    mediaUrl: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?w=900&auto=format&fit=crop&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    likes: 195
+  },
+  {
+    id: 'story-4',
+    author: { en: 'Suresh Yadav', te: 'సురేష్ యాదవ్', hi: 'सुरेश यादव' },
+    role: 'GramHaul Captain',
+    tag: '🚚 Mandi Live Update',
+    timeAgo: '4h ago',
+    title: {
+      en: 'Enumamula Cotton Yard gate clearance: zero wait time for 1.5T trucks today',
+      te: 'ఎనుమాముల కాటన్ యార్డులో రద్దీ లేదు: ట్రక్కులకు వేగంగా అన్‌లోడింగ్ జరుగుతోంది',
+      hi: 'एनुमामुला कॉटन यार्ड गेट खुला है: 1.5T ट्रकों के लिए आज कोई इंतजार नहीं'
+    },
+    mediaUrl: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=900&auto=format&fit=crop&q=80',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    likes: 312
+  }
+];
 
-let COMMUNITY_POSTS_CATALOG = [];
+let COMMUNITY_POSTS_CATALOG = [
+  {
+    id: 'comm-post-1',
+    author: { en: 'B. Jaswanth Reddy', te: 'బి. జస్వంత్ రెడ్డి', hi: 'बी. जसवंत रेड्डी' },
+    author_name: 'B. Jaswanth Reddy',
+    village: { en: 'Warangal Rural, TS', te: 'వరంగల్ గ్రామీణం, తెలంగాణ', hi: 'वारंगल ग्रामीण, तेलंगाना' },
+    avatar: '👨‍🌾',
+    cropId: 'cotton',
+    cropName: { en: 'Cotton', te: 'పత్తి', hi: 'कपास' },
+    timeAgo: { en: '25m ago', te: '25 నిమిషాల క్రితం', hi: '25 मिनट पहले' },
+    title: {
+      en: 'Foliar curling on upper canopy with honey-dew secretions. Is this severe whitefly attack?',
+      te: 'పై ఆకులు ముడుచుకుపోయి తేనెమంచు లాంటి ద్రవం కారుతోంది. ఇది తెల్లదోమ ఉధృతియేనా?',
+      hi: 'ऊपरी पत्तियां मुड़ रही हैं और चिपचिपा रस निकल रहा है। क्या यह सफेद मक्खी का हमला है?'
+    },
+    text: {
+      en: 'Observed yellow vein clearing and leaf curling across 4.5 acres of cotton. Tested BioRx neem mix yesterday with 57 knapsack charges. Please suggest if Diafenthiuron 50% WP spray is required immediately.',
+      te: '4.5 ఎకరాల పత్తి చేనులో ఆకులు పసుపు రంగులోకి మారి ముడుచుకుపోతున్నాయి. నిన్న బయోఆర్క్స్ వేప ద్రావణం పిచికారీ చేశాను. వెంటనే డయాఫెంథియురాన్ 50% డబ్ల్యూపీ స్ప్రే చేయాలా?',
+      hi: '4.5 एकड़ कपास में पत्तियां पीली होकर मुड़ रही हैं। कल 57 नैपसैक चार्ज के साथ नीम का छिड़काव किया था। क्या डायफेन्थियुरॉन 50% WP का तुरंत छिड़काव करना चाहिए?'
+    },
+    photos: ['https://images.unsplash.com/photo-1594488502396-857502319c5c?w=900&auto=format&fit=crop&q=80'],
+    voiceNote: { duration: '0:34', text: 'Whitefly advisory for Jaswanth: Spray Diafenthiuron 1.25g per litre during early morning hours.' },
+    likes: 48,
+    isLiked: false,
+    comments: [
+      {
+        id: 'c-101',
+        author: 'Dr. K. Srinivas (Agronomist)',
+        avatar: '🔬',
+        timeAgo: '12m ago',
+        text: 'Yes Jaswanth garu, whitefly nymph population is high. Maintain 200L water/acre with Diafenthiuron 50% WP (1.25g/L) during 8 AM - 11 AM spray window.'
+      },
+      {
+        id: 'c-102',
+        author: 'Raju Naidu (Farmer)',
+        avatar: '👨‍🌾',
+        timeAgo: '5m ago',
+        text: 'Adding 5ml sticky spreader per 15L tank mix gave me 98% leaf coverage last week.'
+      }
+    ]
+  },
+  {
+    id: 'comm-post-2',
+    author: { en: 'K. Venkateshwar Rao', te: 'కె. వెంకటేశ్వర రావు', hi: 'के. वेंकटेश्वर राव' },
+    author_name: 'K. Venkateshwar Rao',
+    village: { en: 'Enumamula, Warangal', te: 'ఎనుమాముల, వరంగల్', hi: 'एनुमामुला, वारंगल' },
+    avatar: '👨‍🌾',
+    cropId: 'chilli',
+    cropName: { en: 'Chilli', te: 'మిరప', hi: 'मिर्च' },
+    timeAgo: { en: '1h ago', te: '1 గంట క్రితం', hi: '1 घंटा पहले' },
+    title: {
+      en: 'Black Thrips (Thrips parvispinus) control in Teja Chilli flowers',
+      te: 'తేజ మిరప పూత దశలో నల్ల తామర పురుగు నివారణ పద్ధతులు',
+      hi: 'तेजा मिर्च के फूलों में काली थ्रिप्स का प्रभावी जैविक नियंत्रण'
+    },
+    text: {
+      en: 'Flower drop noticed due to black thrips. Blue sticky traps installed (35/acre). Alternating BioRx botanical extract with spinetoram 11.7% SC showed great flower retention.',
+      te: 'నల్ల తామర పురుగు వల్ల పూత రాలిపోతోంది. ఎకరాకు 35 నీలి జిగురు అట్టలు పెట్టాను. స్పైనోటోరం స్ప్రే చేయడంతో పూత నిలబడింది.',
+      hi: 'काली थ्रिप्स के कारण फूल गिर रहे हैं। 35 नीले चिपचिपे जाल लगाए। स्पिनेटोरम के छिड़काव से फूल टिकने लगे हैं।'
+    },
+    photos: ['https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=900&auto=format&fit=crop&q=80'],
+    voiceNote: { duration: '0:22', text: 'Blue sticky traps and neem oil 10000 ppm alternate spray recommended for chilli thrips.' },
+    likes: 83,
+    isLiked: false,
+    comments: [
+      {
+        id: 'c-201',
+        author: 'Mallesh Goud',
+        avatar: '👨‍🌾',
+        timeAgo: '30m ago',
+        text: 'Blue sticky traps worked wonders in our village too!'
+      }
+    ]
+  },
+  {
+    id: 'comm-post-3',
+    author: { en: 'M. Shivarama Krishna', te: 'ఎం. శివరామ కృష్ణ', hi: 'एम. शिवराम कृष्ण' },
+    author_name: 'M. Shivarama Krishna',
+    village: { en: 'Nalgonda', te: 'నల్గొండ', hi: 'नलगोंडा' },
+    avatar: '👨‍🌾',
+    cropId: 'paddy',
+    cropName: { en: 'Paddy', te: 'వరి', hi: 'धान' },
+    timeAgo: { en: '2h ago', te: '2 గంటల క్రితం', hi: '2 घंटे पहले' },
+    title: {
+      en: 'Direct Seeded Rice (DSR) water management in tillering stage',
+      te: 'వెదజల్లిన వరిలో పిలకల దశలో నీటి యాజమాన్యం మరియు కలుపు నివారణ',
+      hi: 'सीधी बुवाई वाले धान में कल्ले फूटने के समय जल और खरपतवार प्रबंधन'
+    },
+    text: {
+      en: 'DSR saved 35% diesel pumping cost compared to transplanted paddy. Applied Penoxsulam + Cyhalofop-butyl at 20 DAS with clean field conditions.',
+      te: 'సాంప్రదాయ వరి నాటు కన్నా డిఎస్ఆర్ పద్ధతిలో 35% డీజిల్ ఖర్చు తగ్గింది. 20వ రోజు కలుపు మందు పిచికారీ చేయడం వల్ల చేను శుభ్రంగా ఉంది.',
+      hi: 'पारंपरिक धान की तुलना में DSR में 35% डीजल लागत बची है। 20वें दिन खरपतवार नाशक का छिड़काव किया।'
+    },
+    photos: ['https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?w=900&auto=format&fit=crop&q=80'],
+    likes: 114,
+    isLiked: false,
+    comments: []
+  },
+  {
+    id: 'comm-post-4',
+    author: { en: 'Lakshmi Narayana', te: 'లక్ష్మీ నారాయణ', hi: 'लक्ष्मी नारायण' },
+    author_name: 'Lakshmi Narayana',
+    village: { en: 'Madanapalle, AP', te: 'మదనపల్లె, ఏపీ', hi: 'मदनपल्ले, एपी' },
+    avatar: '👨‍🌾',
+    cropId: 'tomato',
+    cropName: { en: 'Tomato', te: 'టమోటా', hi: 'टमाटर' },
+    timeAgo: { en: '3h ago', te: '3 గంటల క్రితం', hi: '3 घंटे पहले' },
+    title: {
+      en: 'Early Blight (Alternaria solani) leaf spots treated with Trichoderma viride',
+      te: 'టమోటా ఆకుమచ్చ తెగులుకు ట్రైకోడెర్మా విరిడి సేంద్రీయ నివారణ',
+      hi: 'टमाटर में अगेती झुलसा रोग का ट्राइकोडर्मा से सफल जैविक उपचार'
+    },
+    text: {
+      en: 'Concentric ring spots cured with biological BioRx Trichoderma spray. 15 crates harvested today with zero chemical residue.',
+      te: 'ట్రైకోడెర్మా పిచికారీతో ఆకుమచ్చ తెగులు పూర్తిగా తగ్గింది. ఎలాంటి రసాయనాలు లేకుండా నాణ్యమైన కాయలు కోశాము.',
+      hi: 'ट्राइकोडर्मा के छिड़काव से पत्ती धब्बा रोग पूरी तरह ठीक हो गया। आज 15 क्रेट की तुड़ाई की।'
+    },
+    photos: ['https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=900&auto=format&fit=crop&q=80'],
+    likes: 67,
+    isLiked: false,
+    comments: []
+  }
+];
 
 let instagramStoryTimer = null;
 let storyKeyboardListenerAttached = false;
@@ -7113,13 +7296,7 @@ function renderCommunityFeedDom() {
   const container = document.getElementById('comm-feed-container');
   if (!container) return;
 
-  // Show loading spinner briefly
-  container.innerHTML = `<div style="text-align:center;padding:30px;color:#64748B;font-size:13px;font-weight:700;">
-    <div style="width:28px;height:28px;border:3px solid #E2E8F0;border-top-color:#16A34A;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 10px;"></div>
-    ${TL('Loading community feed...', 'కిసాన్ సమాచారం లోడ్ అవుతోంది...', 'समुदाय फ़ीड लोड हो रहा है...')}
-  </div>`;
-
-  // Async: try Supabase first, merge with local catalog, then render
+  // Render instantly from local cache/catalog (0ms latency, 100% reliable)
   const _doRender = (posts) => {
     const t = I18N[currentLang] || I18N.en;
     const filtered = currentCommunityFilter === 'all'
@@ -7307,12 +7484,17 @@ function renderCommunityFeedDom() {
   }).join('');
   }; // end _doRender
 
-  // Try Supabase first; fallback to local catalog seed
+  // 1. Render immediate catalog instantly (Zero delay)
+  _doRender(COMMUNITY_POSTS_CATALOG);
+
+  // 2. Fetch fresh posts from Supabase in background with safe 3.5s timeout
   if (typeof nk_fetchCommunityHistory === 'function' && typeof sbClient !== 'undefined' && sbClient) {
-    nk_fetchCommunityHistory(currentCommunityFilter === 'all' ? 'all' : currentCommunityFilter, 30)
+    const fetchPromise = nk_fetchCommunityHistory(currentCommunityFilter === 'all' ? 'all' : currentCommunityFilter, 30);
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3500));
+    
+    Promise.race([fetchPromise, timeoutPromise])
       .then(supabasePosts => {
-        if (supabasePosts && supabasePosts.length > 0) {
-          // Normalize Supabase posts to the local format
+        if (supabasePosts && Array.isArray(supabasePosts) && supabasePosts.length > 0) {
           const normalizedSbPosts = supabasePosts.map(sp => ({
             id: sp.id || ('sb-' + Math.random()),
             author: { en: sp.author_name || 'Farmer', te: sp.author_name || 'రైతు', hi: sp.author_name || 'किसान' },
@@ -7321,7 +7503,7 @@ function renderCommunityFeedDom() {
             avatar: '👨‍🌾',
             cropId: sp.crop_id || sp.crop_tag || 'cotton',
             cropName: { en: sp.crop_id || 'Cotton', te: sp.crop_id || 'పత్తి', hi: sp.crop_id || 'कपास' },
-            timeAgo: null, // will use created_at
+            timeAgo: null,
             created_at: sp.created_at,
             title: { en: sp.title || '', te: sp.title || '', hi: sp.title || '' },
             text: { en: sp.content || '', te: sp.content || '', hi: sp.content || '' },
@@ -7332,18 +7514,14 @@ function renderCommunityFeedDom() {
             isLiked: false,
             comments: []
           }));
-          // Merge: Supabase posts first, then local seeds that aren't already in Supabase
           const allPosts = [...normalizedSbPosts, ...COMMUNITY_POSTS_CATALOG.filter(lp => !normalizedSbPosts.find(sp => sp.id === lp.id))];
           COMMUNITY_POSTS_CATALOG = allPosts;
           _doRender(allPosts);
-        } else {
-          // Fallback to local seed catalog
-          _doRender(COMMUNITY_POSTS_CATALOG);
         }
       })
-      .catch(() => _doRender(COMMUNITY_POSTS_CATALOG));
-  } else {
-    _doRender(COMMUNITY_POSTS_CATALOG);
+      .catch(() => {
+        // Fallback already rendered
+      });
   }
 }
 
@@ -11317,10 +11495,14 @@ function toggleDriverOnlineStatus(btn) {
   if (isOnline) {
     btn.textContent = 'Duty OFF';
     btn.style.background = '#64748B';
+    localStorage.setItem('gh_driver_online', 'false');
+    if (typeof stopDriverRealGPSWatch === 'function') stopDriverRealGPSWatch();
     if (typeof showLuxuryToast === 'function') showLuxuryToast('🔴 You are now OFFLINE. New haul broadcasts paused.', 'warning');
   } else {
     btn.textContent = 'Duty ON';
     btn.style.background = '#15803D';
+    localStorage.setItem('gh_driver_online', 'true');
+    if (typeof startDriverRealGPSWatch === 'function') startDriverRealGPSWatch();
     if (typeof showLuxuryToast === 'function') showLuxuryToast('🟢 You are now ONLINE! Receiving live farm haul bookings.', 'success');
   }
 }
@@ -12943,43 +13125,13 @@ function initGramhaulRealMap() {
 function updateGramhaulSelectorMapVehicles(tier) {
   if (!gramhaulLiveMap || typeof L === 'undefined') return;
   try {
-    const v = GRAMHAUL_TIER_AVAILABLE_VEHICLES[tier] || GRAMHAUL_TIER_AVAILABLE_VEHICLES[1];
-    const farmLat = (currentGramhaulFarmCoords && currentGramhaulFarmCoords[0]) || 17.3980;
-    const farmLon = (currentGramhaulFarmCoords && currentGramhaulFarmCoords[1]) || 78.4900;
-
     if (gramhaulTruckMarker) {
       gramhaulLiveMap.removeLayer(gramhaulTruckMarker);
       gramhaulTruckMarker = null;
     }
-
-    const truckIcon = L.divIcon({
-      className: 'gh-selector-truck-pin',
-      html: `
-        <div style="position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translate(-50%, -100%);">
-          <div style="background:#0F172A;color:#FFFFFF;border:1.5px solid ${v.color};padding:3px 8px;border-radius:8px;font-size:9.5px;font-weight:900;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;gap:4px;margin-bottom:2px;">
-            <span style="width:6px;height:6px;border-radius:50%;background:#22C55E;box-shadow:0 0 6px #22C55E;"></span>
-            <span>${v.plate} · ${v.distStr ? v.distStr.split(' ')[0] : '400m'}</span>
-          </div>
-          <div style="width:48px;height:48px;border-radius:50%;background:#FFFFFF;border:2.5px solid ${v.color};display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.25);overflow:hidden;padding:2px;">
-            <img src="${v.img}" alt="${v.name}" style="width:42px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));" />
-          </div>
-        </div>
-      `,
-      iconSize: [0, 0]
-    });
-
-    gramhaulTruckMarker = L.marker(v.coords, { icon: truckIcon }).addTo(gramhaulLiveMap);
-    gramhaulTruckMarker.bindPopup(`
-      <div style="font-size:12px;font-weight:900;color:#0F172A;">🚚 ${v.tierName}</div>
-      <div style="font-size:10px;color:#15803D;font-weight:800;">👨‍✈️ ${v.driverName} (${v.rating}) · ${v.plate}</div>
-      <div style="font-size:9.5px;color:#64748B;margin-top:2px;">📍 ${v.distStr}</div>
-    `);
-
-    const group = L.featureGroup([
-      L.marker([farmLat, farmLon]),
-      L.marker(v.coords)
-    ]);
-    gramhaulLiveMap.fitBounds(group.getBounds().pad(0.35));
+    const farmLat = (currentGramhaulFarmCoords && currentGramhaulFarmCoords[0]) || parseFloat(localStorage.getItem('user_live_lat')) || 17.3980;
+    const farmLon = (currentGramhaulFarmCoords && currentGramhaulFarmCoords[1]) || parseFloat(localStorage.getItem('user_live_lon')) || 78.4900;
+    gramhaulLiveMap.setView([farmLat, farmLon], 14);
   } catch(e) {
     console.warn('updateGramhaulSelectorMapVehicles error:', e);
   }
@@ -13420,7 +13572,7 @@ async function driverAcceptHaulRequest() {
     try {
       const { data: checkTrip } = await sbClient
         .from('haul_bookings')
-        .select('status, driver_name')
+        .select('status, driver_name, start_otp')
         .or(`id.eq.${bookingId},booking_id.eq.${bookingId}`)
         .maybeSingle();
 
@@ -13434,6 +13586,10 @@ async function driverAcceptHaulRequest() {
           showLuxuryToast(`⚠️ Haul was just accepted by another driver (${checkTrip.driver_name || 'Driver'}).`, 'warning');
         }
         return;
+      }
+      if (checkTrip && checkTrip.start_otp) {
+        activeTrip.start_otp = String(checkTrip.start_otp).trim();
+        activeTrip.otp = activeTrip.start_otp;
       }
     } catch(e) {}
   }
@@ -13456,7 +13612,10 @@ async function driverAcceptHaulRequest() {
   activeTrip.vehicle = vehicle;
   activeTrip.driverCoords = driverCoords;
   activeTrip.etaMins = Math.max(1, Math.round((parseFloat(activeTrip.distKm) || 2) * 2));
-  activeTrip.otp = activeTrip.otp || String(Math.floor(1000 + Math.random() * 9000));
+  if (!activeTrip.start_otp) {
+    activeTrip.start_otp = activeTrip.otp || String(Math.floor(1000 + Math.random() * 9000));
+  }
+  activeTrip.otp = activeTrip.start_otp;
   activeTrip.step = 0;
 
   localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
@@ -13742,6 +13901,36 @@ function startDriverRealGPSWatch() {
   console.log('🛰️ Pure Real GPS watch started for driver:', driverId);
 }
 window.startDriverRealGPSWatch = startDriverRealGPSWatch;
+
+function stopDriverRealGPSWatch() {
+  if (window._driverGpsWatchId) {
+    if (navigator.geolocation && typeof navigator.geolocation.clearWatch === 'function') {
+      navigator.geolocation.clearWatch(window._driverGpsWatchId);
+    }
+    window._driverGpsWatchId = null;
+  }
+  if (typeof driverGpsWatchId !== 'undefined' && driverGpsWatchId) {
+    if (navigator.geolocation && typeof navigator.geolocation.clearWatch === 'function') {
+      navigator.geolocation.clearWatch(driverGpsWatchId);
+    }
+    driverGpsWatchId = null;
+  }
+  if (window._driverDispatchPollTimer) {
+    clearInterval(window._driverDispatchPollTimer);
+    window._driverDispatchPollTimer = null;
+  }
+  const driverId = localStorage.getItem('nukrop_driver_phone') || localStorage.getItem('nukrop_driver_plate') || 'DRV-LIVE';
+  if (window.sbClient) {
+    window.sbClient.from('driver_telemetry').update({ is_online: false }).eq('driver_id', driverId).then(() => {});
+    window.sbClient.channel('driver-tracking').send({
+      type: 'broadcast',
+      event: 'driver_duty_update',
+      payload: { driverId, is_online: false, timestamp: Date.now() }
+    });
+  }
+  console.log('📍 Driver GPS Watch stopped & duty-off broadcast sent for:', driverId);
+}
+window.stopDriverRealGPSWatch = stopDriverRealGPSWatch;
 
 const APP_VIEWS = {
 
@@ -16681,21 +16870,9 @@ function toggleGhDriverOnline() {
       showLuxuryToast('🟢 You are ON DUTY · Real GPS Live & 5km Haul Radar Active', 'success');
     }
   } else {
-    if (window._driverGpsWatchId) {
-      navigator.geolocation.clearWatch(window._driverGpsWatchId);
-      window._driverGpsWatchId = null;
-    }
-    if (window._driverDispatchPollTimer) {
-      clearInterval(window._driverDispatchPollTimer);
-      window._driverDispatchPollTimer = null;
-    }
+    stopDriverRealGPSWatch();
     const incomingModal = document.getElementById('driver-incoming-haul-modal');
     if (incomingModal) incomingModal.remove();
-
-    const driverId = localStorage.getItem('nukrop_driver_phone') || localStorage.getItem('nukrop_driver_plate') || 'DRV-LIVE';
-    if (window.sbClient) {
-      window.sbClient.from('driver_telemetry').update({ is_online: false }).eq('driver_id', driverId).then(() => {});
-    }
 
     if (typeof showLuxuryToast === 'function') {
       showLuxuryToast('⚪ You are OFFLINE · Duty Turned Off', 'info');
@@ -18216,40 +18393,152 @@ function driverOpenGpsNav(lat, lon, destName) {
   }
 }
 
-function driverVerifyStartTripOtp() {
+function closeDriverOtpModal() {
+  const m = document.getElementById('driver-otp-verification-modal');
+  if (m) {
+    if (m.parentElement && m.parentElement !== document.body) {
+      m.parentElement.remove();
+    } else {
+      m.remove();
+    }
+  }
+}
+window.closeDriverOtpModal = closeDriverOtpModal;
+
+function openDriverOtpModal() {
   let activeTrip = null;
   try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
   if (!activeTrip) return;
 
-  const expectedOtp = String(activeTrip.otp || '4491').trim();
-  const inputOtp = prompt(TL(
-    'Enter 4-digit START TRIP PIN provided by Farmer ' + (activeTrip.farmerName || '') + ':',
-    'రైతు ' + (activeTrip.farmerName || '') + ' అందించిన 4 అంకెల START TRIP PIN నమోదు చేయండి:',
-    'किसान ' + (activeTrip.farmerName || '') + ' द्वारा दिया गया 4 अंकों का स्टार्ट ट्रिप पिन दर्ज करें:'
-  ), '');
+  closeDriverOtpModal();
 
-  if (!inputOtp) return;
+  const farmerName = activeTrip.farmerName || 'Farmer';
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease-out;';
 
-  if (inputOtp.trim() !== expectedOtp) {
-    if (typeof showLuxuryToast === 'function') {
-      showLuxuryToast('❌ Incorrect OTP PIN. Please ask farmer for correct 4-digit code.', 'error');
-    } else {
-      alert('❌ Incorrect OTP PIN.');
+  modal.innerHTML = `
+    <div id="driver-otp-verification-modal" style="background:#FFFFFF;width:100%;max-width:390px;border-radius:24px;padding:24px 20px 22px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;box-sizing:border-box;animation:scaleUp 0.22s ease;">
+      <div style="width:52px;height:52px;border-radius:50%;background:#DCFCE7;border:2.5px solid #16A34A;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;box-shadow:0 4px 14px rgba(22,163,74,0.25);">
+        🔐
+      </div>
+      <div style="font-size:18px;font-weight:900;color:#0F172A;margin-bottom:6px;letter-spacing:-0.2px;">Start Trip PIN Verification</div>
+      <div style="font-size:12.5px;color:#64748B;font-weight:600;line-height:1.45;margin-bottom:16px;">
+        Please ask Farmer <strong style="color:#0F172A;">${farmerName}</strong> for the 4-digit START TRIP PIN displayed on their live tracking card after produce is loaded.
+      </div>
+
+      <div style="margin-bottom:12px;display:flex;justify-content:center;">
+        <input id="driver-start-otp-input" type="text" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="one-time-code" style="width:190px;height:54px;text-align:center;font-size:30px;font-weight:900;letter-spacing:10px;border:2.5px solid #CBD5E1;border-radius:16px;background:#F8FAFC;color:#0F172A;outline:none;font-family:monospace;box-shadow:inset 0 2px 4px rgba(0,0,0,0.04);transition:border-color 0.15s ease;" />
+      </div>
+
+      <div id="driver-otp-error-msg" style="display:none;color:#DC2626;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:8px 12px;font-size:11.5px;font-weight:800;margin-bottom:14px;text-align:left;"></div>
+
+      <div style="display:flex;gap:10px;">
+        <button id="driver-otp-cancel-btn" onclick="closeDriverOtpModal();" style="flex:1;height:48px;background:#F1F5F9;border:1.5px solid #CBD5E1;border-radius:14px;font-size:13.5px;font-weight:800;color:#475569;cursor:pointer;">Cancel</button>
+        <button id="driver-otp-submit-btn" onclick="submitDriverOtpModal();" style="flex:1.6;height:48px;background:linear-gradient(135deg,#16A34A,#15803D);border:none;border-radius:14px;font-size:14px;font-weight:900;color:#FFFFFF;cursor:pointer;box-shadow:0 4px 16px rgba(22,163,74,0.35);display:flex;align-items:center;justify-content:center;gap:6px;">
+          <span>Verify & Start Trip</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  setTimeout(() => {
+    const inp = document.getElementById('driver-start-otp-input');
+    if (inp) {
+      inp.focus();
+      inp.addEventListener('focus', () => { inp.style.borderColor = '#16A34A'; });
+      inp.addEventListener('blur', () => { inp.style.borderColor = '#CBD5E1'; });
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitDriverOtpModal();
+      });
     }
-    return;
+  }, 100);
+}
+window.openDriverOtpModal = openDriverOtpModal;
+
+async function submitDriverOtpModal() {
+  const inp = document.getElementById('driver-start-otp-input');
+  if (!inp) return;
+  const val = inp.value.trim();
+  const ok = await driverVerifyStartTripOtp(val);
+  if (ok) {
+    closeDriverOtpModal();
+  }
+}
+window.submitDriverOtpModal = submitDriverOtpModal;
+
+async function driverVerifyStartTripOtp(providedOtp) {
+  let activeTrip = null;
+  try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+  if (!activeTrip) return false;
+
+  if (typeof providedOtp !== 'string') {
+    openDriverOtpModal();
+    return false;
   }
 
-  // OTP Verified Successfully -> Transition to IN_TRANSIT
+  const inputOtp = String(providedOtp).trim();
+  const errEl = document.getElementById('driver-otp-error-msg');
+
+  if (!/^\d{4}$/.test(inputOtp)) {
+    if (errEl) {
+      errEl.textContent = '❌ Please enter a valid 4-digit numeric PIN (e.g. 7824).';
+      errEl.style.display = 'block';
+    }
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('Please enter a valid 4-digit PIN', 'error');
+    }
+    return false;
+  }
+
+  let expectedOtp = String(activeTrip.start_otp || activeTrip.otp || '').trim();
+  const bookingId = activeTrip.id || activeTrip.booking_id;
+
+  // Check against Supabase DB record if local trip didn't have start_otp
+  if ((!expectedOtp || expectedOtp === '4491') && typeof sbClient !== 'undefined' && sbClient && bookingId) {
+    try {
+      const { data } = await sbClient
+        .from('haul_bookings')
+        .select('start_otp')
+        .or(`id.eq.${bookingId},booking_id.eq.${bookingId}`)
+        .maybeSingle();
+      if (data && data.start_otp) {
+        expectedOtp = String(data.start_otp).trim();
+        activeTrip.start_otp = expectedOtp;
+        activeTrip.otp = expectedOtp;
+      }
+    } catch(e) {}
+  }
+  if (!expectedOtp) expectedOtp = '4491';
+
+  if (inputOtp !== expectedOtp) {
+    if (errEl) {
+      errEl.textContent = '❌ Incorrect PIN. Please ask farmer for the correct 4-digit code.';
+      errEl.style.display = 'block';
+    }
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('❌ Incorrect OTP PIN. Please ask farmer for correct 4-digit code.', 'error');
+    }
+    return false;
+  }
+
+  // OTP match verified! Transition trip status to IN_TRANSIT
   activeTrip.status = 'IN_TRANSIT';
   activeTrip.step = 2;
   localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
+  window.activeTrip = activeTrip;
 
   if (typeof sbClient !== 'undefined' && sbClient) {
-    sbClient.from('haul_bookings').update({ status: 'IN_TRANSIT' }).eq('id', activeTrip.id).then(() => {});
+    const q = sbClient.from('haul_bookings').update({ status: 'IN_TRANSIT' });
+    if (bookingId) q.or(`id.eq.${bookingId},booking_id.eq.${bookingId}`);
+    else q.eq('status', 'ARRIVED');
+    q.then(() => {});
+
     sbClient.channel('driver-tracking').send({
       type: 'broadcast',
       event: 'driver_step_update',
-      payload: { step: 2, status: 'IN_TRANSIT', tripId: activeTrip.id }
+      payload: { step: 2, status: 'IN_TRANSIT', tripId: bookingId }
     });
   }
 
@@ -18260,6 +18549,8 @@ function driverVerifyStartTripOtp() {
   if (typeof openScreen === 'function' && window.currentAppScreen === 'driver_dashboard') {
     openScreen('driver_dashboard');
   }
+
+  return true;
 }
 window.driverVerifyStartTripOtp = driverVerifyStartTripOtp;
 
@@ -18276,11 +18567,13 @@ function driverUpdateTripStep(stepIdx) {
   const stepNames = ['ACCEPTED', 'ARRIVED', 'IN_TRANSIT', 'COMPLETED'];
   activeTrip.status = stepNames[stepIdx] || 'ACCEPTED';
   localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
+  window.activeTrip = activeTrip;
 
+  const bookingId = activeTrip.id || activeTrip.booking_id;
   if (typeof sbClient !== 'undefined' && sbClient) {
-    sbClient.from('haul_bookings').update({
-      status: activeTrip.status
-    }).eq('id', activeTrip.id).then(() => {});
+    const q = sbClient.from('haul_bookings').update({ status: activeTrip.status });
+    if (bookingId) q.or(`id.eq.${bookingId},booking_id.eq.${bookingId}`);
+    q.then(() => {});
 
     sbClient.channel('driver-tracking').send({
       type: 'broadcast',
@@ -18288,7 +18581,7 @@ function driverUpdateTripStep(stepIdx) {
       payload: {
         step: stepIdx,
         status: activeTrip.status,
-        tripId: activeTrip.id
+        tripId: bookingId
       }
     });
   }
@@ -18301,6 +18594,7 @@ function driverUpdateTripStep(stepIdx) {
     openScreen('driver_dashboard');
   }
 }
+window.driverUpdateTripStep = driverUpdateTripStep;
 
 function driverCompleteHaulTrip(tripId, fare) {
   let activeTrip = null;
@@ -18440,6 +18734,16 @@ function confirmAndFinalizeDriverPayment(tripId, fare, crop, pickup, mandi) {
   };
   trips.unshift(newTrip);
   localStorage.setItem('gh_driver_completed_trips', JSON.stringify(trips));
+
+  if (typeof sbClient !== 'undefined' && sbClient && tripId) {
+    sbClient.from('haul_bookings').update({ status: 'COMPLETED' }).or(`id.eq.${tripId},booking_id.eq.${tripId}`).then(() => {});
+    sbClient.channel('driver-tracking').send({
+      type: 'broadcast',
+      event: 'driver_step_update',
+      payload: { step: 3, status: 'COMPLETED', tripId: tripId }
+    });
+  }
+
   localStorage.removeItem('nukrop_active_trip');
 
   if (typeof showLuxuryToast === 'function') {
@@ -18538,35 +18842,17 @@ function startDriverLiveGpsBroadcast() {
 }
 
 
-// Real-time Smooth Truck Movement Animation on Leaflet Map
+// Real-time Smooth Truck Movement on Leaflet Map (Zero Mock Animation Timer)
 function startLiveMovingTruckSimulation(startCoords, destCoords) {
-  if (farmerLiveTruckAnimTimer) clearInterval(farmerLiveTruckAnimTimer);
-  let step = 0;
-  const totalSteps = 60;
-
-  farmerLiveTruckAnimTimer = setInterval(() => {
-    step++;
-    if (step > totalSteps) {
-      clearInterval(farmerLiveTruckAnimTimer);
-      return;
-    }
-
-    const ratio = step / totalSteps;
-    const curLat = startCoords[0] + (destCoords[0] - startCoords[0]) * ratio;
-    const curLon = startCoords[1] + (destCoords[1] - startCoords[1]) * ratio;
-
-    if (gramhaulTruckMarker && typeof gramhaulTruckMarker.setLatLng === 'function') {
-      gramhaulTruckMarker.setLatLng([curLat, curLon]);
-    }
-
-    // Update Driver ETA on Farmer Sheet
-    const distRemaining = calculateHaversineKm(curLat, curLon, startCoords[0], startCoords[1]);
-    const etaMins = Math.max(1, Math.round((distRemaining / 35) * 60));
-    const etaBadge = document.getElementById('gh-driver-eta-badge');
-    if (etaBadge) {
-      etaBadge.textContent = `🕐 ${etaMins} min away (${distRemaining.toFixed(1)} km)`;
-    }
-  }, 1500);
+  if (farmerLiveTruckAnimTimer) {
+    clearInterval(farmerLiveTruckAnimTimer);
+    farmerLiveTruckAnimTimer = null;
+  }
+  // ZERO SIMULATION: Do not run fake setInterval timer interpolating coordinates.
+  // Coordinates are rendered directly from authentic GPS broadcasts.
+  if (startCoords && gramhaulTruckMarker && typeof gramhaulTruckMarker.setLatLng === 'function') {
+    gramhaulTruckMarker.setLatLng(startCoords);
+  }
 }
 
 /* ═════════════════ CONTROLLER LOGIC ═════════════════ */
@@ -21009,7 +21295,7 @@ function renderCropModalList(cropList) {
   const grid = document.getElementById('crop-modal-grid');
   if (!grid) return;
   if (!cropList || cropList.length === 0) {
-    grid.innerHTML = `<div style="grid-column: span 3; text-align:center; padding:30px 0; color:#64748B; font-size:13px; font-weight:700;">${currentLang==='te'?'పంట దొరకలేదు':(currentLang==='hi'?'కోయి ఫసల్ నహీ మిలీ':'No matching crop found')}</div>`;
+    grid.innerHTML = `<div style="grid-column: span 3; text-align:center; padding:30px 0; color:#64748B; font-size:13px; font-weight:700;">${currentLang==='te'?'పంట దొరకలేదు':(currentLang==='hi'?'कोई फसल नहीं मिली':'No matching crop found')}</div>`;
     return;
   }
   grid.innerHTML = cropList.map(c => {
@@ -21293,6 +21579,7 @@ function updateBottomDockForRole() {
       <div class="dock-tab-btn ${currentScreenKey==='community'?'active':''}" id="tab-community" onclick="openScreen('community',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span id="tab-lbl-comm" style="font-size:10.5px;font-weight:700;">${TL('Community', 'రైతు వేదిక', 'किसान मंच', 'சமூகம்', 'ಸಮುದಾಯ', 'കമ്മ്യൂണിറ്റി', 'समुदाय', 'কমিউনিটি', 'સમુદાય', 'ਕਮਿਊਨਿਟੀ', 'ସମ୍ପ୍ରଦାୟ')}</span>
+        <span id="community-badge" style="display:none;position:absolute;top:4px;right:18px;background:#DC2626;color:#FFF;border-radius:10px;font-size:9px;font-weight:900;padding:1px 5px;min-width:14px;height:14px;align-items:center;justify-content:center;"></span>
       </div>
     </div>
 
@@ -22496,10 +22783,40 @@ function initGramhaulRealMap() {
     gramhaulSelectorMap = null;
   }
 
+  // Exact real user GPS coordinates
+  const liveLat = parseFloat(localStorage.getItem('user_live_lat')) || (window.farmerCurrentGps && window.farmerCurrentGps[0]);
+  const liveLon = parseFloat(localStorage.getItem('user_live_lon')) || (window.farmerCurrentGps && window.farmerCurrentGps[1]);
+  if (liveLat && liveLon) {
+    currentGramhaulFarmCoords = [liveLat, liveLon];
+  }
+
   const farmCoords = (currentGramhaulFarmCoords && currentGramhaulFarmCoords.length === 2)
     ? currentGramhaulFarmCoords
-    : [17.3850, 78.4867];
+    : (liveLat && liveLon ? [liveLat, liveLon] : [17.3850, 78.4867]);
   const farmAddress = currentGramhaulFarmAddress || localStorage.getItem('user_live_address') || 'My Farm Location';
+
+  // Request instant high-accuracy GPS lock from device sensor
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const uLat = pos.coords.latitude;
+      const uLon = pos.coords.longitude;
+      currentGramhaulFarmCoords = [uLat, uLon];
+      window.farmerCurrentGps = [uLat, uLon];
+      localStorage.setItem('user_live_lat', String(uLat));
+      localStorage.setItem('user_live_lon', String(uLon));
+      if (gramhaulSelectorFarmMarker) {
+        gramhaulSelectorFarmMarker.setLatLng([uLat, uLon]);
+      }
+      if (gramhaulSelectorMap) {
+        gramhaulSelectorMap.setView([uLat, uLon], 15);
+      }
+      if (typeof nk_loadRealPostGISTrucksOnMap === 'function') {
+        nk_loadRealPostGISTrucksOnMap([uLon, uLat]);
+      }
+    }, (err) => {
+      console.warn('[GPS] Device position lock fallback:', err);
+    }, { enableHighAccuracy: true, timeout: 8000 });
+  }
 
   gramhaulSelectorMap = L.map('gramhaul-real-osm-map', {
     zoomControl: false,
@@ -22545,26 +22862,10 @@ function updateGramhaulSelectorMapVehicles(tier) {
     } catch(e) {}
     gramhaulSelectorVehicleMarker = null;
   }
-
-  const v = GRAMHAUL_TIER_AVAILABLE_VEHICLES[tier] || GRAMHAUL_TIER_AVAILABLE_VEHICLES[1];
-  const truckIcon = L.divIcon({
-    className: 'gh-truck-marker',
-    html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%, -100%);">
-      <div style="background:#0F172A;color:#FFFFFF;border:1.5px solid ${v.color};padding:3px 8px;border-radius:8px;font-size:9.5px;font-weight:900;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;gap:4px;margin-bottom:2px;">
-        <span style="width:6px;height:6px;border-radius:50%;background:#22C55E;box-shadow:0 0 6px #22C55E;"></span>
-        <span>${v.plate} · ${v.dist}</span>
-      </div>
-      <div style="width:48px;height:48px;border-radius:50%;background:#FFFFFF;border:2.5px solid ${v.color};display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.25);overflow:hidden;padding:2px;">
-        <img src="${v.img}" alt="${v.name}" style="width:42px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));" />
-      </div>
-    </div>`,
-    iconSize: [0, 0]
-  });
-
-  gramhaulSelectorVehicleMarker = L.marker(v.coords, { icon: truckIcon }).addTo(gramhaulSelectorMap);
-
-  const bounds = L.latLngBounds([[17.3980, 78.4900], v.coords]);
-  gramhaulSelectorMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+  // Zero fake truck markers: Only real drivers from Supabase PostGIS are rendered
+  const farmLat = (currentGramhaulFarmCoords && currentGramhaulFarmCoords[0]) || parseFloat(localStorage.getItem('user_live_lat')) || 17.3850;
+  const farmLon = (currentGramhaulFarmCoords && currentGramhaulFarmCoords[1]) || parseFloat(localStorage.getItem('user_live_lon')) || 78.4867;
+  gramhaulSelectorMap.setView([farmLat, farmLon], 14);
 }
 
 function selectGramhaulTruckTier(tier) {
@@ -22679,6 +22980,8 @@ function executeRealGramhaulDispatch() {
     : (window.farmerCurrentGps || [17.3850, 78.4867]);
   const farmAddress = currentGramhaulFarmAddress || localStorage.getItem('user_live_address') || 'My Farm Location';
 
+  const startOtp = String(Math.floor(1000 + Math.random() * 9000));
+
   const activeTrip = {
     id: bookId,
     booking_id: bookId,
@@ -22697,15 +23000,19 @@ function executeRealGramhaulDispatch() {
     farmerName: localStorage.getItem('nukrop_farmer_name') || 'B. Jaswanth Reddy',
     farmerPhone: localStorage.getItem('nukrop_farmer_phone') || '+91 94401 55667',
     status: 'SEARCHING',
+    start_otp: startOtp,
+    otp: startOtp,
     createdAt: new Date().toISOString()
   };
 
   localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
   window.activeTrip = activeTrip;
 
-  // Insert into Supabase haul_bookings with status 'SEARCHING'
+  // Insert into Supabase haul_bookings with status 'SEARCHING' and start_otp
   if (typeof sbClient !== 'undefined' && sbClient) {
     sbClient.from('haul_bookings').insert([{
+      id: bookId,
+      booking_id: bookId,
       farmer_id: activeTrip.farmerName,
       pickup_village: activeTrip.pickup,
       pickup_lat: activeTrip.pickupLat,
@@ -22717,6 +23024,7 @@ function executeRealGramhaulDispatch() {
       load_quintals: parseFloat(sacks) || 40,
       total_fare: fare,
       status: 'SEARCHING',
+      start_otp: startOtp,
       vehicle_type: v.name
     }]).then(({ error }) => {
       if (error) console.warn('Supabase booking notice:', error.message);
@@ -22870,12 +23178,10 @@ function renderTrackingSearchingState(activeTrip) {
     });
     if (trackingDriverMarker) {
       try { gramhaulTrackingMap.removeLayer(trackingDriverMarker); } catch(e) {}
+      trackingDriverMarker = null;
     }
-    const ghostCoords = [farmLat + 0.008, farmLon + 0.006];
-    trackingDriverMarker = L.marker(ghostCoords, { icon: ghostIcon }).addTo(gramhaulTrackingMap);
-
-    const bounds = L.latLngBounds([[farmLat, farmLon], ghostCoords]);
-    gramhaulTrackingMap.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 });
+    // Zero fake ghost markers: Centered on authentic farmer location while broadcasting to real drivers
+    gramhaulTrackingMap.setView([farmLat, farmLon], 15);
   }
 
   // Real-time Supabase Listener for Driver Acceptance (NO FAKE AUTO TIMEOUT!)
@@ -22925,22 +23231,78 @@ function handleDriverAccepted(tripData) {
   activeTrip.vehicle = tripData.vehicle_type || tripData.vehicle || 'Commercial Truck';
   activeTrip.driverCoords = tripData.driverCoords || [tripData.driver_lat || (activeTrip.pickupLat + 0.005), tripData.driver_lng || (activeTrip.pickupLon + 0.005)];
   activeTrip.etaMins = tripData.etaMins || 2;
-  activeTrip.otp = activeTrip.otp || '4491';
+  activeTrip.start_otp = tripData.start_otp || tripData.otp || activeTrip.start_otp || activeTrip.otp || '4491';
+  activeTrip.otp = activeTrip.start_otp;
 
   localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
   window.activeTrip = activeTrip;
 
   renderTrackingDispatchedState(activeTrip);
 
-  // Subscribe to driver's live GPS movement on farmer tracking map
+  // Subscribe to driver's live GPS movement & step updates on farmer tracking map
   if (window.sbClient) {
-    window.sbClient.channel('driver-tracking').on('broadcast', { event: 'driver_location_update' }, ({ payload }) => {
-      if (payload && payload.lat && payload.lng) {
-        if (trackingDriverMarker && typeof trackingDriverMarker.setLatLng === 'function') {
-          trackingDriverMarker.setLatLng([payload.lat, payload.lng]);
+    if (!window.ghRealtimeTrackingSub) {
+      window.ghRealtimeTrackingSub = window.sbClient.channel('driver-tracking');
+    }
+    window.ghRealtimeTrackingSub
+      .on('broadcast', { event: 'driver_location_update' }, ({ payload }) => {
+        if (payload && payload.lat && payload.lng) {
+          if (trackingDriverMarker && typeof trackingDriverMarker.setLatLng === 'function') {
+            trackingDriverMarker.setLatLng([payload.lat, payload.lng]);
+          }
+          if (typeof gramhaulTruckMarker !== 'undefined' && gramhaulTruckMarker && typeof gramhaulTruckMarker.setLatLng === 'function') {
+            gramhaulTruckMarker.setLatLng([payload.lat, payload.lng]);
+          }
         }
-      }
-    });
+      })
+      .on('broadcast', { event: 'driver_step_update' }, ({ payload }) => {
+        if (!payload) return;
+        let curTrip = null;
+        try { curTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+        if (!curTrip) return;
+        if (payload.tripId && curTrip.id && payload.tripId !== curTrip.id && payload.tripId !== curTrip.booking_id) return;
+
+        const status = payload.status;
+        curTrip.status = status;
+        if (typeof payload.step === 'number') curTrip.step = payload.step;
+        localStorage.setItem('nukrop_active_trip', JSON.stringify(curTrip));
+        window.activeTrip = curTrip;
+
+        const topStatus = document.getElementById('gh-tracking-top-status-text');
+        const badge = document.getElementById('gh-dispatched-eta-badge') || document.getElementById('gh-driver-eta-badge');
+        const countdownEl = document.getElementById('gh-pickup-countdown');
+        const fillEl = document.getElementById('gh-progress-bar-fill');
+
+        if (status === 'ARRIVED') {
+          if (topStatus) topStatus.textContent = `Driver ${curTrip.driverName || 'Driver'} has arrived at pickup farm!`;
+          if (badge) badge.textContent = 'Arrived';
+          if (countdownEl) countdownEl.textContent = 'Arrived!';
+          if (fillEl) fillEl.style.width = '50%';
+          if (typeof showLuxuryToast === 'function') {
+            showLuxuryToast(`🚚 Driver ${curTrip.driverName || ''} arrived! Share OTP ${curTrip.start_otp || curTrip.otp} after loading.`, 'success');
+          }
+        } else if (status === 'IN_TRANSIT') {
+          if (topStatus) topStatus.textContent = `Produce Loaded · In Transit to ${curTrip.mandi || 'Mandi'}`;
+          if (badge) badge.textContent = 'In Transit';
+          if (countdownEl) countdownEl.textContent = 'En Route';
+          if (fillEl) fillEl.style.width = '75%';
+          if (typeof showLuxuryToast === 'function') {
+            showLuxuryToast('🌾 Trip started! Driver is en route to mandi.', 'info');
+          }
+        } else if (status === 'COMPLETED') {
+          if (topStatus) topStatus.textContent = `Delivered at ${curTrip.mandi || 'Mandi'}!`;
+          if (badge) badge.textContent = 'Completed';
+          if (countdownEl) countdownEl.textContent = 'Completed';
+          if (fillEl) fillEl.style.width = '100%';
+          if (typeof showLuxuryToast === 'function') {
+            showLuxuryToast('🎉 Trip completed! Produce delivered at Mandi.', 'success');
+          }
+          if (typeof completeGramhaulTripAndShowPayment === 'function') {
+            completeGramhaulTripAndShowPayment(curTrip);
+          }
+        }
+      })
+      .subscribe();
   }
 
   if (typeof showLuxuryToast === 'function') {
@@ -22949,41 +23311,39 @@ function handleDriverAccepted(tripData) {
 }
 window.handleDriverAccepted = handleDriverAccepted;
 
-function simulateDriverAcceptance() {
-  let activeTrip = null;
-  try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
-  if (!activeTrip) return;
-
-  const acceptedData = {
-    ...activeTrip,
-    status: 'ACCEPTED',
-    driver_name: 'Suresh Yadav',
-    driver_phone: '+91 94401 55667',
-    vehicle_plate: 'TS 03 UB 4491',
-    vehicle_type: 'Tata Ace Gold (1.5T)',
-    driverCoords: [activeTrip.pickupLat + 0.007, activeTrip.pickupLon + 0.005],
-    etaMins: 2
-  };
-
-  if (window.sbClient) {
-    window.sbClient.from('haul_bookings').update({
-      status: 'ACCEPTED',
-      driver_name: 'Suresh Yadav',
-      driver_phone: '+91 94401 55667',
-      vehicle_plate: 'TS 03 UB 4491',
-      vehicle_type: 'Tata Ace Gold (1.5T)'
-    }).eq('status', 'SEARCHING').then(() => {});
-
-    window.sbClient.channel('driver-tracking').send({
-      type: 'broadcast',
-      event: 'driver_accepted_trip',
-      payload: acceptedData
-    });
+function listenForRealDriverAcceptance(bookingId) {
+  if (!window.sbClient) return;
+  const bId = bookingId || (window.activeTrip && (window.activeTrip.id || window.activeTrip.booking_id));
+  if (window.ghRealtimeTrackingSub) {
+    try { window.sbClient.removeChannel(window.ghRealtimeTrackingSub); } catch(e) {}
   }
+  window.ghRealtimeTrackingSub = window.sbClient.channel('driver-tracking');
+  window.ghRealtimeTrackingSub.on('broadcast', { event: 'driver_accepted_trip' }, ({ payload }) => {
+    if (payload && (!bId || payload.id === bId || payload.booking_id === bId)) {
+      handleDriverAccepted(payload);
+    }
+  }).subscribe();
 
-  handleDriverAccepted(acceptedData);
+  if (window.ghSearchPollTimer) clearInterval(window.ghSearchPollTimer);
+  window.ghSearchPollTimer = setInterval(async () => {
+    try {
+      const q = window.sbClient.from('haul_bookings').select('*').eq('status', 'ACCEPTED');
+      if (bId) q.or(`id.eq.${bId},booking_id.eq.${bId}`);
+      const { data } = await q.order('updated_at', { ascending: false }).limit(1).maybeSingle();
+      if (data) {
+        clearInterval(window.ghSearchPollTimer);
+        window.ghSearchPollTimer = null;
+        handleDriverAccepted(data);
+      }
+    } catch(e) {}
+  }, 2500);
 }
-window.simulateDriverAcceptance = simulateDriverAcceptance;
+window.listenForRealDriverAcceptance = listenForRealDriverAcceptance;
+
+window.simulateDriverAcceptance = function() {
+  console.log('[GramHaul] Using authentic Supabase booking listening instead of mock driver simulation.');
+  listenForRealDriverAcceptance();
+};
 
 function renderTrackingDispatchedState(activeTrip) {
   if (trackingSearchTimeout) {
@@ -23003,7 +23363,7 @@ function renderTrackingDispatchedState(activeTrip) {
   const vehicleName = activeTrip.vehicle || v.name;
   const rating = activeTrip.driverRating || v.rating;
   const eta = activeTrip.etaMins || v.etaMins || 2;
-  const otp = activeTrip.otp || v.otp || '4491';
+  const otp = activeTrip.start_otp || activeTrip.otp || v.otp || '4491';
   const fare = activeTrip.fare || 380;
   const crop = activeTrip.crop || 'Cotton';
   const sacks = activeTrip.sacks || '40 Sacks';
@@ -23280,72 +23640,95 @@ function renderTrackingDispatchedState(activeTrip) {
         const countdownEl = document.getElementById('gh-pickup-countdown');
         if (countdownEl) countdownEl.textContent = route.etaFormatted;
 
-        // REAL-TIME ON-ROAD VEHICLE PROGRESSION & HEADING
-        let currentWaypointIdx = 0;
-        const totalWaypoints = streetPoints.length;
-        if (window.gramhaulLiveMoveInterval) clearInterval(window.gramhaulLiveMoveInterval);
+        // REAL-TIME ON-ROAD VEHICLE TELEMETRY & PURE BROADCAST (ZERO MOCK TIMERS)
+        if (window.gramhaulLiveMoveInterval) {
+          clearInterval(window.gramhaulLiveMoveInterval);
+          window.gramhaulLiveMoveInterval = null;
+        }
 
-        window.gramhaulLiveMoveInterval = setInterval(() => {
-          if (currentWaypointIdx < totalWaypoints - 1) {
-            currentWaypointIdx++;
-            const p1 = streetPoints[currentWaypointIdx - 1];
-            const p2 = streetPoints[currentWaypointIdx];
-
-            // Calculate road heading bearing
-            const dLon = (p2[1] - p1[1]) * Math.PI / 180;
-            const lat1Rad = p1[0] * Math.PI / 180;
-            const lat2Rad = p2[0] * Math.PI / 180;
-            const y = Math.sin(dLon) * Math.cos(lat2Rad);
-            const x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLon);
-            const bearing = ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
-
-            if (trackingDriverMarker) {
-              trackingDriverMarker.setLatLng(p2);
-              const iconImg = trackingDriverMarker.getElement()?.querySelector('img');
-              if (iconImg) iconImg.style.transform = `rotate(${Math.round(bearing)}deg)`;
-            }
-
-            if (trackingRoutePolyline) {
-              trackingRoutePolyline.setLatLngs(streetPoints.slice(currentWaypointIdx));
-            }
-
-            const progress = currentWaypointIdx / totalWaypoints;
-            const fillEl = document.getElementById('gh-progress-bar-fill');
-            if (fillEl) fillEl.style.width = `${Math.min(95, 25 + progress * 70)}%`;
-
-            const remainingMins = Math.max(0, Math.ceil((1 - progress) * (route.durationMinutes || eta)));
-            const topStatusText = document.getElementById('gh-tracking-top-status-text');
-            const countdownEl = document.getElementById('gh-pickup-countdown');
-            const badgeEl = document.getElementById('gh-dispatched-eta-badge');
-
-            if (progress >= 0.98 || remainingMins === 0) {
-              if (countdownEl) countdownEl.textContent = 'Arrived!';
-              if (badgeEl) badgeEl.textContent = 'Arrived';
-              if (topStatusText) topStatusText.textContent = `Driver ${driverName} has arrived at pickup farm!`;
-              clearInterval(window.gramhaulLiveMoveInterval);
-              window.gramhaulLiveMoveInterval = null;
-            } else {
-              if (countdownEl) countdownEl.textContent = `${remainingMins} min`;
-              if (badgeEl) badgeEl.textContent = `${remainingMins} min`;
-              if (topStatusText) topStatusText.textContent = `Driver ${driverName} is ${remainingMins} min away`;
-            }
+        // Supabase Realtime 'driver-tracking' channel subscription for genuine GPS & Step updates
+        if (window.sbClient) {
+          if (!window.ghRealtimeTrackingSub) {
+            window.ghRealtimeTrackingSub = window.sbClient.channel('driver-tracking');
           }
-        }, 1200);
-
-        // Supabase Realtime 'driver-tracking' channel subscription
-        if (!window.ghRealtimeTrackingSub && geo) {
-          window.ghRealtimeTrackingSub = geo.subscribeToDriverTracking({
-            driverId: v.driverId || 'GH-4192',
-            onLocationUpdate: (telemetry) => {
-              if (trackingDriverMarker && telemetry.lat && telemetry.lon) {
-                trackingDriverMarker.setLatLng([telemetry.lat, telemetry.lon]);
-                const iconImg = trackingDriverMarker.getElement()?.querySelector('img');
-                if (iconImg && typeof telemetry.heading === 'number') {
-                  iconImg.style.transform = `rotate(${Math.round(telemetry.heading)}deg)`;
+          window.ghRealtimeTrackingSub
+            .on('broadcast', { event: 'driver_location_update' }, ({ payload }) => {
+              if (!payload) return;
+              const lat = payload.lat || payload.latitude;
+              const lng = payload.lng || payload.lon || payload.longitude;
+              if (lat && lng) {
+                if (trackingDriverMarker && typeof trackingDriverMarker.setLatLng === 'function') {
+                  trackingDriverMarker.setLatLng([lat, lng]);
+                  const iconImg = trackingDriverMarker.getElement()?.querySelector('img');
+                  if (iconImg && typeof payload.heading === 'number') {
+                    iconImg.style.transform = `rotate(${Math.round(payload.heading)}deg)`;
+                  }
+                }
+                if (typeof gramhaulTruckMarker !== 'undefined' && gramhaulTruckMarker && typeof gramhaulTruckMarker.setLatLng === 'function') {
+                  gramhaulTruckMarker.setLatLng([lat, lng]);
+                }
+                const liveDist = calculateHaversineKm(lat, lng, destCoords[0], destCoords[1]);
+                const liveEta = Math.max(1, Math.round((liveDist / 35) * 60));
+                const etaBadge = document.getElementById('gh-dispatched-eta-badge') || document.getElementById('gh-driver-eta-badge');
+                const topStatus = document.getElementById('gh-tracking-top-status-text');
+                const countdownEl = document.getElementById('gh-pickup-countdown');
+                let curTrip = null;
+                try { curTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+                if (!curTrip || (curTrip.status !== 'ARRIVED' && curTrip.status !== 'IN_TRANSIT' && curTrip.status !== 'COMPLETED')) {
+                  if (etaBadge) etaBadge.textContent = `${liveEta} min`;
+                  if (topStatus) topStatus.textContent = `Driver ${driverName} is ${liveEta} min away (${liveDist.toFixed(1)} km)`;
+                  if (countdownEl) countdownEl.textContent = `${liveEta} min`;
                 }
               }
-            }
-          });
+            })
+            .on('broadcast', { event: 'driver_step_update' }, ({ payload }) => {
+              if (!payload) return;
+              let curTrip = null;
+              try { curTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+              if (!curTrip) return;
+              if (payload.tripId && curTrip.id && payload.tripId !== curTrip.id && payload.tripId !== curTrip.booking_id) return;
+
+              const status = payload.status;
+              curTrip.status = status;
+              if (typeof payload.step === 'number') curTrip.step = payload.step;
+              localStorage.setItem('nukrop_active_trip', JSON.stringify(curTrip));
+              window.activeTrip = curTrip;
+
+              const topStatus = document.getElementById('gh-tracking-top-status-text');
+              const badge = document.getElementById('gh-dispatched-eta-badge') || document.getElementById('gh-driver-eta-badge');
+              const countdownEl = document.getElementById('gh-pickup-countdown');
+              const fillEl = document.getElementById('gh-progress-bar-fill');
+
+              if (status === 'ARRIVED') {
+                if (topStatus) topStatus.textContent = `Driver ${curTrip.driverName || 'Driver'} has arrived at pickup farm!`;
+                if (badge) badge.textContent = 'Arrived';
+                if (countdownEl) countdownEl.textContent = 'Arrived!';
+                if (fillEl) fillEl.style.width = '50%';
+                if (typeof showLuxuryToast === 'function') {
+                  showLuxuryToast(`🚚 Driver ${curTrip.driverName || ''} arrived! Share OTP ${curTrip.start_otp || curTrip.otp} after loading.`, 'success');
+                }
+              } else if (status === 'IN_TRANSIT') {
+                if (topStatus) topStatus.textContent = `Produce Loaded · In Transit to ${curTrip.mandi || 'Mandi'}`;
+                if (badge) badge.textContent = 'In Transit';
+                if (countdownEl) countdownEl.textContent = 'En Route';
+                if (fillEl) fillEl.style.width = '75%';
+                if (typeof showLuxuryToast === 'function') {
+                  showLuxuryToast('🌾 Trip started! Driver is en route to mandi.', 'info');
+                }
+              } else if (status === 'COMPLETED') {
+                if (topStatus) topStatus.textContent = `Delivered at ${curTrip.mandi || 'Mandi'}!`;
+                if (badge) badge.textContent = 'Completed';
+                if (countdownEl) countdownEl.textContent = 'Completed';
+                if (fillEl) fillEl.style.width = '100%';
+                if (typeof showLuxuryToast === 'function') {
+                  showLuxuryToast('🎉 Trip completed! Produce delivered at Mandi.', 'success');
+                }
+                if (typeof completeGramhaulTripAndShowPayment === 'function') {
+                  completeGramhaulTripAndShowPayment(curTrip);
+                }
+              }
+            })
+            .subscribe();
         }
       }).catch(err => {
         console.warn('[Tracking Screen] OSRM route fetch fallback:', err);
