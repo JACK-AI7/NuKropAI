@@ -13112,6 +13112,44 @@ function initDriverRealtimeDispatchListener() {
   if (window._driverDispatchSubInitialized) return;
   window._driverDispatchSubInitialized = true;
   window.declinedTripIds = window.declinedTripIds || new Set();
+  window.takenTripIds = window.takenTripIds || new Set();
+
+  function handleTripTakenByOtherDriver(payload) {
+    if (!payload) return;
+    const tripId = payload.booking_id || payload.id;
+    const myPhone = (localStorage.getItem('nukrop_driver_phone') || '').replace(/[^0-9]/g, '');
+    const myPlate = (localStorage.getItem('nukrop_driver_plate') || '').replace(/[\s-]/g, '').toUpperCase();
+
+    const acceptedPhone = String(payload.driver_phone || payload.driverPhone || payload.accepted_by_driver_phone || '').replace(/[^0-9]/g, '');
+    const acceptedPlate = String(payload.vehicle_plate || payload.driverPlate || payload.plate || payload.accepted_by_vehicle_plate || '').replace(/[\s-]/g, '').toUpperCase();
+
+    // Check if accepted by someone other than ME:
+    const isMe = (myPhone && acceptedPhone && myPhone.slice(-10) === acceptedPhone.slice(-10)) ||
+                 (myPlate && acceptedPlate && myPlate === acceptedPlate);
+
+    if (!isMe) {
+      if (tripId) window.takenTripIds.add(tripId);
+
+      // If my incoming modal is currently showing THIS trip, dismiss it immediately!
+      if (window.pendingIncomingHaul) {
+        const pendingId = window.pendingIncomingHaul.booking_id || window.pendingIncomingHaul.id;
+        if (!tripId || pendingId === tripId) {
+          window.pendingIncomingHaul = null;
+          const modal = document.getElementById('driver-incoming-haul-modal');
+          if (modal) {
+            modal.style.transition = 'opacity 0.22s, transform 0.22s';
+            modal.style.opacity = '0';
+            modal.style.transform = 'translateY(40px)';
+            setTimeout(() => { modal.remove(); }, 250);
+          }
+          if (typeof showLuxuryToast === 'function') {
+            showLuxuryToast('ℹ️ Haul request was accepted by another driver.', 'info');
+          }
+        }
+      }
+    }
+  }
+  window.handleTripTakenByOtherDriver = handleTripTakenByOtherDriver;
 
   function evaluateIncomingBooking(trip) {
     if (!trip) return;
@@ -13119,7 +13157,9 @@ function initDriverRealtimeDispatchListener() {
     if (!isOnline) return;
 
     const tripId = trip.booking_id || trip.id;
-    if (tripId && window.declinedTripIds.has(tripId)) return;
+    // If trip was already declined by me or accepted by ANY driver, DO NOT SHOW!
+    if (tripId && (window.declinedTripIds.has(tripId) || window.takenTripIds.has(tripId))) return;
+    if (trip.status && trip.status !== 'SEARCHING') return;
 
     let existingActive = null;
     try { existingActive = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e){}
@@ -13156,6 +13196,14 @@ function initDriverRealtimeDispatchListener() {
     channel.on('broadcast', { event: 'new_haul_booking' }, ({ payload }) => {
       console.log('Driver received new_haul_booking broadcast:', payload);
       evaluateIncomingBooking(payload);
+    });
+    channel.on('broadcast', { event: 'driver_accepted_trip' }, ({ payload }) => {
+      console.log('Driver received driver_accepted_trip broadcast:', payload);
+      handleTripTakenByOtherDriver(payload);
+    });
+    channel.on('broadcast', { event: 'haul_taken_by_driver' }, ({ payload }) => {
+      console.log('Driver received haul_taken_by_driver broadcast:', payload);
+      handleTripTakenByOtherDriver(payload);
     }).subscribe();
 
     // 2. Supabase Postgres Changes Channel
@@ -13163,6 +13211,12 @@ function initDriverRealtimeDispatchListener() {
     dbChannel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'haul_bookings' }, (payload) => {
       console.log('Driver received haul_bookings INSERT:', payload.new);
       evaluateIncomingBooking(payload.new);
+    });
+    dbChannel.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'haul_bookings' }, (payload) => {
+      console.log('Driver received haul_bookings UPDATE:', payload.new);
+      if (payload && payload.new && payload.new.status === 'ACCEPTED') {
+        handleTripTakenByOtherDriver(payload.new);
+      }
     }).subscribe();
   }
 
@@ -13177,6 +13231,23 @@ function initDriverRealtimeDispatchListener() {
       try { existingActive = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e){}
       if (existingActive && existingActive.status !== 'SEARCHING' && existingActive.status !== 'broadcast') {
         return;
+      }
+
+      // Check if current pending haul modal was accepted by another driver
+      if (window.pendingIncomingHaul) {
+        const pId = window.pendingIncomingHaul.booking_id || window.pendingIncomingHaul.id;
+        if (pId) {
+          const { data: statusCheck } = await window.sbClient
+            .from('haul_bookings')
+            .select('status, driver_phone, vehicle_plate, driver_name')
+            .or(`id.eq.${pId},booking_id.eq.${pId}`)
+            .maybeSingle();
+
+          if (statusCheck && statusCheck.status !== 'SEARCHING') {
+            handleTripTakenByOtherDriver({ id: pId, ...statusCheck });
+            return;
+          }
+        }
       }
 
       const { data } = await window.sbClient
@@ -13276,6 +13347,31 @@ async function driverAcceptHaulRequest() {
   }
   if (!activeTrip) return;
 
+  const bookingId = activeTrip.booking_id || activeTrip.id;
+
+  // Atomic pre-check: verify haul is still available and not already taken by another driver!
+  if (typeof sbClient !== 'undefined' && sbClient && bookingId) {
+    try {
+      const { data: checkTrip } = await sbClient
+        .from('haul_bookings')
+        .select('status, driver_name')
+        .or(`id.eq.${bookingId},booking_id.eq.${bookingId}`)
+        .maybeSingle();
+
+      if (checkTrip && checkTrip.status !== 'SEARCHING') {
+        const modal = document.getElementById('driver-incoming-haul-modal');
+        if (modal) modal.remove();
+        window.pendingIncomingHaul = null;
+        window.takenTripIds = window.takenTripIds || new Set();
+        window.takenTripIds.add(bookingId);
+        if (typeof showLuxuryToast === 'function') {
+          showLuxuryToast(`⚠️ Haul was just accepted by another driver (${checkTrip.driver_name || 'Driver'}).`, 'warning');
+        }
+        return;
+      }
+    } catch(e) {}
+  }
+
   const driverName = localStorage.getItem('nukrop_driver_name') || 'Registered Driver';
   const driverPlate = localStorage.getItem('nukrop_driver_plate') || 'Active Fleet';
   const driverPhone = localStorage.getItem('nukrop_driver_phone') || '';
@@ -13306,7 +13402,7 @@ async function driverAcceptHaulRequest() {
   // 1. Update in Supabase
   if (typeof sbClient !== 'undefined' && sbClient) {
     try {
-      await sbClient.from('haul_bookings').update({
+      const q = sbClient.from('haul_bookings').update({
         status: 'ACCEPTED',
         driver_name: driverName,
         driver_phone: driverPhone,
@@ -13314,7 +13410,12 @@ async function driverAcceptHaulRequest() {
         vehicle_type: vehicle,
         driver_lat: driverCoords[0],
         driver_lng: driverCoords[1]
-      }).eq('status', 'SEARCHING');
+      });
+      if (bookingId) {
+        await q.or(`id.eq.${bookingId},booking_id.eq.${bookingId}`);
+      } else {
+        await q.eq('status', 'SEARCHING');
+      }
     } catch(e) {}
 
     // 2. Broadcast to Farmer in real-time
@@ -13323,6 +13424,21 @@ async function driverAcceptHaulRequest() {
         type: 'broadcast',
         event: 'driver_accepted_trip',
         payload: activeTrip
+      });
+    } catch(e) {}
+
+    // 3. Broadcast to all OTHER drivers that this haul has been taken
+    try {
+      sbClient.channel('driver-tracking').send({
+        type: 'broadcast',
+        event: 'haul_taken_by_driver',
+        payload: {
+          booking_id: bookingId,
+          id: bookingId,
+          accepted_by_driver_name: driverName,
+          accepted_by_driver_phone: driverPhone,
+          accepted_by_vehicle_plate: driverPlate
+        }
       });
     } catch(e) {}
   }
@@ -21925,44 +22041,96 @@ if (typeof window !== 'undefined') {
 // Function to query Supabase PostGIS for real active trucks nearby
 async function nk_loadRealPostGISTrucksOnMap(coordsLonLat) {
   if (typeof gramhaulSelectorMap === 'undefined' || !gramhaulSelectorMap) return;
-  const geo = (typeof getGeoTrackingService === 'function') ? getGeoTrackingService() : null;
-  if (!geo) return;
+
+  const farmLon = coordsLonLat ? coordsLonLat[0] : ((currentGramhaulFarmCoords && currentGramhaulFarmCoords[1]) || 78.4867);
+  const farmLat = coordsLonLat ? coordsLonLat[1] : ((currentGramhaulFarmCoords && currentGramhaulFarmCoords[0]) || 17.3850);
+
+  window.realTruckMarkersList = window.realTruckMarkersList || [];
+
+  if (!window.sbClient) {
+    console.warn('[GramHaul Map] Supabase client not available');
+    return;
+  }
 
   try {
-    const lon = coordsLonLat[0];
-    const lat = coordsLonLat[1];
-    const drivers = await geo.getNearestDrivers(lon, lat, 25000, 10);
-    if (window.realTruckMarkersList) {
-      window.realTruckMarkersList.forEach(m => {
-        try { gramhaulSelectorMap.removeLayer(m); } catch(e) {}
-      });
-    }
-    window.realTruckMarkersList = [];
+    const { data: drivers, error } = await window.sbClient
+      .from('driver_telemetry')
+      .select('driver_id, driver_name, vehicle_type, vehicle_plate, current_lat, current_lng, is_online, last_ping')
+      .eq('is_online', true)
+      .order('last_ping', { ascending: false })
+      .limit(20);
 
-    if (drivers && drivers.length > 0) {
+    if (error) {
+      console.warn('[GramHaul Map] Could not fetch real online drivers:', error.message);
+      return;
+    }
+
+    // Clear old markers
+    window.realTruckMarkersList.forEach(m => {
+      try { gramhaulSelectorMap.removeLayer(m); } catch(e) {}
+    });
+    window.realTruckMarkersList = [];
+    window.liveDriverMarkersMap = window.liveDriverMarkersMap || new Map();
+
+    if (drivers && Array.isArray(drivers) && drivers.length > 0) {
       drivers.forEach(d => {
+        const lat = parseFloat(d.current_lat);
+        const lon = parseFloat(d.current_lng);
+        if (isNaN(lat) || isNaN(lon) || lat === 0 || lon === 0) return;
+
+        const dId = d.driver_id || d.vehicle_plate || 'drv';
         const vImg = (typeof getDriverTruckImg === 'function') ? getDriverTruckImg(d.vehicle_type || 'Tata Ace Gold 1.5T') : 'images/trucks/tata_ace.png';
+        const distKm = (typeof computeHaversineDistanceKm === 'function')
+          ? computeHaversineDistanceKm(farmLat, farmLon, lat, lon).toFixed(1)
+          : 'Live';
+
         const truckIcon = L.divIcon({
           className: 'gh-truck-marker',
-          html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%, -100%);">
-            <div style="background:#0F172A;color:#FFFFFF;border:1.5px solid #16A34A;padding:3px 8px;border-radius:8px;font-size:9.5px;font-weight:900;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;gap:4px;margin-bottom:2px;">
+          html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%, -100%);cursor:pointer;">
+            <div style="background:#0F172A;color:#FFFFFF;border:1.5px solid #22C55E;padding:3px 8px;border-radius:8px;font-size:9.5px;font-weight:900;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;gap:4px;margin-bottom:2px;">
               <span style="width:6px;height:6px;border-radius:50%;background:#22C55E;box-shadow:0 0 6px #22C55E;"></span>
-              <span>${d.driver_id} · ${(d.distance_meters / 1000).toFixed(1)} km</span>
+              <span>${d.vehicle_plate || 'Active'} · ${distKm} km</span>
             </div>
-            <div style="width:48px;height:48px;border-radius:50%;background:#FFFFFF;border:2.5px solid #16A34A;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.25);overflow:hidden;padding:2px;transform:rotate(${d.heading || 0}deg);">
+            <div style="width:48px;height:48px;border-radius:50%;background:#FFFFFF;border:2.5px solid #16A34A;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(22,163,74,0.25);overflow:hidden;padding:2px;">
               <img src="${vImg}" alt="Truck" style="width:42px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));" />
             </div>
           </div>`,
           iconSize: [0, 0]
         });
-        const marker = L.marker([d.lat, d.lon], { icon: truckIcon }).addTo(gramhaulSelectorMap);
+
+        const marker = L.marker([lat, lon], { icon: truckIcon }).addTo(gramhaulSelectorMap);
+        marker.bindPopup(`
+          <div style="font-size:13px;font-weight:900;color:#0F172A;margin-bottom:2px;">🚚 ${d.vehicle_type || 'Commercial Truck'}</div>
+          <div style="font-size:11px;color:#15803D;font-weight:800;margin-bottom:2px;">Driver: ${d.driver_name || 'Registered Driver'} (${d.vehicle_plate || ''})</div>
+          <div style="font-size:10px;color:#64748B;">📍 Exact Live Location: ${lat.toFixed(4)}, ${lon.toFixed(4)}</div>
+          <div style="font-size:9.5px;color:#059669;font-weight:800;margin-top:2px;">🟢 GPS Live Online (${distKm} km from farm)</div>
+        `);
         window.realTruckMarkersList.push(marker);
+        window.liveDriverMarkersMap.set(dId, marker);
       });
+
+      console.log(`[GramHaul Map] Successfully plotted ${window.realTruckMarkersList.length} real online driver(s) at exact GPS locations.`);
+    }
+
+    // Subscribe to real-time location updates from moving drivers
+    if (!window._farmerDriverLocationSub && window.sbClient) {
+      window._farmerDriverLocationSub = window.sbClient.channel('farmer-driver-locations');
+      window._farmerDriverLocationSub.on('broadcast', { event: 'driver_location_update' }, ({ payload }) => {
+        if (payload && payload.lat && payload.lng) {
+          const dId = payload.driverId || payload.plate || 'drv';
+          if (window.liveDriverMarkersMap && window.liveDriverMarkersMap.has(dId)) {
+            window.liveDriverMarkersMap.get(dId).setLatLng([payload.lat, payload.lng]);
+          } else if (typeof nk_loadRealPostGISTrucksOnMap === 'function') {
+            nk_loadRealPostGISTrucksOnMap([farmLon, farmLat]);
+          }
+        }
+      }).subscribe();
     }
   } catch(e) {
-    console.warn('Real PostGIS trucks load fallback:', e);
+    console.warn('[GramHaul Map] Live driver loading failed:', e);
   }
 }
+window.nk_loadRealPostGISTrucksOnMap = nk_loadRealPostGISTrucksOnMap;
 let currentGramhaulMandi = REAL_APMC_MANDIS[0];
 var selectedGramhaulTier = selectedGramhaulTier || 1;
 let selectedGramhaulCrop = '${getLocalizedCropName("cotton")}';
@@ -22118,8 +22286,16 @@ function initGramhaulRealMap() {
   });
   gramhaulSelectorFarmMarker = L.marker(farmCoords, { icon: farmIcon }).addTo(gramhaulSelectorMap);
 
-  // Load real trucks from Supabase PostGIS
+  // Load real online drivers from Supabase at their exact live GPS locations
   nk_loadRealPostGISTrucksOnMap([farmCoords[1], farmCoords[0]]);
+
+  // Periodic polling for online drivers every 3.5s while farmer is on this map
+  if (window._farmerTruckPollTimer) clearInterval(window._farmerTruckPollTimer);
+  window._farmerTruckPollTimer = setInterval(() => {
+    if (typeof gramhaulSelectorMap !== 'undefined' && gramhaulSelectorMap && typeof nk_loadRealPostGISTrucksOnMap === 'function') {
+      nk_loadRealPostGISTrucksOnMap([farmCoords[1], farmCoords[0]]);
+    }
+  }, 3500);
 
   // Place vehicle marker for initial selected tier
   updateGramhaulSelectorMapVehicles(selectedGramhaulTier || 1);
@@ -22802,10 +22978,34 @@ function renderTrackingDispatchedState(activeTrip) {
       iconSize: [0, 0]
     });
 
-    const startCoords = [v.coords[0], v.coords[1]];
     const pickupLat = (activeTrip && activeTrip.pickupLat) ? activeTrip.pickupLat : (window.farmerCurrentGps ? window.farmerCurrentGps[0] : 17.3980);
     const pickupLng = (activeTrip && activeTrip.pickupLon) ? activeTrip.pickupLon : (window.farmerCurrentGps ? window.farmerCurrentGps[1] : 78.4900);
     const destCoords = [pickupLat, pickupLng];
+
+    // Use driver's real exact live coordinates
+    const startCoords = (activeTrip && activeTrip.driverCoords && activeTrip.driverCoords[0])
+      ? [activeTrip.driverCoords[0], activeTrip.driverCoords[1]]
+      : [pickupLat + 0.005, pickupLng + 0.005];
+
+    // Periodic live GPS sync for dispatched driver
+    if (window.sbClient && activeTrip && (activeTrip.driverPhone || activeTrip.driverPlate)) {
+      if (window._farmerDispatchedDriverPoll) clearInterval(window._farmerDispatchedDriverPoll);
+      window._farmerDispatchedDriverPoll = setInterval(async () => {
+        try {
+          const query = window.sbClient.from('driver_telemetry').select('current_lat, current_lng');
+          if (activeTrip.driverPhone) query.eq('driver_id', activeTrip.driverPhone);
+          else query.eq('vehicle_plate', activeTrip.driverPlate);
+          const { data: drv } = await query.maybeSingle();
+          if (drv && drv.current_lat && drv.current_lng) {
+            const liveLat = parseFloat(drv.current_lat);
+            const liveLng = parseFloat(drv.current_lng);
+            if (trackingDriverMarker && typeof trackingDriverMarker.setLatLng === 'function') {
+              trackingDriverMarker.setLatLng([liveLat, liveLng]);
+            }
+          }
+        } catch(e) {}
+      }, 3000);
+    }
 
     trackingDriverMarker = L.marker(startCoords, { icon: truckIcon }).addTo(gramhaulTrackingMap);
 
