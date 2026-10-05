@@ -2650,7 +2650,7 @@ function safeSetHtml(id, html) {
 }
 
 /* ═════════════════ DEEP MULTI-LINGUAL TRANSLATION DICTIONARY ═════════════════ */
-let currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('nukrop_user_lang')) ? localStorage.getItem('nukrop_user_lang') : 'en'; // Default to saved language or English
+let currentLang = (typeof localStorage !== 'undefined' && (localStorage.getItem('nukrop_user_lang') || localStorage.getItem('nukrop_language'))) ? (localStorage.getItem('nukrop_user_lang') || localStorage.getItem('nukrop_language')) : 'en'; // Default to saved language or English
 
 
 const I18N = {
@@ -6885,15 +6885,18 @@ function setCommunityFilter(cat) {
 }
 
 function toggleCommunityLike(postId) {
-  const p = COMMUNITY_POSTS_CATALOG.find(x => x.id === postId);
-  if (!p) return;
+  let p = COMMUNITY_POSTS_CATALOG.find(x => x.id === postId);
+  if (!p) {
+    p = { id: postId, isLiked: false, likes: 0 };
+    COMMUNITY_POSTS_CATALOG.push(p);
+  }
   p.isLiked = !p.isLiked;
-  p.likes += p.isLiked ? 1 : -1;
+  p.likes = Math.max(0, (p.likes || 0) + (p.isLiked ? 1 : -1));
   renderCommunityFeedDom();
 
   // Persist like to Supabase
-  const userId = localStorage.getItem('nukrop_user_uuid') || localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  if (typeof nk_togglePostLike === 'function' && sbClient) {
+  const userId = localStorage.getItem('nukrop_user_uuid') || '00000000-0000-0000-0000-000000000001';
+  if (typeof nk_togglePostLike === 'function' && typeof sbClient !== 'undefined' && sbClient) {
     nk_togglePostLike(postId, userId).catch(e => console.warn('Like sync:', e));
   }
 }
@@ -7066,7 +7069,7 @@ function renderCommunityFeedDom() {
 
   // Async: try Supabase first, merge with local catalog, then render
   const _doRender = (posts) => {
-    const t = I18N[currentLang] || I18N.te;
+    const t = I18N[currentLang] || I18N.en;
     const filtered = currentCommunityFilter === 'all'
       ? posts
       : posts.filter(p => p.cropId === currentCommunityFilter);
@@ -7279,6 +7282,7 @@ function renderCommunityFeedDom() {
           }));
           // Merge: Supabase posts first, then local seeds that aren't already in Supabase
           const allPosts = [...normalizedSbPosts, ...COMMUNITY_POSTS_CATALOG.filter(lp => !normalizedSbPosts.find(sp => sp.id === lp.id))];
+          COMMUNITY_POSTS_CATALOG = allPosts;
           _doRender(allPosts);
         } else {
           // Fallback to local seed catalog
@@ -12872,8 +12876,10 @@ function initGramhaulRealMap() {
       dashArray: '8, 6'
     }).addTo(gramhaulLiveMap);
 
-    // 4. Update and display selected tier available vehicle marker on the selector map
-    updateGramhaulSelectorMapVehicles(selectedGramhaulTier || 1);
+    // 4. Load real online PostGIS trucks from Supabase (Zero fake trucks)
+    if (typeof nk_loadRealPostGISTrucksOnMap === 'function') {
+      nk_loadRealPostGISTrucksOnMap([farmLon, farmLat]);
+    }
   setTimeout(() => { if (gramhaulSelectorMap) gramhaulSelectorMap.invalidateSize(); }, 120);
     setTimeout(() => { if (gramhaulLiveMap) gramhaulLiveMap.invalidateSize(); }, 120);
 
@@ -13689,7 +13695,7 @@ const APP_VIEWS = {
 
   /* ── 1. HOME DASHBOARD ── */
   home: () => {
-    const t = I18N[currentLang] || I18N.te;
+    const t = I18N[currentLang] || I18N.en;
     const currentCrop = myActiveCrops[activeCropIdx] || myActiveCrops[0];
     const cropName = getLocalizedCropName(currentCrop.id);
     const mandiInfo = getMandiDefaults(currentCrop.id);
@@ -15475,7 +15481,7 @@ const APP_VIEWS = {
 
   /* ── 11. INDIGENOUS ORGANIC BIO-MEDICINES (BIORX) ── */
   biorx: () => {
-    const t = I18N[currentLang] || I18N.te;
+    const t = I18N[currentLang] || I18N.en;
     const isTe = currentLang === 'te';
     const isHi = currentLang === 'hi';
 
@@ -15839,7 +15845,7 @@ const APP_VIEWS = {
   },
 
   community: () => {
-    const t = I18N[currentLang] || I18N.te;
+    const t = I18N[currentLang] || I18N.en;
     const isTe = currentLang === 'te';
     const isHi = currentLang === 'hi';
 
@@ -16511,7 +16517,7 @@ const APP_VIEWS = {
   },
 
   profile: () => {
-    const t = I18N[currentLang] || I18N.te;
+    const t = I18N[currentLang] || I18N.en;
     const isTe = currentLang === 'te';
     const isHi = currentLang === 'hi';
 
@@ -18105,16 +18111,18 @@ function openLiveHaulChat(tripId, userRole, peerName, peerPhone) {
   function appendHaulMessage(text, tripId, senderRole) {
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    messages.push({ sender: senderRole, text: text, time: timeStr });
+    const msgObj = { sender: senderRole, text: text, time: timeStr, tripId: tripId };
+    messages.push(msgObj);
     localStorage.setItem(chatKey, JSON.stringify(messages));
     renderChatContent();
 
-    if (senderRole === 'driver') {
-      setTimeout(() => {
-        messages.push({ sender: 'farmer', text: 'Got your message! Acknowledged.', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
-        localStorage.setItem(chatKey, JSON.stringify(messages));
-        renderChatContent();
-      }, 1500);
+    // Pure real-time broadcast via Supabase channel (Zero bot simulation)
+    if (typeof sbClient !== 'undefined' && sbClient) {
+      sbClient.channel('driver-tracking').send({
+        type: 'broadcast',
+        event: 'haul_chat_message',
+        payload: msgObj
+      });
     }
   }
 
@@ -18154,22 +18162,67 @@ function driverOpenGpsNav(lat, lon, destName) {
   }
 }
 
+function driverVerifyStartTripOtp() {
+  let activeTrip = null;
+  try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+  if (!activeTrip) return;
+
+  const expectedOtp = String(activeTrip.otp || '4491').trim();
+  const inputOtp = prompt(TL(
+    'Enter 4-digit START TRIP PIN provided by Farmer ' + (activeTrip.farmerName || '') + ':',
+    'రైతు ' + (activeTrip.farmerName || '') + ' అందించిన 4 అంకెల START TRIP PIN నమోదు చేయండి:',
+    'किसान ' + (activeTrip.farmerName || '') + ' द्वारा दिया गया 4 अंकों का स्टार्ट ट्रिप पिन दर्ज करें:'
+  ), '');
+
+  if (!inputOtp) return;
+
+  if (inputOtp.trim() !== expectedOtp) {
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('❌ Incorrect OTP PIN. Please ask farmer for correct 4-digit code.', 'error');
+    } else {
+      alert('❌ Incorrect OTP PIN.');
+    }
+    return;
+  }
+
+  // OTP Verified Successfully -> Transition to IN_TRANSIT
+  activeTrip.status = 'IN_TRANSIT';
+  activeTrip.step = 2;
+  localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
+
+  if (typeof sbClient !== 'undefined' && sbClient) {
+    sbClient.from('haul_bookings').update({ status: 'IN_TRANSIT' }).eq('id', activeTrip.id).then(() => {});
+    sbClient.channel('driver-tracking').send({
+      type: 'broadcast',
+      event: 'driver_step_update',
+      payload: { step: 2, status: 'IN_TRANSIT', tripId: activeTrip.id }
+    });
+  }
+
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast('✅ OTP Verified! Produce loaded. In Transit to Mandi.', 'success');
+  }
+
+  if (typeof openScreen === 'function' && window.currentAppScreen === 'driver_dashboard') {
+    openScreen('driver_dashboard');
+  }
+}
+window.driverVerifyStartTripOtp = driverVerifyStartTripOtp;
+
 function driverUpdateTripStep(stepIdx) {
   let activeTrip = null;
   try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
   if (!activeTrip) return;
 
   if (stepIdx === 2) {
-    const inputOtp = prompt(`Farmer Security OTP Verification:\nEnter the 4-digit code provided by farmer (Farmer OTP is ${activeTrip.otp || '4491'}):`, activeTrip.otp || '4491');
-    if (!inputOtp) return;
+    return driverVerifyStartTripOtp();
   }
 
   activeTrip.step = stepIdx;
-  const stepNames = ['En Route', 'Arrived', 'Loaded', 'Delivered'];
-  activeTrip.status = stepNames[stepIdx] || 'En Route';
+  const stepNames = ['ACCEPTED', 'ARRIVED', 'IN_TRANSIT', 'COMPLETED'];
+  activeTrip.status = stepNames[stepIdx] || 'ACCEPTED';
   localStorage.setItem('nukrop_active_trip', JSON.stringify(activeTrip));
 
-  // Sync to Supabase Realtime & DB
   if (typeof sbClient !== 'undefined' && sbClient) {
     sbClient.from('haul_bookings').update({
       status: activeTrip.status
@@ -18196,12 +18249,12 @@ function driverUpdateTripStep(stepIdx) {
 }
 
 function driverCompleteHaulTrip(tripId, fare) {
-  const tId = tripId || 'GH-4192';
-  const rawFare = String(fare || '326').replace(/[^0-9.]/g, '');
-  const finalFare = parseInt(rawFare) || 326;
-
   let activeTrip = null;
   try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+
+  const tId = tripId || (activeTrip ? activeTrip.id : 'GH-4192');
+  const rawFare = String(fare || (activeTrip ? activeTrip.fare : '380')).replace(/[^0-9.]/g, '');
+  const finalFare = parseInt(rawFare) || 380;
 
   const modalId = 'driver-payment-collection-modal';
   let modal = document.getElementById(modalId);
@@ -18211,7 +18264,10 @@ function driverCompleteHaulTrip(tripId, fare) {
   modal.id = modalId;
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s;';
 
-  const upiPayload = `upi://pay?pa=suresh.driver@okaxis&pn=Suresh%20Yadav&am=${finalFare}&cu=INR&tn=GramHaul%20Trip%20${tId}`;
+  const driverPhoneClean = (localStorage.getItem('nukrop_driver_phone') || '9849012345').replace(/[^0-9]/g, '').slice(-10);
+  const driverRealUpi = localStorage.getItem('nukrop_driver_upi') || (driverPhoneClean ? `${driverPhoneClean}@upi` : 'farmer.logistics@upi');
+  const driverRealName = localStorage.getItem('nukrop_driver_name') || 'Registered Driver';
+  const upiPayload = `upi://pay?pa=${encodeURIComponent(driverRealUpi)}&pn=${encodeURIComponent(driverRealName)}&am=${finalFare}&cu=INR&tn=GramHaul%20Trip%20${tId}`;
   const upiQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiPayload)}`;
 
   modal.innerHTML = `
@@ -18265,8 +18321,8 @@ function driverCompleteHaulTrip(tripId, fare) {
           <img src="${upiQrUrl}" alt="UPI QR Code" style="width:160px;height:160px;display:block;border-radius:8px;" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'160\\' height=\\'160\\' viewBox=\\'0 0 160 160\\'><rect width=\\'160\\' height=\\'160\\' fill=\\'%230F172A\\'/><text x=\\'80\\' y=\\'85\\' fill=\\'%23C6FF00\\' font-size=\\'14\\' text-anchor=\\'middle\\' font-weight=\\'bold\\'>UPI QR READY</text></svg>'" />
         </div>
         <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:6px 12px;display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:800;color:#334155;">
-          <span>UPI ID: <b>suresh.driver@okaxis</b></span>
-          <button onclick="navigator.clipboard && navigator.clipboard.writeText('suresh.driver@okaxis');showLuxuryToast('UPI ID Copied!','success');" style="background:#DCFCE7;color:#15803D;border:none;border-radius:6px;padding:2px 6px;font-size:10px;font-weight:900;cursor:pointer;">COPY</button>
+          <span>UPI ID: <b>${driverRealUpi}</b></span>
+          <button onclick="navigator.clipboard && navigator.clipboard.writeText('${driverRealUpi}');showLuxuryToast('UPI ID Copied!','success');" style="background:#DCFCE7;color:#15803D;border:none;border-radius:6px;padding:2px 6px;font-size:10px;font-weight:900;cursor:pointer;">COPY</button>
         </div>
       </div>
 
@@ -20909,7 +20965,7 @@ function openCropModal() {
   const sub = document.getElementById('m-crop-sub');
   const searchInput = document.getElementById('crop-search-input');
   
-  const t = I18N[currentLang] || I18N.te;
+  const t = I18N[currentLang] || I18N.en;
   if (title) title.textContent = t.modalTitle;
   if (sub) sub.textContent = t.modalSub;
   if (searchInput) searchInput.value = '';
@@ -21063,7 +21119,7 @@ function updateWeatherCardDom() {
   const container = document.getElementById('weather-status-pill-container');
   if (!container) return;
 
-  const t = I18N[currentLang] || I18N.te;
+  const t = I18N[currentLang] || I18N.en;
   const isTe = currentLang === 'te';
   const isHi = currentLang === 'hi';
 
@@ -22186,7 +22242,7 @@ async function nk_loadRealPostGISTrucksOnMap(coordsLonLat) {
 
     // Subscribe to real-time location updates from moving drivers
     if (!window._farmerDriverLocationSub && window.sbClient) {
-      window._farmerDriverLocationSub = window.sbClient.channel('farmer-driver-locations');
+      window._farmerDriverLocationSub = window.sbClient.channel('driver-tracking');
       window._farmerDriverLocationSub.on('broadcast', { event: 'driver_location_update' }, ({ payload }) => {
         if (payload && payload.lat && payload.lng) {
           const dId = payload.driverId || payload.plate || 'drv';
@@ -23284,16 +23340,19 @@ function triggerDriverCall(driverName, phone) {
 }
 
 function openDriverLiveChatModal(driverName, plate) {
+  let activeTrip = null;
+  try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+  const tId = activeTrip ? activeTrip.id : 'GH-4192';
+  const chatKey = 'gh_chat_' + tId;
+
   const modalId = 'driver-live-chat-modal';
   let modal = document.getElementById(modalId);
   if (modal) modal.remove();
 
-  if (!window.liveHaulChatMessages) {
-    window.liveHaulChatMessages = [
-      { sender: 'driver', text: 'Namaste Jaswanth ji! I have accepted your haul booking. I am on my way to Himayath Nagar Farm.', time: 'Just now' }
-    ];
-  }
-  const msgs = window.liveHaulChatMessages;
+  let msgs = [];
+  try { msgs = JSON.parse(localStorage.getItem(chatKey) || '[]'); } catch(e) { msgs = []; }
+  if (!Array.isArray(msgs)) msgs = [];
+  window.liveHaulChatMessages = msgs;
 
   modal = document.createElement('div');
   modal.id = modalId;
@@ -23377,8 +23436,19 @@ function sendLiveHaulChatMessage() {
   const txt = inp.value.trim();
   inp.value = '';
 
+  let activeTrip = null;
+  try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+  const tId = activeTrip ? activeTrip.id : 'GH-4192';
+  const chatKey = 'gh_chat_' + tId;
+
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const msgObj = { sender: 'farmer', text: txt, time: timeStr, tripId: tId };
+
   if (!window.liveHaulChatMessages) window.liveHaulChatMessages = [];
-  window.liveHaulChatMessages.push({ sender: 'farmer', text: txt, time: 'Just now' });
+  window.liveHaulChatMessages.push(msgObj);
+  localStorage.setItem(chatKey, JSON.stringify(window.liveHaulChatMessages));
+
   const stream = document.getElementById('live-haul-chat-stream');
   if (stream) {
     stream.innerHTML = window.liveHaulChatMessages.map(m => `
@@ -23392,20 +23462,14 @@ function sendLiveHaulChatMessage() {
     stream.scrollTop = stream.scrollHeight;
   }
 
-  setTimeout(() => {
-    window.liveHaulChatMessages.push({ sender: 'driver', text: 'Got it Jaswanth ji! Reaching your farm gate in 2 minutes.', time: 'Just now' });
-    if (stream) {
-      stream.innerHTML = window.liveHaulChatMessages.map(m => `
-        <div style="display:flex;justify-content:${m.sender === 'farmer' || m.sender === 'user' ? 'flex-end' : 'flex-start'};">
-          <div style="max-width:80%;background:${m.sender === 'farmer' || m.sender === 'user' ? '#16A34A' : '#F1F5F9'};color:${m.sender === 'farmer' || m.sender === 'user' ? '#FFFFFF' : '#0F172A'};padding:10px 14px;border-radius:${m.sender === 'farmer' || m.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px'};font-size:13px;line-height:1.45;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-            <div>${m.text}</div>
-            <div style="font-size:10px;color:${m.sender === 'farmer' || m.sender === 'user' ? 'rgba(255,255,255,0.75)' : '#94A3B8'};text-align:right;margin-top:4px;">${m.time}</div>
-          </div>
-        </div>
-      `).join('');
-      stream.scrollTop = stream.scrollHeight;
-    }
-  }, 900);
+  // Pure Supabase Broadcast
+  if (typeof sbClient !== 'undefined' && sbClient) {
+    sbClient.channel('driver-tracking').send({
+      type: 'broadcast',
+      event: 'haul_chat_message',
+      payload: msgObj
+    });
+  }
 }
 
 function sendQuickChatMessage(text) {

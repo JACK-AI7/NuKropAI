@@ -23,6 +23,7 @@ flutter_app/build/
 flutter_app/.dart_tool/
 
 # Temporary and Scratch Files
+scratch/
 *.apk
 !NuKropAI.apk
 !NuKropAI-debug.apk
