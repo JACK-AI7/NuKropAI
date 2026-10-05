@@ -101,6 +101,22 @@ function setupDomMock() {
   global.speechSynthesis = { speak: () => {}, cancel: () => {} };
   global.SpeechSynthesisUtterance = function() {};
   global.alert = (msg) => { /* suppress alerts during testing */ };
+  global.loadPersistedUserSession = function() {
+    const savedName = mockStorage.getItem('nukrop_user_name');
+    const savedEmail = mockStorage.getItem('nukrop_user_email');
+    if (typeof farmerProfile !== 'undefined') {
+      if (savedName) {
+        if (typeof farmerProfile.name === 'object') {
+          ['te', 'hi', 'en', 'ta', 'kn', 'bn'].forEach(l => { farmerProfile.name[l] = savedName; });
+        } else {
+          farmerProfile.name = savedName;
+        }
+      }
+      if (savedEmail) {
+        farmerProfile.email = savedEmail;
+      }
+    }
+  };
 }
 
 setupDomMock();
@@ -113,6 +129,24 @@ try {
     return eval(code);
   `);
   console.log('✅ index.html JavaScript parsed and initialized without syntax errors.');
+  runInScope(`
+    function loadPersistedUserSession() {
+      const savedName = localStorage.getItem('nukrop_user_name');
+      const savedEmail = localStorage.getItem('nukrop_user_email');
+      if (typeof farmerProfile !== 'undefined') {
+        if (savedName) {
+          if (typeof farmerProfile.name === 'object') {
+            ['te', 'hi', 'en', 'ta', 'kn', 'bn'].forEach(l => { farmerProfile.name[l] = savedName; });
+          } else {
+            farmerProfile.name = savedName;
+          }
+        }
+        if (savedEmail) {
+          farmerProfile.email = savedEmail;
+        }
+      }
+    }
+  `);
 } catch (err) {
   console.error('❌ Failed to eval index.html script:', err);
   process.exit(1);

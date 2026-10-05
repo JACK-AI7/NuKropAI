@@ -26,38 +26,40 @@ if (typeof window.supabase !== 'undefined') {
 
 // ─────────────────────────────────────────────────────────────────
 // 1. AUTH — SIGNUP & LOGIN
-// FIX: On signup, creates both `profiles` AND `user_profiles` rows
-//      to satisfy the foreign-key constraint.
+// Canonical: Unifies user identity around auth.users UUID & public.profiles
 // ─────────────────────────────────────────────────────────────────
 async function nk_signUp(email, password, fullName) {
   if (!sbClient) return { data: null, error: 'Offline' };
   try {
     // Step 1: Create Supabase Auth user
-    const { data: authData, error: authError } = await sbClient.auth.signUp({ email, password });
+    const { data: authData, error: authError } = await sbClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          role: 'farmer'
+        }
+      }
+    });
     if (authError) throw authError;
 
     const userUuid = authData?.user?.id || null;
     const farmerId = 'NK-' + Math.floor(10000 + Math.random() * 89999);
 
-    // Step 2: Insert into `profiles` first with proper UUID relationship
-    await sbClient.from('profiles').insert([{
-      id: userUuid,
-      user_id: userUuid,
-      email,
-      full_name: fullName,
-      farmer_id: farmerId,
-      role: 'farmer'
-    }]);
+    // Step 2: Ensure profile exists with canonical UUID
+    if (userUuid) {
+      await sbClient.from('profiles').upsert([{
+        id: userUuid,
+        user_id: userUuid,
+        email,
+        full_name: fullName,
+        farmer_id: farmerId,
+        role: 'farmer'
+      }]);
+      localStorage.setItem('nukrop_user_uuid', userUuid);
+    }
 
-    // Step 3: Insert into `user_profiles`
-    await sbClient.from('user_profiles').insert([{
-      user_id: userUuid,
-      email,
-      full_name: fullName,
-      farmer_id: farmerId
-    }]);
-
-    if (userUuid) localStorage.setItem('nukrop_user_uuid', userUuid);
     localStorage.setItem('nukrop_farmer_id', farmerId);
     localStorage.setItem('nukrop_user_email', email);
     localStorage.setItem('nukrop_user_name', fullName);
@@ -98,11 +100,12 @@ async function nk_logout() {
   await sbClient.auth.signOut();
   localStorage.removeItem('nukrop_active_user');
   localStorage.removeItem('nukrop_farmer_id');
+  localStorage.removeItem('nukrop_user_uuid');
 }
 
 async function nk_fetchUserProfile(email) {
   if (!sbClient) return null;
-  const { data, error } = await sbClient.from('user_profiles').select('*').eq('email', email).single();
+  const { data, error } = await sbClient.from('profiles').select('*').eq('email', email).maybeSingle();
   if (error) console.warn('Profile fetch:', error.message);
   return data;
 }
@@ -133,8 +136,9 @@ function nk_subscribeToCommunityPosts(onNewPostCallback) {
 
 async function nk_createCommunityPost(authorName, title, content, cropId, mediaUrl = null) {
   if (!sbClient) return { data: null, error: 'Offline' };
+  const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  const { data, error } = await sbClient.from('community_posts').insert([{
+  const payload = {
     author_name: authorName,
     farmer_id:   farmerId,
     title,
@@ -142,38 +146,47 @@ async function nk_createCommunityPost(authorName, title, content, cropId, mediaU
     crop_id:    cropId,
     crop_tag:   cropId,
     media_url:  mediaUrl
-  }]);
+  };
+  if (userUuid) payload.user_id = userUuid;
+  const { data, error } = await sbClient.from('community_posts').insert([payload]);
   if (error) console.error('Create post error:', error.message);
   return { data, error };
 }
 
 async function nk_togglePostLike(postId, userId) {
   if (!sbClient) return;
+  const userUuid = (userId && userId.includes('-') && userId.length === 36) ? userId : (localStorage.getItem('nukrop_user_uuid') || null);
+  if (!userUuid) {
+    console.warn('Like requires authenticated user UUID');
+    return;
+  }
   // Check if already liked
-  const { data: existing } = await sbClient.from('community_likes').select('id').eq('post_id', postId).eq('user_id', userId).single();
+  const { data: existing } = await sbClient.from('community_likes').select('id').eq('post_id', postId).eq('user_id', userUuid).maybeSingle();
   if (existing) {
     await sbClient.from('community_likes').delete().eq('id', existing.id);
     await sbClient.from('community_posts').update({ likes_count: sbClient.rpc('decrement', { x: 1 }) }).eq('id', postId);
   } else {
-    await sbClient.from('community_likes').insert([{ post_id: postId, user_id: userId }]);
+    await sbClient.from('community_likes').insert([{ post_id: postId, user_id: userUuid }]);
     await sbClient.from('community_posts').update({ likes_count: sbClient.rpc('increment', { x: 1 }) }).eq('id', postId);
   }
 }
 
 async function nk_addComment(postId, authorName, content) {
   if (!sbClient) return;
+  const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  await sbClient.from('community_comments').insert([{
+  const payload = {
     post_id:     postId,
     author_name: authorName,
     farmer_id:   farmerId,
     content
-  }]);
+  };
+  if (userUuid) payload.user_id = userUuid;
+  await sbClient.from('community_comments').insert([payload]);
 }
 
 // ─────────────────────────────────────────────────────────────────
 // 3. GRAMHAUL — REAL-TIME HAUL REQUESTS + PERSISTENCE
-// FIX: Now writes accepted bookings to `haul_bookings` table.
 // ─────────────────────────────────────────────────────────────────
 function nk_subscribeToHaulRequests(driverId, onRequestCallback) {
   if (!sbClient) return;
@@ -194,13 +207,11 @@ async function nk_sendHaulRequest(driverId, haulData) {
   console.log('📤 Haul request broadcast to driver:', driverId);
 }
 
-// FIX: Persist accepted haul to `haul_bookings` table using authenticated farmer UUID
 async function nk_acceptHaul(haulData) {
   if (!sbClient) return;
   const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  const { data, error } = await sbClient.from('haul_bookings').insert([{
-    farmer_user_id:    userUuid,
+  const payload = {
     farmer_id:         farmerId,
     pickup_village:    haulData.pickup   || 'Farm Location',
     destination_mandi: haulData.mandi    || 'APMC Yard',
@@ -208,8 +219,17 @@ async function nk_acceptHaul(haulData) {
     load_quintals:     haulData.weight   || 40,
     agreed_fare:       haulData.fare     || 1850,
     truck_type:        haulData.truckType || 'Commercial Freight 2.5T',
-    status:            'CONFIRMED'
-  }]);
+    pickup_lat:        haulData.pickup_lat || 17.9689,
+    pickup_lng:        haulData.pickup_lng || 79.5941,
+    drop_lat:          haulData.drop_lat || 17.9800,
+    drop_lng:          haulData.drop_lng || 79.6000,
+    status:            'PENDING'
+  };
+  if (userUuid) {
+    payload.user_id = userUuid;
+    payload.farmer_user_id = userUuid;
+  }
+  const { data, error } = await sbClient.from('haul_bookings').insert([payload]);
   if (error) console.error('Haul booking save error:', error.message);
   return data;
 }
@@ -220,7 +240,7 @@ async function nk_fetchHaulHistory() {
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
   let query = sbClient.from('haul_bookings').select('*');
   if (userUuid) {
-    query = query.or(`farmer_user_id.eq.${userUuid},farmer_id.eq.${farmerId}`);
+    query = query.or(`user_id.eq.${userUuid},farmer_user_id.eq.${userUuid},farmer_id.eq.${farmerId}`);
   } else {
     query = query.eq('farmer_id', farmerId);
   }
@@ -388,27 +408,98 @@ async function nk_sendMessage(senderEmail, receiverEmail, receiverName, text) {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// 6. DISEASE SCANS — Sync to `disease_scans` table
+// 6. DISEASE SCANS — Sync to `disease_scans` canonical table
 // ─────────────────────────────────────────────────────────────────
 async function nk_saveDiseaScan(scanRecord) {
   if (!sbClient) return;
+  const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
   const farmerId = localStorage.getItem('nukrop_farmer_id') || 'NK-87621';
-  const { error } = await sbClient.from('disease_scans').insert([{
-    farmer_id:         farmerId,
-    crop_name:         scanRecord.cropName        || 'Unknown',
-    disease_name:      scanRecord.diseaseName     || 'Healthy',
-    disease_detected:  scanRecord.diseaseName     || 'Healthy',
-    confidence:        scanRecord.confidence      || '90%',
-    confidence_score:  parseFloat(scanRecord.confidence) || 90,
-    severity:          scanRecord.severity        || 'LOW',
-    treatment_chemical: scanRecord.chemical       || '',
-    treatment_organic:  scanRecord.organic        || '',
-    location:          'Warangal Rural, Telangana',
-    latitude:          17.9689,
-    longitude:         79.5941
-  }]);
+  const payload = {
+    farmer_id:          farmerId,
+    crop_name:          scanRecord.cropName        || 'Unknown',
+    disease_name:       scanRecord.diseaseName     || 'Healthy',
+    disease_detected:   scanRecord.diseaseName     || 'Healthy',
+    diagnosis:          scanRecord.diagnosis       || scanRecord.diseaseName || 'Healthy',
+    confidence:         parseFloat(scanRecord.confidence) || 90.0,
+    confidence_score:   parseFloat(scanRecord.confidence) || 90.0,
+    severity:           scanRecord.severity        || 'Moderate',
+    recommended_treatment: scanRecord.treatment     || scanRecord.organic || '',
+    treatment_chemical: scanRecord.chemical        || '',
+    treatment_organic:  scanRecord.organic         || '',
+    location:           'Warangal Rural, Telangana',
+    latitude:           17.9689,
+    longitude:          79.5941
+  };
+  if (userUuid) payload.user_id = userUuid;
+  const { error } = await sbClient.from('disease_scans').insert([payload]);
   if (error) console.error('Scan save error:', error.message);
-  else console.log('✅ Disease scan saved to Supabase.');
+  else console.log('✅ Disease scan saved to Supabase canonical table.');
+}
+
+// ─────────────────────────────────────────────────────────────────
+// 7. FARM KHATA TRANSACTIONS (Consolidated Ledger Sync)
+// ─────────────────────────────────────────────────────────────────
+async function nk_saveKhataTransaction(entry) {
+  if (!sbClient) return null;
+  const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
+  const payload = {
+    transaction_type: ((entry.type || 'expense') === 'income' ? 'INCOME' : 'EXPENSE'),
+    category: entry.category || 'General Agriculture',
+    amount: parseFloat(entry.amount) || 0,
+    description: (typeof entry.desc === 'object' ? (entry.desc.en || JSON.stringify(entry.desc)) : entry.desc) || 'Farm transaction',
+    crop_cycle: entry.cropCycle || 'Kharif 2026',
+    transaction_date: entry.date || new Date().toISOString().split('T')[0]
+  };
+  if (userUuid) payload.user_id = userUuid;
+  const { data, error } = await sbClient.from('khata_transactions').insert([payload]).select();
+  if (error) console.warn('Khata transaction save error:', error.message);
+  else console.log('✅ Khata transaction synced to Supabase.');
+  return data;
+}
+
+async function nk_fetchKhataTransactions() {
+  if (!sbClient) return [];
+  const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
+  let query = sbClient.from('khata_transactions').select('*');
+  if (userUuid) query = query.eq('user_id', userUuid);
+  const { data, error } = await query.order('transaction_date', { ascending: false });
+  if (error) console.warn('Khata fetch error:', error.message);
+  return data || [];
+}
+
+// ─────────────────────────────────────────────────────────────────
+// 8. MACHINERY LISTINGS (Equipment Rental Hub Sync)
+// ─────────────────────────────────────────────────────────────────
+async function nk_fetchMachineryListings(type = null) {
+  if (!sbClient) return [];
+  let query = sbClient.from('machinery_listings').select('*').eq('is_available', true);
+  if (type && type !== 'all') query = query.eq('machinery_type', type);
+  const { data, error } = await query.order('created_at', { ascending: false });
+  if (error) console.warn('Machinery fetch error:', error.message);
+  return data || [];
+}
+
+async function nk_createMachineryListing(listing) {
+  if (!sbClient) return null;
+  const userUuid = localStorage.getItem('nukrop_user_uuid') || null;
+  const payload = {
+    machinery_type: listing.category || 'tractor',
+    model_name: (typeof listing.name === 'object' ? listing.name.en : listing.name) || 'Farm Equipment',
+    hourly_rate: parseFloat(listing.hourlyRate) || 700,
+    daily_rate: parseFloat(listing.dailyRate) || 5000,
+    acre_rate: parseFloat(listing.acreRate) || 1100,
+    district: 'Warangal',
+    state: 'Telangana',
+    contact_phone: listing.phone || '+91 98490 22338',
+    photo_url: listing.photoUrl || '',
+    specs: (typeof listing.specs === 'object' ? listing.specs.en : listing.specs) || 'Verified Implement',
+    is_available: true
+  };
+  if (userUuid) payload.owner_user_id = userUuid;
+  const { data, error } = await sbClient.from('machinery_listings').insert([payload]).select();
+  if (error) console.warn('Machinery listing save error:', error.message);
+  else console.log('✅ Machinery listing synced to Supabase.');
+  return data;
 }
 
 // ─────────────────────────────────────────────────────────────────

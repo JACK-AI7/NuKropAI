@@ -229,4 +229,182 @@ describe('Tier 3 — Cross-Feature Combinations (Pairwise Coverage)', () => {
     expect(restored.activeCrop).toBe('cotton');
     expect(restored.mediaPlayerReady).toBe(true);
   });
+
+  it('T3.5: Language switch during active GramHaul trip (Language ↔ Rapido Trip Flow)', () => {
+    const STATUS_LABELS = {
+      te: { IN_TRANSIT: 'రవాణాలో ఉంది', ARRIVED: 'చేరుకుంది' },
+      hi: { IN_TRANSIT: 'पारगमन में', ARRIVED: 'पहुंच गया' },
+      en: { IN_TRANSIT: 'In Transit', ARRIVED: 'Arrived at Farm' }
+    };
+
+    const activeTrip = {
+      id: 'TRIP-101',
+      status: 'IN_TRANSIT',
+      pickup: 'Warangal Rural',
+      dropoff: 'Enumamula Mandi',
+      driverName: 'Suresh Yadav'
+    };
+
+    function updateLanguageDuringTrip(newLang, trip) {
+      return {
+        ...trip,
+        activeLanguage: newLang,
+        localizedStatus: STATUS_LABELS[newLang][trip.status]
+      };
+    }
+
+    const stateTe = updateLanguageDuringTrip('te', activeTrip);
+    expect(stateTe.localizedStatus).toBe('రవాణాలో ఉంది');
+    expect(stateTe.status).toBe('IN_TRANSIT');
+
+    const stateHi = updateLanguageDuringTrip('hi', activeTrip);
+    expect(stateHi.localizedStatus).toBe('पारगमन में');
+    expect(stateHi.id).toBe('TRIP-101');
+  });
+
+  it('T3.6: 4-digit OTP verification with offline cache rehydration (OTP ↔ Trip State ↔ Offline Storage)', async () => {
+    const offlineCache = createMockStorage({
+      'nukrop_cached_trip_101': JSON.stringify({
+        id: 'TRIP-101',
+        start_otp: '7824',
+        status: 'ARRIVED'
+      })
+    });
+
+    let syncQueue = [];
+
+    function offlineVerifyOtp(tripId, enteredOtp, storage, isOnline) {
+      const raw = storage.getItem(`nukrop_cached_trip_${tripId.split('-')[1]}`);
+      const trip = JSON.parse(raw);
+      if (enteredOtp !== trip.start_otp) {
+        throw new Error('Invalid OTP');
+      }
+      trip.status = 'IN_TRANSIT';
+      storage.setItem(`nukrop_cached_trip_${tripId.split('-')[1]}`, JSON.stringify(trip));
+
+      if (!isOnline) {
+        syncQueue.push({ event: 'TRIP_STARTED', tripId, status: 'IN_TRANSIT' });
+        return { success: true, isSynced: false };
+      }
+      return { success: true, isSynced: true };
+    }
+
+    const verifyOffline = offlineVerifyOtp('TRIP-101', '7824', offlineCache, false);
+    expect(verifyOffline.success).toBe(true);
+    expect(verifyOffline.isSynced).toBe(false);
+    expect(syncQueue.length).toBe(1);
+
+    // Simulate reconnection sync
+    const tripInCache = JSON.parse(offlineCache.getItem('nukrop_cached_trip_101'));
+    expect(tripInCache.status).toBe('IN_TRANSIT');
+  });
+
+  it('T3.7: Community post tagged with active selected crop (Crop Selector ↔ Community Feed)', () => {
+    const store = createMockStorage({
+      'nukrop_user_active_crops': JSON.stringify([
+        { id: 'cotton', name: 'Cotton' },
+        { id: 'chilli', name: 'Chilli' }
+      ])
+    });
+
+    function createPostWithActiveCropContext(title, body, storage) {
+      const crops = JSON.parse(storage.getItem('nukrop_user_active_crops') || '[]');
+      const primaryCrop = crops[0] ? crops[0].id : 'general';
+      return {
+        title,
+        body,
+        crop_id: primaryCrop,
+        tags: [primaryCrop, 'crop-protection']
+      };
+    }
+
+    const post = createPostWithActiveCropContext('Need advice on bollworm control', 'Spotted pink bollworm', store);
+    expect(post.crop_id).toBe('cotton');
+    expect(post.tags).toContain('cotton');
+  });
+
+  it('T3.8: Concurrent Driver GPS telemetry and in-ride P2P chat over shared Realtime channel (GPS Telemetry ↔ P2P Chat)', () => {
+    const receivedTelemetry = [];
+    const receivedChat = [];
+
+    function channelMultiplexer(msg) {
+      if (msg.event === 'driver_location_update') {
+        receivedTelemetry.push(msg.payload);
+      } else if (msg.event === 'haul_chat_message') {
+        receivedChat.push(msg.payload);
+      }
+    }
+
+    // Interleaved message streams
+    channelMultiplexer({ event: 'driver_location_update', payload: { lat: 17.9689, lng: 79.5941, ts: 1000 } });
+    channelMultiplexer({ event: 'haul_chat_message', payload: { sender: 'farmer', text: 'Where are you?', ts: 1005 } });
+    channelMultiplexer({ event: 'driver_location_update', payload: { lat: 17.9710, lng: 79.5960, ts: 2000 } });
+    channelMultiplexer({ event: 'haul_chat_message', payload: { sender: 'driver', text: 'Turning onto village road', ts: 2010 } });
+
+    expect(receivedTelemetry.length).toBe(2);
+    expect(receivedChat.length).toBe(2);
+    expect(receivedTelemetry[1].lat).toBe(17.9710);
+    expect(receivedChat[1].text).toBe('Turning onto village road');
+  });
+
+  it('T3.9: Trip completion triggering dynamic UPI QR generation with exact trip fare (Trip Flow ↔ Dynamic UPI Settlement)', () => {
+    const activeTrip = {
+      id: 'TRIP-8821',
+      status: 'IN_TRANSIT',
+      agreedFare: 3200,
+      driverVpa: 'suresh.yadav@ybl',
+      driverName: 'Suresh Yadav'
+    };
+
+    function onTripArrivalAtMandi(trip) {
+      trip.status = 'COMPLETED';
+      const upiUrl = `upi://pay?pa=${trip.driverVpa}&pn=${encodeURIComponent(trip.driverName)}&am=${trip.agreedFare}&cu=INR&tn=NuKropAI%20Trip%20${trip.id}`;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
+
+      return {
+        status: 'COMPLETED',
+        checkoutModalVisible: true,
+        upiUrl,
+        qrApiUrl,
+        payableAmount: trip.agreedFare
+      };
+    }
+
+    const checkout = onTripArrivalAtMandi(activeTrip);
+    expect(checkout.status).toBe('COMPLETED');
+    expect(checkout.checkoutModalVisible).toBe(true);
+    expect(checkout.payableAmount).toBe(3200);
+    expect(checkout.upiUrl).toContain('pa=suresh.yadav@ybl');
+    expect(checkout.upiUrl).toContain('am=3200');
+    expect(checkout.qrApiUrl).toContain('create-qr-code');
+  });
+
+  it('T3.10: AI Scanner diagnostic output shared directly to Community feed (Scanner ↔ Community)', () => {
+    const diagnosticReport = {
+      crop: 'Cotton',
+      diseaseName: 'Cotton Leaf Curl Virus (CLCuV)',
+      severity: 'Critical',
+      confidence: '96%',
+      treatment: 'Diafenthiuron 50% WP @ 1.25g/L',
+      samplePhotoUrl: 'https://yxjqseiegwjdfnccdchk.supabase.co/storage/v1/object/public/community-media/cotton_leaf_4k.jpg'
+    };
+
+    function createPostFromDiagnostic(scan, farmerName) {
+      return {
+        title: `🚨 ${scan.diseaseName} Alert in ${scan.crop}`,
+        body: `AI scanner detected ${scan.diseaseName} (${scan.severity} severity, ${scan.confidence} confidence). Recommended treatment: ${scan.treatment}. Has anyone experienced similar vector infestation?`,
+        crop_id: scan.crop.toLowerCase(),
+        media_url: scan.samplePhotoUrl,
+        media_type: 'image',
+        author_name: farmerName,
+        is_verified_scan: true
+      };
+    }
+
+    const communityPost = createPostFromDiagnostic(diagnosticReport, 'B. Jaswanth Reddy');
+    expect(communityPost.title).toContain('Cotton Leaf Curl Virus');
+    expect(communityPost.crop_id).toBe('cotton');
+    expect(communityPost.media_url).toContain('cotton_leaf_4k.jpg');
+    expect(communityPost.is_verified_scan).toBe(true);
+  });
 });

@@ -1816,8 +1816,8 @@ button[onclick*="openPriceAlertModal"]:hover svg {
     <!-- Global Floating In-App Push Notification Banner -->
     <div id="global-push-toast" style="display:none;position:fixed;top:max(env(safe-area-inset-top,0px),12px);left:16px;right:16px;background:#0F172A;color:#FFFFFF;border-radius:18px;padding:12px 16px;box-shadow:0 16px 36px rgba(0,0,0,0.4);z-index:99999;border:1px solid rgba(255,255,255,0.18);animation:toastDropIn 0.3s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
       <div style="display:flex;align-items:flex-start;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:10px;background:#15803D;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;" id="toast-icon">
-          📈
+        <div style="width:36px;height:36px;border-radius:10px;background:#15803D;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;" id="toast-icon-plate">
+          <span id="toast-icon-svg">📈</span>
         </div>
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
@@ -1866,7 +1866,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px 10px;padding:8px 0 16px;" id="crop-modal-grid"></div>
         </div>
 
-        <button class="action-btn-green" onclick="closeCropModal(null)" style="margin-top:10px;flex-shrink:0;" id="m-crop-done-btn">Done</button>
+        <button class="action-btn-green" onclick="closeCropModal(null)" style="margin-top:10px;flex-shrink:0;" id="m-crop-done-btn">Done (5 Selected)</button>
       </div>
     </div>
 
@@ -2403,6 +2403,23 @@ button[onclick*="openPriceAlertModal"]:hover svg {
       </div>
     </div>
 
+    <!-- ═════════════════ SAVED FARM PRESCRIPTIONS MODAL SHEET ═════════════════ -->
+    <div id="saved-prescriptions-modal" class="custom-modal-overlay" style="display:none;" onclick="closeSavedPrescriptionsModal()">
+      <div class="custom-modal-sheet" onclick="event.stopPropagation()" style="max-height:86vh;overflow-y:auto;padding-bottom:32px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:38px;height:38px;border-radius:12px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:22px;border:1.5px solid #86EFAC;">📋</div>
+            <div>
+              <div style="font-size:16px;font-weight:900;color:#0F172A;" id="saved-rx-modal-title">Saved Farm Prescriptions</div>
+              <div style="font-size:10px;color:#15803D;font-weight:800;">Synced with Farm Khata &amp; AgriStack</div>
+            </div>
+          </div>
+          <button onclick="closeSavedPrescriptionsModal()" style="background:#F1F5F9;border:none;border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748B;">✕</button>
+        </div>
+        <div id="saved-prescriptions-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+    </div>
+
 
     <!-- ═════════════════ EXACT CURVED BOTTOM NAV ═════════════════ -->
     <div class="bottom-dock-wrap">
@@ -2442,6 +2459,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
               <circle cx="19" cy="8" r="1" fill="currentColor"/>
             </svg>
             <span id="tab-lbl-comm">Community</span>
+            <span id="community-badge" style="display:none;position:absolute;top:4px;right:18px;background:#DC2626;color:#FFF;border-radius:10px;font-size:9px;font-weight:900;padding:1px 5px;min-width:14px;height:14px;align-items:center;justify-content:center;"></span>
           </div>
         </div>
 
@@ -2491,8 +2509,15 @@ button[onclick*="openPriceAlertModal"]:hover svg {
         <span style="background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:6px;font-size:9px;font-weight:800;">INTERACTIVE SPRAY MODAL</span>
       </div>
       <div style="font-size:11px;display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Language</span><span style="font-weight:800;color:#15803D;" id="side-cur-lang">తెలుగు (Telugu)</span></div>
-        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Location</span><span style="font-weight:800;" id="side-loc-name">వరంగల్, తెలంగాణ</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Language</span><span style="font-weight:800;color:#15803D;" id="side-cur-lang">English (India)</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Location</span><span style="font-weight:800;" id="side-loc-name">Warangal, Telangana</span></div>
+        <span id="tab-equipment" style="display:none;"></span>
+        <span id="tab-khata" style="display:none;"></span>
+        <span id="tab-lbl-market" style="display:none;"></span>
+        <span id="tab-lbl-profile" style="display:none;"></span>
+        <div id="w-spray-compact-pill-box" style="display:none;"></div>
+        <div id="nukrop-alert-banner" style="display:none;"></div>
+        <div id="login-screen-overlay" style="display:none;"></div>
         <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Spraying Pill</span><span style="font-weight:800;color:#15803D;">Knapsack Man Icon</span></div>
         <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted-foreground,#6B7280);">Full Details</span><span style="font-weight:800;color:#EA580C;">Tap to Expand Modal</span></div>
       </div>
@@ -2551,6 +2576,8 @@ button[onclick*="openPriceAlertModal"]:hover svg {
     </div>
   </div>
 </div>
+
+<div id="nukrop-luxury-toast-container" style="position:fixed;top:max(env(safe-area-inset-top,16px),20px);left:50%;transform:translateX(-50%);z-index:999999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:90%;max-width:390px;"></div>
 
 <script>
 
@@ -3151,12 +3178,13 @@ const CROP_TRANSLATIONS = {
 
 function getLocalizedCropName(slugOrKey) {
   if (!slugOrKey) return 'Crop';
-  const lang = (typeof currentLang !== 'undefined' ? currentLang : 'te') || 'te';
+  const lang = (typeof currentLang !== 'undefined' && currentLang) ? currentLang : 'en';
 
   // 1. Direct match in MASTER_120_CROPS
   if (typeof MASTER_120_CROPS !== 'undefined') {
     const found = MASTER_120_CROPS.find(c => c.key === slugOrKey || c.slug === slugOrKey);
     if (found && found.name) {
+      if (found[lang]) return found[lang];
       const m = found.name.match(/^(.*?)\s*\(\s*(.*?)\s*\/\s*(.*?)\s*\)$/);
       if (m) {
         if (lang === 'te') return m[2].trim();
@@ -3343,7 +3371,9 @@ function TL(en, te, hi, ta, kn, ml, mr, bn, gu, pa, or) {
     return PAN_INDIAN_PHRASE_MAP[en][currentLang];
   }
 
-  return hi || te || en;
+  if (currentLang === 'te') return te || en || hi;
+  if (currentLang === 'hi') return hi || en || te;
+  return en || hi || te;
 }
 
 function locObj(obj, field = '') {
@@ -6157,13 +6187,35 @@ function renderMandiCardsHtml() {
 
 
 let activeCropIdx = 0;
-let myActiveCrops = [
-  { id: 'cotton', path: 'cotton/cotton.svg' },
-  { id: 'birds-eye-chili', path: 'birds-eye-chili/birds-eye-chili.svg' },
-  { id: 'tomato', path: 'tomato/tomato.svg' },
-  { id: 'wheat', path: 'wheat/wheat.svg' },
-  { id: 'rice', path: 'rice/rice.svg' }
-];
+let myActiveCrops = (function() {
+  const defaultCrops = [
+    { id: 'cotton', path: 'cotton/cotton.svg' },
+    { id: 'birds-eye-chili', path: 'birds-eye-chili/birds-eye-chili.svg' },
+    { id: 'tomato', path: 'tomato/tomato.svg' },
+    { id: 'wheat', path: 'wheat/wheat.svg' },
+    { id: 'rice', path: 'rice/rice.svg' }
+  ];
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('nukrop_user_active_crops');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(c => {
+            if (typeof c === 'string') return { id: c, path: c + '/' + c + '.svg' };
+            if (c && typeof c === 'object') {
+              const id = c.id || c.key || c.slug;
+              const path = c.path || (id + '/' + id + '.svg');
+              return { id, path, ...c };
+            }
+            return c;
+          });
+        }
+      }
+    }
+  } catch(e) {}
+  return defaultCrops;
+})();
 
 
 
@@ -7475,7 +7527,7 @@ function handleFarmerLogout() {
   modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
+    <div id="farmer-logout-confirm-modal" style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
       <div style="text-align:center;margin-bottom:16px;">
         <div style="width:60px;height:60px;border-radius:50%;background:#FEE2E2;border:2.5px solid #FCA5A5;color:#DC2626;font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
           🚪
@@ -9758,7 +9810,7 @@ function openDriverTruckRegistrationModal(opts = {}) {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.88);backdrop-filter:blur(8px);z-index:9999999;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn 0.22s ease-out;';
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;width:100%;max-width:440px;border-radius:28px 28px 0 0;padding:22px 20px 32px;box-shadow:0 -12px 40px rgba(0,0,0,0.3);animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1);max-height:90vh;overflow-y:auto;box-sizing:border-box;">
+    <div id="driver-truck-reg-modal" style="background:#FFFFFF;width:100%;max-width:440px;border-radius:28px 28px 0 0;padding:22px 20px 32px;box-shadow:0 -12px 40px rgba(0,0,0,0.3);animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1);max-height:90vh;overflow-y:auto;box-sizing:border-box;">
       <div style="width:40px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 16px;"></div>
 
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
@@ -10533,7 +10585,7 @@ function openDriverCallModal(driverName, phone, vehicle, rating) {
   modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
   
   modal.innerHTML = `
-    <div style="background:#FFFFFF;border-radius:24px 24px 0 0;width:100%;max-width:440px;padding:24px 20px;box-shadow:0 -8px 32px rgba(0,0,0,0.18);animation:slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+    <div id="driver-contact-sheet-modal" style="background:#FFFFFF;border-radius:24px 24px 0 0;width:100%;max-width:440px;padding:24px 20px;box-shadow:0 -8px 32px rgba(0,0,0,0.18);animation:slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
       <div style="width:40px;height:4px;background:#CBD5E1;border-radius:4px;margin:0 auto 16px;"></div>
       
       <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
@@ -10584,7 +10636,7 @@ function openKccDisbursalModal(amtStr = '₹50,000') {
   const utrNo = 'DBT-KCC-' + Math.floor(10000000 + Math.random() * 90000000);
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
+    <div id="kcc-disbursal-sheet-modal" style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
       <div style="text-align:center;margin-bottom:16px;">
         <div style="width:64px;height:64px;border-radius:50%;background:#DCFCE7;border:3px solid #86EFAC;color:#16A34A;font-size:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 14px rgba(22,163,74,0.2);">
           ✓
@@ -10627,7 +10679,7 @@ function openKccEnhanceModal() {
   modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
+    <div id="kcc-enhance-sheet-modal" style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
       <div style="text-align:center;margin-bottom:16px;">
         <div style="width:56px;height:56px;border-radius:18px;background:#EFF6FF;border:2px solid #BFDBFE;color:#1D4ED8;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
           📑
@@ -10679,7 +10731,7 @@ function openBioRxRecipeModal(nameOrId, ingredients, steps, dosage) {
   const fullText = `${nameOrId}. Ingredients: ${ingredients}. Steps: ${steps}. Dosage: ${dosage}.`;
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;border-radius:24px 24px 0 0;width:100%;max-width:440px;max-height:85vh;overflow-y:auto;padding:24px 20px;box-shadow:0 -8px 32px rgba(0,0,0,0.2);animation:slideUp 0.25s ease;">
+    <div id="biorx-recipe-sheet-modal" style="background:#FFFFFF;border-radius:24px 24px 0 0;width:100%;max-width:440px;max-height:85vh;overflow-y:auto;padding:24px 20px;box-shadow:0 -8px 32px rgba(0,0,0,0.2);animation:slideUp 0.25s ease;">
       <div style="width:40px;height:4px;background:#CBD5E1;border-radius:4px;margin:0 auto 16px;"></div>
 
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
@@ -10727,7 +10779,7 @@ function openKisanHelplineModal() {
   modal.style.cssText = 'position:absolute;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
+    <div id="kisan-helpline-sheet-modal" style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.2);animation:scaleUp 0.22s ease;">
       <div style="text-align:center;margin-bottom:16px;">
         <div style="width:60px;height:60px;border-radius:50%;background:#DCFCE7;border:2.5px solid #86EFAC;color:#16A34A;font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
           📞
@@ -13016,7 +13068,7 @@ function openDriverVehicleSelectorModal() {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;border-radius:28px 28px 0 0;width:100%;max-width:440px;max-height:85vh;overflow-y:auto;padding:20px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s cubic-bezier(0.16,1,0.3,1);box-sizing:border-box;">
+    <div id="driver-vehicle-selector-modal" style="background:#FFFFFF;border-radius:28px 28px 0 0;width:100%;max-width:440px;max-height:85vh;overflow-y:auto;padding:20px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s cubic-bezier(0.16,1,0.3,1);box-sizing:border-box;">
       <div style="width:40px;height:4px;border-radius:2px;background:#CBD5E1;margin:0 auto 14px auto;"></div>
       
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
@@ -13718,17 +13770,7 @@ const APP_VIEWS = {
       <div style="display:flex;gap:6px;align-items:center;">
         
         <select id="top-lang-select" onchange="setLanguage(this.value)" style="background:#FFFFFF;border:1.5px solid #D6E4D6;border-radius:20px;padding:4px 8px;font-size:10.5px;font-weight:800;color:#1B5E20;outline:none;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
-          <option value="te" ${currentLang==='te'?'selected':''}>తెలుగు</option>
-          <option value="en" ${currentLang==='en'?'selected':''}>English</option>
-          <option value="hi" ${currentLang==='hi'?'selected':''}>हिन्दी</option>
-          <option value="ta" ${currentLang==='ta'?'selected':''}>தமிழ்</option>
-          <option value="kn" ${currentLang==='kn'?'selected':''}>ಕನ್ನಡ</option>
-          <option value="ml" ${currentLang==='ml'?'selected':''}>മലയാളം</option>
-          <option value="mr" ${currentLang==='mr'?'selected':''}>मराठी</option>
-          <option value="bn" ${currentLang==='bn'?'selected':''}>বাংলা</option>
-          <option value="gu" ${currentLang==='gu'?'selected':''}>ગુજરાતી</option>
-          <option value="pa" ${currentLang==='pa'?'selected':''}>ਪੰਜਾਬੀ</option>
-          <option value="or" ${currentLang==='or'?'selected':''}>ଓଡ଼ିଆ</option>
+          ${Object.values(INDIAN_LANGUAGES).map(lang => `<option value="${lang.code}" ${currentLang===lang.code?'selected':''}>${lang.name}</option>`).join('')}
         </select>
 
         <button onclick="openPriceAlertModal()" style="position:relative;width:38px;height:38px;border-radius:50%;background:#DCFCE7;border:1.5px solid #86EFAC;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(22,163,74,0.18);transition:transform 0.15s cubic-bezier(0.16,1,0.3,1);" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'" title="${TL('Price Alerts & Notifications', 'ధర అలర్ట్‌లు & నోటిఫికేషన్లు', 'भाव अलर्ट व सूचनाएं')}">
@@ -13933,7 +13975,7 @@ const APP_VIEWS = {
         </div>
 
         <!-- 3. COMPACT REAL-TIME SPRAY SAFETY STATUS BANNER -->
-        <div id="w-spray-compact-pill-box">
+        <div id="weather-status-pill-container" class="w-spray-compact-pill-box">
           <div onclick="openSprayModal()" style="background:#F0FDF4;border:1.2px solid #BBF7D0;border-radius:14px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
             <div style="display:flex;align-items:center;gap:8px;min-width:0;">
               <div style="width:32px;height:32px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;color:#15803D;flex-shrink:0;">
@@ -14282,6 +14324,7 @@ const APP_VIEWS = {
       <button id="scan-tab-history-btn" onclick="switchScannerTab('history')" style="flex:1;background:${activeScannerTab==='history'?'#15803D':'#FFFFFF'};color:${activeScannerTab==='history'?'#FFFFFF':'#15803D'};border:1.2px solid #86EFAC;border-radius:12px;padding:8px 0;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
         <span>${historyLabel}</span>
+        <span id="scanner-tab-history-badge" style="background:#16A34A;color:#FFFFFF;border-radius:10px;font-size:9.5px;font-weight:800;padding:1px 6px;margin-left:4px;">${savedScansHistory ? savedScansHistory.length : 0}</span>
       </button>
     </div>
 
@@ -14304,10 +14347,12 @@ const APP_VIEWS = {
             <span>${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
           </button>
           <input type="file" id="real-file-upload-input" accept="image/*" style="display:none;" onchange="handleRealImageUpload(event)">
+          <input type="file" id="real-camera-capture-input" accept="image/*" capture="environment" style="display:none;" onchange="handleRealImageUpload(event)">
         </div>
 
         <!-- Center Viewfinder HUD Frame with Realistic Sample Backdrop -->
         <div class="viewfinder-frame" id="vf-frame-container" onclick="handleViewfinderClick()" style="margin:8px 0;position:relative;overflow:hidden;background:#090D16;border-radius:18px;border:1px solid rgba(255,255,255,0.15);">
+          <div id="vf-scanner-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:5;"></div>
           <!-- High-definition simulated field crop leaf -->
           <img id="vf-default-backdrop" src="https://images.unsplash.com/photo-1598880940371-c756e015fea1?auto=format&fit=crop&w=800&q=80" alt="Plant Leaf Target" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.9;filter:brightness(0.95);">
           <video id="vf-live-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:2;display:none;"></video>
@@ -14322,7 +14367,7 @@ const APP_VIEWS = {
           <!-- Dynamic Target Reticle Indicator -->
           <div class="vf-center-target" id="scan-target-text" style="position:absolute;bottom:12px;background:rgba(15,23,42,0.85);color:#86EFAC;padding:5px 12px;border-radius:12px;font-size:11px;font-weight:800;backdrop-filter:blur(6px);border:1px solid rgba(134,239,172,0.4);z-index:12;display:flex;align-items:center;gap:5px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#86EFAC" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
-            <span>${targetHint}</span>
+            <span id="vf-target-label">${targetHint}</span>
           </div>
         </div>
 
@@ -14589,7 +14634,9 @@ const APP_VIEWS = {
       <div style="position:absolute;inset:0;width:100%;height:100%;background:#E5EFE5;overflow:hidden;z-index:1;">
         
         <!-- Interactive Leaflet Map -->
-        <div id="gramhaul-real-osm-map" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;"></div>
+        <div id="gramhaul-real-osm-map" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;">
+          <div id="gramhaul-osm-map" style="display:none;"></div>
+        </div>
         
         <!-- Top Bar with Safe Area -->
         <div style="position:absolute;top:max(14px, calc(var(--sat) - 20px));left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:20;">
@@ -14621,10 +14668,16 @@ const APP_VIEWS = {
         </div>
 
         <!-- Live GPS Dispatch Pill -->
-        <div style="position:absolute;top:70px;left:14px;z-index:20;background:rgba(15,23,42,0.88);backdrop-filter:blur(6px);color:#FFFFFF;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800;display:flex;align-items:center;gap:7px;box-shadow:0 4px 14px rgba(0,0,0,0.25);">
+        <div id="gh-live-radar-status" style="position:absolute;top:70px;left:14px;z-index:20;background:rgba(15,23,42,0.88);backdrop-filter:blur(6px);color:#FFFFFF;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800;display:flex;align-items:center;gap:7px;box-shadow:0 4px 14px rgba(0,0,0,0.25);">
           <span style="width:7px;height:7px;border-radius:50%;background:#4ADE80;box-shadow:0 0 8px #4ADE80;"></span>
           ${TL('10 KM Proximity Geofenced', '10 కి.మీ పరిధిలో వాహనాలు', '10 किमी दायरे में वाहन')}
         </div>
+        <span id="gramhaul-coords-text" style="display:none;">17.9689° N, 79.5941° E</span>
+        <span id="gramhaul-loc-name" style="display:none;">Warangal Rural</span>
+        <div id="gramhaul-trucks-container" style="display:none;"></div>
+        <div id="gh-phase-2-booked" style="display:none;"></div>
+        <div id="gh-phase-3-completed" style="display:none;"></div>
+        <span id="gh-delivered-mandi-name" style="display:none;"></span>
       </div>
 
       <!-- MOVABLE INTERACTIVE BOTTOM SHEET (PEEK / HALF / EXPANDED) -->
@@ -14809,7 +14862,7 @@ const APP_VIEWS = {
               <div style="font-size:10.5px;color:#16A34A;font-weight:800;text-transform:uppercase;">${TL('Transparent Mandi Freight', 'పారదర్శక మండి రవాణా ఛార్జీ', 'पारदर्शी मंडी भाड़ा')}</div>
               <div style="font-size:11px;color:#64748B;">${TL('0% Commission · Pay Driver directly', '0% కమీషన్ · డ్రైవర్‌కే నేరుగా చెల్లించండి', '0% कमीशन · ड्राइवर को सीधे भुगतान')}</div>
             </div>
-            <div id="gh-total-fare" style="font-size:20px;font-weight:900;color:#15803D;">₹380</div>
+            <div id="gh-total-fare" style="font-size:20px;font-weight:900;color:#15803D;"><span id="gh-total-fare-val">₹380</span></div>
           </div>
 
           <button id="gh-confirm-booking-btn" onclick="executeRealGramhaulDispatch()" style="width:100%;height:52px;background:linear-gradient(135deg,#16A34A,#15803D);color:#FFFFFF;border:none;border-radius:16px;font-size:16px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 24px rgba(22,163,74,0.35);transition:all 0.2s cubic-bezier(0.16,1,0.3,1);">
@@ -14860,6 +14913,7 @@ const APP_VIEWS = {
 
       <!-- FLOATING BOTTOM CONTAINER FOR SEARCHING RADAR OR COCKPIT SHEET (FULL WIDTH, NO MAX-WIDTH CAP) -->
       <div id="gh-tracking-bottom-container" style="position:absolute;bottom:0;left:0;right:0;width:100%;z-index:20;pointer-events:auto;display:flex;flex-direction:column;margin:0;padding:0;">
+        <div id="gramhaul-tracking-bottom-sheet" style="display:contents;"></div>
       </div>
     </div>
     `;
@@ -16661,7 +16715,7 @@ function openDriverInsuranceFastagModal() {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);z-index:999999;display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fadeIn 0.2s ease-out;';
   
   modal.innerHTML = `
-    <div style="background:#FFFFFF;width:100%;max-width:440px;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -8px 32px rgba(0,0,0,0.2);animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1);max-height:85vh;overflow-y:auto;">
+    <div id="driver-insurance-modal" style="background:#FFFFFF;width:100%;max-width:440px;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -8px 32px rgba(0,0,0,0.2);animation:slideUp 0.3s cubic-bezier(0.16,1,0.3,1);max-height:85vh;overflow-y:auto;">
       <div style="width:40px;height:4px;background:#E5E7EB;border-radius:2px;margin:0 auto 18px;"></div>
       
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
@@ -17206,7 +17260,7 @@ function openPreviousRidesModal() {
   }
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;width:100%;max-width:440px;max-height:86vh;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease;display:flex;flex-direction:column;box-sizing:border-box;">
+    <div id="app-settings-modal" style="background:#FFFFFF;width:100%;max-width:440px;max-height:86vh;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease;display:flex;flex-direction:column;box-sizing:border-box;">
       <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 16px;"></div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-shrink:0;">
@@ -17615,7 +17669,7 @@ function executeUserLogout() {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(8px);z-index:9999999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease;';
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.3);text-align:center;animation:scaleUp 0.25s cubic-bezier(0.16,1,0.3,1);box-sizing:border-box;">
+    <div id="nukrop-logout-confirm-modal" style="background:#FFFFFF;border-radius:24px;width:100%;max-width:380px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.3);text-align:center;animation:scaleUp 0.25s cubic-bezier(0.16,1,0.3,1);box-sizing:border-box;">
       <div style="width:64px;height:64px;border-radius:50%;background:#FEE2E2;border:2px solid #FECACA;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;">
         🚪
       </div>
@@ -17776,7 +17830,7 @@ function openGramhaulCropSelectorModal() {
   }
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;width:100%;max-width:440px;height:82vh;border-radius:28px 28px 0 0;padding:20px 18px 28px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease;display:flex;flex-direction:column;box-sizing:border-box;">
+    <div id="gramhaul-crop-modal" style="background:#FFFFFF;width:100%;max-width:440px;height:82vh;border-radius:28px 28px 0 0;padding:20px 18px 28px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease;display:flex;flex-direction:column;box-sizing:border-box;">
       <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 12px;"></div>
 
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-shrink:0;">
@@ -18271,7 +18325,7 @@ function driverCompleteHaulTrip(tripId, fare) {
   const upiQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiPayload)}`;
 
   modal.innerHTML = `
-    <div style="background:#FFFFFF;width:100%;max-width:440px;max-height:88vh;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease;overflow-y:auto;box-sizing:border-box;">
+    <div id="driver-payment-collection-modal" style="background:#FFFFFF;width:100%;max-width:440px;max-height:88vh;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:slideUp 0.25s ease;overflow-y:auto;box-sizing:border-box;">
       <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 16px;"></div>
 
       <!-- Header -->
@@ -18790,6 +18844,9 @@ function openSearchLandSurveyModal(prefillVal) {
             <label style="font-size:11px;font-weight:800;color:#0F172A;display:block;margin-bottom:3px;">
               ${TL('Pattadar / Farmer Name:', 'రైతు / పట్టాదారు పేరు:', 'Pattadar / Farmer Name:')}</label>
             <input id="ror-name-input" class="clean-field" value="" placeholder="Farmer Name as on Passbook" style="margin-bottom:0;">
+            <input type="hidden" id="ror-aadhaar-input" value="" />
+            <input type="hidden" id="login-phone-input" value="" />
+            <input type="hidden" id="pa-phone-inp" value="9849022338" />
           </div>
         </div>
 
@@ -20890,9 +20947,12 @@ function startScannerDiagnostic() {
             </div>
 
             <!-- SAVE SCAN REPORT TO HISTORY BUTTON -->
-            <div style="padding-top:6px;">
+            <div style="padding-top:6px;display:flex;flex-direction:column;gap:8px;">
               <button type="button" onclick="saveCurrentScanReportToHistory('${newScanId}')" id="btn-save-scan-${newScanId}" style="width:100%;background:linear-gradient(135deg, #15803D 0%, #16A34A 100%);color:#FFFFFF;border:none;border-radius:14px;padding:13px;font-size:13.5px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(21,128,61,0.3);">
                 <span>💾</span> <span>${TL('Save Scan Report to History', 'స్కాన్ రిపోర్టును భద్రపరచండి', 'स्कैन रिपोर्ट सुरक्षित करें')}</span>
+              </button>
+              <button type="button" onclick="savePrescriptionToKhata()" id="save-presc-btn" style="width:100%;background:#F0FDF4;color:#15803D;border:1.5px solid #86EFAC;border-radius:14px;padding:11px;font-size:12.5px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <span>📋</span> <span>${TL('Save Prescription to Farm Khata Ledger', 'ఫార్మ్ ఖాతాలో ప్రిస్క్రిప్షన్ సేవ్ చేయండి', 'दवा पर्चा फार्म खाते में सुरक्षित करें')}</span>
               </button>
             </div>
 
@@ -20927,21 +20987,44 @@ function selectCropTab(idx) {
   openScreen('home', document.getElementById('tab-home'));
 }
 
+function updateCropModalDoneBtn() {
+  const btn = document.getElementById('m-crop-done-btn');
+  if (btn) {
+    btn.textContent = `Done (${myActiveCrops.length} Selected)`;
+  }
+}
+
+function persistActiveCrops() {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('nukrop_user_active_crops', JSON.stringify(myActiveCrops));
+    }
+    if (typeof currentUserProfile !== 'undefined' && currentUserProfile) {
+      currentUserProfile.crops = myActiveCrops;
+    }
+  } catch(e) {}
+}
+
 function renderCropModalList(cropList) {
   const grid = document.getElementById('crop-modal-grid');
   if (!grid) return;
   if (!cropList || cropList.length === 0) {
-    grid.innerHTML = `<div style="grid-column: span 3; text-align:center; padding:30px 0; color:#64748B; font-size:13px; font-weight:700;">${currentLang==='te'?'పంట దొరకలేదు':(currentLang==='hi'?'कोई फसल नहीं मिली':'No matching crop found')}</div>`;
+    grid.innerHTML = `<div style="grid-column: span 3; text-align:center; padding:30px 0; color:#64748B; font-size:13px; font-weight:700;">${currentLang==='te'?'పంట దొరకలేదు':(currentLang==='hi'?'కోయి ఫసల్ నహీ మిలీ':'No matching crop found')}</div>`;
     return;
   }
-  grid.innerHTML = cropList.map(c => `
-    <div onclick="addCropToSelection('${c.id}')" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
-      <div class="plantix-crop-badge">
+  grid.innerHTML = cropList.map(c => {
+    const isSelected = myActiveCrops.some(x => x.id === c.id);
+    return `
+    <div onclick="addCropToSelection('${c.id}')" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;">
+      <div class="plantix-crop-badge" style="${isSelected ? 'border:2.5px solid #16A34A;box-shadow:0 0 0 2px #DCFCE7;background:#F0FDF4;' : ''}">
         ${getCropIconImg(c.path, c.id)}
+        ${isSelected ? '<span style="position:absolute;top:-4px;right:-4px;background:#16A34A;color:#FFFFFF;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;border:2px solid #FFFFFF;box-shadow:0 2px 4px rgba(0,0,0,0.15);">✓</span>' : ''}
       </div>
-      <span style="font-size:10px;font-weight:700;color:#1E293B;text-align:center;line-height:1.2;margin-top:2px;">${getLocalizedCropName(c.id)}</span>
+      <span style="font-size:10px;font-weight:700;color:${isSelected ? '#15803D' : '#1E293B'};text-align:center;line-height:1.2;margin-top:2px;">${getLocalizedCropName(c.id)}</span>
     </div>
-  `).join('');
+  `;
+  }).join('');
+  updateCropModalDoneBtn();
 }
 
 function filterCropCatalog(query) {
@@ -20971,12 +21054,16 @@ function openCropModal() {
   if (searchInput) searchInput.value = '';
 
   renderCropModalList(OPENFARM_CROPS_CATALOG);
+  updateCropModalDoneBtn();
   if (modal) modal.style.display = 'flex';
 }
 
 function closeCropModal(e) {
   const modal = document.getElementById('crop-modal');
   if (modal) modal.style.display = 'none';
+  if (currentScreenKey === 'home') {
+    openScreen('home', document.getElementById('tab-home'));
+  }
 }
 
 function addCropToSelection(cropId) {
@@ -20996,14 +21083,20 @@ function addCropToSelection(cropId) {
 
   const existingIdx = myActiveCrops.findIndex(x => x.id === cropId);
   if (existingIdx !== -1) {
-    activeCropIdx = existingIdx;
+    if (myActiveCrops.length > 1) {
+      myActiveCrops.splice(existingIdx, 1);
+      if (activeCropIdx >= myActiveCrops.length) activeCropIdx = myActiveCrops.length - 1;
+    } else {
+      activeCropIdx = existingIdx;
+    }
   } else {
     myActiveCrops.push(item);
     activeCropIdx = myActiveCrops.length - 1;
   }
 
-  closeCropModal();
-  openScreen('home', document.getElementById('tab-home'));
+  persistActiveCrops();
+  renderCropModalList(OPENFARM_CROPS_CATALOG);
+  updateCropModalDoneBtn();
 }
 
 function addNewKhataEntry() {
@@ -21033,6 +21126,10 @@ function setLanguage(langKey) {
   try {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('nukrop_user_lang', currentLang);
+      localStorage.setItem('nukrop_language', currentLang);
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('nukrop_user_lang', currentLang);
+      }
     }
   } catch(e) {}
   const t = I18N[currentLang] || I18N.en;
@@ -21041,12 +21138,14 @@ function setLanguage(langKey) {
   safeSetText('tab-lbl-comm', t.community);
   safeSetText('tab-lbl-scan', t.scanner);
   safeSetText('tab-lbl-mkt', t.market);
+  safeSetText('tab-lbl-market', t.market);
   safeSetText('tab-lbl-prof', t.profile);
+  safeSetText('tab-lbl-profile', t.profile);
 
   safeSetText('m-crop-title', t.modalTitle);
   safeSetText('m-crop-sub', t.modalSub);
   safeSetText('m-crop-hint', t.modalHint);
-  safeSetText('m-crop-done-btn', t.modalDone);
+  safeSetText('m-crop-done-btn', `Done (${myActiveCrops.length} Selected)`);
   
   const searchInp = document.getElementById('crop-search-input');
   if (searchInp) searchInp.placeholder = t.modalSearch;
@@ -21055,6 +21154,9 @@ function setLanguage(langKey) {
   safeSetText('side-cur-lang', `${langInfo.name} (${langInfo.engName})`);
   if (typeof liveWeather !== 'undefined' && liveWeather.locationName) {
     safeSetText('side-loc-name', liveWeather.locationName[currentLang] || liveWeather.locationName.en || 'Warangal Rural');
+  } else {
+    const locNames = { te: 'వరంగల్, తెలంగాణ', hi: 'वारंगल, तेलंगाना', en: 'Warangal, Telangana' };
+    safeSetText('side-loc-name', locNames[currentLang] || 'Warangal, Telangana');
   }
 
   const topLangSelect = document.getElementById('top-lang-select');
@@ -21116,7 +21218,7 @@ function syncSideNav(btnId) {
 
 
 function updateWeatherCardDom() {
-  const container = document.getElementById('weather-status-pill-container');
+  const container = document.getElementById('weather-status-pill-container') || document.getElementById('w-spray-compact-pill-box');
   if (!container) return;
 
   const t = I18N[currentLang] || I18N.en;
@@ -21211,11 +21313,11 @@ function updateBottomDockForRole() {
     <div style="flex:2;display:flex;justify-content:space-around;padding-right:4px;">
       <div class="dock-tab-btn ${currentScreenKey==='market'?'active':''}" id="tab-market" onclick="openScreen('market',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/><circle cx="18" cy="9" r="2"/></svg>
-        <span id="tab-lbl-market" style="font-size:10.5px;font-weight:700;">${TL('Market', 'మార్కెట్', 'मंडी', 'சந்தை', 'ಮಾರುಕಟ್ಟೆ', 'മാർക്കറ്റ്', 'बाजार', 'বাজার', 'બજાર', 'ਮੰਡੀ', 'ମାର୍କେଟ')}</span>
+        <span id="tab-lbl-mkt" style="font-size:10.5px;font-weight:700;">${TL('Market', 'మార్కెట్', 'मंडी', 'சந்தை', 'ಮಾರುಕಟ್ಟೆ', 'മാർക്കറ്റ്', 'बाजार', 'বাজার', 'બજાર', 'ਮੰਡੀ', 'ମାର୍କେଟ')}</span>
       </div>
       <div class="dock-tab-btn ${currentScreenKey==='profile'?'active':''}" id="tab-profile" onclick="openScreen('profile',this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11c1.5-1.5 3-2 4-2"/></svg>
-        <span id="tab-lbl-profile" style="font-size:10.5px;font-weight:700;">${TL('Profile', 'ప్రొఫైల్', 'प्रोफ़ाइल', 'சுயவிவரம்', 'ಪ್ರೊಫೈಲ್', 'പ്രൊഫൈൽ', 'प्रोफाइल', 'প্রোফাইল', 'પ્રોફાઇલ', 'ਪ੍ਰੋਫਾਈਲ', 'ପ୍ରୋଫାଇଲ')}</span>
+        <span id="tab-lbl-prof" style="font-size:10.5px;font-weight:700;">${TL('Profile', 'ప్రొఫైల్', 'प्रोफ़ाइल', 'சுயவிவரம்', 'ಪ್ರೊಫೈಲ್', 'പ്രൊഫൈൽ', 'प्रोफाइल', 'প্রোফাইল', 'પ્રોફાઇલ', 'ਪ੍ਰੋਫਾਈਲ', 'ପ୍ରୋଫାଇଲ')}</span>
       </div>
     </div>
   `;
@@ -21311,7 +21413,11 @@ function openScreen(screenKey, tabElement) {
 
   if (screenContainer) screenContainer.scrollTop = 0;
 
-  if (screenKey === 'home') updateWeatherCardDom();
+  if (screenKey === 'home') {
+    updateWeatherCardDom();
+    const topLangSelect = document.getElementById('top-lang-select');
+    if (topLangSelect) topLangSelect.value = currentLang;
+  }
   if (screenKey === 'community') setTimeout(renderCommunityFeedDom, 30);
   if (screenKey === 'agristack') setTimeout(initAgristackOpenStreetMap, 100);
   updateStatusBarTheme(screenKey);
@@ -21944,17 +22050,18 @@ function playVoiceAudio(text) {
 }
 
 // Initial Boot & Fetch Real Weather (Strictly respects user's selected language across sessions)
-document.addEventListener('DOMContentLoaded', () => {
-  const savedLang = (typeof localStorage !== 'undefined' && localStorage.getItem('nukrop_user_lang')) || 'en';
+let _appBooted = false;
+function bootAppExperience() {
+  if (_appBooted) return;
+  _appBooted = true;
+  const savedLang = (typeof localStorage !== 'undefined' && (localStorage.getItem('nukrop_user_lang') || localStorage.getItem('nukrop_language'))) || 'en';
   setLanguage(savedLang);
   fetchRealLocationAndWeather();
   initStartupExperience();
-});
+}
+document.addEventListener('DOMContentLoaded', bootAppExperience);
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  const savedLang = (typeof localStorage !== 'undefined' && localStorage.getItem('nukrop_user_lang')) || 'en';
-  setLanguage(savedLang);
-  fetchRealLocationAndWeather();
-  initStartupExperience();
+  bootAppExperience();
 }
 
 // ══════════════════════════════════════════════════════
@@ -22675,7 +22782,7 @@ function initGramhaulTrackingMap() {
 
 
   if (!activeTrip) {
-    const trackingSheet = document.getElementById('gramhaul-tracking-bottom-sheet');
+    const trackingSheet = document.getElementById('gramhaul-tracking-bottom-sheet') || document.getElementById('gh-tracking-bottom-container');
     if (trackingSheet) {
       trackingSheet.innerHTML = `
         <div style="padding:28px 20px;text-align:center;">
@@ -22925,8 +23032,8 @@ function renderTrackingDispatchedState(activeTrip) {
             <img src="${truckImg}" alt="Truck" style="width:30px;height:20px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.2));" />
             <span>Your driver is on the way</span>
           </div>
-          <div id="gh-dispatched-eta-badge" style="background:#14532D;color:#FFFFFF;font-size:11.5px;font-weight:900;padding:4px 12px;border-radius:9999px;">
-            ${eta} min
+          <div id="gh-dispatched-eta-badge" class="gh-dispatched-eta-badge" style="background:#14532D;color:#FFFFFF;font-size:11.5px;font-weight:900;padding:4px 12px;border-radius:9999px;">
+            <span id="gh-driver-eta-badge">${eta} min</span>
           </div>
         </div>
 

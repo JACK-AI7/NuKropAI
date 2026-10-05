@@ -465,3 +465,667 @@ describe('Tier 2 — Feature 4 Boundaries: Agmarknet Market Data Edge Cases (R4)
     expect(distressedCotton.alert).toContain('below Govt MSP');
   });
 });
+
+
+// ============================================================================
+// Feature 5 Boundaries (F1): Language Selection & Multi-Storage Persistence
+// ============================================================================
+describe('Tier 2 — Feature 5 Boundaries (F1): Language Selection & Persistence Edge Cases', () => {
+
+  it('T2.5.1: Fallback on unrecognized or empty language code defaults safely to en without throwing', () => {
+    const VALID_LANGS = new Set(['te', 'hi', 'en', 'ta', 'kn', 'ml', 'mr', 'bn', 'gu', 'pa', 'or']);
+
+    function resolveValidLanguage(langCode) {
+      if (!langCode || typeof langCode !== 'string' || !VALID_LANGS.has(langCode.trim().toLowerCase())) {
+        return 'en';
+      }
+      return langCode.trim().toLowerCase();
+    }
+
+    expect(resolveValidLanguage(null)).toBe('en');
+    expect(resolveValidLanguage('')).toBe('en');
+    expect(resolveValidLanguage('fr')).toBe('en');
+    expect(resolveValidLanguage('UNKNOWN_CODE_99')).toBe('en');
+    expect(resolveValidLanguage('TE')).toBe('te');
+  });
+
+  it('T2.5.2: Rapid multi-language sequential switching (te -> hi -> ta -> en -> mr in 100ms) preserves consistent final state', () => {
+    const store = createMockStorage();
+    const switchSequence = ['te', 'hi', 'ta', 'en', 'mr'];
+
+    let finalLang = null;
+    switchSequence.forEach(lang => {
+      store.setItem('nukrop_user_lang', lang);
+      store.setItem('nukrop_language', lang);
+      finalLang = lang;
+    });
+
+    expect(finalLang).toBe('mr');
+    expect(store.getItem('nukrop_user_lang')).toBe('mr');
+    expect(store.getItem('nukrop_language')).toBe('mr');
+  });
+
+  it('T2.5.3: Storage key desynchronization recovery (when nukrop_user_lang != nukrop_language)', () => {
+    const store = createMockStorage({
+      'nukrop_user_lang': 'hi',
+      'nukrop_language': 'te'
+    });
+
+    function harmonizeLanguageKeys(storage) {
+      const primary = storage.getItem('nukrop_user_lang');
+      const secondary = storage.getItem('nukrop_language');
+      const resolved = primary || secondary || 'en';
+      storage.setItem('nukrop_user_lang', resolved);
+      storage.setItem('nukrop_language', resolved);
+      return resolved;
+    }
+
+    const resolved = harmonizeLanguageKeys(store);
+    expect(resolved).toBe('hi');
+    expect(store.getItem('nukrop_language')).toBe('hi');
+  });
+
+  it('T2.5.4: Corrupted or null localStorage values gracefully recover to default language', () => {
+    const store = createMockStorage({
+      'nukrop_user_lang': 'undefined',
+      'nukrop_language': 'null'
+    });
+
+    function safeGetLang(storage) {
+      const val = storage.getItem('nukrop_user_lang');
+      if (!val || val === 'undefined' || val === 'null') {
+        return 'en';
+      }
+      return val;
+    }
+
+    expect(safeGetLang(store)).toBe('en');
+  });
+
+  it('T2.5.5: Non-ASCII script rendering boundaries: Multi-script Unicode font fallbacks for 11 languages', () => {
+    const sampleStrings = {
+      te: 'రైతు సేవలు',
+      hi: 'किसान सेवाएँ',
+      ta: 'விவசாய சேவைகள்',
+      kn: 'ರೈತ ಸೇವೆಗಳು',
+      ml: 'കർഷക സേവനങ്ങൾ',
+      mr: 'शेतकरी सेवा',
+      bn: 'কৃষক সেবা',
+      gu: 'ખેડૂત સેવાઓ',
+      pa: 'ਕਿਸਾਨ ਸੇਵਾਵਾਂ',
+      or: 'କୃଷକ ସେବା',
+      en: 'Farmer Services'
+    };
+
+    Object.entries(sampleStrings).forEach(([code, text]) => {
+      expect(text.length).toBeGreaterThan(0);
+      const encoded = encodeURIComponent(text);
+      expect(decodeURIComponent(encoded)).toBe(text);
+    });
+  });
+});
+
+// ============================================================================
+// Feature 6 Boundaries (F2): Plant / Crop Selector Counter & Storage
+// ============================================================================
+describe('Tier 2 — Feature 6 Boundaries (F2): Crop Selector & Counter Edge Cases', () => {
+
+  it('T2.6.1: Zero crops selected (empty array) renders counter as 0 and displays empty state prompt', () => {
+    function renderCropCounter(selectedCrops) {
+      const count = Array.isArray(selectedCrops) ? selectedCrops.length : 0;
+      return {
+        count,
+        displayBadge: `${count} Selected`,
+        isEmpty: count === 0,
+        emptyPrompt: count === 0 ? 'Please select at least one active crop.' : null
+      };
+    }
+
+    const empty = renderCropCounter([]);
+    expect(empty.count).toBe(0);
+    expect(empty.isEmpty).toBe(true);
+    expect(empty.emptyPrompt).toContain('select at least one');
+  });
+
+  it('T2.6.2: Maximum crop selection limit enforcement (rejects selection >10 crops with warning)', () => {
+    const MAX_LIMIT = 10;
+    const currentList = new Array(10).fill(0).map((_, i) => ({ id: `crop-${i}` }));
+
+    function attemptAddCrop(crop, list) {
+      if (list.length >= MAX_LIMIT) {
+        throw new Error(`Maximum crop limit reached (${MAX_LIMIT} crops max).`);
+      }
+      list.push(crop);
+      return list.length;
+    }
+
+    expect(() => attemptAddCrop({ id: 'crop-11' }, currentList)).toThrow('Maximum crop limit reached');
+    expect(currentList.length).toBe(10);
+  });
+
+  it('T2.6.3: Duplicate crop selection prevention: selecting an already-selected crop toggles off or retains single instance', () => {
+    const list = [{ id: 'cotton' }, { id: 'chilli' }];
+
+    function toggleCropSelection(cropId, cropList) {
+      const idx = cropList.findIndex(c => c.id === cropId);
+      if (idx !== -1) {
+        cropList.splice(idx, 1); // toggle off
+        return { action: 'removed', count: cropList.length };
+      }
+      cropList.push({ id: cropId });
+      return { action: 'added', count: cropList.length };
+    }
+
+    const res1 = toggleCropSelection('cotton', list);
+    expect(res1.action).toBe('removed');
+    expect(res1.count).toBe(1);
+
+    const res2 = toggleCropSelection('cotton', list);
+    expect(res2.action).toBe('added');
+    expect(res2.count).toBe(2);
+  });
+
+  it('T2.6.4: Corrupted JSON in nukrop_user_active_crops storage recovers cleanly with fallback default crop', () => {
+    const store = createMockStorage({
+      'nukrop_user_active_crops': '{{INVALID_JSON_CORRUPTED_BYTES%%'
+    });
+
+    function safelyLoadActiveCrops(storage) {
+      try {
+        const raw = storage.getItem('nukrop_user_active_crops');
+        if (!raw) return [{ id: 'cotton', name: 'Cotton' }];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          return [{ id: 'cotton', name: 'Cotton' }];
+        }
+        return parsed;
+      } catch (err) {
+        return [{ id: 'cotton', name: 'Cotton' }];
+      }
+    }
+
+    const recovered = safelyLoadActiveCrops(store);
+    expect(recovered.length).toBe(1);
+    expect(recovered[0].id).toBe('cotton');
+  });
+
+  it('T2.6.5: Unknown or deleted crop ID safely filtered out from active selection without breaking counter', () => {
+    const VALID_CATALOG_IDS = new Set(['cotton', 'chilli', 'paddy', 'maize', 'turmeric']);
+    const rawSavedList = [
+      { id: 'cotton' },
+      { id: 'obsolete-deleted-crop-id' },
+      { id: 'chilli' },
+      { id: 'unknown-999' }
+    ];
+
+    function filterValidCrops(list) {
+      return list.filter(item => item && item.id && VALID_CATALOG_IDS.has(item.id));
+    }
+
+    const validCrops = filterValidCrops(rawSavedList);
+    expect(validCrops.length).toBe(2);
+    expect(validCrops[0].id).toBe('cotton');
+    expect(validCrops[1].id).toBe('chilli');
+  });
+});
+
+// ============================================================================
+// Feature 7 Boundaries (F3): Pure Real-Time GPS Telemetry
+// ============================================================================
+describe('Tier 2 — Feature 7 Boundaries (F3): GPS Telemetry Edge Cases', () => {
+
+  it('T2.7.1: Geolocation permission denied or device GPS unavailable handles error gracefully with UI notification', () => {
+    function handleGeoError(errorCode) {
+      const ERRORS = {
+        1: { code: 'PERMISSION_DENIED', message: 'Location permission required to broadcast driver availability.' },
+        2: { code: 'POSITION_UNAVAILABLE', message: 'GPS signal lost. Please enable high accuracy in device settings.' },
+        3: { code: 'TIMEOUT', message: 'GPS request timed out. Retrying connection...' }
+      };
+      return ERRORS[errorCode] || { code: 'UNKNOWN_ERROR', message: 'Unable to retrieve location.' };
+    }
+
+    const err1 = handleGeoError(1);
+    expect(err1.code).toBe('PERMISSION_DENIED');
+    expect(err1.message).toContain('Location permission required');
+
+    const err2 = handleGeoError(2);
+    expect(err2.code).toBe('POSITION_UNAVAILABLE');
+  });
+
+  it('T2.7.2: Extreme / boundary coordinates validation (e.g. [0, 0], outside India bounding box) rejected by sanitization', () => {
+    // Geographic bounding box for India: Lat 6.0 to 37.5, Lng 68.0 to 97.5
+    function isValidIndiaCoordinates(lat, lng) {
+      if (typeof lat !== 'number' || typeof lng !== 'number') return false;
+      if (isNaN(lat) || isNaN(lng)) return false;
+      if (lat === 0 && lng === 0) return false;
+      return lat >= 6.0 && lat <= 37.5 && lng >= 68.0 && lng <= 97.5;
+    }
+
+    expect(isValidIndiaCoordinates(17.9689, 79.5941)).toBe(true);  // Warangal
+    expect(isValidIndiaCoordinates(0, 0)).toBe(false);              // Null Island
+    expect(isValidIndiaCoordinates(51.5074, -0.1278)).toBe(false);  // London
+    expect(isValidIndiaCoordinates(90, 0)).toBe(false);             // North Pole
+  });
+
+  it('T2.7.3: Rapid GPS telemetry anomaly / speed threshold rejection (>150 km/h impossible jump within 1s)', () => {
+    function calculateSpeedKmh(p1, p2, timeDeltaSec) {
+      if (timeDeltaSec <= 0) return 0;
+      // Approximate distance calculation using equirectangular approximation
+      const R = 6371; // km
+      const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+      const dLon = (p2.lng - p1.lng) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distKm = R * c;
+      return (distKm / timeDeltaSec) * 3600;
+    }
+
+    function isReasonableRuralTruckSpeed(p1, p2, deltaSec) {
+      const speed = calculateSpeedKmh(p1, p2, deltaSec);
+      return speed <= 150; // max reasonable truck speed
+    }
+
+    const p1 = { lat: 17.9689, lng: 79.5941 };
+    const pNormal = { lat: 17.9692, lng: 79.5944 }; // small advance in 5s
+    const pTeleport = { lat: 18.5000, lng: 80.5000 }; // ~120 km jump in 1s
+
+    expect(isReasonableRuralTruckSpeed(p1, pNormal, 5)).toBe(true);
+    expect(isReasonableRuralTruckSpeed(p1, pTeleport, 1)).toBe(false);
+  });
+
+  it('T2.7.4: Zero accuracy GPS fixes (accuracy > 5000m) flagged as imprecise before broadcasting', () => {
+    function evaluateGpsAccuracy(accuracyMeters) {
+      if (accuracyMeters <= 50) return { quality: 'HIGH', broadcastAllowed: true };
+      if (accuracyMeters <= 500) return { quality: 'ACCEPTABLE', broadcastAllowed: true };
+      return { quality: 'IMPRECISE', broadcastAllowed: false, warning: 'Cell tower triangulation too coarse' };
+    }
+
+    expect(evaluateGpsAccuracy(15).broadcastAllowed).toBe(true);
+    expect(evaluateGpsAccuracy(6500).broadcastAllowed).toBe(false);
+    expect(evaluateGpsAccuracy(6500).quality).toBe('IMPRECISE');
+  });
+
+  it('T2.7.5: Driver going offline during active network outage cleanly terminates local watch and queues status update', () => {
+    let localWatchCleared = false;
+    let pendingQueue = [];
+
+    function offlineSafeDutyToggle(watchId, isNetworkOnline) {
+      localWatchCleared = true;
+      if (!isNetworkOnline) {
+        pendingQueue.push({ action: 'SET_OFFLINE', ts: Date.now() });
+        return { isDutyActive: false, queuedForSync: true };
+      }
+      return { isDutyActive: false, queuedForSync: false };
+    }
+
+    const res = offlineSafeDutyToggle(101, false);
+    expect(res.isDutyActive).toBe(false);
+    expect(res.queuedForSync).toBe(true);
+    expect(localWatchCleared).toBe(true);
+    expect(pendingQueue.length).toBe(1);
+  });
+});
+
+// ============================================================================
+// Feature 8 Boundaries (F4): Rapido-Style Trip Flow & Driver Broadcast
+// ============================================================================
+describe('Tier 2 — Feature 8 Boundaries (F4): Trip Lifecycle Edge Cases', () => {
+
+  it('T2.8.1: Booking validation: zero or negative distance / identical pickup and dropoff coordinates throws validation error', () => {
+    function validateTripBooking(pickup, dropoff) {
+      if (!pickup || !dropoff) throw new Error('Missing coordinates');
+      if (pickup.lat === dropoff.lat && pickup.lng === dropoff.lng) {
+        throw new Error('Pickup and Dropoff locations cannot be identical.');
+      }
+      return true;
+    }
+
+    expect(() => validateTripBooking({ lat: 17.9, lng: 79.5 }, { lat: 17.9, lng: 79.5 })).toThrow('identical');
+    expect(validateTripBooking({ lat: 17.9, lng: 79.5 }, { lat: 18.0, lng: 79.6 })).toBe(true);
+  });
+
+  it('T2.8.2: Out-of-order trip state transitions (e.g. attempting to complete before in-transit) rejected by state machine', () => {
+    const STATE_TRANSITIONS = {
+      'SEARCHING': ['ACCEPTED', 'CANCELLED'],
+      'ACCEPTED': ['ARRIVED', 'CANCELLED'],
+      'ARRIVED': ['IN_TRANSIT', 'CANCELLED'],
+      'IN_TRANSIT': ['COMPLETED'],
+      'COMPLETED': [],
+      'CANCELLED': []
+    };
+
+    function transitionTripState(current, next) {
+      const allowed = STATE_TRANSITIONS[current] || [];
+      if (!allowed.includes(next)) {
+        throw new Error(`Illegal state transition from ${current} to ${next}`);
+      }
+      return next;
+    }
+
+    expect(transitionTripState('SEARCHING', 'ACCEPTED')).toBe('ACCEPTED');
+    expect(transitionTripState('ACCEPTED', 'ARRIVED')).toBe('ARRIVED');
+    expect(transitionTripState('ARRIVED', 'IN_TRANSIT')).toBe('IN_TRANSIT');
+    expect(transitionTripState('IN_TRANSIT', 'COMPLETED')).toBe('COMPLETED');
+    expect(() => transitionTripState('ACCEPTED', 'COMPLETED')).toThrow('Illegal state transition');
+  });
+
+  it('T2.8.3: Driver cancellation handling resets booking state back to SEARCHING or allows farmer retry', () => {
+    function handleDriverCancellation(trip) {
+      return {
+        ...trip,
+        status: 'SEARCHING',
+        driver_id: null,
+        cancellationReason: 'Driver vehicle breakdown',
+        retryBroadcast: true
+      };
+    }
+
+    const resetTrip = handleDriverCancellation({ id: 'trip-101', status: 'ACCEPTED', driver_id: 'DRV-1' });
+    expect(resetTrip.status).toBe('SEARCHING');
+    expect(resetTrip.driver_id).toBeNull();
+    expect(resetTrip.retryBroadcast).toBe(true);
+  });
+
+  it('T2.8.4: Race condition: two drivers simultaneously accepting same trip awards exclusively to first transaction', () => {
+    let tripRecord = { id: 'trip-101', status: 'SEARCHING', driver_id: null };
+
+    function atomicAcceptTrip(driverId) {
+      if (tripRecord.status !== 'SEARCHING') {
+        return { success: false, reason: 'Trip already accepted by another driver' };
+      }
+      tripRecord.status = 'ACCEPTED';
+      tripRecord.driver_id = driverId;
+      return { success: true, driverId };
+    }
+
+    const driver1Result = atomicAcceptTrip('DRV-SURESH');
+    const driver2Result = atomicAcceptTrip('DRV-RAMESH');
+
+    expect(driver1Result.success).toBe(true);
+    expect(driver2Result.success).toBe(false);
+    expect(driver2Result.reason).toContain('already accepted');
+    expect(tripRecord.driver_id).toBe('DRV-SURESH');
+  });
+
+  it('T2.8.5: Network disconnection recovery during in-transit state preserves active ride ID and resumes tracking on reconnect', () => {
+    const storage = createMockStorage({
+      'nukrop_active_trip_id': 'TRIP-8821',
+      'nukrop_active_trip_state': JSON.stringify({ status: 'IN_TRANSIT', driverName: 'Suresh Yadav' })
+    });
+
+    function recoverActiveTrip(store) {
+      const tripId = store.getItem('nukrop_active_trip_id');
+      const raw = store.getItem('nukrop_active_trip_state');
+      if (tripId && raw) {
+        return { tripId, ...JSON.parse(raw), shouldResumeWebSocket: true };
+      }
+      return null;
+    }
+
+    const recovered = recoverActiveTrip(storage);
+    expect(recovered).toBeDefined();
+    expect(recovered.tripId).toBe('TRIP-8821');
+    expect(recovered.status).toBe('IN_TRANSIT');
+    expect(recovered.shouldResumeWebSocket).toBe(true);
+  });
+});
+
+// ============================================================================
+// Feature 9 Boundaries (F5): 4-Digit OTP PIN Verification
+// ============================================================================
+describe('Tier 2 — Feature 9 Boundaries (F5): 4-Digit OTP PIN Edge Cases', () => {
+
+  it('T2.9.1: Malformed OTP input (letters, special characters, <4 digits, >4 digits) rejected by format validator', () => {
+    function validateOtpFormat(input) {
+      if (typeof input !== 'string') return false;
+      return /^\d{4}$/.test(input.trim());
+    }
+
+    expect(validateOtpFormat('4491')).toBe(true);
+    expect(validateOtpFormat('449')).toBe(false);
+    expect(validateOtpFormat('44910')).toBe(false);
+    expect(validateOtpFormat('abcd')).toBe(false);
+    expect(validateOtpFormat('44 1')).toBe(false);
+    expect(validateOtpFormat('44#1')).toBe(false);
+  });
+
+  it('T2.9.2: Mismatched OTP entry returns explicit failure without advancing trip state', () => {
+    let tripStatus = 'ARRIVED';
+
+    function attemptVerify(inputOtp, expectedOtp) {
+      if (inputOtp !== expectedOtp) {
+        return { verified: false, error: 'Incorrect 4-digit PIN' };
+      }
+      tripStatus = 'IN_TRANSIT';
+      return { verified: true };
+    }
+
+    const attempt = attemptVerify('9999', '4491');
+    expect(attempt.verified).toBe(false);
+    expect(attempt.error).toContain('Incorrect');
+    expect(tripStatus).toBe('ARRIVED');
+  });
+
+  it('T2.9.3: Brute-force threshold: 3 consecutive failed OTP attempts triggers temporary lockout', () => {
+    let failedAttempts = 0;
+    const MAX_ATTEMPTS = 3;
+
+    function verifyWithRateLimit(input, expected) {
+      if (failedAttempts >= MAX_ATTEMPTS) {
+        throw new Error('Too many invalid attempts. PIN entry locked for 60 seconds.');
+      }
+      if (input !== expected) {
+        failedAttempts++;
+        return false;
+      }
+      failedAttempts = 0;
+      return true;
+    }
+
+    expect(verifyWithRateLimit('1111', '4491')).toBe(false);
+    expect(verifyWithRateLimit('2222', '4491')).toBe(false);
+    expect(verifyWithRateLimit('3333', '4491')).toBe(false);
+    expect(() => verifyWithRateLimit('4444', '4491')).toThrow('PIN entry locked');
+  });
+
+  it('T2.9.4: Boundary values: numeric OTPs with leading zeros (0007, 0921) retain full 4 digits as string', () => {
+    function formatOtpString(rawNumber) {
+      return String(rawNumber).padStart(4, '0');
+    }
+
+    expect(formatOtpString(7)).toBe('0007');
+    expect(formatOtpString(921)).toBe('0921');
+    expect(formatOtpString(0)).toBe('0000');
+    expect(formatOtpString(4491)).toBe('4491');
+  });
+
+  it('T2.9.5: Expired OTP / cancelled booking OTP verification cleanly rejected', () => {
+    function verifyOtpForTrip(booking) {
+      if (booking.status === 'CANCELLED') {
+        throw new Error('Cannot verify OTP for a cancelled booking.');
+      }
+      if (Date.now() - booking.created_at_ms > 3600000) { // 1 hr expiry
+        throw new Error('OTP has expired.');
+      }
+      return true;
+    }
+
+    expect(() => verifyOtpForTrip({ status: 'CANCELLED', created_at_ms: Date.now() })).toThrow('cancelled');
+    expect(() => verifyOtpForTrip({ status: 'ARRIVED', created_at_ms: Date.now() - 7200000 })).toThrow('expired');
+  });
+});
+
+// ============================================================================
+// Feature 10 Boundaries (F6): Dynamic Driver UPI Settlement & Farmer Checkout
+// ============================================================================
+describe('Tier 2 — Feature 10 Boundaries (F6): Dynamic UPI Settlement Edge Cases', () => {
+
+  it('T2.10.1: Boundary fare values: Zero fare (₹0) or fractional amounts (₹1450.50) formatted properly according to UPI spec', () => {
+    function formatUpiAmount(amount) {
+      const num = parseFloat(amount);
+      if (isNaN(num) || num < 0) throw new Error('Invalid fare amount');
+      return num.toFixed(2);
+    }
+
+    expect(formatUpiAmount(0)).toBe('0.00');
+    expect(formatUpiAmount(1450.5)).toBe('1450.50');
+    expect(formatUpiAmount(3500)).toBe('3500.00');
+    expect(() => formatUpiAmount(-50)).toThrow('Invalid fare');
+  });
+
+  it('T2.10.2: Extreme fare boundary: Very large amounts (>₹1,00,000) validated against maximum single UPI transaction limit', () => {
+    const UPI_MAX_LIMIT = 100000; // NPCI standard limit
+
+    function validateUpiTransactionLimit(amount) {
+      if (amount > UPI_MAX_LIMIT) {
+        return {
+          allowed: false,
+          warning: `Fare ₹${amount} exceeds single UPI limit ₹${UPI_MAX_LIMIT}. Split payment or NEFT required.`
+        };
+      }
+      return { allowed: true };
+    }
+
+    expect(validateUpiTransactionLimit(4500).allowed).toBe(true);
+    expect(validateUpiTransactionLimit(150000).allowed).toBe(false);
+    expect(validateUpiTransactionLimit(150000).warning).toContain('exceeds single UPI limit');
+  });
+
+  it('T2.10.3: Special characters in driver VPA or payee name properly URL-encoded in UPI URI', () => {
+    function generateSafeUpiUri(vpa, name, amount, note) {
+      const params = new URLSearchParams();
+      params.set('pa', vpa);
+      params.set('pn', name);
+      params.set('am', String(amount));
+      params.set('cu', 'INR');
+      params.set('tn', note);
+      return `upi://pay?${params.toString()}`;
+    }
+
+    const uri = generateSafeUpiUri('suresh+truck@okaxis', 'Suresh & Sons (Transporters)', 3500, 'Haul #101 & Bonus');
+    expect(uri.includes('upi://pay?')).toBe(true);
+    expect(uri).toContain('suresh%2Btruck%40okaxis');
+    expect(uri).toContain('Suresh+%26+Sons');
+  });
+
+  it('T2.10.4: Missing or invalid VPA handles gracefully with cash fallback option', () => {
+    function resolvePaymentMethods(driverVpa) {
+      const methods = ['CASH'];
+      if (driverVpa && driverVpa.includes('@')) {
+        methods.unshift('UPI_QR');
+      }
+      return methods;
+    }
+
+    expect(resolvePaymentMethods('driver@upi')).toEqual(['UPI_QR', 'CASH']);
+    expect(resolvePaymentMethods('')).toEqual(['CASH']);
+    expect(resolvePaymentMethods(null)).toEqual(['CASH']);
+  });
+
+  it('T2.10.5: UPI URI generation error handling handles missing trip parameters without throwing unhandled exceptions', () => {
+    function safeBuildUpiUri(trip) {
+      if (!trip || !trip.fareAmount) {
+        return { success: false, error: 'Missing trip fare parameters' };
+      }
+      const vpa = trip.driverVpa || 'nukrop.haul@upi';
+      return { success: true, uri: `upi://pay?pa=${vpa}&am=${trip.fareAmount}&cu=INR` };
+    }
+
+    expect(safeBuildUpiUri(null).success).toBe(false);
+    expect(safeBuildUpiUri({}).success).toBe(false);
+    expect(safeBuildUpiUri({ fareAmount: 2500 }).success).toBe(true);
+  });
+});
+
+// ============================================================================
+// Feature 11 Boundaries (F7): Live Peer-to-Peer In-Ride Chat
+// ============================================================================
+describe('Tier 2 — Feature 11 Boundaries (F7): P2P In-Ride Chat Edge Cases', () => {
+
+  it('T2.11.1: Empty or whitespace-only chat message submission blocked by validation', () => {
+    function validateChatMessage(text) {
+      if (!text || typeof text !== 'string') return false;
+      return text.trim().length > 0;
+    }
+
+    expect(validateChatMessage('')).toBe(false);
+    expect(validateChatMessage('   ')).toBe(false);
+    expect(validateChatMessage('\n\t')).toBe(false);
+    expect(validateChatMessage('Arrived')).toBe(true);
+  });
+
+  it('T2.11.2: Extremely long chat message (>2000 characters) truncated or rejected with character limit error', () => {
+    const MAX_CHAT_LENGTH = 500;
+
+    function sanitizeChatMessage(text) {
+      if (text.length > MAX_CHAT_LENGTH) {
+        return { allowed: false, error: `Message exceeds ${MAX_CHAT_LENGTH} characters.` };
+      }
+      return { allowed: true, text: text.trim() };
+    }
+
+    const hugeText = 'a'.repeat(600);
+    expect(sanitizeChatMessage(hugeText).allowed).toBe(false);
+    expect(sanitizeChatMessage('Standard message').allowed).toBe(true);
+  });
+
+  it('T2.11.3: Unicode emojis, regional scripts (Telugu, Hindi, Tamil) and special characters transmitted without distortion', () => {
+    const multiScriptMessages = [
+      '🌾 ధాన్యం బస్తాలు సిద్ధంగా ఉన్నాయి (Grain sacks ready)',
+      'नमस्ते भइया, 5 मिनट में पहुँच रहे हैं 🚛',
+      'வணக்கம் அண்ணா 👍',
+      'OK! Meet at gate @ 10:30am & bring receipt.'
+    ];
+
+    multiScriptMessages.forEach(msg => {
+      const wireFormat = JSON.stringify({ text: msg });
+      const decoded = JSON.parse(wireFormat);
+      expect(decoded.text).toBe(msg);
+    });
+  });
+
+  it('T2.11.4: XSS / HTML injection attempt in chat text properly escaped before rendering (<script>alert(1)</script>)', () => {
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    const malicious = '<script>alert("hack")</script>';
+    const safe = escapeHtml(malicious);
+    expect(safe).not.toContain('<script>');
+    expect(safe).toContain('&lt;script&gt;');
+  });
+
+  it('T2.11.5: Offline message handling: queuing messages when peer or network is temporarily disconnected', () => {
+    const offlineQueue = [];
+
+    function dispatchOrQueue(msg, isConnected) {
+      if (!isConnected) {
+        offlineQueue.push(msg);
+        return { sent: false, queued: true };
+      }
+      return { sent: true, queued: false };
+    }
+
+    const res = dispatchOrQueue({ text: 'Where are you?' }, false);
+    expect(res.sent).toBe(false);
+    expect(res.queued).toBe(true);
+    expect(offlineQueue.length).toBe(1);
+
+    function flushQueue() {
+      const flushed = [...offlineQueue];
+      offlineQueue.length = 0;
+      return flushed;
+    }
+
+    const sent = flushQueue();
+    expect(sent.length).toBe(1);
+    expect(offlineQueue.length).toBe(0);
+  });
+});

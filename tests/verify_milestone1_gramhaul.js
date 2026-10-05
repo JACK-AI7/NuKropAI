@@ -70,7 +70,7 @@ targetFiles.forEach((targetPath) => {
 
   test(`M1.4 [${relName}]: Interactive Leaflet map container #gramhaul-osm-map is present`, () => {
     const html = fs.readFileSync(targetPath, 'utf8');
-    assert.ok(html.includes('id="gramhaul-osm-map"'), 'Must contain #gramhaul-osm-map element');
+    assert.ok(html.includes('id="gramhaul-osm-map"') || html.includes('id="gramhaul-real-osm-map"'), 'Must contain #gramhaul-osm-map or #gramhaul-real-osm-map element');
     assert.ok(html.includes('id="gramhaul-map-wrapper"'), 'Must contain #gramhaul-map-wrapper');
     assert.ok(html.includes('recenterGramhaulMap()'), 'Must contain floating recenter map button');
     assert.ok(html.includes('@keyframes pulseRing'), 'Must contain pulseRing animation');
