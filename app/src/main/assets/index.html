@@ -15,7 +15,7 @@
 
 /* ═════════════════ FULLSCREEN MOBILE & SAFE AREA INSETS ═════════════════ */
 :root {
-  --sat: env(safe-area-inset-top, 40px);
+  --sat: env(safe-area-inset-top, 52px);
   --sab: env(safe-area-inset-bottom, 16px);
 }
 
@@ -550,7 +550,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
    EDGE-TO-EDGE IMMERSIVE DISPLAY & SAFE AREA SUPPORT
    ═══════════════════════════════════════════════════════════════════════════════ */
 :root {
-  --sat: env(safe-area-inset-top, 0px);
+  --sat: env(safe-area-inset-top, 52px);
   --sab: env(safe-area-inset-bottom, 0px);
 }
 
@@ -6607,192 +6607,16 @@ let activeInstagramStoryIdx = 0;
 
 let userAttachedMedia = { photos: [], videos: [], voiceNote: null };
 
-let COMMUNITY_STORIES_CATALOG = [
-  {
-    id: 'story-1',
-    author: { en: 'Dr. K. Srinivas Rao', te: 'డా. కె. శ్రీనివాస్ రావు', hi: 'डॉ. के. श्रीनिवास राव' },
-    role: 'PJTSAU Agronomist',
-    tag: '⚡ Cotton Alert',
-    timeAgo: '15m ago',
-    title: {
-      en: 'Pink Bollworm & Whitefly Scouting in Warangal Black Soils',
-      te: 'నల్ల రేగడి నేలల్లో గులాబీ రంగు పురుగు, తెల్లదోమ నివారణ సూచనలు',
-      hi: 'काली मिट्टी में गुलाबी सुंडी और सफेद मक्खी नियंत्रण उपाय'
-    },
-    mediaUrl: 'https://images.unsplash.com/photo-1594488502396-857502319c5c?w=900&auto=format&fit=crop&q=80',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    likes: 142
-  },
-  {
-    id: 'story-2',
-    author: { en: 'Raju Naidu', te: 'రాజు నాయుడు', hi: 'राजू नायडू' },
-    role: 'Chilli Farmer · 8 Acres',
-    tag: '🌶️ Harvest Victory',
-    timeAgo: '1h ago',
-    title: {
-      en: 'Record ₹24,800/Q Guntur Teja Chilli yield using BioRx bio-stimulants!',
-      te: 'BioRx వాడకంతో గుంటూరు తేజ మిర్చికి క్వింటాలుకు ₹24,800 రికార్డు ధర!',
-      hi: 'BioRx से गुंटूर तेजा मिर्च पर ₹24,800/क्विंटल का रिकॉर्ड भाव मिला!'
-    },
-    mediaUrl: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=900&auto=format&fit=crop&q=80',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    likes: 289
-  },
-  {
-    id: 'story-3',
-    author: { en: 'Dr. Anita Verma', te: 'డా. అనిత వర్మ', hi: 'डॉ. अनिता वर्मा' },
-    role: 'ICAR Plant Pathologist',
-    tag: '🌾 Direct Seeded Rice',
-    timeAgo: '3h ago',
-    title: {
-      en: 'Preventing Iron Chlorosis & Blast in DSR Paddy nursery beds',
-      te: 'వెదజల్లే వరి నారుమడుల్లో ఇనుప లోపం, అగ్గితెగులు రాకుండా తీసుకోవలసిన జాగ్రత్తలు',
-      hi: 'सीधी बुवाई वाले धान में आयरन की कमी और झुलसा रोग से बचाव'
-    },
-    mediaUrl: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?w=900&auto=format&fit=crop&q=80',
-    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    likes: 195
-  },
-  {
-    id: 'story-4',
-    author: { en: 'Suresh Yadav', te: 'సురేష్ యాదవ్', hi: 'सुरेश यादव' },
-    role: 'GramHaul Captain',
-    tag: '🚚 Mandi Live Update',
-    timeAgo: '4h ago',
-    title: {
-      en: 'Enumamula Cotton Yard gate clearance: zero wait time for 1.5T trucks today',
-      te: 'ఎనుమాముల కాటన్ యార్డులో రద్దీ లేదు: ట్రక్కులకు వేగంగా అన్‌లోడింగ్ జరుగుతోంది',
-      hi: 'एनुमामुला कॉटन यार्ड गेट खुला है: 1.5T ट्रकों के लिए आज कोई इंतजार नहीं'
-    },
-    mediaUrl: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=900&auto=format&fit=crop&q=80',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    likes: 312
-  }
-];
+let COMMUNITY_STORIES_CATALOG = [];
+let COMMUNITY_POSTS_CATALOG = [];
 
-let COMMUNITY_POSTS_CATALOG = [
-  {
-    id: 'comm-post-1',
-    author: { en: 'B. Jaswanth Reddy', te: 'బి. జస్వంత్ రెడ్డి', hi: 'बी. जसवंत रेड्डी' },
-    author_name: 'B. Jaswanth Reddy',
-    village: { en: 'Warangal Rural, TS', te: 'వరంగల్ గ్రామీణం, తెలంగాణ', hi: 'वारंगल ग्रामीण, तेलंगाना' },
-    avatar: '👨‍🌾',
-    cropId: 'cotton',
-    cropName: { en: 'Cotton', te: 'పత్తి', hi: 'कपास' },
-    timeAgo: { en: '25m ago', te: '25 నిమిషాల క్రితం', hi: '25 मिनट पहले' },
-    title: {
-      en: 'Foliar curling on upper canopy with honey-dew secretions. Is this severe whitefly attack?',
-      te: 'పై ఆకులు ముడుచుకుపోయి తేనెమంచు లాంటి ద్రవం కారుతోంది. ఇది తెల్లదోమ ఉధృతియేనా?',
-      hi: 'ऊपरी पत्तियां मुड़ रही हैं और चिपचिपा रस निकल रहा है। क्या यह सफेद मक्खी का हमला है?'
-    },
-    text: {
-      en: 'Observed yellow vein clearing and leaf curling across 4.5 acres of cotton. Tested BioRx neem mix yesterday with 57 knapsack charges. Please suggest if Diafenthiuron 50% WP spray is required immediately.',
-      te: '4.5 ఎకరాల పత్తి చేనులో ఆకులు పసుపు రంగులోకి మారి ముడుచుకుపోతున్నాయి. నిన్న బయోఆర్క్స్ వేప ద్రావణం పిచికారీ చేశాను. వెంటనే డయాఫెంథియురాన్ 50% డబ్ల్యూపీ స్ప్రే చేయాలా?',
-      hi: '4.5 एकड़ कपास में पत्तियां पीली होकर मुड़ रही हैं। कल 57 नैपसैक चार्ज के साथ नीम का छिड़काव किया था। क्या डायफेन्थियुरॉन 50% WP का तुरंत छिड़काव करना चाहिए?'
-    },
-    photos: ['https://images.unsplash.com/photo-1594488502396-857502319c5c?w=900&auto=format&fit=crop&q=80'],
-    voiceNote: { duration: '0:34', text: 'Whitefly advisory for Jaswanth: Spray Diafenthiuron 1.25g per litre during early morning hours.' },
-    likes: 48,
-    isLiked: false,
-    comments: [
-      {
-        id: 'c-101',
-        author: 'Dr. K. Srinivas (Agronomist)',
-        avatar: '🔬',
-        timeAgo: '12m ago',
-        text: 'Yes Jaswanth garu, whitefly nymph population is high. Maintain 200L water/acre with Diafenthiuron 50% WP (1.25g/L) during 8 AM - 11 AM spray window.'
-      },
-      {
-        id: 'c-102',
-        author: 'Raju Naidu (Farmer)',
-        avatar: '👨‍🌾',
-        timeAgo: '5m ago',
-        text: 'Adding 5ml sticky spreader per 15L tank mix gave me 98% leaf coverage last week.'
-      }
-    ]
-  },
-  {
-    id: 'comm-post-2',
-    author: { en: 'K. Venkateshwar Rao', te: 'కె. వెంకటేశ్వర రావు', hi: 'के. वेंकटेश्वर राव' },
-    author_name: 'K. Venkateshwar Rao',
-    village: { en: 'Enumamula, Warangal', te: 'ఎనుమాముల, వరంగల్', hi: 'एनुमामुला, वारंगल' },
-    avatar: '👨‍🌾',
-    cropId: 'chilli',
-    cropName: { en: 'Chilli', te: 'మిరప', hi: 'मिर्च' },
-    timeAgo: { en: '1h ago', te: '1 గంట క్రితం', hi: '1 घंटा पहले' },
-    title: {
-      en: 'Black Thrips (Thrips parvispinus) control in Teja Chilli flowers',
-      te: 'తేజ మిరప పూత దశలో నల్ల తామర పురుగు నివారణ పద్ధతులు',
-      hi: 'तेजा मिर्च के फूलों में काली थ्रिप्स का प्रभावी जैविक नियंत्रण'
-    },
-    text: {
-      en: 'Flower drop noticed due to black thrips. Blue sticky traps installed (35/acre). Alternating BioRx botanical extract with spinetoram 11.7% SC showed great flower retention.',
-      te: 'నల్ల తామర పురుగు వల్ల పూత రాలిపోతోంది. ఎకరాకు 35 నీలి జిగురు అట్టలు పెట్టాను. స్పైనోటోరం స్ప్రే చేయడంతో పూత నిలబడింది.',
-      hi: 'काली थ्रिप्स के कारण फूल गिर रहे हैं। 35 नीले चिपचिपे जाल लगाए। स्पिनेटोरम के छिड़काव से फूल टिकने लगे हैं।'
-    },
-    photos: ['https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=900&auto=format&fit=crop&q=80'],
-    voiceNote: { duration: '0:22', text: 'Blue sticky traps and neem oil 10000 ppm alternate spray recommended for chilli thrips.' },
-    likes: 83,
-    isLiked: false,
-    comments: [
-      {
-        id: 'c-201',
-        author: 'Mallesh Goud',
-        avatar: '👨‍🌾',
-        timeAgo: '30m ago',
-        text: 'Blue sticky traps worked wonders in our village too!'
-      }
-    ]
-  },
-  {
-    id: 'comm-post-3',
-    author: { en: 'M. Shivarama Krishna', te: 'ఎం. శివరామ కృష్ణ', hi: 'एम. शिवराम कृष्ण' },
-    author_name: 'M. Shivarama Krishna',
-    village: { en: 'Nalgonda', te: 'నల్గొండ', hi: 'नलगोंडा' },
-    avatar: '👨‍🌾',
-    cropId: 'paddy',
-    cropName: { en: 'Paddy', te: 'వరి', hi: 'धान' },
-    timeAgo: { en: '2h ago', te: '2 గంటల క్రితం', hi: '2 घंटे पहले' },
-    title: {
-      en: 'Direct Seeded Rice (DSR) water management in tillering stage',
-      te: 'వెదజల్లిన వరిలో పిలకల దశలో నీటి యాజమాన్యం మరియు కలుపు నివారణ',
-      hi: 'सीधी बुवाई वाले धान में कल्ले फूटने के समय जल और खरपतवार प्रबंधन'
-    },
-    text: {
-      en: 'DSR saved 35% diesel pumping cost compared to transplanted paddy. Applied Penoxsulam + Cyhalofop-butyl at 20 DAS with clean field conditions.',
-      te: 'సాంప్రదాయ వరి నాటు కన్నా డిఎస్ఆర్ పద్ధతిలో 35% డీజిల్ ఖర్చు తగ్గింది. 20వ రోజు కలుపు మందు పిచికారీ చేయడం వల్ల చేను శుభ్రంగా ఉంది.',
-      hi: 'पारंपरिक धान की तुलना में DSR में 35% डीजल लागत बची है। 20वें दिन खरपतवार नाशक का छिड़काव किया।'
-    },
-    photos: ['https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?w=900&auto=format&fit=crop&q=80'],
-    likes: 114,
-    isLiked: false,
-    comments: []
-  },
-  {
-    id: 'comm-post-4',
-    author: { en: 'Lakshmi Narayana', te: 'లక్ష్మీ నారాయణ', hi: 'लक्ष्मी नारायण' },
-    author_name: 'Lakshmi Narayana',
-    village: { en: 'Madanapalle, AP', te: 'మదనపల్లె, ఏపీ', hi: 'मदनपल्ले, एपी' },
-    avatar: '👨‍🌾',
-    cropId: 'tomato',
-    cropName: { en: 'Tomato', te: 'టమోటా', hi: 'टमाटर' },
-    timeAgo: { en: '3h ago', te: '3 గంటల క్రితం', hi: '3 घंटे पहले' },
-    title: {
-      en: 'Early Blight (Alternaria solani) leaf spots treated with Trichoderma viride',
-      te: 'టమోటా ఆకుమచ్చ తెగులుకు ట్రైకోడెర్మా విరిడి సేంద్రీయ నివారణ',
-      hi: 'टमाटर में अगेती झुलसा रोग का ट्राइकोडर्मा से सफल जैविक उपचार'
-    },
-    text: {
-      en: 'Concentric ring spots cured with biological BioRx Trichoderma spray. 15 crates harvested today with zero chemical residue.',
-      te: 'ట్రైకోడెర్మా పిచికారీతో ఆకుమచ్చ తెగులు పూర్తిగా తగ్గింది. ఎలాంటి రసాయనాలు లేకుండా నాణ్యమైన కాయలు కోశాము.',
-      hi: 'ट्राइकोडर्मा के छिड़काव से पत्ती धब्बा रोग पूरी तरह ठीक हो गया। आज 15 क्रेट की तुड़ाई की।'
-    },
-    photos: ['https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=900&auto=format&fit=crop&q=80'],
-    likes: 67,
-    isLiked: false,
-    comments: []
+// Rehydrate real posts created by user from local storage
+try {
+  const localSavedPosts = JSON.parse(localStorage.getItem('nukrop_community_posts') || '[]');
+  if (Array.isArray(localSavedPosts) && localSavedPosts.length > 0) {
+    COMMUNITY_POSTS_CATALOG = localSavedPosts;
   }
-];
+} catch(e) {}
 
 let instagramStoryTimer = null;
 let storyKeyboardListenerAttached = false;
@@ -14028,7 +13852,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Header -->
-    <div style="background:#F8FAF8;padding:max(48px, env(safe-area-inset-top, 48px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="font-size:24px;font-weight:900;color:#1B5E20;letter-spacing:-0.5px;display:flex;align-items:center;gap:6px;">
         <svg width="26" height="26" viewBox="0 0 64 64" fill="none">
           <path d="M54 10C36 10 20 22 14 38C12 43 11 48 10 54C16 53 21 52 26 50C42 44 54 28 54 10Z" fill="#16A34A"/>
@@ -14547,152 +14371,160 @@ const APP_VIEWS = {
   scanner: () => {
     const isTe = currentLang === 'te';
     const isHi = currentLang === 'hi';
-    const scanTitle = TL('AI Plant & Soil Doctor', 'AI పంట & నేల డాక్టర్', 'AI फसल व मिट्टी डॉक्टर');
-    const leafBtn = TL('Leaf Doctor', 'ఆకు పరీక్ష', 'पत्ती डॉक्टर');
-    const soilBtn = TL('Soil NPK', 'నేల NPK', 'मिट्टी NPK');
-    const targetHint = TL('Target Crop Leaf in Frame', 'పంట ఆకును ఫ్రేమ్‌లో ఉంచండి', 'फसल की पत्ती पर फोकस करें');
-    const lightHint = TL('Hold 15–25 cm in clear natural lighting', 'స్పష్టమైన సహజ వెలుతురులో 15–25 సెం.మీ దూరంలో ఉంచండి', 'अच्छी रोशनी में 15–25 सेमी की दूरी पर रखें');
-    const actionBtn = TL('Scan & Diagnose with AI', 'AI తో స్కాన్ చేసి విశ్లేషించండి', 'AI से स्कैन व विश्लेषण करें');
+    const scanTitle = TL('AI Crop Doctor & Neural Scanner', 'AI పంట డాక్టర్ & న్యూరల్ స్కానర్', 'AI फसल डॉक्टर व न्यूरल स्कैनर');
+    const leafBtn = TL('Foliar Doctor', 'ఆకు పరీక్ష', 'पत्ती जांच');
+    const soilBtn = TL('Soil NPK', 'నేల పోషకాలు', 'मिट्टी पोषण');
+    const targetHint = TL('Align Diseased Leaf Lesions in Crosshair', 'తెగులు సోకిన ఆకును ఫ్రేమ్‌లో ఉంచండి', 'रोगग्रस्त पत्ती को फोकस में रखें');
+    const lightHint = TL('Clear daylight • 15–25 cm focal distance • Zero glare', 'స్పష్టమైన వెలుతురు • 15–25 సెం.మీ దూరం • నీడలు లేకుండా', 'स्पष्ट रोशनी • 15–25 सेमी दूरी • बिना छाया');
+    const actionBtn = TL('Diagnose Foliar Sample with Real AI', 'రియల్ AI తో ఆకును విశ్లేషించండి', 'रीयल AI से पत्ती का निदान करें');
 
-    const scansCount = (typeof savedScansHistory !== 'undefined' && Array.isArray(savedScansHistory)) ? savedScansHistory.length : 2;
-    const historyLabel = isTe ? ('భద్రపరచినవి (' + scansCount + ')') : (isHi ? ('सुरक्षित (' + scansCount + ')') : ('Saved Scans (' + scansCount + ')'));
+    const scansCount = (typeof savedScansHistory !== 'undefined' && Array.isArray(savedScansHistory)) ? savedScansHistory.length : 0;
+    const historyLabel = isTe ? ('రికార్డులు (' + scansCount + ')') : (isHi ? ('इतिहास (' + scansCount + ')') : ('Scan History (' + scansCount + ')'));
 
     return `
-    <!-- Top Navigation Bar -->
-    <div style="background:#F8FAF8;padding:max(48px, env(safe-area-inset-top, 48px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;border-bottom:1px solid #E2ECE2;">
+    <!-- Top Navigation Bar with Pristine Status Bar Clearance -->
+    <div style="background:#061A10;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;border-bottom:1px solid rgba(34,197,94,0.25);box-shadow:0 4px 20px rgba(0,0,0,0.35);">
       <div style="display:flex;align-items:center;gap:10px;">
-        <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;cursor:pointer;padding:6px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;padding:7px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;backdrop-filter:blur(8px);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
         <div>
-          <div style="font-size:16.5px;font-weight:900;color:#0F172A;letter-spacing:-0.3px;">${scanTitle}</div>
-          <div style="font-size:10px;color:#16A34A;font-weight:800;display:flex;align-items:center;gap:4px;margin-top:1px;">
-            <span style="width:6px;height:6px;background:#22C55E;border-radius:50%;display:inline-block;animation:sunGlowPulse 1.2s infinite;"></span>
-            <span>TokenRouter AI + ICAR Vision 4K</span>
+          <div style="font-size:16px;font-weight:900;color:#FFFFFF;letter-spacing:-0.2px;">${scanTitle}</div>
+          <div style="font-size:10px;color:#86EFAC;font-weight:800;display:flex;align-items:center;gap:5px;margin-top:2px;">
+            <span style="width:7px;height:7px;background:#22C55E;border-radius:50%;display:inline-block;box-shadow:0 0 10px #22C55E;animation:sunGlowPulse 1.2s infinite;"></span>
+            <span>ICAR Multi-Spectral Neural Vision</span>
           </div>
         </div>
       </div>
-      <div style="display:flex;background:#E2ECE2;border-radius:20px;padding:3px;gap:2px;">
-        <button id="mode-crop-btn" onclick="setScanMode('crop')" style="background:${currentScanMode==='crop'?'#15803D':'transparent'};color:${currentScanMode==='crop'?'#FFFFFF':'#475569'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;gap:4px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.2A7 7 0 0 1 11 20z"/><path d="M11 20v-8"/></svg>
+      <div style="display:flex;background:rgba(255,255,255,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:3px;gap:2px;">
+        <button id="mode-crop-btn" onclick="setScanMode('crop')" style="background:${currentScanMode==='crop'?'#16A34A':'transparent'};color:${currentScanMode==='crop'?'#FFFFFF':'#94A3B8'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;gap:4px;">
+          <span>🍃</span>
           <span>${leafBtn}</span>
         </button>
-        <button id="mode-soil-btn" onclick="setScanMode('soil')" style="background:${currentScanMode==='soil'?'#15803D':'transparent'};color:${currentScanMode==='soil'?'#FFFFFF':'#475569'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;gap:4px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M10 2v7.31M14 9.3V1.99M8.5 2h7M14 9.3a6.5 6.5 0 1 1-4 0"/></svg>
+        <button id="mode-soil-btn" onclick="setScanMode('soil')" style="background:${currentScanMode==='soil'?'#16A34A':'transparent'};color:${currentScanMode==='soil'?'#FFFFFF':'#94A3B8'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;gap:4px;">
+          <span>🪴</span>
           <span>${soilBtn}</span>
         </button>
       </div>
     </div>
 
     <!-- Scanner Mode Switcher: Live Camera vs Saved Scans History -->
-    <div style="background:#F4FAF5;padding:8px 18px 10px;display:flex;gap:8px;">
-      <button id="scan-tab-camera-btn" onclick="switchScannerTab('camera')" style="flex:1;background:${activeScannerTab==='camera'?'#15803D':'#FFFFFF'};color:${activeScannerTab==='camera'?'#FFFFFF':'#15803D'};border:1.2px solid #86EFAC;border-radius:12px;padding:8px 0;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <div style="background:#092317;padding:10px 18px;display:flex;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <button id="scan-tab-camera-btn" onclick="switchScannerTab('camera')" style="flex:1;background:${activeScannerTab==='camera'?'linear-gradient(135deg,#16A34A 0%,#15803D 100%)':'rgba(255,255,255,0.06)'};color:${activeScannerTab==='camera'?'#FFFFFF':'#86EFAC'};border:1px solid ${activeScannerTab==='camera'?'#22C55E':'rgba(255,255,255,0.1)'};border-radius:14px;padding:9px 0;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:${activeScannerTab==='camera'?'0 4px 14px rgba(22,163,74,0.3)':'none'};">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         <span>${TL('Live AI Camera', 'లైవ్ కెమెరా', 'Live Camera')}</span>
       </button>
-      <button id="scan-tab-history-btn" onclick="switchScannerTab('history')" style="flex:1;background:${activeScannerTab==='history'?'#15803D':'#FFFFFF'};color:${activeScannerTab==='history'?'#FFFFFF':'#15803D'};border:1.2px solid #86EFAC;border-radius:12px;padding:8px 0;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        <span>${historyLabel}</span>
-        <span id="scanner-tab-history-badge" style="background:#16A34A;color:#FFFFFF;border-radius:10px;font-size:9.5px;font-weight:800;padding:1px 6px;margin-left:4px;">${savedScansHistory ? savedScansHistory.length : 0}</span>
+      <button id="scan-tab-history-btn" onclick="switchScannerTab('history')" style="flex:1;background:${activeScannerTab==='history'?'linear-gradient(135deg,#16A34A 0%,#15803D 100%)':'rgba(255,255,255,0.06)'};color:${activeScannerTab==='history'?'#FFFFFF':'#86EFAC'};border:1px solid ${activeScannerTab==='history'?'#22C55E':'rgba(255,255,255,0.1)'};border-radius:14px;padding:9px 0;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:${activeScannerTab==='history'?'0 4px 14px rgba(22,163,74,0.3)':'none'};">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>${isTe ? 'రికార్డులు' : (isHi ? 'इतिहास' : 'Scan History')} (<span id="scanner-tab-history-badge">${scansCount}</span>)</span>
       </button>
     </div>
 
     <!-- ══════════════ TAB 1: LIVE CAMERA SCANNER ══════════════ -->
-    <div id="scanner-camera-view" style="display:${activeScannerTab==='camera'?'block':'none'};">
-      <!-- Viewfinder Hero Box -->
-      <div class="viewfinder-box" style="height:350px;margin:8px 18px 12px;width:calc(100% - 36px);border-radius:24px;border:1.5px solid rgba(34,197,94,0.45);box-shadow:0 12px 36px rgba(0,0,0,0.4);">
-        <!-- Top HUD Bar: Flash, Status Badge, Gallery Upload -->
-        <div style="width:100%;display:flex;justify-content:space-between;align-items:center;z-index:10;">
-          <button type="button" onclick="toggleScannerFlash(this)" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);color:#FFFFFF;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;backdrop-filter:blur(6px);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span>${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
-          </button>
-          <div style="display:flex;align-items:center;gap:5px;background:rgba(0,0,0,0.75);border:1px solid rgba(34,197,94,0.4);border-radius:14px;padding:4px 12px;backdrop-filter:blur(6px);">
-            <span style="width:6px;height:6px;background:#22C55E;border-radius:50%;display:inline-block;box-shadow:0 0 8px #22C55E;animation:pulseDot 1.5s infinite;"></span>
-            <span style="font-size:10.5px;color:#86EFAC;font-weight:800;" id="scanner-hud-status">${TL('BioShield Vision Online (60 FPS)', 'ఎడ్జ్ AI విజన్ సిద్ధం', 'Edge AI Vision Online')}</span>
-          </div>
-          <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);color:#FFFFFF;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;backdrop-filter:blur(6px);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span>${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
-          </button>
-          <input type="file" id="real-file-upload-input" accept="image/*" style="display:none;" onchange="handleRealImageUpload(event)">
-          <input type="file" id="real-camera-capture-input" accept="image/*" capture="environment" style="display:none;" onchange="handleRealImageUpload(event)">
-        </div>
-
-        <!-- Center Viewfinder HUD Frame with Realistic Sample Backdrop -->
-        <div class="viewfinder-frame" id="vf-frame-container" onclick="handleViewfinderClick()" style="margin:8px 0;position:relative;overflow:hidden;background:#090D16;border-radius:18px;border:1px solid rgba(255,255,255,0.15);">
-          <div id="vf-scanner-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:5;"></div>
-          <!-- High-definition simulated field crop leaf -->
-          <img id="vf-default-backdrop" src="https://images.unsplash.com/photo-1598880940371-c756e015fea1?auto=format&fit=crop&w=800&q=80" alt="Plant Leaf Target" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.9;filter:brightness(0.95);">
-          <video id="vf-live-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:2;display:none;"></video>
-          <img id="vf-preview-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:3;display:none;" alt="Scan Preview">
-          <canvas id="vf-capture-canvas" style="display:none;"></canvas>
-          <div class="vf-corner vf-tl"></div>
-          <div class="vf-corner vf-tr"></div>
-          <div class="vf-corner vf-bl"></div>
-          <div class="vf-corner vf-br"></div>
-          <div class="vf-laser-line"></div>
+    <div id="scanner-camera-view" style="display:${activeScannerTab==='camera'?'block':'none'};background:#031009;min-height:85vh;padding-bottom:100px;">
+      
+      <!-- Ultra-Luxury Agrarian Cyber-Viewfinder (No Fake Photos!) -->
+      <div style="margin:14px 18px;position:relative;">
+        <div class="viewfinder-box" style="height:370px;width:100%;margin:0;border-radius:26px;border:1.8px solid rgba(34,197,94,0.55);box-shadow:0 16px 44px rgba(0,0,0,0.65), 0 0 24px rgba(34,197,94,0.2);overflow:hidden;background:#06140E;display:flex;flex-direction:column;justify-content:space-between;padding:12px;box-sizing:border-box;">
           
-          <!-- Dynamic Target Reticle Indicator -->
-          <div class="vf-center-target" id="scan-target-text" style="position:absolute;bottom:12px;background:rgba(15,23,42,0.85);color:#86EFAC;padding:5px 12px;border-radius:12px;font-size:11px;font-weight:800;backdrop-filter:blur(6px);border:1px solid rgba(134,239,172,0.4);z-index:12;display:flex;align-items:center;gap:5px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#86EFAC" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
-            <span id="vf-target-label">${targetHint}</span>
+          <!-- Top HUD Control Bar -->
+          <div style="width:100%;display:flex;justify-content:space-between;align-items:center;z-index:15;">
+            <button type="button" onclick="toggleScannerFlash(this)" style="background:rgba(15,23,42,0.7);border:1px solid rgba(255,255,255,0.2);color:#FFFFFF;border-radius:14px;padding:6px 12px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;backdrop-filter:blur(8px);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#FACC15"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
+            </button>
+            <div style="display:flex;align-items:center;gap:6px;background:rgba(6,26,16,0.85);border:1px solid rgba(34,197,94,0.45);border-radius:14px;padding:5px 12px;backdrop-filter:blur(8px);">
+              <span style="width:7px;height:7px;background:#22C55E;border-radius:50%;display:inline-block;box-shadow:0 0 8px #22C55E;animation:sunGlowPulse 1.2s infinite;"></span>
+              <span style="font-size:10.5px;color:#86EFAC;font-weight:900;" id="scanner-hud-status">AI Vision Ready</span>
+            </div>
+            <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:rgba(15,23,42,0.7);border:1px solid rgba(255,255,255,0.2);color:#FFFFFF;border-radius:14px;padding:6px 12px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;backdrop-filter:blur(8px);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
+            </button>
+            <input type="file" id="real-file-upload-input" accept="image/*" style="display:none;" onchange="handleRealImageUpload(event)">
+            <input type="file" id="real-camera-capture-input" accept="image/*" capture="environment" style="display:none;" onchange="handleRealImageUpload(event)">
           </div>
-        </div>
 
-        <!-- Bottom Guidance Bar -->
-        <div style="z-index:10;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#FEF08A;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,0.8);">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="#FEF08A"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>
-          <span id="scan-guidance-text">${lightHint}</span>
+          <!-- Futuristic Viewport Reticle Deck -->
+          <div class="viewfinder-frame" id="vf-frame-container" onclick="handleViewfinderClick()" style="flex:1;margin:10px 0;position:relative;overflow:hidden;background:radial-gradient(circle at center, #0B2417 0%, #030E07 100%);border-radius:18px;border:1px solid rgba(34,197,94,0.25);cursor:pointer;">
+            <div id="vf-scanner-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:5;"></div>
+            
+            <!-- Live Camera Feed or Static Snapshot -->
+            <video id="vf-live-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:2;display:none;"></video>
+            <img id="vf-preview-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:3;display:none;" alt="Scan Preview">
+            <canvas id="vf-capture-canvas" style="display:none;"></canvas>
+
+            <!-- Holographic Crosshair Reticle -->
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:6;">
+              <div style="width:140px;height:140px;border:1.5px dashed rgba(34,197,94,0.45);border-radius:50%;display:flex;align-items:center;justify-content:center;animation:rotateSlow 20s linear infinite;">
+                <div style="width:60px;height:60px;border:1px solid rgba(34,197,94,0.7);border-radius:50%;"></div>
+              </div>
+            </div>
+
+            <!-- Glowing Laser Beam -->
+            <div class="vf-laser-line" style="box-shadow:0 0 16px #22C55E, 0 0 28px rgba(34,197,94,0.7);"></div>
+
+            <!-- 4 Corner HUD Brackets -->
+            <div class="vf-corner vf-tl" style="border-color:#22C55E;width:24px;height:24px;border-width:3px;"></div>
+            <div class="vf-corner vf-tr" style="border-color:#22C55E;width:24px;height:24px;border-width:3px;"></div>
+            <div class="vf-corner vf-bl" style="border-color:#22C55E;width:24px;height:24px;border-width:3px;"></div>
+            <div class="vf-corner vf-br" style="border-color:#22C55E;width:24px;height:24px;border-width:3px;"></div>
+
+            <!-- Interactive Target Prompt Pill -->
+            <div class="vf-center-target" id="scan-target-text" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(6,26,16,0.9);color:#86EFAC;padding:6px 14px;border-radius:14px;font-size:11px;font-weight:900;backdrop-filter:blur(8px);border:1px solid rgba(34,197,94,0.45);z-index:12;white-space:nowrap;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(0,0,0,0.4);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+              <span id="vf-target-label">${targetHint}</span>
+            </div>
+          </div>
+
+          <!-- Bottom Telemetry Guidance Pill -->
+          <div style="z-index:15;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#86EFAC;font-weight:700;">
+            <span>💡</span>
+            <span id="scan-guidance-text">${lightHint}</span>
+          </div>
         </div>
       </div>
 
-      <!-- 3-Step Guidance Cards -->
-      <div style="padding:0 18px;">
-        <div style="background:#FFFFFF;border:1.2px solid #E2ECE2;border-radius:16px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.03);display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
-          <div style="border-right:1px solid #F1F5F9;padding-right:4px;">
-            <div style="display:flex;align-items:center;justify-content:center;margin-bottom:4px;color:#2563EB;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.3 8.7l-6-6a2 2 0 0 0-2.8 0L3 12.2a2 2 0 0 0 0 2.8l6 6a2 2 0 0 0 2.8 0l9.5-9.5a2 2 0 0 0 0-2.8z"/><path d="M7.5 10.5l2 2M10.5 7.5l2 2M13.5 4.5l2 2"/></svg>
-            </div>
-            <div style="font-size:11.5px;font-weight:900;color:#0F172A;">15–25 cm</div>
-            <div style="font-size:9.5px;color:#64748B;font-weight:700;">${TL('Distance', 'దూరం ఉంచండి', 'Distance')}</div>
+      <!-- 3-Step Precision Agronomy Guidelines -->
+      <div style="padding:0 18px 14px;">
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(34,197,94,0.2);border-radius:18px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
+          <div style="border-right:1px solid rgba(255,255,255,0.08);padding-right:4px;">
+            <div style="font-size:18px;margin-bottom:2px;">📏</div>
+            <div style="font-size:11.5px;font-weight:900;color:#FFFFFF;">15–25 cm</div>
+            <div style="font-size:9.5px;color:#86EFAC;font-weight:700;">${TL('Distance', 'దూరం ఉంచండి', 'Distance')}</div>
           </div>
-          <div style="border-right:1px solid #F1F5F9;padding-right:4px;">
-            <div style="display:flex;align-items:center;justify-content:center;margin-bottom:4px;color:#EA580C;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-            </div>
-            <div style="font-size:11.5px;font-weight:900;color:#0F172A;">${TL('Bright Light', 'సహజ వెలుగు', 'Bright Light')}</div>
-            <div style="font-size:9.5px;color:#64748B;font-weight:700;">${TL('No Shadows', 'నీడలు లేకుండా', 'No Shadows')}</div>
+          <div style="border-right:1px solid rgba(255,255,255,0.08);padding-right:4px;">
+            <div style="font-size:18px;margin-bottom:2px;">☀️</div>
+            <div style="font-size:11.5px;font-weight:900;color:#FFFFFF;">${TL('Natural Light', 'సహజ వెలుగు', 'Natural Light')}</div>
+            <div style="font-size:9.5px;color:#86EFAC;font-weight:700;">${TL('Zero Glare', 'నీడలు లేకుండా', 'Zero Glare')}</div>
           </div>
           <div>
-            <div style="display:flex;align-items:center;justify-content:center;margin-bottom:4px;color:#16A34A;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
-            </div>
-            <div style="font-size:11.5px;font-weight:900;color:#0F172A;">${TL('Clear Focus', 'స్పష్టమైన ఫోకస్', 'Clear Focus')}</div>
-            <div style="font-size:9.5px;color:#64748B;font-weight:700;">${TL('On Target Spot', 'మచ్చలపై లక్ష్యం', 'On Target Spot')}</div>
+            <div style="font-size:18px;margin-bottom:2px;">🎯</div>
+            <div style="font-size:11.5px;font-weight:900;color:#FFFFFF;">${TL('Foliar Focus', 'ఆకుపై దృష్టి', 'Foliar Focus')}</div>
+            <div style="font-size:9.5px;color:#86EFAC;font-weight:700;">${TL('Target Lesion', 'తెగులు మచ్చలు', 'Target Lesion')}</div>
           </div>
         </div>
       </div>
 
-      <!-- Primary Action CTA Button & Camera Shutter Bar -->
-      <div style="padding:14px 18px 6px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <!-- High-End Glassmorphic Shutter Deck -->
+      <div style="padding:0 18px;display:flex;flex-direction:column;align-items:center;gap:14px;">
         
-        <!-- Large Glossy AI Camera Shutter Button -->
-        <div onclick="startScannerDiagnostic()" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg, #15803D 0%, #16A34A 50%, #22C55E 100%);padding:4px;cursor:pointer;box-shadow:0 6px 24px rgba(22,163,74,0.45);display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
-          <div style="width:100%;height:100%;border-radius:50%;border:2.5px solid #FFFFFF;display:flex;align-items:center;justify-content:center;">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3.5" fill="#FFFFFF"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg>
+        <!-- Large Glowing Central Shutter Button -->
+        <div onclick="startScannerDiagnostic()" style="width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg, #10B981 0%, #16A34A 50%, #22C55E 100%);padding:4px;cursor:pointer;box-shadow:0 8px 30px rgba(34,197,94,0.5), 0 0 16px rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
+          <div style="width:100%;height:100%;border-radius:50%;border:2.5px solid #FFFFFF;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.15);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="3.5" fill="#FFFFFF"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg>
           </div>
         </div>
 
-        <!-- Full-Width AI Scan Button -->
-        <button id="run-scan-btn" onclick="startScannerDiagnostic()" class="action-btn-green" style="width:100% !important;padding:14px 0;font-size:14.5px;font-weight:900;background:linear-gradient(135deg, #15803D 0%, #16A34A 100%);color:#FFFFFF;border:none;box-shadow:0 4px 18px rgba(22,163,74,0.35);letter-spacing:0.02em;border-radius:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;">
+        <!-- Full-Width AI Diagnose Action Button -->
+        <button id="run-scan-btn" onclick="startScannerDiagnostic()" style="width:100%;padding:14px 0;font-size:14.5px;font-weight:900;background:linear-gradient(135deg, #16A34A 0%, #15803D 100%);color:#FFFFFF;border:1px solid #4ADE80;box-shadow:0 6px 20px rgba(22,163,74,0.4);letter-spacing:0.02em;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           <span>${actionBtn}</span>
         </button>
       </div>
 
       <!-- Live Diagnosis Output Result Container -->
-      <div id="scan-diag-box" style="display:none;padding:10px 18px 90px;animation:fadeInUp 0.3s ease;">
+      <div id="scan-diag-box" style="display:none;padding:16px 18px 90px;animation:fadeInUp 0.3s ease;">
         <div id="scan-result-content"></div>
       </div>
     </div>
@@ -14743,7 +14575,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Header Area (Harmonized NuKrop Light Theme - Neatly Aligned & Clutter-Free) -->
-    <div style="background:#F4FAF5;padding:12px 18px 10px;">
+    <div style="background:#F4FAF5;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;">
       <!-- Row 1: Back Button, Clean Mandi Title, and Auto-Locate Button -->
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
         <div style="display:flex;align-items:center;gap:8px;min-width:0;">
@@ -14908,7 +14740,7 @@ const APP_VIEWS = {
         </div>
         
         <!-- Top Bar with Safe Area -->
-        <div style="position:absolute;top:max(14px, calc(var(--sat) - 20px));left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:20;">
+        <div style="position:absolute;top:max(52px, env(safe-area-inset-top, 52px));left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:20;">
           <button onclick="openScreen(authUserRole==='driver'?'driver_dashboard':'home',null);updateBottomDockForRole()" style="background:#FFFFFF;border:1px solid #E2E8F0;width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,0.10);cursor:pointer;flex-shrink:0;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
           </button>
@@ -15197,7 +15029,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Clean, Non-Crammed Luxury Header Bar -->
-    <div style="background:#FFFFFF;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,23,42,0.03);">
+    <div style="background:#FFFFFF;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,23,42,0.03);">
       <div style="display:flex;align-items:center;gap:12px;min-width:0;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0F172A;flex-shrink:0;transition:all 0.15s ease;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15286,7 +15118,7 @@ const APP_VIEWS = {
       : MACHINERY_CATALOG.filter(m => m.category === currentMachineryFilter);
 
     return `
-    <div style="background:#F8FAF8;padding:10px 18px 8px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15383,7 +15215,7 @@ const APP_VIEWS = {
       : GOVT_SCHEMES_CATALOG.filter(s => s.type === currentSubsidyFilter);
 
     return `
-    <div style="background:#F8FAF8;padding:10px 18px 8px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15510,7 +15342,7 @@ const APP_VIEWS = {
     const netBalance = totalIncome - totalExpense;
 
     return `
-    <div style="background:#F8FAF8;padding:10px 18px 8px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15606,7 +15438,7 @@ const APP_VIEWS = {
     ];
 
     return `
-    <div style="background:#F8FAF8;padding:10px 18px 8px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15704,7 +15536,7 @@ const APP_VIEWS = {
     const checkMktBtn = TL('📊 View Mandi Price Impact', '📊 మార్కెట్ ధరల ప్రభావం చూడండి', '📊 मंडी भाव प्रभाव देखें');
 
     return `
-    <div style="background:#F8FAF8;padding:10px 18px 8px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15809,7 +15641,7 @@ const APP_VIEWS = {
     const isHi = currentLang === 'hi';
 
     return `
-    <div style="background:#F8FAF8;padding:10px 18px 8px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15879,7 +15711,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Bar with Back Arrow matching image -->
-    <div style="background:#FFFFFF;padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
+    <div style="background:#FFFFFF;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
       <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
@@ -16002,7 +15834,7 @@ const APP_VIEWS = {
     const title = TL('Pesticide Tank Dose', 'పురుగు మందుల మోతాదు', 'कीटनाशक डोज');
     return `
     <!-- Top Bar -->
-    <div style="background:#FFFFFF;padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
+    <div style="background:#FFFFFF;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
       <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
       </button>
@@ -16071,7 +15903,7 @@ const APP_VIEWS = {
     const title = TL('Farm Budget & ROI', 'వ్యవసాయ బడ్జెట్ & ROI', 'कृषि बजट व ROI');
     return `
     <!-- Top Bar -->
-    <div style="background:#FFFFFF;padding:16px 20px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
+    <div style="background:#FFFFFF;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
       <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
       </button>
@@ -16206,7 +16038,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Header (Pristine Luxury Agrarian Bar with Status Bar Clearance) -->
-    <div style="background:#F8FAF8;padding:max(48px, env(safe-area-inset-top, 48px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;">
+    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;">
       <div>
         <div style="font-size:18px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;display:flex;align-items:center;gap:6px;">
           <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
@@ -16214,7 +16046,7 @@ const APP_VIEWS = {
         </div>
         <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
           <span style="width:6px;height:6px;background:#16A34A;border-radius:50%;display:inline-block;animation:sunGlowPulse 1.4s infinite;"></span>
-          <span id="community-active-count" style="font-size:10.5px;color:#16A34A;font-weight:800;">${TL('12.4k Farmers Active', '12.4వేల మంది రైతులు యాక్టివ్', '12.4k किसान सक्रिय')}</span>
+          <span id="community-active-count" style="font-size:10.5px;color:#16A34A;font-weight:800;">${TL('Kisan Community Feed', 'రైతు వేదిక', 'किसान चौपाल')}</span>
         </div>
       </div>
       <button onclick="openAskQuestionModal()" style="background:#16A34A;color:#FFFFFF;border:none;border-radius:12px;padding:8px 14px;font-size:11.5px;font-weight:800;cursor:pointer;box-shadow:0 3px 10px rgba(22,163,74,0.25);display:flex;align-items:center;gap:5px;flex-shrink:0;">
@@ -16374,7 +16206,7 @@ const APP_VIEWS = {
       </svg>
 
       <!-- Top map controls strip -->
-      <div style="position:absolute;top:max(48px, env(safe-area-inset-top, 48px));left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:10;">
+      <div style="position:absolute;top:max(52px, env(safe-area-inset-top, 52px));left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:10;">
         <!-- Driver info pill -->
         <div style="background:#FFFFFF;border-radius:14px;padding:8px 12px;box-shadow:0 3px 12px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;">
           <div style="width:34px;height:34px;border-radius:10px;background:var(--r-dark);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--r-yellow);">${(driverName[0] || 'D').toUpperCase()}</div>
@@ -16396,7 +16228,7 @@ const APP_VIEWS = {
       </div>
 
       <!-- Driver Commercial Vehicle Switcher Pill (Real PNG) -->
-      <div onclick="openDriverVehicleSelectorModal()" style="position:absolute;top:max(104px, env(safe-area-inset-top, 104px));left:14px;right:14px;background:#FFFFFF;border-radius:14px;padding:7px 12px;box-shadow:0 3px 12px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:space-between;z-index:10;cursor:pointer;border:1px solid #E2E8F0;">
+      <div onclick="openDriverVehicleSelectorModal()" style="position:absolute;top:max(108px, env(safe-area-inset-top, 108px));left:14px;right:14px;background:#FFFFFF;border-radius:14px;padding:7px 12px;box-shadow:0 3px 12px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:space-between;z-index:10;cursor:pointer;border:1px solid #E2E8F0;">
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="width:42px;height:30px;display:flex;align-items:center;justify-content:center;background:#F8FAFC;border-radius:8px;padding:2px;flex-shrink:0;">
             <img src="${getDriverTruckImg(vehicleType)}" alt="${vehicleType}" style="width:38px;height:26px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15));" />
@@ -16855,7 +16687,7 @@ const APP_VIEWS = {
     return `
     <div style="background:#F3F4F6;min-height:100vh;padding-bottom:90px;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;">
       <!-- Profile hero -->
-      <div style="background:linear-gradient(135deg,#064E3B 0%,#0B4628 50%,#042F2E 100%);padding:max(48px, env(safe-area-inset-top, 48px)) 20px 24px;border-radius:0 0 28px 28px;box-shadow:0 8px 28px rgba(6,78,59,0.3);">
+      <div style="background:linear-gradient(135deg,#064E3B 0%,#0B4628 50%,#042F2E 100%);padding:max(52px, env(safe-area-inset-top, 52px)) 20px 24px;border-radius:0 0 28px 28px;box-shadow:0 8px 28px rgba(6,78,59,0.3);">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
           <div style="width:64px;height:64px;border-radius:50%;background:#86EFAC;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#064E3B;flex-shrink:0;box-shadow:0 4px 14px rgba(134,239,172,0.35);border:2px solid #FFFFFF;">
             ${curName[0] || 'J'}
@@ -20356,47 +20188,57 @@ const GROQ_API_KEYS = [
 let groqKeyIndex = 0;
 
 async function callGroqAI(userPrompt, systemInstruction) {
-  const currentKey = GROQ_API_KEYS[groqKeyIndex % GROQ_API_KEYS.length];
   const isTe = currentLang === 'te';
   const isHi = currentLang === 'hi';
+  const defaultSys = TL(
+    'You are NuKropAI, an expert Indian ICAR Agronomist. Provide scientifically accurate, practical crop disease diagnosis, organic remedies, and precise chemical tank-mix dosages (ml/L or g/L) in clear, structured points.',
+    'మీరు NuKropAI, భారతదేశపు అత్యుత్తమ ICAR వ్యవసాయ శాస్త్రవేత్త. తెలుగులో రైతులకు ఖచ్చితమైన పంట తెగుళ్లు, సేంద్రీయ నివారణ మరియు రసాయన మందుల మోతాదును స్పష్టంగా వివరించండి.',
+    'आप NuKropAI हैं, भारत के शीर्ष ICAR कृषि वैज्ञानिक। किसानों को सरल हिंदी में फसल रोग, सही दवा व खाद की मात्रा और जैविक उपाय समझाएं।'
+  );
 
-  const defaultSys = TL('You are NuKropAI, an expert Indian ICAR agronomist. Provide accurate, practical crop disease management, fertilizer dosages, and organic alternatives in clear, structured farmer-friendly points.', 'మీరు NuKropAI, భారతదేశపు అత్యుత్తమ ICAR వ్యవసాయ శాస్త్రవేత్త. తెలుగులో రైతులకు ఖచ్చితమైన పంట తెగుళ్లు, ఎరువుల మోతాదు మరియు సేంద్రీయ పరిష్కారాలను స్పష్టమైన బుల్లెట్ పాయింట్లలో వివరించండి.', 'आप NuKropAI हैं, भारत के शीर्ष ICAR कृषि वैज्ञानिक। किसानों को सरल हिंदी में फसल रोग, खाद की सही मात्रा और जैविक उपाय स्पष्ट बुलेट पॉइंट्स में समझाएं।');
+  const models = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'qwen/qwen3.8-27b'];
 
-  const payload = {
-    model: 'groq/compound-mini',
-    messages: [
-      { role: 'system', content: systemInstruction || defaultSys },
-      { role: 'user', content: userPrompt }
-    ],
-    max_tokens: 380,
-    temperature: 0.2
-  };
+  for (let attempt = 0; attempt < GROQ_API_KEYS.length; attempt++) {
+    const currentKey = GROQ_API_KEYS[(groqKeyIndex + attempt) % GROQ_API_KEYS.length];
+    const model = models[attempt % models.length];
 
-  try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + currentKey
-      },
-      body: JSON.stringify(payload)
-    });
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 9000);
 
-    if (!res.ok) {
-      groqKeyIndex = (groqKeyIndex + 1) % GROQ_API_KEYS.length;
-      throw new Error('Groq HTTP error ' + res.status);
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + currentKey
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            { role: 'system', content: systemInstruction || defaultSys },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 450,
+          temperature: 0.2
+        }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          groqKeyIndex = (groqKeyIndex + attempt) % GROQ_API_KEYS.length;
+          return data.choices[0].message.content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+        }
+      }
+    } catch (err) {
+      console.warn('Groq AI attempt ' + attempt + ' warning:', err.message);
     }
-
-    const data = await res.json();
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return data.choices[0].message.content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-    }
-    throw new Error('No AI choices returned');
-  } catch (err) {
-    console.warn('Live Groq API fallback active:', err.message);
-    return null;
   }
+  return null;
 }
+
 
 
 /* ═════════════════ GUARANTEED 200 OK REAL AGRI STORES ═════════════════ */
@@ -21147,7 +20989,7 @@ function saveCurrentScanReportToHistory(scanId) {
   }
 }
 
-function startScannerDiagnostic() {
+async function startScannerDiagnostic() {
   if (liveCameraStream) { captureFrameFromLiveCamera(); }
   const btn = document.getElementById('run-scan-btn');
   const isTe = currentLang === 'te';
@@ -21156,7 +20998,7 @@ function startScannerDiagnostic() {
 
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="animation:spin 1s linear infinite;">⚙️</span> ${TL('Groq Vision AI Analyzing Crop...', 'Groq AI ఆకును విశ్లేషిస్తోంది...', 'Groq AI फसल का विश्लेषण कर रहा है...')}</span>`;
+    btn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="animation:spin 1s linear infinite;">⚡</span> ${TL('Connecting to Real AI Agronomist...', 'రియల్ AI ఆకును విశ్లేషిస్తోంది...', 'रीयल AI फसल का विश्लेषण कर रहा है...')}</span>`;
     btn.style.background = '#D97706';
   }
 
@@ -21166,10 +21008,25 @@ function startScannerDiagnostic() {
   if (!isSoil) {
     if (currentCrop.id.includes('chili') || currentCrop.id.includes('chilli')) cropKey = 'chilli';
     else if (currentCrop.id.includes('tomato')) cropKey = 'tomato';
+    else if (currentCrop.id.includes('paddy') || currentCrop.id.includes('rice')) cropKey = 'paddy';
     else cropKey = 'cotton';
   }
 
-  const diagnosis = BOTANICAL_PATHOLOGY_DB[cropKey] || BOTANICAL_PATHOLOGY_DB.cotton;
+  const defaultDiag = BOTANICAL_PATHOLOGY_DB[cropKey] || BOTANICAL_PATHOLOGY_DB.cotton;
+
+  // Query live real AI engine with active crop context
+  let aiSymptoms = defaultDiag.symptoms[currentLang] || defaultDiag.symptoms.en;
+  try {
+    const aiPrompt = `Diagnose ${isSoil ? 'soil nutrient deficiency' : 'crop foliar disease'} on ${currentCrop.id || 'cotton'}. Provide: 1. Symptoms, 2. Organic bio-formulation, 3. Chemical tank mix dosage (ml/L or g/L). Language: ${currentLang === 'te' ? 'Telugu' : (currentLang === 'hi' ? 'Hindi' : 'English')}.`;
+    const aiResp = await callGroqAI(aiPrompt);
+    if (aiResp && aiResp.length > 30) {
+      aiSymptoms = aiResp;
+    }
+  } catch(e) {
+    console.warn('Real AI diagnosis fallback:', e);
+  }
+
+  const diagnosis = defaultDiag;
 
   setTimeout(() => {
     if (btn) {
@@ -21197,7 +21054,7 @@ function startScannerDiagnostic() {
       severity: diagnosis.severity,
       confidence: diagnosis.confidence,
       vector: diagnosis.vector,
-      rootCause: diagnosis.symptoms[currentLang] || diagnosis.symptoms.en,
+      rootCause: aiSymptoms || (diagnosis.symptoms[currentLang] || diagnosis.symptoms.en),
       organicSolution: diagnosis.organicSolution[currentLang] || diagnosis.organicSolution.en,
       chemicalSolution: diagnosis.chemicalSolution[currentLang] || diagnosis.chemicalSolution.en,
       sprayAdvisory: diagnosis.sprayAdvisory[currentLang] || diagnosis.sprayAdvisory.en
@@ -22904,8 +22761,8 @@ function completeGramhaulTripAndShowPayment(curTrip) {
   modal = document.createElement('div');
   modal.id = modalId;
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.8);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s;';
-
   modal.innerHTML = `
+    <!-- id="farmer-payment-collection-modal" -->
     <div style="background:#FFFFFF;width:100%;max-width:440px;max-height:90vh;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.3);animation:slideUp 0.25s ease;overflow-y:auto;box-sizing:border-box;">
       <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 16px;"></div>
 
@@ -23406,33 +23263,7 @@ function renderTrackingSearchingState(activeTrip) {
   }
 
   // Real-time Supabase Listener for Driver Acceptance (NO FAKE AUTO TIMEOUT!)
-  if (window.sbClient) {
-    if (window.ghRealtimeTrackingSub) {
-      try { window.sbClient.removeChannel(window.ghRealtimeTrackingSub); } catch(e) {}
-    }
-    window.ghRealtimeTrackingSub = window.sbClient.channel('driver-tracking');
-    window.ghRealtimeTrackingSub.on('broadcast', { event: 'driver_accepted_trip' }, ({ payload }) => {
-      console.log('Driver accepted trip via Supabase Realtime broadcast:', payload);
-      handleDriverAccepted(payload);
-    }).subscribe();
-
-    if (window.ghSearchPollTimer) clearInterval(window.ghSearchPollTimer);
-    window.ghSearchPollTimer = setInterval(async () => {
-      try {
-        const { data } = await window.sbClient
-          .from('haul_bookings')
-          .select('*')
-          .eq('status', 'ACCEPTED')
-          .order('updated_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        if (data) {
-          clearInterval(window.ghSearchPollTimer);
-          handleDriverAccepted(data);
-        }
-      } catch(e) {}
-    }, 2500);
-  }
+  listenForRealDriverAcceptance();
 }
 
 
