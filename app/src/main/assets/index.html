@@ -1814,7 +1814,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
     </div>
 
     <!-- Global Floating In-App Push Notification Banner -->
-    <div id="global-push-toast" style="display:none;position:fixed;top:max(env(safe-area-inset-top,0px),12px);left:16px;right:16px;background:#0F172A;color:#FFFFFF;border-radius:18px;padding:12px 16px;box-shadow:0 16px 36px rgba(0,0,0,0.4);z-index:99999;border:1px solid rgba(255,255,255,0.18);animation:toastDropIn 0.3s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
+    <div id="global-push-toast" style="display:none;position:fixed;top:calc(var(--sat, 52px) + 12px);left:16px;right:16px;background:#0F172A;color:#FFFFFF;border-radius:18px;padding:12px 16px;box-shadow:0 16px 36px rgba(0,0,0,0.4);z-index:99999;border:1px solid rgba(255,255,255,0.18);animation:toastDropIn 0.3s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <div style="width:36px;height:36px;border-radius:10px;background:#15803D;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;" id="toast-icon-plate">
           <span id="toast-icon-svg">📈</span>
@@ -2361,6 +2361,8 @@ button[onclick*="openPriceAlertModal"]:hover svg {
         <div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:18px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
           <span style="font-size:11.5px;font-weight:800;color:#475569;">Attach from Field:</span>
           <div style="display:flex;align-items:center;gap:8px;">
+            <input type="file" id="comm-post-photo-file-input" accept="image/*" style="display:none;" onchange="handleRealCommunityPhotoSelected(event)">
+            <input type="file" id="comm-post-video-file-input" accept="video/*" style="display:none;" onchange="handleRealCommunityVideoSelected(event)">
             <button type="button" onclick="attachMediaToNewPost('photo')" title="Attach Photo" style="background:#FFFFFF;border:1px solid #CBD5E1;width:40px;height:40px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.04);color:#2563EB;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             </button>
@@ -2466,11 +2468,11 @@ button[onclick*="openPriceAlertModal"]:hover svg {
         <!-- Center: Elevated 3D Green Leaf FAB -->
         <div class="dock-center-fab-wrap" onclick="openScreen('scanner',null);syncSideNav('btn-scanner')">
           <div class="dock-center-fab">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.2A7 7 0 0 1 11 20z" fill="rgba(255,255,255,0.28)"/>
-              <path d="M11 20v-8"/>
-              <path d="M11 15l3-2"/>
-              <path d="M11 12l-2.5-1.5"/>
+            <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+              <path d="M18 82 C13 54 38 22 82 18 C87 46 62 78 18 82 Z" fill="#FFFFFF"/>
+              <path d="M22 78 Q48 48 78 22" stroke="#10B981" stroke-width="4.5" stroke-linecap="round"/>
+              <circle cx="58" cy="42" r="3.4" fill="#DCFCE7"/>
+              <circle cx="47" cy="54" r="2.6" fill="#DCFCE7"/>
             </svg>
           </div>
           <span class="dock-center-label" id="tab-lbl-scan">Scanner</span>
@@ -2577,7 +2579,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
   </div>
 </div>
 
-<div id="nukrop-luxury-toast-container" style="position:fixed;top:max(env(safe-area-inset-top,16px),20px);left:50%;transform:translateX(-50%);z-index:999999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:90%;max-width:390px;"></div>
+<div id="nukrop-luxury-toast-container" style="position:fixed;top:calc(var(--sat, 52px) + 12px);left:50%;transform:translateX(-50%);z-index:999999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:90%;max-width:390px;"></div>
 
 <script>
 
@@ -2588,7 +2590,7 @@ function showLuxuryToast(message, type = 'info', duration = 3200) {
   if (!toastContainer) {
     toastContainer = document.createElement('div');
     toastContainer.id = 'nukrop-luxury-toast-container';
-    toastContainer.style.cssText = 'position:fixed;top:max(env(safe-area-inset-top,16px),20px);left:50%;transform:translateX(-50%);z-index:999999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:90%;max-width:390px;';
+    toastContainer.style.cssText = 'position:fixed;top:calc(var(--sat, 52px) + 12px);left:50%;transform:translateX(-50%);z-index:999999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:90%;max-width:390px;';
     document.body.appendChild(toastContainer);
   }
 
@@ -2699,6 +2701,7 @@ const I18N = {
   en: {
     home: 'Home', community: 'Community', scanner: 'Scanner', market: 'Market', profile: 'Profile',
     title: 'NuKropAI', liveBadge: 'LIVE', today: 'today', addCrop: 'Add', liveMandiTitle: 'Live Mandi Rate',
+    spraySafe: 'SAFE', sprayCaution: 'CAUTION', sprayFavorable: 'Ideal Spray Window', sprayHighWind: 'High Wind / Caution', sprayPillDetails: 'View Details ›',
     humidity: 'Humidity', precipitation: 'Rainfall', pressure: 'Pressure', wind: 'Wind Speed',
     sunrise: 'Sunrise', sunset: 'Sunset', sprayPillSafe: 'Spraying: Safe', sprayPillCaution: 'Spraying: Delay',
     sprayPillDetails: 'View Details ›', modalSprayTitle: 'Agricultural Spraying Advisory',
@@ -2736,6 +2739,7 @@ const I18N = {
   te: {
     home: 'హోమ్', community: 'రైతు వేదిక', scanner: 'స్కాన్', market: 'మార్కెట్', profile: 'ప్రొఫైల్',
     title: 'న్యుక్రాప్ AI', liveBadge: 'లైవ్', today: 'నేడు', addCrop: 'చేర్చు', liveMandiTitle: 'లైవ్ మార్కెట్ ధర',
+    spraySafe: 'అనుకూలం', sprayCaution: 'హెచ్చరిక', sprayFavorable: 'స్ప్రే చేయడానికి అనుకూలం', sprayHighWind: 'తీవ్రమైన గాలి / జాగ్రత్త', sprayPillDetails: 'వివరాలు చూడండి ›',
     humidity: 'తేమ శాతం', precipitation: 'వర్షపాతం', pressure: 'పీడనం', wind: 'గాలి వేగం',
     sunrise: 'సూర్యోదయం', sunset: 'సూర్యాస్తమయం', sprayPillSafe: 'మందుల పిచికారీ: అనుకూలం', sprayPillCaution: 'పిచికారీ: వేచి ఉండండి',
     sprayPillDetails: 'వివరాలు ›', modalSprayTitle: 'వ్యవసాయ మందుల పిచికారీ సలహా',
@@ -2773,6 +2777,7 @@ const I18N = {
   hi: {
     home: 'होम', community: 'किसान चौपाल', scanner: 'स्कैन', market: 'मंडी भाव', profile: 'प्रोफाइल',
     title: 'न्यूक्रॉप AI', liveBadge: 'लाइव', today: 'आज', addCrop: 'जोड़ें', liveMandiTitle: 'लाइव मंडी भाव',
+    spraySafe: 'सुरक्षित', sprayCaution: 'सावधानी', sprayFavorable: 'छिड़काव के लिए अनुकूल', sprayHighWind: 'तेज हवा / सावधानी', sprayPillDetails: 'विवरण देखें ›',
     humidity: 'नमी (आर्द्रता)', precipitation: 'वर्षा संभावना', pressure: 'वायुदाब', wind: 'हवा की गति',
     sunrise: 'सूर्योदय', sunset: 'सूर्यास्त', sprayPillSafe: 'छिड़काव: सुरक्षित', sprayPillCaution: 'छिड़काव: टालें',
     sprayPillDetails: 'विवरण देखें ›', modalSprayTitle: 'कृषि छिड़काव सुरक्षा सलाह',
@@ -6881,28 +6886,78 @@ function removeAttachedMedia(type, index) {
 
 function attachMediaToNewPost(type) {
   if (type === 'photo') {
-    const photoNum = userAttachedMedia.photos.length + 1;
-    userAttachedMedia.photos.push({ name: 'Crop_Leaf_Photo_' + photoNum + '.jpg', url: 'images/onboard_crop_doctor.jpg' });
-    if (typeof showLuxuryToast === 'function') {
-      showLuxuryToast('📷 Field symptom photo attached to post', 'success');
+    const input = document.getElementById('comm-post-photo-file-input');
+    if (input) {
+      input.click();
+    } else {
+      const photoNum = userAttachedMedia.photos.length + 1;
+      userAttachedMedia.photos.push({ name: 'Field_Leaf_Photo_' + photoNum + '.jpg', url: 'images/onboard_crop_doctor.jpg' });
+      renderAttachedMediaChips();
     }
   } else if (type === 'video') {
-    userAttachedMedia.videos.push({ name: 'Field_Scan_Video.mp4', dur: '0:18' });
-    if (typeof showLuxuryToast === 'function') {
-      showLuxuryToast('🎥 Field inspection video attached (0:18)', 'success');
+    const input = document.getElementById('comm-post-video-file-input');
+    if (input) {
+      input.click();
+    } else {
+      const vidNum = userAttachedMedia.videos.length + 1;
+      userAttachedMedia.videos.push({ name: 'Field_Video_' + vidNum + '.mp4', dur: 'Video' });
+      renderAttachedMediaChips();
     }
   } else if (type === 'voice') {
-    userAttachedMedia.voiceNote = 'Voice_Note_024.aac';
+    userAttachedMedia.voiceNote = 'Field_Audio_Note_' + Date.now().toString().slice(-4) + '.aac';
     if (typeof showLuxuryToast === 'function') {
-      showLuxuryToast('🎙️ 24-second voice note recorded', 'success');
+      showLuxuryToast('🎙️ Voice advisory note recorded', 'success');
     }
+    renderAttachedMediaChips();
   } else if (type === 'location') {
+    const loc = (typeof liveWeather !== 'undefined' && liveWeather.locationName) 
+      ? (liveWeather.locationName[currentLang] || liveWeather.locationName.en)
+      : 'Himayath Nagar Farm, Telangana';
+    userAttachedMedia.location = loc;
     if (typeof showLuxuryToast === 'function') {
-      showLuxuryToast('📍 Tagged: Himayath Nagar Farm, Telangana', 'success');
+      showLuxuryToast('📍 ' + loc, 'success');
     }
+    renderAttachedMediaChips();
   }
-  renderAttachedMediaChips();
 }
+
+function handleRealCommunityPhotoSelected(event) {
+  const file = event && event.target && event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    userAttachedMedia.photos.push({
+      name: file.name,
+      url: e.target.result,
+      size: (file.size / 1024).toFixed(0) + ' KB'
+    });
+    renderAttachedMediaChips();
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('📷 ' + file.name + ' attached', 'success');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+window.handleRealCommunityPhotoSelected = handleRealCommunityPhotoSelected;
+
+function handleRealCommunityVideoSelected(event) {
+  const file = event && event.target && event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    userAttachedMedia.videos.push({
+      name: file.name,
+      url: e.target.result,
+      dur: (file.size / (1024 * 1024)).toFixed(1) + ' MB'
+    });
+    renderAttachedMediaChips();
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('🎥 ' + file.name + ' attached', 'success');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+window.handleRealCommunityVideoSelected = handleRealCommunityVideoSelected;
 
 function renderAttachedMediaChips() {
   const container = document.getElementById('attached-media-chips');
@@ -6911,9 +6966,11 @@ function renderAttachedMediaChips() {
   const chips = [];
   userAttachedMedia.photos.forEach((p, idx) => {
     const pName = typeof p === 'object' ? p.name : p;
+    const pUrl = typeof p === 'object' ? p.url : null;
     chips.push(`
-      <div style="background:#F0FDF4;border:1.5px solid #86EFAC;color:#15803D;font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(22,163,74,0.12);">
-        <span>📷 ${pName}</span>
+      <div style="background:#F0FDF4;border:1.5px solid #86EFAC;color:#15803D;font-size:11.5px;font-weight:800;padding:4px 8px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(22,163,74,0.12);">
+        ${pUrl ? `<img src="${pUrl}" style="width:24px;height:24px;border-radius:6px;object-fit:cover;border:1px solid #86EFAC;" />` : `<span>📷</span>`}
+        <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pName}</span>
         <span onclick="removeAttachedMedia('photo', ${idx})" style="background:#DCFCE7;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#DC2626;font-size:10px;font-weight:900;">✕</span>
       </div>
     `);
@@ -6921,17 +6978,26 @@ function renderAttachedMediaChips() {
   userAttachedMedia.videos.forEach((v, idx) => {
     const vName = typeof v === 'object' ? v.name : v;
     chips.push(`
-      <div style="background:#EFF6FF;border:1.5px solid #93C5FD;color:#1D4ED8;font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(37,99,235,0.12);">
-        <span>🎥 ${vName}</span>
+      <div style="background:#EFF6FF;border:1.5px solid #93C5FD;color:#1D4ED8;font-size:11.5px;font-weight:800;padding:4px 8px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(37,99,235,0.12);">
+        <span>🎥</span>
+        <span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${vName}</span>
         <span onclick="removeAttachedMedia('video', ${idx})" style="background:#DBEAFE;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#DC2626;font-size:10px;font-weight:900;">✕</span>
       </div>
     `);
   });
   if (userAttachedMedia.voiceNote) {
     chips.push(`
-      <div style="background:#FEF3C7;border:1.5px solid #FCD34D;color:#92400E;font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(217,119,6,0.12);">
-        <span>🎙️ 0:24 Voice Note (Audio)</span>
+      <div style="background:#FEF3C7;border:1.5px solid #FCD34D;color:#92400E;font-size:11.5px;font-weight:800;padding:4px 8px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 6px rgba(217,119,6,0.12);">
+        <span>🎙️ Voice Note</span>
         <span onclick="removeAttachedMedia('voice', 0)" style="background:#FDE68A;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#DC2626;font-size:10px;font-weight:900;">✕</span>
+      </div>
+    `);
+  }
+  if (userAttachedMedia.location) {
+    chips.push(`
+      <div style="background:#FEF2F2;border:1.5px solid #FCA5A5;color:#B91C1C;font-size:11.5px;font-weight:800;padding:4px 8px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;">
+        <span>📍 ${userAttachedMedia.location}</span>
+        <span onclick="userAttachedMedia.location=null;renderAttachedMediaChips();" style="background:#FEE2E2;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#DC2626;font-size:10px;font-weight:900;">✕</span>
       </div>
     `);
   }
@@ -6966,14 +7032,21 @@ function setCommunityFilter(cat) {
 function toggleCommunityLike(postId) {
   let p = COMMUNITY_POSTS_CATALOG.find(x => x.id === postId);
   if (!p) {
-    p = { id: postId, isLiked: false, likes: 0 };
+    p = { id: postId, isLiked: false, likes: 0, comments: [] };
     COMMUNITY_POSTS_CATALOG.push(p);
   }
   p.isLiked = !p.isLiked;
   p.likes = Math.max(0, (p.likes || 0) + (p.isLiked ? 1 : -1));
-  renderCommunityFeedDom();
+  try {
+    localStorage.setItem('nukrop_community_posts', JSON.stringify(COMMUNITY_POSTS_CATALOG));
+  } catch(e) {}
 
-  // Persist like to Supabase
+  const container = document.getElementById('comm-feed-container');
+  if (container) {
+    container.innerHTML = generateCommunityFeedHtml(COMMUNITY_POSTS_CATALOG);
+  }
+
+  // Persist like to Supabase in background
   const userId = localStorage.getItem('nukrop_user_uuid') || '00000000-0000-0000-0000-000000000001';
   if (typeof nk_togglePostLike === 'function' && typeof sbClient !== 'undefined' && sbClient) {
     nk_togglePostLike(postId, userId).catch(e => console.warn('Like sync:', e));
@@ -6983,7 +7056,10 @@ function toggleCommunityLike(postId) {
 function toggleCommunityComments(postId) {
   expandedCommunityPostId = expandedCommunityPostId === postId ? null : postId;
   window.expandedCommunityPostId = expandedCommunityPostId;
-  renderCommunityFeedDom();
+  const container = document.getElementById('comm-feed-container');
+  if (container) {
+    container.innerHTML = generateCommunityFeedHtml(COMMUNITY_POSTS_CATALOG);
+  }
 }
 
 function submitCommunityComment(postId) {
@@ -6992,7 +7068,6 @@ function submitCommunityComment(postId) {
 
   const p = COMMUNITY_POSTS_CATALOG.find(x => x.id === postId);
   const commentText = inp.value.trim();
-
   const authorName = localStorage.getItem('nukrop_user_name') || 'B. Jaswanth Reddy';
 
   const newComment = {
@@ -7002,16 +7077,25 @@ function submitCommunityComment(postId) {
     text: { en: commentText, te: commentText, hi: commentText }
   };
 
-  // Add to local catalog for instant UI update
   if (p) {
     if (!p.comments) p.comments = [];
     p.comments.push(newComment);
   }
+  try {
+    localStorage.setItem('nukrop_community_posts', JSON.stringify(COMMUNITY_POSTS_CATALOG));
+  } catch(e) {}
+
   inp.value = '';
-  renderCommunityFeedDom();
+  const container = document.getElementById('comm-feed-container');
+  if (container) {
+    container.innerHTML = generateCommunityFeedHtml(COMMUNITY_POSTS_CATALOG);
+  }
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast('💬 Comment posted successfully', 'success');
+  }
 
   // Persist comment to Supabase
-  if (typeof nk_addComment === 'function' && sbClient) {
+  if (typeof nk_addComment === 'function' && typeof sbClient !== 'undefined' && sbClient) {
     nk_addComment(postId, authorName, commentText)
       .then(() => console.log('✅ Comment saved to Supabase'))
       .catch(e => console.warn('Comment sync:', e));
@@ -7110,11 +7194,14 @@ function submitNewCommunityPost() {
 
   const selectedCropId = (cropEl && cropEl.value) || 'cotton';
   const postPhotos = (userAttachedMedia.photos && userAttachedMedia.photos.length > 0)
-    ? ['images/onboard_crop_doctor.jpg']
+    ? userAttachedMedia.photos.map(p => (typeof p === 'object' ? p.url : p))
+    : [];
+  const postVideos = (userAttachedMedia.videos && userAttachedMedia.videos.length > 0)
+    ? userAttachedMedia.videos.map(v => (typeof v === 'object' ? v.url : v))
     : [];
 
   const authorName = localStorage.getItem('nukrop_user_name') || 'B. Jaswanth Reddy';
-  const authorVillage = 'Himayath Nagar Farm, Telangana (4.5 Ac)';
+  const authorVillage = userAttachedMedia.location || 'Himayath Nagar Farm, Telangana (4.5 Ac)';
 
   const newPost = {
     id: 'post-' + Date.now(),
@@ -7132,6 +7219,7 @@ function submitNewCommunityPost() {
     title: { en: titleText, te: titleText, hi: titleText },
     text: { en: captionText, te: captionText, hi: captionText },
     photos: postPhotos,
+    videos: postVideos,
     hasAudio: !!userAttachedMedia.voiceNote,
     likes: 1,
     isLiked: true,
@@ -7142,6 +7230,10 @@ function submitNewCommunityPost() {
   // Optimistic UI: add to local catalog immediately
   COMMUNITY_POSTS_CATALOG.unshift(newPost);
   window.COMMUNITY_POSTS_CATALOG = COMMUNITY_POSTS_CATALOG;
+  try {
+    localStorage.setItem('nukrop_community_posts', JSON.stringify(COMMUNITY_POSTS_CATALOG));
+  } catch(e) {}
+
   closeAskQuestionModal();
 
   if (typeof showLuxuryToast === 'function') {
@@ -7149,7 +7241,7 @@ function submitNewCommunityPost() {
   }
 
   // Persist to Supabase in background
-  if (typeof nk_createCommunityPost === 'function' && sbClient) {
+  if (typeof nk_createCommunityPost === 'function' && typeof sbClient !== 'undefined' && sbClient) {
     nk_createCommunityPost(authorName, titleText, captionText, selectedCropId, postPhotos[0] || null)
       .then(({ error }) => {
         if (error) console.warn('Post save warning:', error.message || error);
@@ -7157,7 +7249,10 @@ function submitNewCommunityPost() {
       }).catch(e => console.warn('Post sync:', e));
   }
 
-  if (typeof openScreen === 'function') {
+  const feedContainer = document.getElementById('comm-feed-container');
+  if (feedContainer) {
+    feedContainer.innerHTML = generateCommunityFeedHtml(COMMUNITY_POSTS_CATALOG);
+  } else if (typeof openScreen === 'function') {
     openScreen('community', document.getElementById('tab-community'));
   }
 }
@@ -7229,10 +7324,14 @@ function generateCommunityFeedHtml(posts) {
           ${postDesc}
         </div>
 
-        <!-- 3. Instagram Full-Width Double-Tap Photo -->
-        ${p.photos && p.photos.length > 0 ? `
+        <!-- 3. Media: Real Video or Real Photo -->
+        ${((p.videos && p.videos.length > 0) || p.video_url) ? `
+          <div style="position:relative;width:100%;border-radius:16px;overflow:hidden;margin-bottom:10px;border:1px solid #E2E8F0;background:#000000;">
+            <video src="${(p.videos && p.videos[0] && (p.videos[0].url || p.videos[0])) || p.video_url}" controls playsinline style="width:100%;max-height:280px;object-fit:contain;display:block;background:#000;border-radius:16px;"></video>
+          </div>
+        ` : (p.photos && p.photos.length > 0) ? `
           <div ondblclick="triggerCommunityDoubleTapHeart(event, '${p.id}')" style="position:relative;width:100%;height:220px;border-radius:16px;overflow:hidden;margin-bottom:10px;border:1px solid #E2E8F0;background:#0F172A;cursor:pointer;">
-            <img src="${p.photos[0]}" alt="Field Symptom" style="width:100%;height:100%;object-fit:cover;display:block;">
+            <img src="${typeof p.photos[0] === 'object' ? p.photos[0].url : p.photos[0]}" alt="Field Symptom" style="width:100%;height:100%;object-fit:cover;display:block;">
             <div style="position:absolute;bottom:10px;right:10px;background:rgba(15,23,42,0.75);color:#FFFFFF;font-size:10px;font-weight:800;padding:4px 9px;border-radius:10px;backdrop-filter:blur(6px);display:flex;align-items:center;gap:4px;">
               <span>👆 Double-Tap to</span> <span style="color:#F87171;">❤️</span>
             </div>
@@ -7366,29 +7465,41 @@ function renderCommunityFeedDom() {
     Promise.race([fetchPromise, timeoutPromise])
       .then(supabasePosts => {
         if (supabasePosts && Array.isArray(supabasePosts) && supabasePosts.length > 0) {
-          const normalizedSbPosts = supabasePosts.map(sp => ({
-            id: sp.id || ('sb-' + Math.random()),
-            author: { en: sp.author_name || 'Farmer', te: sp.author_name || 'రైతు', hi: sp.author_name || 'किसान' },
-            author_name: sp.author_name,
-            village: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
-            avatar: '👨‍🌾',
-            cropId: sp.crop_id || sp.crop_tag || 'cotton',
-            crop: sp.crop_id || sp.crop_tag || 'cotton',
-            cropName: { en: sp.crop_id || 'Cotton', te: sp.crop_id || 'పత్తి', hi: sp.crop_id || 'कपास' },
-            timeAgo: null,
-            created_at: sp.created_at,
-            title: { en: sp.title || '', te: sp.title || '', hi: sp.title || '' },
-            text: { en: sp.content || '', te: sp.content || '', hi: sp.content || '' },
-            content: sp.content,
-            photos: sp.media_url ? [sp.media_url] : [],
-            media_url: sp.media_url,
-            likes: sp.likes_count || 0,
-            isLiked: false,
-            comments: []
-          }));
+          const normalizedSbPosts = supabasePosts.map(sp => {
+            const existing = COMMUNITY_POSTS_CATALOG.find(p => p.id === sp.id || (p.created_at && p.created_at === sp.created_at));
+            const isLiked = existing ? existing.isLiked : false;
+            const likes = existing ? Math.max(existing.likes, sp.likes_count || 0) : (sp.likes_count || 0);
+            const comments = (existing && existing.comments && existing.comments.length > 0) ? existing.comments : [];
+            const photos = (existing && existing.photos && existing.photos.length > 0) ? existing.photos : (sp.media_url ? [sp.media_url] : []);
+            const videos = (existing && existing.videos && existing.videos.length > 0) ? existing.videos : (sp.video_url ? [sp.video_url] : []);
+            return {
+              id: sp.id || ('sb-' + Math.random()),
+              author: { en: sp.author_name || 'Farmer', te: sp.author_name || 'రైతు', hi: sp.author_name || 'किसान' },
+              author_name: sp.author_name,
+              village: { en: 'Himayath Nagar Farm, Telangana', te: 'హిమాయత్‌నగర్ ఫామ్, తెలంగాణ', hi: 'हिमायतनगर फार्म, तेलंगाना' },
+              avatar: '👨‍🌾',
+              cropId: sp.crop_id || sp.crop_tag || 'cotton',
+              crop: sp.crop_id || sp.crop_tag || 'cotton',
+              cropName: { en: sp.crop_id || 'Cotton', te: sp.crop_id || 'పత్తి', hi: sp.crop_id || 'कपास' },
+              timeAgo: { en: 'Recently', te: 'ఇటీవల', hi: 'हाल ही में' },
+              created_at: sp.created_at,
+              title: { en: sp.title || '', te: sp.title || '', hi: sp.title || '' },
+              text: { en: sp.content || '', te: sp.content || '', hi: sp.content || '' },
+              content: sp.content,
+              photos: photos,
+              videos: videos,
+              media_url: sp.media_url,
+              likes: likes,
+              isLiked: isLiked,
+              comments: comments
+            };
+          });
           const allPosts = [...normalizedSbPosts, ...COMMUNITY_POSTS_CATALOG.filter(lp => !normalizedSbPosts.find(sp => sp.id === lp.id))];
           COMMUNITY_POSTS_CATALOG = allPosts;
           window.COMMUNITY_POSTS_CATALOG = allPosts;
+          try {
+            localStorage.setItem('nukrop_community_posts', JSON.stringify(COMMUNITY_POSTS_CATALOG));
+          } catch(e) {}
           container.innerHTML = generateCommunityFeedHtml(allPosts);
         }
       })
@@ -11659,7 +11770,7 @@ function renderPlantixLanguageScreen(container) {
 
   container.innerHTML = `
     <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;">
-      <div style="padding:max(52px, env(safe-area-inset-top, 52px)) 20px 10px;text-align:center;flex-shrink:0;">
+      <div style="padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:10px;text-align:center;flex-shrink:0;">
         <div style="margin-bottom:8px;">
           ${getNukropLogoImg(38)}
         </div>
@@ -11739,7 +11850,7 @@ function renderCarouselSlide(container, config) {
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.38) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Navigation Bar -->
-      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 0;">
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:0;">
         <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
           ${config.topBadge || '🌿 NuKropAI OS'}
         </div>
@@ -11804,7 +11915,7 @@ function renderCameraPermissionScreen(container) {
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Bar -->
-      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 0;">
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:0;">
         <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
           ${OB_TL('perm_badge_1')}
         </div>
@@ -11877,7 +11988,7 @@ function renderLocationPermissionScreen(container) {
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Bar -->
-      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 0;">
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:0;">
         <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
           ${OB_TL('perm_badge_2')}
         </div>
@@ -11950,7 +12061,7 @@ function renderNotificationPermissionScreen(container) {
       <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.04) 35%, rgba(15,23,42,0.45) 100%);z-index:2;pointer-events:none;"></div>
 
       <!-- Top Bar -->
-      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 0;">
+      <div style="position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:0;">
         <div style="background:rgba(30, 41, 59, 0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#FFFFFF;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,0.18);">
           ${OB_TL('perm_badge_3')}
         </div>
@@ -12164,7 +12275,7 @@ function renderPlantixCropsScreen(container) {
 
   container.innerHTML = `
     <div style="width:100%;height:100%;display:flex;flex-direction:column;box-sizing:border-box;">
-      <div style="padding:max(52px, env(safe-area-inset-top, 52px)) 20px 10px;flex-shrink:0;">
+      <div style="padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:10px;flex-shrink:0;">
         <div style="font-size:24px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;">
           ${OB_TL('crops_title')}
         </div>
@@ -13852,7 +13963,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Header -->
-    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="font-size:24px;font-weight:900;color:#1B5E20;letter-spacing:-0.5px;display:flex;align-items:center;gap:6px;">
         <svg width="26" height="26" viewBox="0 0 64 64" fill="none">
           <path d="M54 10C36 10 20 22 14 38C12 43 11 48 10 54C16 53 21 52 26 50C42 44 54 28 54 10Z" fill="#16A34A"/>
@@ -14383,7 +14494,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Navigation Bar with Pristine Status Bar Clearance -->
-    <div style="background:#061A10;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;border-bottom:1px solid rgba(34,197,94,0.25);box-shadow:0 4px 20px rgba(0,0,0,0.35);">
+    <div style="background:#061A10;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;border-bottom:1px solid rgba(34,197,94,0.25);box-shadow:0 4px 20px rgba(0,0,0,0.35);">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;padding:7px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;backdrop-filter:blur(8px);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -14506,19 +14617,33 @@ const APP_VIEWS = {
         </div>
       </div>
 
-      <!-- High-End Glassmorphic Shutter Deck -->
-      <div style="padding:0 18px;display:flex;flex-direction:column;align-items:center;gap:14px;">
-        
-        <!-- Large Glowing Central Shutter Button -->
-        <div onclick="startScannerDiagnostic()" style="width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg, #10B981 0%, #16A34A 50%, #22C55E 100%);padding:4px;cursor:pointer;box-shadow:0 8px 30px rgba(34,197,94,0.5), 0 0 16px rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
-          <div style="width:100%;height:100%;border-radius:50%;border:2.5px solid #FFFFFF;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.15);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="3.5" fill="#FFFFFF"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg>
+      <!-- Ultra-Premium Agrarian Shutter Controller Deck -->
+      <div style="padding:0 18px;display:flex;flex-direction:column;align-items:center;gap:12px;">
+        <div style="width:100%;display:flex;align-items:center;justify-content:space-around;padding:6px 0;">
+          <!-- Left: Gallery Picker -->
+          <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:rgba(255,255,255,0.08);border:1.2px solid rgba(255,255,255,0.18);color:#FFFFFF;border-radius:16px;width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 4px 14px rgba(0,0,0,0.3);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span style="font-size:9px;font-weight:800;color:#86EFAC;">${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
+          </button>
+
+          <!-- Center: Massive Glowing Shutter Action Button -->
+          <div onclick="startScannerDiagnostic()" style="position:relative;width:82px;height:82px;border-radius:50%;background:linear-gradient(135deg, #10B981 0%, #16A34A 50%, #22C55E 100%);padding:4px;cursor:pointer;box-shadow:0 10px 32px rgba(34,197,94,0.55), 0 0 22px rgba(16,185,129,0.4);display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
+            <div style="position:absolute;inset:-6px;border:2px dashed rgba(34,197,94,0.5);border-radius:50%;animation:rotateSlow 18s linear infinite;"></div>
+            <div style="width:100%;height:100%;border-radius:50%;border:2.5px solid #FFFFFF;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.15);">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3.5" fill="#FFFFFF"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg>
+            </div>
           </div>
+
+          <!-- Right: Flash / Camera Toggle -->
+          <button type="button" onclick="toggleScannerFlash(this)" style="background:rgba(255,255,255,0.08);border:1.2px solid rgba(255,255,255,0.18);color:#FFFFFF;border-radius:16px;width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 4px 14px rgba(0,0,0,0.3);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#FACC15"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span style="font-size:9px;font-weight:800;color:#FDE047;">${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
+          </button>
         </div>
 
-        <!-- Full-Width AI Diagnose Action Button -->
-        <button id="run-scan-btn" onclick="startScannerDiagnostic()" style="width:100%;padding:14px 0;font-size:14.5px;font-weight:900;background:linear-gradient(135deg, #16A34A 0%, #15803D 100%);color:#FFFFFF;border:1px solid #4ADE80;box-shadow:0 6px 20px rgba(22,163,74,0.4);letter-spacing:0.02em;border-radius:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <!-- Sleek AI Status Strip (Clean Single Element) -->
+        <button id="run-scan-btn" onclick="startScannerDiagnostic()" style="width:100%;padding:13px 0;font-size:14px;font-weight:900;background:linear-gradient(135deg, #16A34A 0%, #15803D 100%);color:#FFFFFF;border:1px solid #4ADE80;box-shadow:0 4px 16px rgba(22,163,74,0.35);letter-spacing:0.02em;border-radius:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           <span>${actionBtn}</span>
         </button>
       </div>
@@ -14575,7 +14700,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Header Area (Harmonized NuKrop Light Theme - Neatly Aligned & Clutter-Free) -->
-    <div style="background:#F4FAF5;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;">
+    <div style="background:#F4FAF5;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;">
       <!-- Row 1: Back Button, Clean Mandi Title, and Auto-Locate Button -->
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
         <div style="display:flex;align-items:center;gap:8px;min-width:0;">
@@ -15029,7 +15154,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Clean, Non-Crammed Luxury Header Bar -->
-    <div style="background:#FFFFFF;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,23,42,0.03);">
+    <div style="background:#FFFFFF;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(15,23,42,0.03);">
       <div style="display:flex;align-items:center;gap:12px;min-width:0;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0F172A;flex-shrink:0;transition:all 0.15s ease;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15118,7 +15243,7 @@ const APP_VIEWS = {
       : MACHINERY_CATALOG.filter(m => m.category === currentMachineryFilter);
 
     return `
-    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15215,7 +15340,7 @@ const APP_VIEWS = {
       : GOVT_SCHEMES_CATALOG.filter(s => s.type === currentSubsidyFilter);
 
     return `
-    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15342,7 +15467,7 @@ const APP_VIEWS = {
     const netBalance = totalIncome - totalExpense;
 
     return `
-    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15438,7 +15563,7 @@ const APP_VIEWS = {
     ];
 
     return `
-    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15536,7 +15661,7 @@ const APP_VIEWS = {
     const checkMktBtn = TL('📊 View Mandi Price Impact', '📊 మార్కెట్ ధరల ప్రభావం చూడండి', '📊 मंडी भाव प्रभाव देखें');
 
     return `
-    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15641,7 +15766,7 @@ const APP_VIEWS = {
     const isHi = currentLang === 'hi';
 
     return `
-    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="background:#F8FAF8;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;gap:10px;">
         <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -15711,7 +15836,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Bar with Back Arrow matching image -->
-    <div style="background:#FFFFFF;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
+    <div style="background:#FFFFFF;padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
       <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
@@ -15834,7 +15959,7 @@ const APP_VIEWS = {
     const title = TL('Pesticide Tank Dose', 'పురుగు మందుల మోతాదు', 'कीटनाशक डोज');
     return `
     <!-- Top Bar -->
-    <div style="background:#FFFFFF;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
+    <div style="background:#FFFFFF;padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
       <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
       </button>
@@ -15903,7 +16028,7 @@ const APP_VIEWS = {
     const title = TL('Farm Budget & ROI', 'వ్యవసాయ బడ్జెట్ & ROI', 'कृषि बजट व ROI');
     return `
     <!-- Top Bar -->
-    <div style="background:#FFFFFF;padding:max(52px, env(safe-area-inset-top, 52px)) 20px 14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
+    <div style="background:#FFFFFF;padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:14px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;z-index:10;">
       <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
       </button>
@@ -16038,7 +16163,7 @@ const APP_VIEWS = {
 
     return `
     <!-- Top Header (Pristine Luxury Agrarian Bar with Status Bar Clearance) -->
-    <div style="background:#F8FAF8;padding:max(52px, env(safe-area-inset-top, 52px)) 18px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;">
+    <div style="background:#F8FAF8;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;">
       <div>
         <div style="font-size:18px;font-weight:900;color:#0F172A;letter-spacing:-0.4px;display:flex;align-items:center;gap:6px;">
           <span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
@@ -16687,7 +16812,7 @@ const APP_VIEWS = {
     return `
     <div style="background:#F3F4F6;min-height:100vh;padding-bottom:90px;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;">
       <!-- Profile hero -->
-      <div style="background:linear-gradient(135deg,#064E3B 0%,#0B4628 50%,#042F2E 100%);padding:max(52px, env(safe-area-inset-top, 52px)) 20px 24px;border-radius:0 0 28px 28px;box-shadow:0 8px 28px rgba(6,78,59,0.3);">
+      <div style="background:linear-gradient(135deg,#064E3B 0%,#0B4628 50%,#042F2E 100%);padding-top:max(54px, var(--sat, 54px));padding-left:20px;padding-right:20px;padding-bottom:24px;border-radius:0 0 28px 28px;box-shadow:0 8px 28px rgba(6,78,59,0.3);">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
           <div style="width:64px;height:64px;border-radius:50%;background:#86EFAC;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#064E3B;flex-shrink:0;box-shadow:0 4px 14px rgba(134,239,172,0.35);border:2px solid #FFFFFF;">
             ${curName[0] || 'J'}
@@ -21469,18 +21594,21 @@ function updateWeatherCardDom() {
   const container = document.getElementById('weather-status-pill-container') || document.getElementById('w-spray-compact-pill-box');
   if (!container) return;
 
-  const t = I18N[currentLang] || I18N.en;
-  const isTe = currentLang === 'te';
-  const isHi = currentLang === 'hi';
+  const t = I18N[currentLang] || I18N.en || {};
+  const windNum = parseInt(liveWeather.wind || liveWeather.windSpeed) || 6;
+  const precipNum = parseFloat(liveWeather.precip || liveWeather.precipitation || liveWeather.rainfall) || 0;
 
-  const isFavorable = (liveWeather.wind <= 15 && liveWeather.precip === 0);
-  const badgeText = isFavorable ? t.spraySafe : t.sprayCaution;
+  const isFavorable = (windNum <= 15 && precipNum === 0);
+  const badgeText = isFavorable ? TL('SAFE', 'అనుకూలం', 'सुरक्षित') : TL('CAUTION', 'హెచ్చరిక', 'सावधानी');
   const badgeBg = isFavorable ? '#DCFCE7' : '#FEF3C7';
   const badgeColor = isFavorable ? '#15803D' : '#D97706';
-  const statusText = isFavorable ? t.sprayFavorable : t.sprayHighWind;
+  const statusText = isFavorable 
+    ? (t.sprayFavorable || TL('Ideal Spray Window', 'స్ప్రే చేయడానికి అనుకూలం', 'छिड़काव के लिए आदर्श समय')) 
+    : (t.sprayCaution || TL('Spray with Caution', 'జాగ్రత్తగా స్ప్రే చేయండి', 'सावधानी से स्प्रे करें'));
+  const detailsText = t.sprayPillDetails || TL('View Details ›', 'వివరాలు చూడండి ›', 'विवरण देखें ›');
 
   container.innerHTML = `
-    <div style="background:#FFFFFF;border:1px solid #E2ECE2;border-radius:14px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+    <div onclick="openSprayModal()" style="background:#FFFFFF;border:1px solid #E2ECE2;border-radius:14px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 6px rgba(0,0,0,0.03);cursor:pointer;-webkit-tap-highlight-color:transparent;">
       <div style="display:flex;align-items:center;gap:10px;min-width:0;">
         <div style="width:32px;height:32px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
           🧑‍🌾
@@ -21490,8 +21618,8 @@ function updateWeatherCardDom() {
             ${statusText}
           </div>
           <div style="font-size:10px;color:#64748B;font-weight:700;display:flex;align-items:center;gap:6px;">
-            <span>💨 ${liveWeather.wind || '9'} km/h</span>
-            <span>🌧️ ${liveWeather.precip || '0'} mm</span>
+            <span>💨 ${windNum} km/h</span>
+            <span>🌧️ ${precipNum} mm</span>
           </div>
         </div>
       </div>
@@ -21499,7 +21627,7 @@ function updateWeatherCardDom() {
         <span style="background:${badgeBg};color:${badgeColor};border-radius:8px;padding:3px 8px;font-size:10px;font-weight:900;letter-spacing:0.02em;">
           ✓ ${badgeText}
         </span>
-        <span style="font-size:11px;font-weight:800;color:#16A34A;">${t.sprayPillDetails}</span>
+        <span style="font-size:11px;font-weight:800;color:#16A34A;">${detailsText}</span>
       </div>
     </div>
   `;
@@ -21548,11 +21676,11 @@ function updateBottomDockForRole() {
     <!-- Center: Elevated 3D Green Leaf FAB -->
     <div class="dock-center-fab-wrap" onclick="openScreen('scanner',null);syncSideNav('btn-scanner')">
       <div class="dock-center-fab">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 9.2A7 7 0 0 1 11 20z" fill="rgba(255,255,255,0.28)"/>
-              <path d="M11 20v-8"/>
-              <path d="M11 15l3-2"/>
-              <path d="M11 12l-2.5-1.5"/>
+            <svg width="30" height="30" viewBox="0 0 100 100" fill="none">
+              <path d="M18 82 C13 54 38 22 82 18 C87 46 62 78 18 82 Z" fill="#FFFFFF"/>
+              <path d="M22 78 Q48 48 78 22" stroke="#10B981" stroke-width="4.5" stroke-linecap="round"/>
+              <circle cx="58" cy="42" r="3.4" fill="#DCFCE7"/>
+              <circle cx="47" cy="54" r="2.6" fill="#DCFCE7"/>
             </svg>
           </div>
       <span class="dock-center-label" id="tab-lbl-scan">${TL('Scan', 'స్కాన్', 'स्कैन', 'ஸ்கேன்', 'ಸ್ಕ್ಯಾನ್', 'സ്കാൻ', 'स्कॅन', 'স্ক্যান', 'સ્કેન', 'ਸਕੈਨ', 'ସ୍କାନ')}</span>
@@ -22646,19 +22774,43 @@ async function nk_loadRealPostGISTrucksOnMap(coordsLonLat) {
       console.log(`[GramHaul Map] Successfully plotted ${window.realTruckMarkersList.length} real online driver(s) at exact GPS locations.`);
     }
 
-    // Subscribe to real-time location updates from moving drivers
+    // Subscribe to real-time location and duty updates from moving drivers
     if (!window._farmerDriverLocationSub && window.sbClient) {
       window._farmerDriverLocationSub = window.sbClient.channel('driver-tracking');
-      window._farmerDriverLocationSub.on('broadcast', { event: 'driver_location_update' }, ({ payload }) => {
-        if (payload && payload.lat && payload.lng) {
-          const dId = payload.driverId || payload.plate || 'drv';
-          if (window.liveDriverMarkersMap && window.liveDriverMarkersMap.has(dId)) {
-            window.liveDriverMarkersMap.get(dId).setLatLng([payload.lat, payload.lng]);
-          } else if (typeof nk_loadRealPostGISTrucksOnMap === 'function') {
-            nk_loadRealPostGISTrucksOnMap([farmLon, farmLat]);
+      window._farmerDriverLocationSub
+        .on('broadcast', { event: 'driver_location_update' }, ({ payload }) => {
+          if (payload && payload.lat && payload.lng) {
+            const dId = payload.driverId || payload.plate || 'drv';
+            if (window.liveDriverMarkersMap && window.liveDriverMarkersMap.has(dId)) {
+              window.liveDriverMarkersMap.get(dId).setLatLng([payload.lat, payload.lng]);
+            } else if (typeof nk_loadRealPostGISTrucksOnMap === 'function') {
+              nk_loadRealPostGISTrucksOnMap([farmLon, farmLat]);
+            }
           }
-        }
-      }).subscribe();
+        })
+        .on('broadcast', { event: 'driver_duty_update' }, ({ payload }) => {
+          if (payload && payload.driverId) {
+            const dId = payload.driverId;
+            if (payload.is_online === false) {
+              if (window.liveDriverMarkersMap && window.liveDriverMarkersMap.has(dId)) {
+                const marker = window.liveDriverMarkersMap.get(dId);
+                try {
+                  if (typeof gramhaulSelectorMap !== 'undefined' && gramhaulSelectorMap) gramhaulSelectorMap.removeLayer(marker);
+                  if (typeof gramhaulLiveMap !== 'undefined' && gramhaulLiveMap) gramhaulLiveMap.removeLayer(marker);
+                } catch(e) {}
+                window.liveDriverMarkersMap.delete(dId);
+              }
+              if (window.realTruckMarkersList) {
+                window.realTruckMarkersList = window.realTruckMarkersList.filter(m => m !== marker);
+              }
+            } else if (payload.is_online === true) {
+              if (typeof nk_loadRealPostGISTrucksOnMap === 'function') {
+                nk_loadRealPostGISTrucksOnMap([farmLon, farmLat]);
+              }
+            }
+          }
+        })
+        .subscribe();
     }
   } catch(e) {
     console.warn('[GramHaul Map] Live driver loading failed:', e);

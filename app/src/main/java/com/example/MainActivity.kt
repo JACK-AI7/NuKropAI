@@ -28,6 +28,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import java.io.File
 import java.io.IOException
 
@@ -570,6 +572,19 @@ class MainActivity : ComponentActivity() {
         }
         rootContainer.addView(webView)
         setContentView(rootContainer)
+
+        ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { _, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            val density = resources.displayMetrics.density
+            val topDp = (statusBarHeight / density).toInt().coerceAtLeast(44)
+            val bottomDp = (navBarHeight / density).toInt().coerceAtLeast(16)
+            webView.evaluateJavascript(
+                "document.documentElement.style.setProperty('--sat', '${topDp}px'); document.documentElement.style.setProperty('--sab', '${bottomDp}px');",
+                null
+            )
+            insets
+        }
 
         // Handle Android physical/gesture back button
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
