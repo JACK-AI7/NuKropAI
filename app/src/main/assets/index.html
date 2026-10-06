@@ -557,7 +557,7 @@ h1, h2, h3 { letter-spacing: -0.3px; }
 body {
   padding-top: var(--sat);
   padding-bottom: var(--sab);
-  background: #020617;
+  background: #F8FAFC;
   color: #0F172A;
   overflow-x: hidden;
 }
@@ -1814,7 +1814,7 @@ button[onclick*="openPriceAlertModal"]:hover svg {
     </div>
 
     <!-- Global Floating In-App Push Notification Banner -->
-    <div id="global-push-toast" style="display:none;position:fixed;top:calc(var(--sat, 52px) + 12px);left:16px;right:16px;background:#0F172A;color:#FFFFFF;border-radius:18px;padding:12px 16px;box-shadow:0 16px 36px rgba(0,0,0,0.4);z-index:99999;border:1px solid rgba(255,255,255,0.18);animation:toastDropIn 0.3s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
+    <div id="global-push-toast" style="display:none;position:fixed;top:calc(var(--sat, 52px) + 12px);left:16px;right:16px;background:#FFFFFF;color:#0F172A;border-radius:18px;padding:12px 16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);z-index:99999;border:1px solid #E2E8F0;animation:toastDropIn 0.3s cubic-bezier(0.16,1,0.3,1);" onclick="handlePushToastClick()">
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <div style="width:36px;height:36px;border-radius:10px;background:#15803D;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;" id="toast-icon-plate">
           <span id="toast-icon-svg">📈</span>
@@ -9149,11 +9149,7 @@ async function fetchRealLocationAndWeather() {
       (err) => {
         console.warn('Geolocation denied/unavailable, using farm defaults:', err.message);
         if (icon) icon.classList.remove('spin-anim');
-        showPushNotificationToast({
-          title: '📍 ' + TL('Warangal Agricultural Region', 'వరంగల్ వ్యవసాయ ప్రాంతం', 'वारंगल कृषि क्षेत्र'),
-          msg: TL('Displaying regional micro-weather & APMC mandi rates.', 'ప్రాంతీయ వాతావరణం మరియు మార్కెట్ ధరలు.', 'क्षेत्रीय मौसम और मंडी भाव।'),
-          type: 'weather'
-        });
+        // Quiet fallback to regional defaults without aggressive toast popups
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
@@ -14009,61 +14005,51 @@ const APP_VIEWS = {
       </div>
     </div>
 
-    <!-- Dynamic Location-Based Live Mandi Banner (Real Agmarknet Verified Quotes) -->
-    <div style="margin:0 18px 10px;" class="m3-card" style="box-shadow:0 4px 16px -2px rgba(234,88,12,0.12), 0 2px 6px rgba(0,0,0,0.03);">
-      <div id="home-mandi-card-container" style="padding:12px 14px;background:linear-gradient(135deg,#FFFDFB 0%,#FFF7ED 100%);border-radius:20px;border:1.5px solid #FED7AA;transition:all 0.3s ease;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;" onclick="openScreen('market',null);syncSideNav('btn-market')">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:38px;height:38px;border-radius:12px;background:#FFEDD5;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(234,88,12,0.15);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <!-- Location-Based Live Mandi Banner (Clean White & Premium) -->
+    <div style="margin:0 18px 12px;" class="m3-card">
+      <div id="home-mandi-card-container" style="padding:14px 16px;background:#FFFFFF;border-radius:20px;border:1px solid #E2E8F0;box-shadow:0 2px 10px rgba(0,0,0,0.03);transition:all 0.3s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;" onclick="openScreen('market',null);syncSideNav('btn-market')">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:40px;height:40px;border-radius:12px;background:#F0FDF4;border:1px solid #DCFCE7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.3"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             </div>
             <div>
               <div style="display:flex;align-items:center;gap:6px;">
-                <div style="font-size:11.5px;font-weight:900;color:#EA580C;line-height:1.2;">${t.liveMandiTitle} · ${cropName}</div>
-                <span style="width:6px;height:6px;border-radius:50%;background:#16A34A;animation:sunGlowPulse 1.4s infinite;display:inline-block;"></span>
-                <button id="home-mandi-refresh-btn" onclick="event.stopPropagation();refreshMandiRatesLive();" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:#EA580C;line-height:1;" title="Refresh live rate"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg></button>
+                <div style="font-size:13px;font-weight:800;color:#0F172A;line-height:1.2;">${t.liveMandiTitle} · ${cropName}</div>
+                <button id="home-mandi-refresh-btn" onclick="event.stopPropagation();refreshMandiRatesLive();" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:#64748B;line-height:1;" title="Refresh live rate"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg></button>
               </div>
-              <div style="font-size:12px;color:#64748B;margin-top:4px;font-weight:500;">📍 ${mandiName}</div>
+              <div style="font-size:12px;color:#64748B;margin-top:2px;font-weight:500;">📍 ${mandiName}</div>
             </div>
           </div>
           <div style="text-align:right;flex-shrink:0;">
-            <div id="home-mandi-live-price" style="font-size:18px;font-weight:900;color:#0B4628;">${mandiInfo.price} <span style="font-size:10px;color:#64748B;font-weight:600;">${mandiInfo.unit}</span></div>
-            <div id="home-mandi-live-change" style="font-size:10px;font-weight:800;color:${mandiInfo.up?'#16A34A':'#DC2626'};">${t.today} ${mandiInfo.change}</div>
+            <div id="home-mandi-live-price" style="font-size:19px;font-weight:900;color:#0F172A;">${mandiInfo.price} <span style="font-size:11px;color:#64748B;font-weight:600;">${mandiInfo.unit}</span></div>
+            <div id="home-mandi-live-change" style="font-size:10.5px;font-weight:800;color:${mandiInfo.up?'#16A34A':'#DC2626'};background:${mandiInfo.up?'#F0FDF4':'#FEF2F2'};padding:1px 6px;border-radius:6px;display:inline-block;margin-top:2px;">${t.today} ${mandiInfo.change}</div>
           </div>
         </div>
 
-        <!-- Quick 1-Tap Price Trend & Price Alert Buttons on Home Mandi Card -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;border-top:1px dashed #FED7AA;padding-top:8px;">
-          <button onclick="event.stopPropagation();openPriceTrendModal('${mandiInfo.mandiId}')" style="background:#FFFFFF;color:#C2410C;border:1px solid #FED7AA;border-radius:10px;padding:6px 0;font-size:10.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>${TL('Price Trend', 'ధరల చార్ట్', 'Price Trend')}
+        <!-- Quick 1-Tap Price Trend & Price Alert Buttons -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid #F1F5F9;padding-top:10px;">
+          <button onclick="event.stopPropagation();openPriceTrendModal('${mandiInfo.mandiId}')" style="background:#F8FAFC;color:#334155;border:1px solid #E2E8F0;border-radius:10px;padding:7px 0;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>${TL('Price Trend', 'ధరల చార్ట్', 'Price Trend')}
           </button>
-          <button onclick="event.stopPropagation();openPriceAlertModal('${mandiInfo.mandiId}')" style="background:#FFFFFF;color:#C2410C;border:1px solid #FED7AA;border-radius:10px;padding:6px 0;font-size:10.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="vertical-align:middle;margin-right:3px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>${TL('Set Price Alert', 'అలర్ట్ సెట్', 'Set Price Alert')}
+          <button onclick="event.stopPropagation();openPriceAlertModal('${mandiInfo.mandiId}')" style="background:#F8FAFC;color:#334155;border:1px solid #E2E8F0;border-radius:10px;padding:7px 0;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>${TL('Set Price Alert', 'అలర్ట్ సెట్', 'Set Price Alert')}
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Compact Infinite Real-Time Agrarian Breaking News Ticker -->
-    <div style="margin:0 18px 10px;background:#FFFFFF;border:1.2px solid #BBF7D0;border-radius:12px;padding:6px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(22,163,74,0.06);cursor:pointer;" onclick="openScreen('market', document.getElementById('tab-market')); syncSideNav('btn-market');">
-      <!-- Fixed Left Badge: Live Alerts -->
-      <div style="background:linear-gradient(135deg,#DCFCE7 0%,#BBF7D0 100%);color:#15803D;border:1px solid #86EFAC;border-radius:8px;padding:3px 7px;font-size:9.5px;font-weight:900;display:flex;align-items:center;gap:4px;flex-shrink:0;box-shadow:0 1px 3px rgba(21,128,61,0.15);">
-        <span style="width:6px;height:6px;background:#16A34A;border-radius:50%;display:inline-block;animation:sunGlowPulse 1.4s ease-in-out infinite;"></span>
-        <span style="letter-spacing:0.04em;">${TL('LIVE ALERTS', 'లైవ్ అలర్ట్స్', 'लाइव अलर्ट')}</span>
+    <!-- Calm Real-Time Agrarian Market Strip (No Frantic Scrolling) -->
+    <div style="margin:0 18px 14px;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:14px;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,0.02);cursor:pointer;" onclick="openScreen('market', document.getElementById('tab-market')); syncSideNav('btn-market');">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="background:#F0FDF4;color:#15803D;border:1px solid #DCFCE7;border-radius:8px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:0.02em;">
+          🌾 ${TL('MARKET', 'మార్కెట్', 'मंडी')}
+        </span>
+        <span style="font-size:11.5px;font-weight:700;color:#0F172A;">
+          ${mandiName} · ${cropName} ${mandiInfo.price} ${mandiInfo.unit}
+        </span>
       </div>
-
-      <!-- Marquee Infinite Scrolling Stream (Smooth 60fps Loop) -->
-      <div class="news-ticker-wrap" style="flex:1;min-width:0;overflow:hidden;">
-        <div class="news-ticker-track">
-          ${getLiveMarketTickerHtml()}
-          ${getLiveMarketTickerHtml()}
-        </div>
-      </div>
-
-      <!-- Right Indicator Arrow -->
-      <div style="color:#15803D;font-size:11px;font-weight:900;flex-shrink:0;">
-        ›
-      </div>
+      <span style="color:#94A3B8;font-size:14px;font-weight:700;">›</span>
     </div>
 
     <!-- ═════════════════ REAL-TIME LIVE WEATHER CARD ═════════════════ -->
@@ -14482,37 +14468,37 @@ const APP_VIEWS = {
   scanner: () => {
     const isTe = currentLang === 'te';
     const isHi = currentLang === 'hi';
-    const scanTitle = TL('AI Crop Doctor & Neural Scanner', 'AI పంట డాక్టర్ & న్యూరల్ స్కానర్', 'AI फसल डॉक्टर व न्यूरल स्कैनर');
+    const scanTitle = TL('AI Crop Doctor', 'AI పంట డాక్టర్', 'AI फसल डॉक्टर');
     const leafBtn = TL('Foliar Doctor', 'ఆకు పరీక్ష', 'पत्ती जांच');
     const soilBtn = TL('Soil NPK', 'నేల పోషకాలు', 'मिट्टी पोषण');
-    const targetHint = TL('Align Diseased Leaf Lesions in Crosshair', 'తెగులు సోకిన ఆకును ఫ్రేమ్‌లో ఉంచండి', 'रोगग्रस्त पत्ती को फोकस में रखें');
+    const targetHint = TL('Place leaf inside frame', 'ఆకును ఫ్రేమ్‌లో ఉంచండి', 'पत्ती को फ्रेम में रखें');
     const lightHint = TL('Clear daylight • 15–25 cm focal distance • Zero glare', 'స్పష్టమైన వెలుతురు • 15–25 సెం.మీ దూరం • నీడలు లేకుండా', 'स्पष्ट रोशनी • 15–25 सेमी दूरी • बिना छाया');
-    const actionBtn = TL('Diagnose Foliar Sample with Real AI', 'రియల్ AI తో ఆకును విశ్లేషించండి', 'रीयल AI से पत्ती का निदान करें');
+    const actionBtn = TL('Diagnose Leaf with Real AI', 'AI తో ఆకును విశ్లేషించండి', 'AI से पत्ती का निदान करें');
 
     const scansCount = (typeof savedScansHistory !== 'undefined' && Array.isArray(savedScansHistory)) ? savedScansHistory.length : 0;
     const historyLabel = isTe ? ('రికార్డులు (' + scansCount + ')') : (isHi ? ('इतिहास (' + scansCount + ')') : ('Scan History (' + scansCount + ')'));
 
     return `
-    <!-- Top Navigation Bar with Pristine Status Bar Clearance -->
-    <div style="background:#061A10;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;border-bottom:1px solid rgba(34,197,94,0.25);box-shadow:0 4px 20px rgba(0,0,0,0.35);">
+    <!-- Top Navigation Bar (Clean White & Minimalist) -->
+    <div style="background:#FFFFFF;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;border-bottom:1px solid #F1F5F9;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
       <div style="display:flex;align-items:center;gap:10px;">
-        <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;padding:7px;display:flex;align-items:center;justify-content:center;color:#FFFFFF;backdrop-filter:blur(8px);">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;cursor:pointer;padding:7px;display:flex;align-items:center;justify-content:center;color:#0F172A;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
         <div>
-          <div style="font-size:16px;font-weight:900;color:#FFFFFF;letter-spacing:-0.2px;">${scanTitle}</div>
-          <div style="font-size:10px;color:#86EFAC;font-weight:800;display:flex;align-items:center;gap:5px;margin-top:2px;">
-            <span style="width:7px;height:7px;background:#22C55E;border-radius:50%;display:inline-block;box-shadow:0 0 10px #22C55E;animation:sunGlowPulse 1.2s infinite;"></span>
-            <span>ICAR Multi-Spectral Neural Vision</span>
+          <div style="font-size:17px;font-weight:900;color:#0F172A;letter-spacing:-0.3px;">${scanTitle}</div>
+          <div style="font-size:10.5px;color:#16A34A;font-weight:700;display:flex;align-items:center;gap:4px;margin-top:1px;">
+            <span style="width:6px;height:6px;background:#16A34A;border-radius:50%;display:inline-block;"></span>
+            <span>Real Vision Intelligence</span>
           </div>
         </div>
       </div>
-      <div style="display:flex;background:rgba(255,255,255,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:3px;gap:2px;">
-        <button id="mode-crop-btn" onclick="setScanMode('crop')" style="background:${currentScanMode==='crop'?'#16A34A':'transparent'};color:${currentScanMode==='crop'?'#FFFFFF':'#94A3B8'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;gap:4px;">
+      <div style="display:flex;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:20px;padding:3px;gap:2px;">
+        <button id="mode-crop-btn" onclick="setScanMode('crop')" style="background:${currentScanMode==='crop'?'#FFFFFF':'transparent'};color:${currentScanMode==='crop'?'#0F172A':'#64748B'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;box-shadow:${currentScanMode==='crop'?'0 1px 3px rgba(0,0,0,0.08)':'none'};display:flex;align-items:center;gap:4px;">
           <span>🍃</span>
           <span>${leafBtn}</span>
         </button>
-        <button id="mode-soil-btn" onclick="setScanMode('soil')" style="background:${currentScanMode==='soil'?'#16A34A':'transparent'};color:${currentScanMode==='soil'?'#FFFFFF':'#94A3B8'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;gap:4px;">
+        <button id="mode-soil-btn" onclick="setScanMode('soil')" style="background:${currentScanMode==='soil'?'#FFFFFF':'transparent'};color:${currentScanMode==='soil'?'#0F172A':'#64748B'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;box-shadow:${currentScanMode==='soil'?'0 1px 3px rgba(0,0,0,0.08)':'none'};display:flex;align-items:center;gap:4px;">
           <span>🪴</span>
           <span>${soilBtn}</span>
         </button>
@@ -14520,44 +14506,44 @@ const APP_VIEWS = {
     </div>
 
     <!-- Scanner Mode Switcher: Live Camera vs Saved Scans History -->
-    <div style="background:#092317;padding:10px 18px;display:flex;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);">
-      <button id="scan-tab-camera-btn" onclick="switchScannerTab('camera')" style="flex:1;background:${activeScannerTab==='camera'?'linear-gradient(135deg,#16A34A 0%,#15803D 100%)':'rgba(255,255,255,0.06)'};color:${activeScannerTab==='camera'?'#FFFFFF':'#86EFAC'};border:1px solid ${activeScannerTab==='camera'?'#22C55E':'rgba(255,255,255,0.1)'};border-radius:14px;padding:9px 0;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:${activeScannerTab==='camera'?'0 4px 14px rgba(22,163,74,0.3)':'none'};">
+    <div style="background:#FFFFFF;padding:8px 18px 10px;display:flex;gap:10px;border-bottom:1px solid #F1F5F9;">
+      <button id="scan-tab-camera-btn" onclick="switchScannerTab('camera')" style="flex:1;background:${activeScannerTab==='camera'?'#F0FDF4':'#F8FAFC'};color:${activeScannerTab==='camera'?'#15803D':'#64748B'};border:1px solid ${activeScannerTab==='camera'?'#BBF7D0':'#E2E8F0'};border-radius:14px;padding:9px 0;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         <span>${TL('Live AI Camera', 'లైవ్ కెమెరా', 'Live Camera')}</span>
       </button>
-      <button id="scan-tab-history-btn" onclick="switchScannerTab('history')" style="flex:1;background:${activeScannerTab==='history'?'linear-gradient(135deg,#16A34A 0%,#15803D 100%)':'rgba(255,255,255,0.06)'};color:${activeScannerTab==='history'?'#FFFFFF':'#86EFAC'};border:1px solid ${activeScannerTab==='history'?'#22C55E':'rgba(255,255,255,0.1)'};border-radius:14px;padding:9px 0;font-size:12px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:${activeScannerTab==='history'?'0 4px 14px rgba(22,163,74,0.3)':'none'};">
+      <button id="scan-tab-history-btn" onclick="switchScannerTab('history')" style="flex:1;background:${activeScannerTab==='history'?'#F0FDF4':'#F8FAFC'};color:${activeScannerTab==='history'?'#15803D':'#64748B'};border:1px solid ${activeScannerTab==='history'?'#BBF7D0':'#E2E8F0'};border-radius:14px;padding:9px 0;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
         <span>${isTe ? 'రికార్డులు' : (isHi ? 'इतिहास' : 'Scan History')} (<span id="scanner-tab-history-badge">${scansCount}</span>)</span>
       </button>
     </div>
 
     <!-- ══════════════ TAB 1: LIVE CAMERA SCANNER ══════════════ -->
-    <div id="scanner-camera-view" style="display:${activeScannerTab==='camera'?'block':'none'};background:#031009;min-height:85vh;padding-bottom:100px;">
+    <div id="scanner-camera-view" style="display:${activeScannerTab==='camera'?'block':'none'};background:#F8FAFC;min-height:85vh;padding-bottom:100px;">
       
-      <!-- Ultra-Luxury Agrarian Cyber-Viewfinder (No Fake Photos!) -->
-      <div style="margin:14px 18px;position:relative;">
-        <div class="viewfinder-box" style="height:370px;width:100%;margin:0;border-radius:26px;border:1.8px solid rgba(34,197,94,0.55);box-shadow:0 16px 44px rgba(0,0,0,0.65), 0 0 24px rgba(34,197,94,0.2);overflow:hidden;background:#06140E;display:flex;flex-direction:column;justify-content:space-between;padding:12px;box-sizing:border-box;">
+      <!-- Minimalist & Premium Camera Card -->
+      <div style="margin:12px 18px;position:relative;">
+        <div class="viewfinder-box" style="height:360px;width:100%;margin:0;border-radius:24px;border:1px solid #E2E8F0;box-shadow:0 4px 18px rgba(0,0,0,0.04);overflow:hidden;background:#FFFFFF;display:flex;flex-direction:column;justify-content:space-between;padding:12px;box-sizing:border-box;">
           
-          <!-- Top HUD Control Bar -->
+          <!-- Top Controls Inside Viewfinder Card -->
           <div style="width:100%;display:flex;justify-content:space-between;align-items:center;z-index:15;">
-            <button type="button" onclick="toggleScannerFlash(this)" style="background:rgba(15,23,42,0.7);border:1px solid rgba(255,255,255,0.2);color:#FFFFFF;border-radius:14px;padding:6px 12px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;backdrop-filter:blur(8px);">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="#FACC15"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <button type="button" onclick="toggleScannerFlash(this)" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:12px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#EAB308"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               <span>${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
             </button>
-            <div style="display:flex;align-items:center;gap:6px;background:rgba(6,26,16,0.85);border:1px solid rgba(34,197,94,0.45);border-radius:14px;padding:5px 12px;backdrop-filter:blur(8px);">
-              <span style="width:7px;height:7px;background:#22C55E;border-radius:50%;display:inline-block;box-shadow:0 0 8px #22C55E;animation:sunGlowPulse 1.2s infinite;"></span>
-              <span style="font-size:10.5px;color:#86EFAC;font-weight:900;" id="scanner-hud-status">AI Vision Ready</span>
+            <div style="display:flex;align-items:center;gap:6px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:14px;padding:5px 12px;">
+              <span style="width:6px;height:6px;background:#16A34A;border-radius:50%;display:inline-block;"></span>
+              <span style="font-size:10.5px;color:#15803D;font-weight:800;" id="scanner-hud-status">AI Vision Ready</span>
             </div>
-            <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:rgba(15,23,42,0.7);border:1px solid rgba(255,255,255,0.2);color:#FFFFFF;border-radius:14px;padding:6px 12px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;backdrop-filter:blur(8px);">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:12px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               <span>${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
             </button>
             <input type="file" id="real-file-upload-input" accept="image/*" style="display:none;" onchange="handleRealImageUpload(event)">
             <input type="file" id="real-camera-capture-input" accept="image/*" capture="environment" style="display:none;" onchange="handleRealImageUpload(event)">
           </div>
 
-          <!-- Futuristic Viewport Reticle Deck -->
-          <div class="viewfinder-frame" id="vf-frame-container" onclick="handleViewfinderClick()" style="flex:1;margin:10px 0;position:relative;overflow:hidden;background:radial-gradient(circle at center, #0B2417 0%, #030E07 100%);border-radius:18px;border:1px solid rgba(34,197,94,0.25);cursor:pointer;">
+          <!-- Clean Camera Viewport Frame -->
+          <div class="viewfinder-frame" id="vf-frame-container" onclick="handleViewfinderClick()" style="flex:1;margin:10px 0;position:relative;overflow:hidden;background:#0F172A;border-radius:18px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;">
             <div id="vf-scanner-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:5;"></div>
             
             <!-- Live Camera Feed or Static Snapshot -->
@@ -14565,85 +14551,73 @@ const APP_VIEWS = {
             <img id="vf-preview-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:3;display:none;" alt="Scan Preview">
             <canvas id="vf-capture-canvas" style="display:none;"></canvas>
 
-            <!-- Holographic Crosshair Reticle -->
-            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:6;">
-              <div style="width:140px;height:140px;border:1.5px dashed rgba(34,197,94,0.45);border-radius:50%;display:flex;align-items:center;justify-content:center;animation:rotateSlow 20s linear infinite;">
-                <div style="width:60px;height:60px;border:1px solid rgba(34,197,94,0.7);border-radius:50%;"></div>
-              </div>
-            </div>
+            <!-- 4 Clean Corner Brackets -->
+            <div class="vf-corner vf-tl" style="border-color:#FFFFFF;width:24px;height:24px;border-width:2.5px;"></div>
+            <div class="vf-corner vf-tr" style="border-color:#FFFFFF;width:24px;height:24px;border-width:2.5px;"></div>
+            <div class="vf-corner vf-bl" style="border-color:#FFFFFF;width:24px;height:24px;border-width:2.5px;"></div>
+            <div class="vf-corner vf-br" style="border-color:#FFFFFF;width:24px;height:24px;border-width:2.5px;"></div>
 
-            <!-- Glowing Laser Beam -->
-            <div class="vf-laser-line" style="box-shadow:0 0 16px #22C55E, 0 0 28px rgba(34,197,94,0.7);"></div>
-
-            <!-- 4 Corner HUD Brackets -->
-            <div class="vf-corner vf-tl" style="border-color:#22C55E;width:24px;height:24px;border-width:3px;"></div>
-            <div class="vf-corner vf-tr" style="border-color:#22C55E;width:24px;height:24px;border-width:3px;"></div>
-            <div class="vf-corner vf-bl" style="border-color:#22C55E;width:24px;height:24px;border-width:3px;"></div>
-            <div class="vf-corner vf-br" style="border-color:#22C55E;width:24px;height:24px;border-width:3px;"></div>
-
-            <!-- Interactive Target Prompt Pill -->
-            <div class="vf-center-target" id="scan-target-text" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(6,26,16,0.9);color:#86EFAC;padding:6px 14px;border-radius:14px;font-size:11px;font-weight:900;backdrop-filter:blur(8px);border:1px solid rgba(34,197,94,0.45);z-index:12;white-space:nowrap;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(0,0,0,0.4);">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            <!-- Minimalist Target Prompt Pill -->
+            <div class="vf-center-target" id="scan-target-text" style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.75);color:#FFFFFF;padding:6px 16px;border-radius:20px;font-size:11.5px;font-weight:700;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);z-index:12;white-space:nowrap;display:flex;align-items:center;gap:6px;">
               <span id="vf-target-label">${targetHint}</span>
             </div>
           </div>
 
-          <!-- Bottom Telemetry Guidance Pill -->
-          <div style="z-index:15;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#86EFAC;font-weight:700;">
+          <!-- Bottom Guidance -->
+          <div style="z-index:15;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#64748B;font-weight:600;">
             <span>💡</span>
             <span id="scan-guidance-text">${lightHint}</span>
           </div>
         </div>
       </div>
 
-      <!-- 3-Step Precision Agronomy Guidelines -->
+      <!-- 3-Step Clean Agronomy Guidelines -->
       <div style="padding:0 18px 14px;">
-        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(34,197,94,0.2);border-radius:18px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
-          <div style="border-right:1px solid rgba(255,255,255,0.08);padding-right:4px;">
+        <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:18px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
+          <div style="border-right:1px solid #F1F5F9;padding-right:4px;">
             <div style="font-size:18px;margin-bottom:2px;">📏</div>
-            <div style="font-size:11.5px;font-weight:900;color:#FFFFFF;">15–25 cm</div>
-            <div style="font-size:9.5px;color:#86EFAC;font-weight:700;">${TL('Distance', 'దూరం ఉంచండి', 'Distance')}</div>
+            <div style="font-size:12px;font-weight:800;color:#0F172A;">15–25 cm</div>
+            <div style="font-size:9.5px;color:#64748B;font-weight:600;">${TL('Distance', 'దూరం ఉంచండి', 'Distance')}</div>
           </div>
-          <div style="border-right:1px solid rgba(255,255,255,0.08);padding-right:4px;">
+          <div style="border-right:1px solid #F1F5F9;padding-right:4px;">
             <div style="font-size:18px;margin-bottom:2px;">☀️</div>
-            <div style="font-size:11.5px;font-weight:900;color:#FFFFFF;">${TL('Natural Light', 'సహజ వెలుగు', 'Natural Light')}</div>
-            <div style="font-size:9.5px;color:#86EFAC;font-weight:700;">${TL('Zero Glare', 'నీడలు లేకుండా', 'Zero Glare')}</div>
+            <div style="font-size:12px;font-weight:800;color:#0F172A;">${TL('Natural Light', 'సహజ వెలుగు', 'Natural Light')}</div>
+            <div style="font-size:9.5px;color:#64748B;font-weight:600;">${TL('Zero Glare', 'నీడలు లేకుండా', 'Zero Glare')}</div>
           </div>
           <div>
             <div style="font-size:18px;margin-bottom:2px;">🎯</div>
-            <div style="font-size:11.5px;font-weight:900;color:#FFFFFF;">${TL('Foliar Focus', 'ఆకుపై దృష్టి', 'Foliar Focus')}</div>
-            <div style="font-size:9.5px;color:#86EFAC;font-weight:700;">${TL('Target Lesion', 'తెగులు మచ్చలు', 'Target Lesion')}</div>
+            <div style="font-size:12px;font-weight:800;color:#0F172A;">${TL('Foliar Focus', 'ఆకుపై దృష్టి', 'Foliar Focus')}</div>
+            <div style="font-size:9.5px;color:#64748B;font-weight:600;">${TL('Target Lesion', 'తెగులు మచ్చలు', 'Target Lesion')}</div>
           </div>
         </div>
       </div>
 
-      <!-- Ultra-Premium Agrarian Shutter Controller Deck -->
+      <!-- Clean Apple-Style Shutter Controller Deck -->
       <div style="padding:0 18px;display:flex;flex-direction:column;align-items:center;gap:12px;">
-        <div style="width:100%;display:flex;align-items:center;justify-content:space-around;padding:6px 0;">
+        <div style="width:100%;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:24px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:space-around;">
           <!-- Left: Gallery Picker -->
-          <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:rgba(255,255,255,0.08);border:1.2px solid rgba(255,255,255,0.18);color:#FFFFFF;border-radius:16px;width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 4px 14px rgba(0,0,0,0.3);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span style="font-size:9px;font-weight:800;color:#86EFAC;">${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
+          <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:18px;width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span style="font-size:9px;font-weight:700;color:#64748B;">${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
           </button>
 
-          <!-- Center: Massive Glowing Shutter Action Button -->
-          <div onclick="startScannerDiagnostic()" style="position:relative;width:82px;height:82px;border-radius:50%;background:linear-gradient(135deg, #10B981 0%, #16A34A 50%, #22C55E 100%);padding:4px;cursor:pointer;box-shadow:0 10px 32px rgba(34,197,94,0.55), 0 0 22px rgba(16,185,129,0.4);display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
-            <div style="position:absolute;inset:-6px;border:2px dashed rgba(34,197,94,0.5);border-radius:50%;animation:rotateSlow 18s linear infinite;"></div>
-            <div style="width:100%;height:100%;border-radius:50%;border:2.5px solid #FFFFFF;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.15);">
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3.5" fill="#FFFFFF"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg>
+          <!-- Center: Apple-Style Pristine Shutter Action Button -->
+          <div onclick="startScannerDiagnostic()" style="position:relative;width:78px;height:78px;border-radius:50%;background:#FFFFFF;border:3px solid #CBD5E1;padding:4px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
+            <div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg, #16A34A 0%, #15803D 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(22,163,74,0.35);">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3.5" fill="#FFFFFF"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg>
             </div>
           </div>
 
           <!-- Right: Flash / Camera Toggle -->
-          <button type="button" onclick="toggleScannerFlash(this)" style="background:rgba(255,255,255,0.08);border:1.2px solid rgba(255,255,255,0.18);color:#FFFFFF;border-radius:16px;width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 4px 14px rgba(0,0,0,0.3);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#FACC15"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span style="font-size:9px;font-weight:800;color:#FDE047;">${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
+          <button type="button" onclick="toggleScannerFlash(this)" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:18px;width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#EAB308"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span style="font-size:9px;font-weight:700;color:#64748B;">${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
           </button>
         </div>
 
-        <!-- Sleek AI Status Strip (Clean Single Element) -->
-        <button id="run-scan-btn" onclick="startScannerDiagnostic()" style="width:100%;padding:13px 0;font-size:14px;font-weight:900;background:linear-gradient(135deg, #16A34A 0%, #15803D 100%);color:#FFFFFF;border:1px solid #4ADE80;box-shadow:0 4px 16px rgba(22,163,74,0.35);letter-spacing:0.02em;border-radius:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <!-- Sleek AI Status Strip (Clean Capsule) -->
+        <button id="run-scan-btn" onclick="startScannerDiagnostic()" style="width:100%;padding:13px 0;font-size:13px;font-weight:800;background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;box-shadow:0 1px 4px rgba(0,0,0,0.02);border-radius:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.3" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           <span>${actionBtn}</span>
         </button>
       </div>
