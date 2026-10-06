@@ -585,60 +585,59 @@ body {
 .viewfinder-frame {
   position: relative;
   width: 100%;
-  flex: 1;
-  margin: 10px 0;
-  border-radius: 18px;
+  border-radius: 26px;
   overflow: hidden;
   background: #090D16;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .vf-corner {
   position: absolute;
-  width: 24px;
-  height: 24px;
-  border-color: #22C55E;
+  width: 32px;
+  height: 32px;
+  border-color: #FFFFFF;
   border-style: solid;
   border-width: 0;
   pointer-events: none;
   z-index: 10;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
 }
-.vf-tl { top: 12px; left: 12px; border-top-width: 3.5px; border-left-width: 3.5px; border-top-left-radius: 8px; }
-.vf-tr { top: 12px; right: 12px; border-top-width: 3.5px; border-right-width: 3.5px; border-top-right-radius: 8px; }
-.vf-bl { bottom: 12px; left: 12px; border-bottom-width: 3.5px; border-left-width: 3.5px; border-bottom-left-radius: 8px; }
-.vf-br { bottom: 12px; right: 12px; border-bottom-width: 3.5px; border-right-width: 3.5px; border-bottom-right-radius: 8px; }
+.vf-tl { top: 32px; left: 32px; border-top-width: 3.5px; border-left-width: 3.5px; border-top-left-radius: 12px; }
+.vf-tr { top: 32px; right: 32px; border-top-width: 3.5px; border-right-width: 3.5px; border-top-right-radius: 12px; }
+.vf-bl { bottom: 32px; left: 32px; border-bottom-width: 3.5px; border-left-width: 3.5px; border-bottom-left-radius: 12px; }
+.vf-br { bottom: 32px; right: 32px; border-bottom-width: 3.5px; border-right-width: 3.5px; border-bottom-right-radius: 12px; }
 
 .vf-laser-line {
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 2.5px;
-  background: linear-gradient(90deg, transparent 0%, #22C55E 50%, transparent 100%);
-  box-shadow: 0 0 14px #22C55E, 0 0 28px #4ADE80;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 25%, #22C55E 50%, rgba(255, 255, 255, 0.8) 75%, transparent 100%);
+  box-shadow: 0 0 12px #22C55E;
   animation: vfLaserScan 2.4s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 9;
 }
 
 @keyframes vfLaserScan {
-  0% { top: 10%; opacity: 0.3; }
+  0% { top: 12%; opacity: 0.3; }
   50% { opacity: 1; }
   100% { top: 88%; opacity: 0.3; }
 }
 
 .vf-center-target {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  color: #F8FAFC;
+  color: #FFFFFF;
   background: rgba(15, 23, 42, 0.82);
-  padding: 6px 14px;
+  padding: 7px 18px;
   border-radius: 100px;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   pointer-events: none;
   text-align: center;
   z-index: 10;
@@ -14468,157 +14467,121 @@ const APP_VIEWS = {
   scanner: () => {
     const isTe = currentLang === 'te';
     const isHi = currentLang === 'hi';
-    const scanTitle = TL('AI Crop Doctor', 'AI పంట డాక్టర్', 'AI फसल डॉक्टर');
+    const scanTitle = TL('AI Crop Scanner', 'AI పంట స్కానర్', 'AI फसल स्कैनर');
     const leafBtn = TL('Foliar Doctor', 'ఆకు పరీక్ష', 'पत्ती जांच');
     const soilBtn = TL('Soil NPK', 'నేల పోషకాలు', 'मिट्टी पोषण');
-    const targetHint = TL('Place leaf inside frame', 'ఆకును ఫ్రేమ్‌లో ఉంచండి', 'पत्ती को फ्रेम में रखें');
-    const lightHint = TL('Clear daylight • 15–25 cm focal distance • Zero glare', 'స్పష్టమైన వెలుతురు • 15–25 సెం.మీ దూరం • నీడలు లేకుండా', 'स्पष्ट रोशनी • 15–25 सेमी दूरी • बिना छाया');
+    const targetHint = TL('Point camera at crop leaf', 'ఆకును కెమెరాలో చూపించండి', 'फसल की पत्ती पर कैमरा रखें');
+    const lightHint = TL('Clear daylight • 15–25 cm focal distance • Zero glare', 'స్పష్టమైన వెలుతురు • 15–25 సెం.మీ దూరం • నీడలు లేకుండా', 'స్పష్టమైన వెలుతురు • 15–25 సెం.మీ దూరం • నీడలు లేకుండా');
     const actionBtn = TL('Diagnose Leaf with Real AI', 'AI తో ఆకును విశ్లేషించండి', 'AI से पत्ती का निदान करें');
 
     const scansCount = (typeof savedScansHistory !== 'undefined' && Array.isArray(savedScansHistory)) ? savedScansHistory.length : 0;
     const historyLabel = isTe ? ('రికార్డులు (' + scansCount + ')') : (isHi ? ('इतिहास (' + scansCount + ')') : ('Scan History (' + scansCount + ')'));
 
     return `
-    <!-- Top Navigation Bar (Clean White & Minimalist) -->
-    <div style="background:#FFFFFF;padding-top:max(54px, var(--sat, 54px));padding-left:18px;padding-right:18px;padding-bottom:12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;border-bottom:1px solid #F1F5F9;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;cursor:pointer;padding:7px;display:flex;align-items:center;justify-content:center;color:#0F172A;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    <!-- Top Bar: Minimal Google Lens Header -->
+    <div style="background:#FFFFFF;padding-top:max(52px, var(--sat, 52px));padding-left:16px;padding-right:16px;padding-bottom:12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;border-bottom:1px solid #F1F5F9;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="openScreen('home',null);syncSideNav('btn-home')" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:50%;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#0F172A;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
         <div>
-          <div style="font-size:17px;font-weight:900;color:#0F172A;letter-spacing:-0.3px;">${scanTitle}</div>
-          <div style="font-size:10.5px;color:#16A34A;font-weight:700;display:flex;align-items:center;gap:4px;margin-top:1px;">
-            <span style="width:6px;height:6px;background:#16A34A;border-radius:50%;display:inline-block;"></span>
-            <span>Real Vision Intelligence</span>
+          <div style="font-size:17px;font-weight:900;color:#0F172A;letter-spacing:-0.2px;display:flex;align-items:center;gap:6px;">
+            <span>${scanTitle}</span>
+            <span style="font-size:9.5px;font-weight:800;background:#DCFCE7;color:#15803D;padding:2px 7px;border-radius:10px;">LENS</span>
           </div>
         </div>
       </div>
-      <div style="display:flex;background:#F1F5F9;border:1px solid #E2E8F0;border-radius:20px;padding:3px;gap:2px;">
-        <button id="mode-crop-btn" onclick="setScanMode('crop')" style="background:${currentScanMode==='crop'?'#FFFFFF':'transparent'};color:${currentScanMode==='crop'?'#0F172A':'#64748B'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;box-shadow:${currentScanMode==='crop'?'0 1px 3px rgba(0,0,0,0.08)':'none'};display:flex;align-items:center;gap:4px;">
+      
+      <!-- Top Right Controls: Flash & History Tab Toggle -->
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button type="button" onclick="toggleScannerFlash(this)" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:50%;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Flash">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="#EAB308"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </button>
+        <button id="scan-tab-history-btn" onclick="switchScannerTab(activeScannerTab==='history'?'camera':'history')" style="background:${activeScannerTab==='history'?'#0F172A':'#F8FAFC'};color:${activeScannerTab==='history'?'#FFFFFF':'#0F172A'};border:1px solid #E2E8F0;border-radius:20px;padding:7px 13px;font-size:11.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+          <span>${isTe ? 'రికార్డులు' : (isHi ? 'इतिहास' : 'History')} (<span id="scanner-tab-history-badge">${scansCount}</span>)</span>
+        </button>
+        <button id="scan-tab-camera-btn" onclick="switchScannerTab('camera')" style="display:none;"></button>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 1: LIVE GOOGLE LENS CAMERA ══════════════ -->
+    <div id="scanner-camera-view" style="display:${activeScannerTab==='camera'?'block':'none'};background:#F8FAFC;min-height:85vh;padding-bottom:90px;">
+      
+      <!-- Edge-to-Edge Rounded Camera Viewfinder (Google Lens Viewport) -->
+      <div style="padding:14px 16px 6px;">
+        <div class="viewfinder-frame" id="vf-frame-container" onclick="handleViewfinderClick()" style="position:relative;width:100%;height:430px;margin:0;background:#090D16;border-radius:26px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,0.06);">
+          <div id="vf-scanner-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:5;"></div>
+          
+          <!-- Live Camera Feed or Static Snapshot -->
+          <video id="vf-live-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:26px;z-index:2;display:none;"></video>
+          <img id="vf-preview-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:26px;z-index:3;display:none;" alt="Scan Preview">
+          <canvas id="vf-capture-canvas" style="display:none;"></canvas>
+
+          <!-- Google Lens 4 Iconic Corner Reticles -->
+          <div class="vf-corner vf-tl" style="position:absolute;top:32px;left:32px;width:34px;height:34px;border-top:3.5px solid #FFFFFF;border-left:3.5px solid #FFFFFF;border-top-left-radius:12px;z-index:10;pointer-events:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></div>
+          <div class="vf-corner vf-tr" style="position:absolute;top:32px;right:32px;width:34px;height:34px;border-top:3.5px solid #FFFFFF;border-right:3.5px solid #FFFFFF;border-top-right-radius:12px;z-index:10;pointer-events:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></div>
+          <div class="vf-corner vf-bl" style="position:absolute;bottom:32px;left:32px;width:34px;height:34px;border-bottom:3.5px solid #FFFFFF;border-left:3.5px solid #FFFFFF;border-bottom-left-radius:12px;z-index:10;pointer-events:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></div>
+          <div class="vf-corner vf-br" style="position:absolute;bottom:32px;right:32px;width:34px;height:34px;border-bottom:3.5px solid #FFFFFF;border-right:3.5px solid #FFFFFF;border-bottom-right-radius:12px;z-index:10;pointer-events:none;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></div>
+
+          <!-- Google Lens Animated Laser Scan Line -->
+          <div class="vf-laser-line"></div>
+
+          <!-- Top Status Capsule Inside Viewfinder -->
+          <div style="position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.72);color:#FFFFFF;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.18);display:flex;align-items:center;gap:6px;z-index:12;white-space:nowrap;">
+            <span style="width:6px;height:6px;background:#22C55E;border-radius:50%;box-shadow:0 0 6px #22C55E;"></span>
+            <span id="scanner-hud-status">AI Vision Ready</span>
+          </div>
+
+          <!-- Bottom Target Hint Pill Inside Viewfinder -->
+          <div class="vf-center-target" id="scan-target-text" style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.78);color:#FFFFFF;padding:7px 18px;border-radius:24px;font-size:12px;font-weight:700;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.22);z-index:12;white-space:nowrap;display:flex;align-items:center;gap:6px;">
+            <span id="vf-target-label">${targetHint}</span>
+          </div>
+
+          <span id="scan-guidance-text" style="display:none;">${lightHint}</span>
+        </div>
+      </div>
+
+      <!-- Mode Selector Tabs (Google Lens Pill Carousel) -->
+      <div style="padding:8px 16px 4px;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <button id="mode-crop-btn" onclick="setScanMode('crop');switchScannerTab('camera')" style="background:${currentScanMode==='crop'?'#0F172A':'#F1F5F9'};color:${currentScanMode==='crop'?'#FFFFFF':'#64748B'};border:none;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;gap:5px;">
           <span>🍃</span>
           <span>${leafBtn}</span>
         </button>
-        <button id="mode-soil-btn" onclick="setScanMode('soil')" style="background:${currentScanMode==='soil'?'#FFFFFF':'transparent'};color:${currentScanMode==='soil'?'#0F172A':'#64748B'};border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:800;cursor:pointer;transition:all 0.15s ease;box-shadow:${currentScanMode==='soil'?'0 1px 3px rgba(0,0,0,0.08)':'none'};display:flex;align-items:center;gap:4px;">
+        <button id="mode-soil-btn" onclick="setScanMode('soil');switchScannerTab('camera')" style="background:${currentScanMode==='soil'?'#0F172A':'#F1F5F9'};color:${currentScanMode==='soil'?'#FFFFFF':'#64748B'};border:none;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:center;gap:5px;">
           <span>🪴</span>
           <span>${soilBtn}</span>
         </button>
       </div>
-    </div>
 
-    <!-- Scanner Mode Switcher: Live Camera vs Saved Scans History -->
-    <div style="background:#FFFFFF;padding:8px 18px 10px;display:flex;gap:10px;border-bottom:1px solid #F1F5F9;">
-      <button id="scan-tab-camera-btn" onclick="switchScannerTab('camera')" style="flex:1;background:${activeScannerTab==='camera'?'#F0FDF4':'#F8FAFC'};color:${activeScannerTab==='camera'?'#15803D':'#64748B'};border:1px solid ${activeScannerTab==='camera'?'#BBF7D0':'#E2E8F0'};border-radius:14px;padding:9px 0;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span>${TL('Live AI Camera', 'లైవ్ కెమెరా', 'Live Camera')}</span>
-      </button>
-      <button id="scan-tab-history-btn" onclick="switchScannerTab('history')" style="flex:1;background:${activeScannerTab==='history'?'#F0FDF4':'#F8FAFC'};color:${activeScannerTab==='history'?'#15803D':'#64748B'};border:1px solid ${activeScannerTab==='history'?'#BBF7D0':'#E2E8F0'};border-radius:14px;padding:9px 0;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        <span>${isTe ? 'రికార్డులు' : (isHi ? 'इतिहास' : 'Scan History')} (<span id="scanner-tab-history-badge">${scansCount}</span>)</span>
-      </button>
-    </div>
-
-    <!-- ══════════════ TAB 1: LIVE CAMERA SCANNER ══════════════ -->
-    <div id="scanner-camera-view" style="display:${activeScannerTab==='camera'?'block':'none'};background:#F8FAFC;min-height:85vh;padding-bottom:100px;">
-      
-      <!-- Minimalist & Premium Camera Card -->
-      <div style="margin:12px 18px;position:relative;">
-        <div class="viewfinder-box" style="height:360px;width:100%;margin:0;border-radius:24px;border:1px solid #E2E8F0;box-shadow:0 4px 18px rgba(0,0,0,0.04);overflow:hidden;background:#FFFFFF;display:flex;flex-direction:column;justify-content:space-between;padding:12px;box-sizing:border-box;">
+      <!-- Google Lens Shutter Controls Deck -->
+      <div style="padding:10px 24px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div style="width:100%;max-width:320px;display:flex;align-items:center;justify-content:space-around;">
           
-          <!-- Top Controls Inside Viewfinder Card -->
-          <div style="width:100%;display:flex;justify-content:space-between;align-items:center;z-index:15;">
-            <button type="button" onclick="toggleScannerFlash(this)" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:12px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="#EAB308"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              <span>${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
-            </button>
-            <div style="display:flex;align-items:center;gap:6px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:14px;padding:5px 12px;">
-              <span style="width:6px;height:6px;background:#16A34A;border-radius:50%;display:inline-block;"></span>
-              <span style="font-size:10.5px;color:#15803D;font-weight:800;" id="scanner-hud-status">AI Vision Ready</span>
-            </div>
-            <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:12px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <span>${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
-            </button>
-            <input type="file" id="real-file-upload-input" accept="image/*" style="display:none;" onchange="handleRealImageUpload(event)">
-            <input type="file" id="real-camera-capture-input" accept="image/*" capture="environment" style="display:none;" onchange="handleRealImageUpload(event)">
-          </div>
-
-          <!-- Clean Camera Viewport Frame -->
-          <div class="viewfinder-frame" id="vf-frame-container" onclick="handleViewfinderClick()" style="flex:1;margin:10px 0;position:relative;overflow:hidden;background:#0F172A;border-radius:18px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;">
-            <div id="vf-scanner-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:5;"></div>
-            
-            <!-- Live Camera Feed or Static Snapshot -->
-            <video id="vf-live-video" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:2;display:none;"></video>
-            <img id="vf-preview-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:18px;z-index:3;display:none;" alt="Scan Preview">
-            <canvas id="vf-capture-canvas" style="display:none;"></canvas>
-
-            <!-- 4 Clean Corner Brackets -->
-            <div class="vf-corner vf-tl" style="border-color:#FFFFFF;width:24px;height:24px;border-width:2.5px;"></div>
-            <div class="vf-corner vf-tr" style="border-color:#FFFFFF;width:24px;height:24px;border-width:2.5px;"></div>
-            <div class="vf-corner vf-bl" style="border-color:#FFFFFF;width:24px;height:24px;border-width:2.5px;"></div>
-            <div class="vf-corner vf-br" style="border-color:#FFFFFF;width:24px;height:24px;border-width:2.5px;"></div>
-
-            <!-- Minimalist Target Prompt Pill -->
-            <div class="vf-center-target" id="scan-target-text" style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.75);color:#FFFFFF;padding:6px 16px;border-radius:20px;font-size:11.5px;font-weight:700;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);z-index:12;white-space:nowrap;display:flex;align-items:center;gap:6px;">
-              <span id="vf-target-label">${targetHint}</span>
-            </div>
-          </div>
-
-          <!-- Bottom Guidance -->
-          <div style="z-index:15;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#64748B;font-weight:600;">
-            <span>💡</span>
-            <span id="scan-guidance-text">${lightHint}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3-Step Clean Agronomy Guidelines -->
-      <div style="padding:0 18px 14px;">
-        <div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:18px;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
-          <div style="border-right:1px solid #F1F5F9;padding-right:4px;">
-            <div style="font-size:18px;margin-bottom:2px;">📏</div>
-            <div style="font-size:12px;font-weight:800;color:#0F172A;">15–25 cm</div>
-            <div style="font-size:9.5px;color:#64748B;font-weight:600;">${TL('Distance', 'దూరం ఉంచండి', 'Distance')}</div>
-          </div>
-          <div style="border-right:1px solid #F1F5F9;padding-right:4px;">
-            <div style="font-size:18px;margin-bottom:2px;">☀️</div>
-            <div style="font-size:12px;font-weight:800;color:#0F172A;">${TL('Natural Light', 'సహజ వెలుగు', 'Natural Light')}</div>
-            <div style="font-size:9.5px;color:#64748B;font-weight:600;">${TL('Zero Glare', 'నీడలు లేకుండా', 'Zero Glare')}</div>
-          </div>
-          <div>
-            <div style="font-size:18px;margin-bottom:2px;">🎯</div>
-            <div style="font-size:12px;font-weight:800;color:#0F172A;">${TL('Foliar Focus', 'ఆకుపై దృష్టి', 'Foliar Focus')}</div>
-            <div style="font-size:9.5px;color:#64748B;font-weight:600;">${TL('Target Lesion', 'తెగులు మచ్చలు', 'Target Lesion')}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Clean Apple-Style Shutter Controller Deck -->
-      <div style="padding:0 18px;display:flex;flex-direction:column;align-items:center;gap:12px;">
-        <div style="width:100%;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:24px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:space-around;">
           <!-- Left: Gallery Picker -->
-          <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:18px;width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span style="font-size:9px;font-weight:700;color:#64748B;">${TL('Gallery', 'గ్యాలరీ', 'Gallery')}</span>
+          <button type="button" onclick="document.getElementById('real-file-upload-input').click()" style="width:52px;height:52px;border-radius:50%;background:#FFFFFF;border:1.5px solid #E2E8F0;box-shadow:0 2px 8px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.15s ease;color:#0F172A;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'" title="Upload Photo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           </button>
+          <input type="file" id="real-file-upload-input" accept="image/*" style="display:none;" onchange="handleRealImageUpload(event)">
+          <input type="file" id="real-camera-capture-input" accept="image/*" capture="environment" style="display:none;" onchange="handleRealImageUpload(event)">
 
-          <!-- Center: Apple-Style Pristine Shutter Action Button -->
-          <div onclick="startScannerDiagnostic()" style="position:relative;width:78px;height:78px;border-radius:50%;background:#FFFFFF;border:3px solid #CBD5E1;padding:4px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
-            <div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg, #16A34A 0%, #15803D 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(22,163,74,0.35);">
-              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3.5" fill="#FFFFFF"/><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/></svg>
+          <!-- Center: Iconic Google Lens Shutter Ring Button -->
+          <div onclick="startScannerDiagnostic()" style="position:relative;width:82px;height:82px;border-radius:50%;background:#FFFFFF;border:3.5px solid #0F172A;padding:4px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:center;transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
+            <div style="width:100%;height:100%;border-radius:50%;background:#0F172A;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </div>
           </div>
 
-          <!-- Right: Flash / Camera Toggle -->
-          <button type="button" onclick="toggleScannerFlash(this)" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;border-radius:18px;width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#EAB308"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span style="font-size:9px;font-weight:700;color:#64748B;">${TL('Flash', 'ఫ్లాష్', 'Flash')}</span>
+          <!-- Right: Direct Camera Snap -->
+          <button type="button" onclick="document.getElementById('real-camera-capture-input').click()" style="width:52px;height:52px;border-radius:50%;background:#FFFFFF;border:1.5px solid #E2E8F0;box-shadow:0 2px 8px rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.15s ease;color:#0F172A;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'" title="Camera Capture">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </button>
         </div>
 
-        <!-- Sleek AI Status Strip (Clean Capsule) -->
-        <button id="run-scan-btn" onclick="startScannerDiagnostic()" style="width:100%;padding:13px 0;font-size:13px;font-weight:800;background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;box-shadow:0 1px 4px rgba(0,0,0,0.02);border-radius:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.3" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          <span>${actionBtn}</span>
+        <!-- Google-Style Action Pill (id="run-scan-btn") -->
+        <button id="run-scan-btn" onclick="startScannerDiagnostic()" style="background:#FFFFFF;color:#0F172A;border:1px solid #E2E8F0;box-shadow:0 2px 8px rgba(0,0,0,0.03);border-radius:24px;padding:9px 22px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.4" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span>${TL('Tap Shutter or Click to Scan', 'స్కాన్ చేయడానికి నొక్కండి', 'स्कैन करने के लिए टैप करें')}</span>
         </button>
       </div>
 
@@ -14629,25 +14592,30 @@ const APP_VIEWS = {
     </div>
 
     <!-- ══════════════ TAB 2: SAVED SCANS & PRESCRIPTIONS HISTORY ══════════════ -->
-    <div id="scanner-history-view" style="display:${activeScannerTab==='history'?'block':'none'};padding:8px 18px 90px;">
-      <!-- Category Filter Pills -->
-      <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;">
-        <button onclick="renderSavedScansHistoryDOM('all')" style="background:#1B5E20;color:#FFFFFF;border:none;border-radius:14px;padding:6px 14px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">
-          ${TL('All Scans', 'అన్ని స్కాన్‌లు', 'All Scans')}
+    <div id="scanner-history-view" style="display:${activeScannerTab==='history'?'block':'none'};padding:12px 18px 90px;background:#F8FAFC;min-height:85vh;">
+      <!-- Back to Camera Button & Category Filters -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;">
+        <button onclick="switchScannerTab('camera')" style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:800;color:#0F172A;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 1px 4px rgba(0,0,0,0.02);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>${TL('Back to Camera', 'కెమెరాకు తిరిగి వెళ్లండి', 'कैमरा पर वापस')}</span>
         </button>
-        <button onclick="renderSavedScansHistoryDOM('crop')" style="background:#FFFFFF;border:1px solid #CBD5E1;color:#334155;border-radius:14px;padding:6px 14px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">
-          🌿 ${TL('Crop Diseases', 'పంట తెగుళ్లు', 'Crop Diseases')}
-        </button>
-        <button onclick="renderSavedScansHistoryDOM('soil')" style="background:#FFFFFF;border:1px solid #CBD5E1;color:#334155;border-radius:14px;padding:6px 14px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">
-          🪴 ${TL('Soil Reports', 'నేల ఆరోగ్య పరీక్షలు', 'Soil Reports')}
-        </button>
+        <div style="display:flex;gap:6px;overflow-x:auto;">
+          <button onclick="renderSavedScansHistoryDOM('all')" style="background:#0F172A;color:#FFFFFF;border:none;border-radius:16px;padding:6px 12px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">
+            ${TL('All', 'అన్నీ', 'सभी')}
+          </button>
+          <button onclick="renderSavedScansHistoryDOM('crop')" style="background:#FFFFFF;border:1px solid #E2E8F0;color:#64748B;border-radius:16px;padding:6px 12px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">
+            🌿 ${TL('Crops', 'పంటలు', 'फसलें')}
+          </button>
+          <button onclick="renderSavedScansHistoryDOM('soil')" style="background:#FFFFFF;border:1px solid #E2E8F0;color:#64748B;border-radius:16px;padding:6px 12px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">
+            🪴 ${TL('Soil', 'నేల', 'मिट्टी')}
+          </button>
+        </div>
       </div>
 
       <div id="saved-scans-history-list"></div>
     </div>
     `;
   },
-
 
 
   /* ── 3. LIVE AGMARKNET MANDI RATES (HARMONIZED APP UI THEME) ── */
@@ -18885,16 +18853,16 @@ function setScanMode(mode) {
   const cBtn = document.getElementById('mode-crop-btn');
   const sBtn = document.getElementById('mode-soil-btn');
   if (cBtn) {
-    cBtn.style.background = mode==='crop'?'#1B5E20':'transparent';
-    cBtn.style.color = mode==='crop'?'#FFFFFF':'#4B5563';
+    cBtn.style.background = mode==='crop'?'#0F172A':'#F1F5F9';
+    cBtn.style.color = mode==='crop'?'#FFFFFF':'#64748B';
   }
   if (sBtn) {
-    sBtn.style.background = mode==='soil'?'#1B5E20':'transparent';
-    sBtn.style.color = mode==='soil'?'#FFFFFF':'#4B5563';
+    sBtn.style.background = mode==='soil'?'#0F172A':'#F1F5F9';
+    sBtn.style.color = mode==='soil'?'#FFFFFF':'#64748B';
   }
   const targetLabel = document.getElementById('vf-target-label');
   if (targetLabel) {
-    targetLabel.textContent = mode==='crop'?(TL('Target Crop Leaf', 'పంట ఆకును ఫోకస్ చేయండి', 'फसल की पत्ती पर फोकस करें')):(TL('Target Soil Sample', 'నేల నమూనాను ఫోకస్ చేయండి', 'मिट्टी नमूना फोकस करें'));
+    targetLabel.textContent = mode==='crop'?(TL('Point camera at crop leaf', 'ఆకును కెమెరాలో చూపించండి', 'फसल की पत्ती पर कैमरा रखें')):(TL('Point camera at soil sample', 'నేల నమూనాను కెమెరాలో చూపించండి', 'मिट्टी नमूने पर कैमरा रखें'));
   }
   const diagBox = document.getElementById('scan-diag-box');
   if (diagBox) diagBox.style.display = 'none';
@@ -20497,12 +20465,12 @@ function switchScannerTab(tab) {
     if (camView) camView.style.display = 'block';
     if (histView) histView.style.display = 'none';
     if (tabCamBtn) {
-      tabCamBtn.style.background = '#1B5E20';
+      tabCamBtn.style.background = '#0F172A';
       tabCamBtn.style.color = '#FFFFFF';
     }
     if (tabHistBtn) {
-      tabHistBtn.style.background = '#FFFFFF';
-      tabHistBtn.style.color = '#15803D';
+      tabHistBtn.style.background = '#F8FAFC';
+      tabHistBtn.style.color = '#0F172A';
     }
   } else {
     if (camView) camView.style.display = 'none';
@@ -20511,11 +20479,11 @@ function switchScannerTab(tab) {
       renderSavedScansHistoryDOM();
     }
     if (tabCamBtn) {
-      tabCamBtn.style.background = '#FFFFFF';
-      tabCamBtn.style.color = '#15803D';
+      tabCamBtn.style.background = '#F8FAFC';
+      tabCamBtn.style.color = '#0F172A';
     }
     if (tabHistBtn) {
-      tabHistBtn.style.background = '#1B5E20';
+      tabHistBtn.style.background = '#0F172A';
       tabHistBtn.style.color = '#FFFFFF';
     }
   }
