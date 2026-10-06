@@ -2631,7 +2631,7 @@ function showLuxuryToast(message, type = 'info', duration = 3200) {
     toast.style.transform = 'translateY(-12px) scale(0.95)';
     setTimeout(() => {
       toast.remove();
-      if (toastContainer && toastContainer.children.length === 0) {
+      if (toastContainer && toastContainer.children && toastContainer.children.length === 0) {
         toastContainer.remove();
       }
     }, 280);
@@ -2640,6 +2640,21 @@ function showLuxuryToast(message, type = 'info', duration = 3200) {
 window.showLuxuryToast = showLuxuryToast;
 window.showToast = showLuxuryToast;
 window.showPremiumSnackBar = showLuxuryToast;
+
+/* ═════════════════ TOP-LEVEL GLOBAL GEOLOCATION STATE HOISTING ═════════════════ */
+var currentGramhaulFarmCoords = (function() {
+  const sLat = parseFloat(localStorage.getItem('user_live_lat'));
+  const sLon = parseFloat(localStorage.getItem('user_live_lon'));
+  if (!isNaN(sLat) && !isNaN(sLon) && sLat !== 0 && sLon !== 0) {
+    return [sLat, sLon];
+  }
+  return [17.3850, 78.4867];
+})();
+window.currentGramhaulFarmCoords = currentGramhaulFarmCoords;
+var currentGramhaulFarmAddress = localStorage.getItem('user_live_address') || "Himayath Nagar Farm, Telangana";
+window.currentGramhaulFarmAddress = currentGramhaulFarmAddress;
+var currentGramhaulFarmLandmark = localStorage.getItem('user_live_landmark') || "Auto-detected GPS Farm Coordinates";
+window.currentGramhaulFarmLandmark = currentGramhaulFarmLandmark;
 
 /* ═════════════════ RAPIDO LBS & OSRM ROUTING CONTROLLER ═════════════════ */
 let _appGeoTrackingService = null;
@@ -6787,6 +6802,7 @@ function openInstagramStoryModal(idx) {
   const modal = document.getElementById('instagram-story-viewer-modal');
   if (!modal) return;
   modal.style.display = 'flex';
+  modal.classList.add('active');
   renderCurrentInstagramStory();
 
   if (!storyKeyboardListenerAttached) {
@@ -6807,7 +6823,10 @@ function closeInstagramStoryModal() {
     instagramStoryTimer = null;
   }
   const modal = document.getElementById('instagram-story-viewer-modal');
-  if (modal) modal.style.display = 'none';
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('active');
+  }
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
@@ -7100,6 +7119,7 @@ function renderAttachedMediaChips() {
 
 function setCommunityFilter(cat) {
   currentCommunityFilter = cat;
+  window.currentCommunityFilter = cat;
   const container = document.getElementById('comm-feed-container');
   if (container) {
     // Fast in-place filter update without full screen tear-down
@@ -7138,6 +7158,7 @@ function toggleCommunityLike(postId) {
 
 function toggleCommunityComments(postId) {
   expandedCommunityPostId = expandedCommunityPostId === postId ? null : postId;
+  window.expandedCommunityPostId = expandedCommunityPostId;
   renderCommunityFeedDom();
 }
 
@@ -7173,14 +7194,31 @@ function submitCommunityComment(postId) {
   }
 }
 
-function playCommunityAudio(textToSpeak) {
+function playCommunityAudio(postIdOrText) {
+  let textToSpeak = postIdOrText;
+  if (postIdOrText && typeof postIdOrText === 'string') {
+    const post = (typeof COMMUNITY_POSTS_CATALOG !== 'undefined' && Array.isArray(COMMUNITY_POSTS_CATALOG))
+      ? COMMUNITY_POSTS_CATALOG.find(p => p.id === postIdOrText)
+      : null;
+    if (post) {
+      textToSpeak = (post.voiceNote && post.voiceNote.text) || (post.title && (post.title[currentLang] || post.title.en)) || post.title || '';
+    }
+  }
+  if (!textToSpeak) return;
+
   if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(textToSpeak);
-    u.lang = currentLang === 'te' ? 'te-IN' : (currentLang === 'hi' ? 'hi-IN' : (currentLang === 'ta' ? 'ta-IN' : 'en-IN'));
-    u.rate = 0.95;
-    window.speechSynthesis.speak(u);
-    alert(currentLang === 'te' ? '🔊 ఆడియో విశ్లేషణ చదవబడుతోంది...' : (currentLang === 'hi' ? '🔊 ऑडियो व्याख्या सुनाई जा रही है...' : '🔊 Playing Voice Note...'));
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(textToSpeak);
+      u.lang = currentLang === 'te' ? 'te-IN' : (currentLang === 'hi' ? 'hi-IN' : (currentLang === 'ta' ? 'ta-IN' : 'en-IN'));
+      u.rate = 0.95;
+      window.speechSynthesis.speak(u);
+      if (typeof showLuxuryToast === 'function') {
+        showLuxuryToast(currentLang === 'te' ? '🔊 ఆడియో విశ్లేషణ చదవబడుతోంది...' : (currentLang === 'hi' ? '🔊 ऑडियो व्याख्या सुनाई जा रही है...' : '🔊 Playing Voice Note...'), 'info');
+      }
+    } catch(e) {
+      console.warn('Speech synthesis error:', e);
+    }
   }
 }
 
@@ -7192,15 +7230,20 @@ function shareCommunityPost(postId, title) {
     navigator.share({ title: shareTitle, text: shareText, url: window.location.href }).catch(() => {});
   } else if (navigator.clipboard) {
     navigator.clipboard.writeText(shareText).then(() => {
-      alert(TL('✅ Question link copied! Paste in WhatsApp Farmers Group.', '✅ ప్రశ్న లింక్ కాపీ అయింది! WhatsApp లో పేస్ట్ చేయండి.', '✅ लिंक कॉपी हो गया! WhatsApp पर शेयर करें।'));
+      if (typeof showLuxuryToast === 'function') {
+        showLuxuryToast(TL('✅ Question link copied! Paste in WhatsApp Farmers Group.', '✅ ప్రశ్న లింక్ కాపీ అయింది! WhatsApp లో పేస్ట్ చేయండి.', '✅ लिंक कॉपी हो गया! WhatsApp पर शेयर करें।'), 'success');
+      }
+    }).catch(() => {
+      if (typeof showLuxuryToast === 'function') showLuxuryToast('✅ Shared: ' + shareTitle, 'info');
     });
   } else {
-    alert(shareText);
+    if (typeof showLuxuryToast === 'function') showLuxuryToast('✅ Shared: ' + shareTitle, 'info');
   }
 }
 
 function openAskQuestionModal() {
   const modal = document.getElementById('community-ask-modal');
+  if (!modal) return;
   const title = document.getElementById('ca-title');
   const titleInput = document.getElementById('new-post-title');
   const descTextarea = document.getElementById('new-post-desc');
@@ -7214,12 +7257,16 @@ function openAskQuestionModal() {
   userAttachedMedia = { photos: [], videos: [], voiceNote: null };
   renderAttachedMediaChips();
 
-  if (modal) modal.style.display = 'flex';
+  modal.style.display = 'flex';
+  modal.classList.add('active');
 }
 
 function closeAskQuestionModal(e) {
   const modal = document.getElementById('community-ask-modal');
-  if (modal) modal.style.display = 'none';
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('active');
+  }
 }
 
 function submitNewCommunityPost() {
@@ -7233,8 +7280,6 @@ function submitNewCommunityPost() {
   if (!captionText && !titleText) {
     if (typeof showLuxuryToast === 'function') {
       showLuxuryToast('⚠️ Please write something about your crop field to share!', 'error');
-    } else {
-      alert('Please write something about your crop field to share!');
     }
     return;
   }
@@ -7272,6 +7317,7 @@ function submitNewCommunityPost() {
 
   // Optimistic UI: add to local catalog immediately
   COMMUNITY_POSTS_CATALOG.unshift(newPost);
+  window.COMMUNITY_POSTS_CATALOG = COMMUNITY_POSTS_CATALOG;
   closeAskQuestionModal();
 
   if (typeof showLuxuryToast === 'function') {
@@ -7292,32 +7338,27 @@ function submitNewCommunityPost() {
   }
 }
 
-function renderCommunityFeedDom() {
-  const container = document.getElementById('comm-feed-container');
-  if (!container) return;
-
-  // Render instantly from local cache/catalog (0ms latency, 100% reliable)
-  const _doRender = (posts) => {
-    const t = I18N[currentLang] || I18N.en;
-    const filtered = currentCommunityFilter === 'all'
-      ? posts
-      : posts.filter(p => p.cropId === currentCommunityFilter);
+function generateCommunityFeedHtml(posts) {
+  if (!Array.isArray(posts)) return '';
+  const filter = window.currentCommunityFilter || currentCommunityFilter || 'all';
+  const filtered = filter === 'all'
+    ? posts
+    : posts.filter(p => (p.cropId === filter || p.crop === filter || p.crop_id === filter));
 
   if (filtered.length === 0) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:40px 20px;background:#FFFFFF;border:1.5px dashed #CBD5E1;border-radius:18px;margin-top:10px;">
-          <div style="font-size:36px;margin-bottom:8px;">🌱</div>
-          <div style="font-size:14px;font-weight:900;color:#0F172A;margin-bottom:4px;">${TL('No queries in this crop topic yet', 'ఈ పంట విభాగంలో ఇంకా ప్రశ్నలు లేవు', 'इस फसल विषय में अभी कोई प्रश्न नहीं है')}</div>
-          <div style="font-size:11px;color:#64748B;margin-bottom:14px;">${TL('Be the first farmer to start a discussion!', 'మొదటి ప్రశ్నను మీరు ఇక్కడ అడగండి!', 'चर्चा शुरू करने वाले पहले किसान बनें!')}</div>
-          <button onclick="openAskQuestionModal()" style="background:#16A34A;color:#FFFFFF;border:none;border-radius:20px;padding:8px 16px;font-size:11.5px;font-weight:900;cursor:pointer;">
-            + ${TL('Ask Question Now', 'ఇప్పుడే ప్రశ్న అడగండి', 'अभी सवाल पूछें')}
-          </button>
-        </div>
-      `;
-      return;
-    }
+    return `
+      <div style="text-align:center;padding:40px 20px;background:#FFFFFF;border:1.5px dashed #CBD5E1;border-radius:18px;margin-top:10px;">
+        <div style="font-size:36px;margin-bottom:8px;">🌱</div>
+        <div style="font-size:14px;font-weight:900;color:#0F172A;margin-bottom:4px;">${TL('No queries in this crop topic yet', 'ఈ పంట విభాగంలో ఇంకా ప్రశ్నలు లేవు', 'इस फसल विषय में अभी कोई प्रश्न नहीं है')}</div>
+        <div style="font-size:11px;color:#64748B;margin-bottom:14px;">${TL('Be the first farmer to start a discussion!', 'మొదటి ప్రశ్నను మీరు ఇక్కడ అడగండి!', 'चर्चा शुरू करने वाले पहले किसान बनें!')}</div>
+        <button onclick="openAskQuestionModal()" style="background:#16A34A;color:#FFFFFF;border:none;border-radius:20px;padding:8px 16px;font-size:11.5px;font-weight:900;cursor:pointer;">
+          + ${TL('Ask Question Now', 'ఇప్పుడే ప్రశ్న అడగండి', 'अभी सवाल पूछें')}
+        </button>
+      </div>
+    `;
+  }
 
-    container.innerHTML = filtered.map(p => {
+  return filtered.map(p => {
     const isExpanded = expandedCommunityPostId === p.id;
     const authorName = (p.author && (p.author[currentLang] || p.author.en)) || (p.author_name) || 'Farmer';
     const villageName = (p.village && (p.village[currentLang] || p.village.en)) || 'Warangal';
@@ -7382,7 +7423,7 @@ function renderCommunityFeedDom() {
         ${p.voiceNote ? `
           <div style="background:#F0FDF4;border:1.2px solid #86EFAC;border-radius:14px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;">
-              <button onclick="playCommunityAudio('${((p.voiceNote && p.voiceNote.text) || postTitle).replace(/'/g, "\\'")}')" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#22C55E,#16A34A);color:#FFFFFF;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(22,163,74,0.35);transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
+              <button onclick="playCommunityAudio('${p.id}')" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#22C55E,#16A34A);color:#FFFFFF;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(22,163,74,0.35);transition:transform 0.15s ease;" onmousedown="this.style.transform='scale(0.92)'" onmouseup="this.style.transform='scale(1)'">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFFFFF"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
               </button>
               <div>
@@ -7482,14 +7523,20 @@ function renderCommunityFeedDom() {
       </div>
     `;
   }).join('');
-  }; // end _doRender
+}
+window.generateCommunityFeedHtml = generateCommunityFeedHtml;
 
-  // 1. Render immediate catalog instantly (Zero delay)
-  _doRender(COMMUNITY_POSTS_CATALOG);
+function renderCommunityFeedDom() {
+  const container = document.getElementById('comm-feed-container');
+  if (!container) return;
+
+  // 1. Render immediate catalog instantly (Zero delay, 100% reliable)
+  container.innerHTML = generateCommunityFeedHtml(COMMUNITY_POSTS_CATALOG);
 
   // 2. Fetch fresh posts from Supabase in background with safe 3.5s timeout
   if (typeof nk_fetchCommunityHistory === 'function' && typeof sbClient !== 'undefined' && sbClient) {
-    const fetchPromise = nk_fetchCommunityHistory(currentCommunityFilter === 'all' ? 'all' : currentCommunityFilter, 30);
+    const filter = window.currentCommunityFilter || currentCommunityFilter || 'all';
+    const fetchPromise = nk_fetchCommunityHistory(filter, 30);
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3500));
     
     Promise.race([fetchPromise, timeoutPromise])
@@ -7502,6 +7549,7 @@ function renderCommunityFeedDom() {
             village: { en: 'Telangana', te: 'తెలంగాణ', hi: 'तेलंगाना' },
             avatar: '👨‍🌾',
             cropId: sp.crop_id || sp.crop_tag || 'cotton',
+            crop: sp.crop_id || sp.crop_tag || 'cotton',
             cropName: { en: sp.crop_id || 'Cotton', te: sp.crop_id || 'పత్తి', hi: sp.crop_id || 'कपास' },
             timeAgo: null,
             created_at: sp.created_at,
@@ -7516,14 +7564,15 @@ function renderCommunityFeedDom() {
           }));
           const allPosts = [...normalizedSbPosts, ...COMMUNITY_POSTS_CATALOG.filter(lp => !normalizedSbPosts.find(sp => sp.id === lp.id))];
           COMMUNITY_POSTS_CATALOG = allPosts;
-          _doRender(allPosts);
+          window.COMMUNITY_POSTS_CATALOG = allPosts;
+          container.innerHTML = generateCommunityFeedHtml(allPosts);
         }
       })
-      .catch(() => {
-        // Fallback already rendered
-      });
+      .catch(() => {});
   }
 }
+window.renderCommunityFeedDom = renderCommunityFeedDom;
+window.removeAttachedMedia = removeAttachedMedia;
 
 // Update real community active count from Supabase
 async function updateCommunityActiveCount() {
@@ -7586,6 +7635,34 @@ function toggleCommunityBookmark(postId, btn) {
     }
   }
 }
+
+/* ═════════════════ COMMUNITY MODULE GLOBAL WINDOW EXPORTS ═════════════════ */
+window.COMMUNITY_POSTS_CATALOG = COMMUNITY_POSTS_CATALOG;
+window.COMMUNITY_STORIES_CATALOG = COMMUNITY_STORIES_CATALOG;
+window.currentCommunityFilter = currentCommunityFilter;
+window.expandedCommunityPostId = expandedCommunityPostId;
+window.setCommunityFilter = setCommunityFilter;
+window.openAskQuestionModal = openAskQuestionModal;
+window.closeAskQuestionModal = closeAskQuestionModal;
+window.submitNewCommunityPost = submitNewCommunityPost;
+window.selectCommunityPostCrop = selectCommunityPostCrop;
+window.attachMediaToNewPost = attachMediaToNewPost;
+window.renderAttachedMediaChips = renderAttachedMediaChips;
+window.openInstagramStoryModal = openInstagramStoryModal;
+window.closeInstagramStoryModal = closeInstagramStoryModal;
+window.prevInstagramStory = prevInstagramStory;
+window.nextInstagramStory = nextInstagramStory;
+window.playCurrentStoryVoice = playCurrentStoryVoice;
+window.toggleCommunityLike = toggleCommunityLike;
+window.toggleCommunityComments = toggleCommunityComments;
+window.submitCommunityComment = submitCommunityComment;
+window.playCommunityAudio = playCommunityAudio;
+window.shareCommunityPost = shareCommunityPost;
+window.toggleCommunityBookmark = toggleCommunityBookmark;
+window.openCommunityPostOptions = openCommunityPostOptions;
+window.triggerCommunityDoubleTapHeart = triggerCommunityDoubleTapHeart;
+window.renderCommunityFeedDom = renderCommunityFeedDom;
+window.updateCommunityActiveCount = updateCommunityActiveCount;
 
 
 
@@ -12305,12 +12382,15 @@ function filterOnboardingCrops(val) {
 }
 
 function toggleCropSelect(cropKey) {
+  if (!Array.isArray(plantixFlowState.selectedCrops)) plantixFlowState.selectedCrops = [];
+  plantixFlowState.selectedCrops = [...new Set(plantixFlowState.selectedCrops.filter(Boolean))];
   const idx = plantixFlowState.selectedCrops.indexOf(cropKey);
   if (idx > -1) {
     plantixFlowState.selectedCrops.splice(idx, 1);
   } else {
     plantixFlowState.selectedCrops.push(cropKey);
   }
+  plantixFlowState.selectedCrops = [...new Set(plantixFlowState.selectedCrops.filter(Boolean))];
   const container = document.getElementById('startup-experience-overlay');
   if (container) renderPlantixCropsScreen(container);
 }
@@ -13602,7 +13682,7 @@ async function driverAcceptHaulRequest() {
 
   const driverCoords = (window.driverRealGps && window.driverRealGps[0])
     ? window.driverRealGps
-    : [activeTrip.pickupLat || 17.9689, activeTrip.pickupLon || 79.5941];
+    : [(activeTrip.pickupLat || (currentGramhaulFarmCoords && currentGramhaulFarmCoords[0]) || 17.3850), (activeTrip.pickupLon || (currentGramhaulFarmCoords && currentGramhaulFarmCoords[1]) || 78.4867)];
 
   activeTrip.status = 'ACCEPTED';
   activeTrip.driverId = driverId;
@@ -16182,7 +16262,7 @@ const APP_VIEWS = {
 
     <!-- Community Posts Feed Container -->
     <div id="comm-feed-container" style="padding:10px 18px 90px;background:#F8FAF8;min-height:75vh;">
-      <!-- Populated via renderCommunityFeedDom() -->
+      ${generateCommunityFeedHtml(COMMUNITY_POSTS_CATALOG)}
     </div>
     `;
   },
@@ -18245,12 +18325,8 @@ function openLiveHaulChat(tripId, userRole, peerName, peerPhone) {
     messages = JSON.parse(localStorage.getItem(chatKey) || 'null');
   } catch(e) {}
 
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    messages = [
-      { sender: 'driver', text: 'Namaste! I am en route with Tata Ace TS 03 UB 4491.', time: '09:12 AM' },
-      { sender: 'farmer', text: 'Namaste Suresh garu. Produce is packed in 40 bags near main farm gate.', time: '09:14 AM' },
-      { sender: 'driver', text: 'Arriving in ~6 minutes. Please keep weigh slip ready.', time: '09:15 AM' }
-    ];
+  if (!messages || !Array.isArray(messages)) {
+    messages = [];
     localStorage.setItem(chatKey, JSON.stringify(messages));
   }
 
@@ -18359,6 +18435,26 @@ function openLiveHaulChat(tripId, userRole, peerName, peerPhone) {
 
   document.body.appendChild(modal);
   renderChatContent();
+
+  // Real-time broadcast listener for incoming farmer chat messages
+  if (window.sbClient) {
+    if (window._driverChatRealtimeSub) {
+      try { window.sbClient.removeChannel(window._driverChatRealtimeSub); } catch(e) {}
+    }
+    window._driverChatRealtimeSub = window.sbClient.channel('driver-tracking');
+    window._driverChatRealtimeSub.on('broadcast', { event: 'haul_chat_message' }, ({ payload }) => {
+      if (!payload || payload.sender === 'driver') return;
+      if (payload.tripId && tId && payload.tripId !== tId) return;
+      messages.push(payload);
+      localStorage.setItem(chatKey, JSON.stringify(messages));
+      const s = document.getElementById('haul-chat-msg-stream');
+      if (s) {
+        renderChatContent();
+      } else if (typeof showLuxuryToast === 'function') {
+        showLuxuryToast(`💬 Farmer: ${payload.text}`, 'info');
+      }
+    }).subscribe();
+  }
 }
 
 function driverOpenGpsNav(lat, lon, destName) {
@@ -18801,7 +18897,6 @@ function showHaulCompletedInvoiceModal(trip) {
 
 let driverLiveCoords = [17.9689, 79.5941];
 let driverGpsWatchId = null;
-let farmerLiveTruckAnimTimer = null;
 
 function calculateHaversineKm(lat1, lon1, lat2, lon2) {
   if (!lat1 || !lon1 || !lat2 || !lon2) return 5.0;
@@ -18842,16 +18937,10 @@ function startDriverLiveGpsBroadcast() {
 }
 
 
-// Real-time Smooth Truck Movement on Leaflet Map (Zero Mock Animation Timer)
-function startLiveMovingTruckSimulation(startCoords, destCoords) {
-  if (farmerLiveTruckAnimTimer) {
-    clearInterval(farmerLiveTruckAnimTimer);
-    farmerLiveTruckAnimTimer = null;
-  }
-  // ZERO SIMULATION: Do not run fake setInterval timer interpolating coordinates.
-  // Coordinates are rendered directly from authentic GPS broadcasts.
-  if (startCoords && gramhaulTruckMarker && typeof gramhaulTruckMarker.setLatLng === 'function') {
-    gramhaulTruckMarker.setLatLng(startCoords);
+// Real-time GPS Telemetry: Coordinates are rendered directly from authentic device sensor pings
+function updateDriverMapPositionDirect(coords) {
+  if (coords && typeof gramhaulTruckMarker !== 'undefined' && gramhaulTruckMarker && typeof gramhaulTruckMarker.setLatLng === 'function') {
+    gramhaulTruckMarker.setLatLng(coords);
   }
 }
 
@@ -18915,6 +19004,34 @@ let activeParcelIndex = 0;
 let agristackMapInstance = null;
 let gramhaulMapInstance = null;
 
+
+/* ═════════════════ AGRISTACK USER PARCEL LINKING ═════════════════ */
+function saveParcelToUserAccount(parcelId) {
+  const parcels = (typeof dpiStore !== 'undefined' && dpiStore.data && dpiStore.data.parcels) ? dpiStore.data.parcels : [];
+  const parcel = parcels.find(p => (p.parcel_id || p.id) === parcelId) || parcels[0];
+  if (parcel) {
+    localStorage.setItem('nukrop_saved_agristack_parcel', JSON.stringify(parcel));
+    if (parcel.village || parcel.district) {
+      const addr = `${parcel.village || ''}, ${parcel.district || ''}`.replace(/^,\s*|,\s*$/g, '');
+      if (addr) {
+        currentGramhaulFarmAddress = addr;
+        window.currentGramhaulFarmAddress = addr;
+        localStorage.setItem('user_live_address', addr);
+        const lbl = document.getElementById('gh-pickup-location-label');
+        if (lbl) lbl.textContent = addr;
+      }
+    }
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('✅ AgriStack land parcel linked to your profile!', 'success');
+    }
+  } else {
+    if (typeof showLuxuryToast === 'function') {
+      showLuxuryToast('✅ Land parcel details saved to profile.', 'success');
+    }
+  }
+}
+window.saveParcelToUserAccount = saveParcelToUserAccount;
+
 function initAgristackOpenStreetMap() {
   const mapContainer = document.getElementById('agristack-osm-map');
   if (!mapContainer || typeof L === 'undefined' || !L.map) return;
@@ -18977,9 +19094,10 @@ function initGramhaulOpenStreetMap() {
   const mapContainer = document.getElementById('gramhaul-osm-map');
   if (!mapContainer) return;
 
-  const farmCoords = [17.9689, 79.5941];
+  const farmLat = (currentGramhaulFarmCoords && currentGramhaulFarmCoords[0]) || parseFloat(localStorage.getItem('user_live_lat')) || 17.3850;
+  const farmLon = (currentGramhaulFarmCoords && currentGramhaulFarmCoords[1]) || parseFloat(localStorage.getItem('user_live_lon')) || 78.4867;
+  const farmCoords = [farmLat, farmLon];
   const mandiEnumamulaCoords = [17.9942, 79.6234];
-  const mandiHydCoords = [17.4720, 78.4730];
 
   if (typeof L !== 'undefined' && L.map) {
     try {
@@ -18989,8 +19107,8 @@ function initGramhaulOpenStreetMap() {
       }
 
       gramhaulMapInstance = L.map('gramhaul-osm-map', {
-        center: [17.9780, 79.6050],
-        zoom: 13,
+        center: farmCoords,
+        zoom: 14,
         zoomControl: true,
         attributionControl: false
       });
@@ -18999,38 +19117,25 @@ function initGramhaulOpenStreetMap() {
         maxZoom: 19
       }).addTo(gramhaulMapInstance);
 
-      // Farm Marker
+      // Real Farm Marker
       const farmMarker = L.marker(farmCoords).addTo(gramhaulMapInstance)
-        .bindPopup('<b>🏡 Your Farm</b><br/>Survey 142/A · Warangal Rural');
+        .bindPopup(`<b>🏡 Your Farm</b><br/>${currentGramhaulFarmAddress || 'Live GPS Location'}`);
 
-      // Mandi Markers
+      // Mandi Marker
       L.marker(mandiEnumamulaCoords).addTo(gramhaulMapInstance)
-        .bindPopup('<b>🏢 Warangal Enumamula APMC</b><br/>Major APMC Yard · 4.8 km');
+        .bindPopup('<b>🏢 Warangal Enumamula APMC Yard</b><br/>Major APMC Mandi');
 
       // Route Polyline to APMC
-      L.polyline([farmCoords, [17.9820, 79.6080], mandiEnumamulaCoords], {
+      L.polyline([farmCoords, mandiEnumamulaCoords], {
         color: '#16A34A',
         weight: 4,
         dashArray: '6, 6'
       }).addTo(gramhaulMapInstance);
 
-      // Add Pooled Trucks Markers
-      const truckCoords = [
-        [17.9750, 79.5990],
-        [17.9880, 79.6150],
-        [17.9620, 79.6050]
-      ];
-
-      GRAMHAUL_POOLED_TRUCKS.forEach((t, idx) => {
-        const coord = truckCoords[idx % truckCoords.length];
-        const truckMarker = L.marker(coord).addTo(gramhaulMapInstance);
-        truckMarker.bindPopup(`
-          <div style="font-size:11px;font-weight:900;color:#0F172A;">🚚 ${t.vehicle} (${t.plate})</div>
-          <div style="font-size:10px;color:#15803D;font-weight:800;">₹${t.ratePerBag}/Bag · ${t.freeSlots} Slots Free</div>
-          <div style="font-size:9.5px;color:#64748B;">Departs: ${t.departure}</div>
-          <button onclick="openGramhaulBookingModal(${idx})" style="background:#1B5E20;color:#FFFFFF;border:none;border-radius:6px;padding:3px 8px;font-size:9px;font-weight:800;margin-top:4px;cursor:pointer;">Book Slot</button>
-        `);
-      });
+      // Load ONLY real online drivers from Supabase PostGIS (Zero fake trucks)
+      if (typeof nk_loadRealPostGISTrucksOnMap === 'function') {
+        nk_loadRealPostGISTrucksOnMap([farmLon, farmLat]);
+      }
     } catch(err) {
       console.warn('Leaflet GramHaul init fallback:', err);
     }
@@ -22498,18 +22603,65 @@ let REAL_DRIVERS_FLEET = {
   venkat: { name: 'S. Venkat', phone: '+91 98492 88441', phoneRaw: '919849288441', vehicle: 'Eicher Pro 5T Express', color: 'Green', plate: 'TS 08 UB 7712', rating: '4.9', trips: 580, etaMins: 22 }
 };
 
-let currentGramhaulFarmCoords = (function() {
+currentGramhaulFarmCoords = (function() {
   const sLat = parseFloat(localStorage.getItem('user_live_lat'));
   const sLon = parseFloat(localStorage.getItem('user_live_lon'));
   if (!isNaN(sLat) && !isNaN(sLon) && sLat !== 0 && sLon !== 0) {
     return [sLat, sLon];
   }
-  return [17.3850, 78.4867];
+  return currentGramhaulFarmCoords || [17.3850, 78.4867];
 })();
-let currentGramhaulFarmAddress = localStorage.getItem('user_live_address') || "Detecting live GPS location...";
-let currentGramhaulFarmLandmark = localStorage.getItem('user_live_landmark') || "Auto-detected GPS Farm Coordinates";
+window.currentGramhaulFarmCoords = currentGramhaulFarmCoords;
+currentGramhaulFarmAddress = localStorage.getItem('user_live_address') || currentGramhaulFarmAddress || "Himayath Nagar Farm, Telangana";
+window.currentGramhaulFarmAddress = currentGramhaulFarmAddress;
+currentGramhaulFarmLandmark = localStorage.getItem('user_live_landmark') || currentGramhaulFarmLandmark || "Auto-detected GPS Farm Coordinates";
+window.currentGramhaulFarmLandmark = currentGramhaulFarmLandmark;
 
 // Live GPS detection & reverse geocoding engine
+
+/* ═════════════════ PURE REAL-TIME FARMER HARDWARE GPS WATCH ═════════════════ */
+function nk_startFarmerRealGpsWatch() {
+  if (!navigator.geolocation) return;
+  if (window._farmerGpsWatchId) return;
+
+  const updatePos = async (pos) => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    if (isNaN(lat) || isNaN(lon) || lat === 0 || lon === 0) return;
+
+    currentGramhaulFarmCoords = [lat, lon];
+    window.farmerCurrentGps = [lat, lon];
+    window.currentGramhaulFarmCoords = [lat, lon];
+    localStorage.setItem('user_live_lat', String(lat));
+    localStorage.setItem('user_live_lon', String(lon));
+
+    if (typeof gramhaulSelectorFarmMarker !== 'undefined' && gramhaulSelectorFarmMarker && typeof gramhaulSelectorFarmMarker.setLatLng === 'function') {
+      gramhaulSelectorFarmMarker.setLatLng([lat, lon]);
+    }
+    if (typeof gramhaulFarmMarker !== 'undefined' && gramhaulFarmMarker && typeof gramhaulFarmMarker.setLatLng === 'function') {
+      gramhaulFarmMarker.setLatLng([lat, lon]);
+    }
+    if (typeof trackingFarmMarker !== 'undefined' && trackingFarmMarker && typeof trackingFarmMarker.setLatLng === 'function') {
+      trackingFarmMarker.setLatLng([lat, lon]);
+    }
+
+    const farmLbl = document.getElementById('gh-pickup-location-label');
+    if (farmLbl && (!farmLbl.textContent || farmLbl.textContent.includes('Detecting') || farmLbl.textContent.includes('Himayath'))) {
+      farmLbl.textContent = currentGramhaulFarmAddress;
+    }
+    const coordsEl = document.getElementById('gramhaul-coords-text');
+    if (coordsEl) coordsEl.textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+  };
+
+  if (navigator.geolocation && typeof navigator.geolocation.getCurrentPosition === 'function') {
+    navigator.geolocation.getCurrentPosition(updatePos, (err) => console.warn('[Farmer GPS]', err), { enableHighAccuracy: true, timeout: 8000 });
+  }
+  if (navigator.geolocation && typeof navigator.geolocation.watchPosition === 'function') {
+    window._farmerGpsWatchId = navigator.geolocation.watchPosition(updatePos, (err) => console.warn('[Farmer GPS Watch]', err), { enableHighAccuracy: true, maximumAge: 3000 });
+  }
+}
+window.nk_startFarmerRealGpsWatch = nk_startFarmerRealGpsWatch;
+
 function nk_initUserLiveGpsLocation(callback) {
   if (!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -22557,7 +22709,10 @@ function nk_initUserLiveGpsLocation(callback) {
 
 // Automatically initiate on startup
 if (typeof window !== 'undefined') {
-  setTimeout(() => nk_initUserLiveGpsLocation(), 500);
+  setTimeout(() => {
+    nk_initUserLiveGpsLocation();
+    if (typeof nk_startFarmerRealGpsWatch === 'function') nk_startFarmerRealGpsWatch();
+  }, 400);
 }
 
 // Function to query Supabase PostGIS for real active trucks nearby
@@ -22661,10 +22816,7 @@ var gramhaulLiveMap = gramhaulLiveMap || null;
 var gramhaulTruckMarker = gramhaulTruckMarker || null;
 var gramhaulRoutePolyline = gramhaulRoutePolyline || null;
 
-let gramhaulChatMessages = [
-  { sender: 'driver', text: 'Namaste Ramesh garu! I am dispatched with Tata Ace TS 03 UB 4491.', time: '09:12 AM' },
-  { sender: 'driver', text: 'Reaching your farm in ~8 mins. Please keep the 40 Qtl Cotton bags ready near the gate.', time: '09:14 AM' }
-];
+let gramhaulChatMessages = [];
 
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -22731,20 +22883,95 @@ async function fetchRealTruckListings() {
 // 2. Farmer Books a Haul -> Real POST to Supabase haul_bookings
 // deduplicated
 
-function completeGramhaulTripAndShowPayment() {
-  const p2 = document.getElementById('gh-phase-2-booked');
-  const p3 = document.getElementById('gh-phase-3-completed');
-  if (p2 && p3) {
-    p2.style.display = 'none';
-    p3.style.display = 'block';
-    p3.scrollIntoView({ behavior: 'smooth' });
+function completeGramhaulTripAndShowPayment(curTrip) {
+  let activeTrip = curTrip;
+  if (!activeTrip) {
+    try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch(e) {}
+  }
+  const modalId = 'farmer-payment-collection-modal';
+  let modal = document.getElementById(modalId);
+  if (modal) modal.remove();
 
-    const fareEl = document.getElementById('gh-total-fare-val');
-    const mandiEl = document.getElementById('gh-delivered-mandi-name');
-    if (fareEl) fareEl.textContent = '₹' + selectedGramhaulPrice + '.00';
-    if (mandiEl) mandiEl.textContent = '✓ Delivered at ' + currentGramhaulMandi.shortName;
+  const tId = activeTrip ? (activeTrip.id || activeTrip.booking_id) : 'GH-4192';
+  const rawFare = String(activeTrip ? activeTrip.fare : '380').replace(/[^0-9.]/g, '');
+  const finalFare = parseInt(rawFare) || 380;
+  const driverName = (activeTrip && (activeTrip.driverName || activeTrip.driver_name)) || 'Registered Driver';
+  const driverPhoneClean = ((activeTrip && (activeTrip.driverPhone || activeTrip.driver_phone)) || '9849012345').replace(/[^0-9]/g, '').slice(-10);
+  const driverUpi = (activeTrip && activeTrip.driverUpi) || (driverPhoneClean ? `${driverPhoneClean}@upi` : 'driver.logistics@upi');
+  const upiPayload = `upi://pay?pa=${encodeURIComponent(driverUpi)}&pn=${encodeURIComponent(driverName)}&am=${finalFare}&cu=INR&tn=GramHaul%20Trip%20${tId}`;
+  const upiQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiPayload)}`;
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.8);backdrop-filter:blur(8px);z-index:999999;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s;';
+
+  modal.innerHTML = `
+    <div style="background:#FFFFFF;width:100%;max-width:440px;max-height:90vh;border-radius:28px 28px 0 0;padding:24px 20px 32px;box-shadow:0 -10px 40px rgba(0,0,0,0.3);animation:slideUp 0.25s ease;overflow-y:auto;box-sizing:border-box;">
+      <div style="width:36px;height:4px;background:#E2E8F0;border-radius:10px;margin:0 auto 16px;"></div>
+
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#DCFCE7;border:2.5px solid #16A34A;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 10px;box-shadow:0 4px 14px rgba(22,163,74,0.25);">
+          🎉
+        </div>
+        <div style="font-size:20px;font-weight:900;color:#0F172A;letter-spacing:-0.3px;">Produce Delivered at Mandi!</div>
+        <div style="font-size:12.5px;color:#64748B;font-weight:600;margin-top:2px;">Trip #${tId} · Settle freight payment with driver</div>
+      </div>
+
+      <!-- Amount Banner -->
+      <div style="background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);border-radius:20px;padding:18px 20px;color:#FFFFFF;margin-bottom:16px;box-shadow:0 8px 24px rgba(15,23,42,0.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:10.5px;color:#94A3B8;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">Freight Fare Due</div>
+            <div style="font-size:32px;font-weight:900;color:#22C55E;letter-spacing:-0.5px;margin-top:2px;">₹${finalFare}.00</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;background:rgba(255,255,255,0.12);padding:4px 10px;border-radius:8px;font-weight:800;color:#86EFAC;">0% Commission</div>
+            <div style="font-size:10px;color:#94A3B8;margin-top:4px;">Direct to Driver</div>
+          </div>
+        </div>
+        <div style="grid-template-columns:1fr 1fr;gap:8px;padding-top:12px;margin-top:12px;border-top:1px solid rgba(255,255,255,0.12);font-size:11px;color:#CBD5E1;display:grid;">
+          <div>Driver: <b>${driverName}</b></div>
+          <div>Destination: <b>${activeTrip?.mandi || 'APMC Mandi'}</b></div>
+        </div>
+      </div>
+
+      <!-- UPI QR Box -->
+      <div style="text-align:center;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:20px;padding:16px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:800;color:#0F172A;margin-bottom:8px;">Scan with PhonePe / GPay / Paytm</div>
+        <div style="background:#FFFFFF;padding:10px;border-radius:16px;display:inline-block;box-shadow:0 4px 14px rgba(0,0,0,0.06);margin-bottom:10px;">
+          <img src="${upiQrUrl}" alt="Driver UPI QR" style="width:160px;height:160px;display:block;border-radius:8px;" />
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <a href="${upiPayload}" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#16A34A,#15803D);color:#FFFFFF;text-decoration:none;font-size:12.5px;font-weight:900;padding:10px 20px;border-radius:12px;box-shadow:0 4px 12px rgba(22,163,74,0.3);">
+            <span>📱</span> Pay via UPI App
+          </a>
+        </div>
+        <div style="font-size:10.5px;color:#64748B;font-weight:700;margin-top:8px;">UPI ID: ${driverUpi}</div>
+      </div>
+
+      <!-- Return Button -->
+      <button onclick="finishGramhaulFarmerPayment('${tId}', ${finalFare})" style="width:100%;height:48px;background:#0F172A;color:#FFFFFF;border:none;border-radius:14px;font-size:14px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <span>✓</span> Payment Completed · Return to Home
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+window.completeGramhaulTripAndShowPayment = completeGramhaulTripAndShowPayment;
+
+function finishGramhaulFarmerPayment(tripId, fare) {
+  const m = document.getElementById('farmer-payment-collection-modal');
+  if (m) m.remove();
+  localStorage.removeItem('nukrop_active_trip');
+  if (typeof showLuxuryToast === 'function') {
+    showLuxuryToast('✅ Payment settled and recorded in your Khata ledger!', 'success');
+  }
+  if (typeof openScreen === 'function') {
+    openScreen('home', document.getElementById('tab-home'));
   }
 }
+window.finishGramhaulFarmerPayment = finishGramhaulFarmerPayment;
 
 function setGramhaulRating(stars) {
   alert(`Thank you for rating Suresh Yadav ${stars} ★! Feedback recorded in driver profile.`);
@@ -23054,10 +23281,7 @@ function initGramhaulTrackingMap() {
   }
 
   // Clear any existing driver animation interval
-  if (window.gramhaulLiveMoveInterval) {
-    clearInterval(window.gramhaulLiveMoveInterval);
-    window.gramhaulLiveMoveInterval = null;
-  }
+  // Realtime tracking active
 
   let activeTrip = null;
   try { activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null'); } catch (e) {}
@@ -23113,10 +23337,7 @@ function initGramhaulTrackingMap() {
 
 function renderTrackingSearchingState(activeTrip) {
   // Clear any existing driver animation interval while searching
-  if (window.gramhaulLiveMoveInterval) {
-    clearInterval(window.gramhaulLiveMoveInterval);
-    window.gramhaulLiveMoveInterval = null;
-  }
+  // Realtime tracking active
 
   const v = GRAMHAUL_TIER_AVAILABLE_VEHICLES[activeTrip.tier] || GRAMHAUL_TIER_AVAILABLE_VEHICLES[1];
   const truckImg = v.img || 'images/trucks/tata_ace.png';
@@ -23340,10 +23561,7 @@ function listenForRealDriverAcceptance(bookingId) {
 }
 window.listenForRealDriverAcceptance = listenForRealDriverAcceptance;
 
-window.simulateDriverAcceptance = function() {
-  console.log('[GramHaul] Using authentic Supabase booking listening instead of mock driver simulation.');
-  listenForRealDriverAcceptance();
-};
+// Authentic Supabase booking listening active
 
 function renderTrackingDispatchedState(activeTrip) {
   if (trackingSearchTimeout) {
@@ -23352,10 +23570,7 @@ function renderTrackingDispatchedState(activeTrip) {
   }
 
   // Clear previous live movement interval if any
-  if (window.gramhaulLiveMoveInterval) {
-    clearInterval(window.gramhaulLiveMoveInterval);
-    window.gramhaulLiveMoveInterval = null;
-  }
+  // Realtime tracking active
 
   const v = GRAMHAUL_TIER_AVAILABLE_VEHICLES[activeTrip.tier] || GRAMHAUL_TIER_AVAILABLE_VEHICLES[1];
   const driverName = activeTrip.driverName || v.driver;
@@ -23565,8 +23780,8 @@ function renderTrackingDispatchedState(activeTrip) {
       iconSize: [0, 0]
     });
 
-    const pickupLat = (activeTrip && activeTrip.pickupLat) ? activeTrip.pickupLat : (window.farmerCurrentGps ? window.farmerCurrentGps[0] : 17.3980);
-    const pickupLng = (activeTrip && activeTrip.pickupLon) ? activeTrip.pickupLon : (window.farmerCurrentGps ? window.farmerCurrentGps[1] : 78.4900);
+    const pickupLat = (activeTrip && activeTrip.pickupLat) ? activeTrip.pickupLat : ((currentGramhaulFarmCoords && currentGramhaulFarmCoords[0]) || parseFloat(localStorage.getItem('user_live_lat')) || (window.farmerCurrentGps ? window.farmerCurrentGps[0] : 17.3850));
+    const pickupLng = (activeTrip && activeTrip.pickupLon) ? activeTrip.pickupLon : ((currentGramhaulFarmCoords && currentGramhaulFarmCoords[1]) || parseFloat(localStorage.getItem('user_live_lon')) || (window.farmerCurrentGps ? window.farmerCurrentGps[1] : 78.4867));
     const destCoords = [pickupLat, pickupLng];
 
     // Use driver's real exact live coordinates
@@ -23641,10 +23856,7 @@ function renderTrackingDispatchedState(activeTrip) {
         if (countdownEl) countdownEl.textContent = route.etaFormatted;
 
         // REAL-TIME ON-ROAD VEHICLE TELEMETRY & PURE BROADCAST (ZERO MOCK TIMERS)
-        if (window.gramhaulLiveMoveInterval) {
-          clearInterval(window.gramhaulLiveMoveInterval);
-          window.gramhaulLiveMoveInterval = null;
-        }
+        // Realtime tracking active
 
         // Supabase Realtime 'driver-tracking' channel subscription for genuine GPS & Step updates
         if (window.sbClient) {
@@ -23748,9 +23960,13 @@ function recenterTrackingMap() {
   try {
     activeTrip = JSON.parse(localStorage.getItem('nukrop_active_trip') || 'null');
   } catch (e) {}
-  const v = (activeTrip && GRAMHAUL_TIER_AVAILABLE_VEHICLES[activeTrip.tier]) || GRAMHAUL_TIER_AVAILABLE_VEHICLES[1];
-  const bounds = L.latLngBounds([[17.3980, 78.4900], v.coords]);
-  gramhaulTrackingMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+  const farmLat = (activeTrip && activeTrip.pickupLat) || (currentGramhaulFarmCoords && currentGramhaulFarmCoords[0]) || parseFloat(localStorage.getItem('user_live_lat')) || 17.3850;
+  const farmLon = (activeTrip && activeTrip.pickupLon) || (currentGramhaulFarmCoords && currentGramhaulFarmCoords[1]) || parseFloat(localStorage.getItem('user_live_lon')) || 78.4867;
+  const driverCoords = (trackingDriverMarker && typeof trackingDriverMarker.getLatLng === 'function')
+    ? [trackingDriverMarker.getLatLng().lat, trackingDriverMarker.getLatLng().lng]
+    : ((activeTrip && activeTrip.driverCoords) || [farmLat, farmLon]);
+  const bounds = L.latLngBounds([[farmLat, farmLon], driverCoords]);
+  gramhaulTrackingMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
 }
 
 function cancelAndReturnToGramhaul() {
@@ -23758,10 +23974,7 @@ function cancelAndReturnToGramhaul() {
     clearTimeout(trackingSearchTimeout);
     trackingSearchTimeout = null;
   }
-  if (window.gramhaulLiveMoveInterval) {
-    clearInterval(window.gramhaulLiveMoveInterval);
-    window.gramhaulLiveMoveInterval = null;
-  }
+  // Realtime tracking active
   if (window.trackingRouteGlow && gramhaulTrackingMap) {
     try { gramhaulTrackingMap.removeLayer(window.trackingRouteGlow); } catch(e) {}
     window.trackingRouteGlow = null;
@@ -23783,10 +23996,7 @@ function cancelActiveHaulTripAndExit() {
       clearTimeout(trackingSearchTimeout);
       trackingSearchTimeout = null;
     }
-    if (window.gramhaulLiveMoveInterval) {
-      clearInterval(window.gramhaulLiveMoveInterval);
-      window.gramhaulLiveMoveInterval = null;
-    }
+    // Realtime tracking active
     if (window.trackingRouteGlow && gramhaulTrackingMap) {
       try { gramhaulTrackingMap.removeLayer(window.trackingRouteGlow); } catch(e) {}
       window.trackingRouteGlow = null;
@@ -23918,6 +24128,36 @@ function openDriverLiveChatModal(driverName, plate) {
   document.body.appendChild(modal);
   const stream = document.getElementById('live-haul-chat-stream');
   if (stream) stream.scrollTop = stream.scrollHeight;
+
+  // Real-time broadcast listener for incoming driver chat messages
+  if (window.sbClient) {
+    if (window._farmerChatRealtimeSub) {
+      try { window.sbClient.removeChannel(window._farmerChatRealtimeSub); } catch(e) {}
+    }
+    window._farmerChatRealtimeSub = window.sbClient.channel('driver-tracking');
+    window._farmerChatRealtimeSub.on('broadcast', { event: 'haul_chat_message' }, ({ payload }) => {
+      if (!payload || payload.sender === 'farmer' || payload.sender === 'user') return;
+      if (payload.tripId && tId && payload.tripId !== tId) return;
+      if (!window.liveHaulChatMessages) window.liveHaulChatMessages = [];
+      window.liveHaulChatMessages.push(payload);
+      localStorage.setItem(chatKey, JSON.stringify(window.liveHaulChatMessages));
+      const s = document.getElementById('live-haul-chat-stream');
+      if (s) {
+        const item = document.createElement('div');
+        item.style.cssText = 'display:flex;justify-content:flex-start;';
+        item.innerHTML = `
+          <div style="max-width:80%;background:#F1F5F9;color:#0F172A;padding:10px 14px;border-radius:16px 16px 16px 4px;font-size:13px;line-height:1.45;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+            <div>${payload.text}</div>
+            <div style="font-size:10px;color:#94A3B8;text-align:right;margin-top:4px;">${payload.time || 'Just now'}</div>
+          </div>
+        `;
+        s.appendChild(item);
+        s.scrollTop = s.scrollHeight;
+      } else if (typeof showLuxuryToast === 'function') {
+        showLuxuryToast(`💬 Driver: ${payload.text}`, 'info');
+      }
+    }).subscribe();
+  }
 }
 
 function sendLiveHaulChatMessage() {

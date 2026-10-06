@@ -132,3 +132,52 @@ Polish the existing UI across all screens in the app to achieve a top-tier premi
 ### UI Polish
 - [ ] All screens (Home, Profile, Community, GramHaul, etc.) have a consistent, premium design language.
 - [ ] Skeleton loaders are implemented for all asynchronous data fetching.
+
+
+## Follow-up — 2026-10-05T16:59:44Z
+
+Comprehensive senior engineering audit and bug elimination across the entire NuKropAI production ecosystem (Android app, emulator, and web portal) to resolve all UI misalignments, broken event bindings, disconnected features, and simulated placeholders, elevating the application to high-end production grade.
+
+Working directory: c:\Users\bjasw\Downloads\agriculture-ai-os
+Integrity mode: development
+
+## Strict Constraints & Guardrails
+- **STRICT NON-DESTRUCTIVE PRESERVATION**: Do NOT delete, drop, or remove any existing application features, screens, tabs, UI components, assets, database configurations, or functional endpoints. All existing modules must remain 100% connected, functional, and intact.
+- **PURE REAL-TIME (ZERO SIMULATION)**: Eliminate any fake or mock timer loops, hardcoded static locations, or synthetic bot conversations; all data must be authentic and connected.
+
+## Requirements
+
+### R1. Comprehensive Line-by-Line Code Audit & Error Remediation
+Inspect all scripts and stylesheets in app/src/main/assets/index.html and nukrop_emulator.html to eliminate all runtime errors, broken element references, missing event handlers, CSS visual misalignments, and state desynchronizations without breaking or removing any existing functional features.
+
+### R2. Core Feature Integrity & Pure Real-Time Operation
+Verify that all application subsystems function in real-time with zero synthetic simulations:
+- **Language Selection & Persistence**: Selected language must strictly persist across page reloads and app restarts without defaulting back to Telugu.
+- **Plant / Crop Selector**: Item counter must accurately match the exact number of selected plants with zero off-by-one errors.
+- **Driver GPS Telemetry & Tracking**: Real physical GPS location updates when duty is turned on, rendering live moving truck pins on the farmer's GramHaul map.
+- **Rapido-Style Trip Flow & OTP Verification**: Farmer booking broadcast, driver exclusive trip acceptance, farm arrival notification, 4-digit PIN verification to start the trip (IN_TRANSIT), and destination arrival.
+- **Dynamic Driver UPI Settlement**: Authentic driver UPI QR code and payment intent generation for direct farmer-to-driver payments with no hardcoded mock payment IDs.
+- **Live Peer-to-Peer Chat**: Instant, bi-directional in-ride messaging between farmer and driver over Supabase Realtime without simulated bot replies.
+- **Community Feed & Social Interactions**: Seamless post creation, likes, comments, audio voice notes, and crop filtering with synchronized backend persistence.
+
+### R3. Automated Verification, Clean Build & Release Packaging
+Perform automated regression testing on all modified modules, confirm zero JavaScript syntax errors, build the release APK (gradlew assembleRelease), synchronize website download endpoints, and verify full parity between the mobile app and desktop emulator.
+
+## Acceptance Criteria
+
+### Automated Code Quality & Parity
+- [ ] Automated syntax and AST checks pass with zero syntax or parse errors for all JavaScript and HTML blocks in app/src/main/assets/index.html and nukrop_emulator.html.
+- [ ] Zero unhandled exceptions or missing DOM element reference errors during page startup or screen switching.
+- [ ] No existing feature, screen, component, or asset was deleted or disconnected.
+
+### Functional Flow Validation
+- [ ] Crop selector UI displays an active count that strictly equals the count of selected crop tags.
+- [ ] User language choice remains unchanged after hard reloads and across multi-screen navigation.
+- [ ] Driver ON/OFF duty switch activates live GPS broadcast, and the GramHaul map renders live driver coordinates without static simulation coordinates.
+- [ ] Trip lifecycle completes end-to-end: Booking -> Driver Acceptance -> Arrival -> 4-Digit OTP Verification -> In-Transit -> Mandi Arrival -> Driver UPI QR Payment.
+- [ ] Real in-ride peer-to-peer chat transmits messages reliably in both directions over Supabase Realtime without simulated bot texts.
+- [ ] Community like counts, comments list, and new post submissions reflect instantly in the UI and persist in Supabase.
+
+### Build & Delivery
+- [ ] Release APK compiles successfully via ./gradlew.bat assembleRelease without packaging errors.
+- [ ] Website download assets (web/public/ and web/dist/) are synchronized with the fresh release APK.
